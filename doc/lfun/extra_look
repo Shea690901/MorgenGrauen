@@ -1,0 +1,14 @@
+extra_look()
+
+FUNKTION:
+	string extra_look();
+
+ANMERKUNG:
+    Diese Funktion sollte nicht mehr benutzt werden!
+
+    Die Property P_EXTRA_LOOK erfuellt denselben Zweck.
+    Beschreibung siehe dort.
+	
+		
+SIEHE AUCH:
+	P_EXTRA_LOOK

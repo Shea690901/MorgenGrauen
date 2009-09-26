@@ -1,0 +1,23 @@
+PresentPosition()
+
+FUNKTION:
+	varargs int PresentPosition(mixed pmap)
+
+DEFINIERT IN:
+	/std/living/team.c
+
+ARGUMENTE:
+	Rueckgabewert von PresentTeamRows oder PresentTeamPositions
+	kann uebergeben werden.
+        
+BESCHREIBUNG:
+	Ergibt die Nummer der Reihe, in der der Spieler steht.
+
+RUECKGABEWERT:
+	Reihennummer im Bereich von 1 bis TEAM_MAXROWS.
+
+BEMERKUNGEN:
+	Ist ein Spieler in keinem Team, so steht er automatisch in Reihe 1.
+
+SIEHE AUCH:
+	teams

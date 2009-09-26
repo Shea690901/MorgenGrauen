@@ -1,0 +1,29 @@
+command()
+FUNKTION:
+     int command(string str)		/* compat */
+     int command(string str, object ob)	/* native */
+
+BESCHREIBUNG:
+     Fuehrt str wie ein Kommando welches direkt vom Nutzer abgegeben wurde
+     aus. Alle Effekte des Kommandos wirken sich auf this_object() oder,
+     falls angegeben, auf das Objekt <obj> aus.
+
+     Der Rueckgabewert ist >=1 fuer Erfolg und 0 fuer Misserfolg.
+     Rueckgabewert ist im Erfolgsfall die Hoehe der EvalCost in Ticks.
+
+     Wenn command() auf auf ein anderes Objekt angewedet wird, koennen auf
+     diesem Wege keine "static" deklarierten Funktionen aufgerufen werden,
+     um etwas Schutz vor unerlaubten Aufrufen zu geben.
+     Bei Lebewesen siehe dafuer: command_me(L)
+
+     Kommandi werden gestapelt, das heisst, nach der Ausfuehrung von <str>
+     werden die alten Werte fuer this_player(), query_verb() etc. wieder
+     hergestellt (ein Kommando kann dazu führen, dass ein Kommando
+     ausgefuehrt wird).
+
+
+SIEHE AUCH
+     command_stack(E), notify_fail(E), enable_commands(E), get_eval_cost(E)
+     command_me(L)
+
+10.Apr.2007 Gloinson

@@ -1,0 +1,14 @@
+NAME:
+    P_PURSUERS                    "pursuers"                    
+
+DEFINIERT IN:
+    /sys/living/moving.h
+
+BESCHREIBUNG:
+     Enthaelt Verfolger - nicht von Hand manipulieren!
+
+SIEHE AUCH:
+     AddPursuer, RemovePursuers
+
+-----------------------------------------------------------------------------
+08.03.2009, Zesstra

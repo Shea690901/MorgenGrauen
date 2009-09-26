@@ -1,0 +1,18 @@
+P_WEAPON_TYPE
+
+NAME:
+     P_WEAPON_TYPE "weapon_type"
+
+DEFINIERT IN:
+     <weapon.h>
+
+BESCHREIBUNG:
+     Um was fuer eine Waffe handelt es sich? Es stehen viele verschiedene
+     Typen zur Auswahl. Man sollte hier nur die in <combat.h> definierten
+     Konstanten verwenden.
+
+SIEHE AUCH:
+     /std/weapon.c
+
+----------------------------------------------------------------------------
+Last modified: Sun May 19 15:11:03 1996 by Wargon

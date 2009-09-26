@@ -1,0 +1,180 @@
+Das neue Hooksystem
+(Implementierung von Muadib)
+
+EINLEITUNG
+
+Das neue Hooksystem baut nicht mehr auf der Eintragung eines Hooks in einer
+Property auf. Dadurch wird es moeglich, dass nicht nur ein Objekt sich als
+Hook eintraegt.
+
+Ausserdem koennen verschiedene Arten von Hook eingetragen werden, die
+ihrerseits auch nach einer Prioritaet abgearbeitet werden.
+
+
+Um das neue Hook-System zu realisieren, gibt es zwei wesentliche Klassen.
+Die Objekte, die die Eintragung von Hooks erlauben, erben hierzu von
+hook_provider, waehrend, die Objekte, die als Hooks dienen, von der Klasse
+hook_consumer erben.
+
+
+HOOK-PROVIDER
+  Der Hook-Provider bietet eine Menge von Methoden an, die eine Konfiguration
+  ermoeglichen und die Eintragung von Hook-Konsumenten erlauben.
+
+
+  * nomask int* HListHooks();
+  Diese Methode liefert eine Liste von Hooktypen, fuer die das Objekt
+  Eintragungen annimmt. Hier koennte beispielsweise eine Liste mit den
+  Eintraegen fuer Attack-, Defend- und Move-Hooks stehen.
+
+
+  * status HRegisterToHook(int hookid,
+                           object consumer,
+                           int hookprio,
+                           int consumertype,
+                           int timeInSeconds);
+  Registriert ein Objekt als Hook-Konsument. Das zu registrierende Objekt
+  muss existieren und es kann sich nur ein einziges mal pro Hook-Typ
+  anmelden.
+  Parameter:
+  'hookid'        gibt den Hook-Typ an, z.B. den Defend-Hook.
+                  Man kann sich nur fuer Hooktypen eintragen, die die Methode
+                  HListHooks() angeboten hat.
+  'consumer'      ist das konsumierende Objekt.
+  'hookprio'      Gibt die Prioritaet an, mit der der Hook laufen soll.
+                  Diese Angabe bestimmt die Reihenfolge, in der die Hooks
+                  in der Liste der Hooks eingetragen werden.
+  'consumertype'  Gibt an, um welche Art von Hook es sich handelt.
+                  Es gibt vier festgelegten Typen, die fuer alle Hooks
+                  existieren koennen. Die Methode HConsumerTypeIsAllowed()
+                  gibt Aufschluss darueber, welche Hook-Typen existieren.
+                  Die Hook-Typen sind in hook.h definiert.
+  'timeInSeconds' gibt die Laufzeit des Hooks an. Falls 0 eingetragen wird,
+                  laeuft der Hook ewig.
+
+
+  * status HUnregisterFromHook(int hookid,
+                               object consumer);
+  Hebt die Registrierung eines Objekts fuer einen bestimmten Hook-Typ wieder
+  auf.
+  Parameter:
+  'hookid'    Die Kennung des Hook-Typs, z.B. die Kennung des Attack-Hooks.
+  'consumer'  Das Objekt, das nicht mehr registriert sein soll.
+
+
+  * nomask mapping HListHookConsumer(int hookid);
+  Diese Methode liefert alle Hook-Konsumenten, die fuer einen bestimmten
+  Hook-Typen (z.B. Move-Hook) registriert wurden.
+  Das Mapping ist wie folgt aufgebaut:
+    ([
+      H_HOOK_SURVEYOR:    allocate(MAX_SURVEYOR),
+      H_HOOK_MODIFICATOR: allocate(MAX_HOOK_MODIFICATOR),
+      H_DATA_MODIFICATOR: allocate(MAX_DATA_MODIFICATOR),
+      H_LISTENER:         allocate(MAX_LISTENER),
+    ])
+  Die maximale Anzahl von Hooks pro Hook-Typ sind begrenzt und unterschiedlich
+  gross.
+
+  H_HOOK_SURVEYOR
+    Der Surveior-Hook entscheidet, ob ein anderer Hook etwas darf.
+    Normale Objekte setzen KEINEN SOLCHEN HOOK. Der Regionsmagier darf solche
+    Hooks genehmigen.
+  H_HOOK_MODIFICATOR
+    Ein Hook-Modifikator-Hook kann verhindern, dass nachfolgende Hooks
+    aufgerufen werden.
+  H_DATA_MODIFICATOR
+    Ein Data-Modifikator-Hook kann die Daten manipulieren, die ueber den Hook
+    geschickt werden.
+  H_LISTENER
+    Ein Listener-Hook kann keine Daten aendern, aber die eingehenden Daten
+    auswerten.
+
+
+  * status HConsumerTypeIsAllowed(int type, object consumer);
+  Diese Methode liefert 1 zurueck, wenn ein bestimmter Konsumenten-Typ
+  (fuer diesen Konsumenten) erlaubt wird.
+  Die Standardmethode liefert immer 1 (true) zurueck. Erbende Objekte
+  ueberschreiben diese Methode, wenn sie nicht alle Hooktypen anbieten.
+
+
+  * status HPriorityIsAllowed(int prio, object consumer);
+  Diese Methode gibt an, ob eine bestimmte Prioritaet (fuer den angegebenen
+  Konsumenten) erlaubt ist. Die Standardmethode liefert immer 1 (true)
+  zurueck. Erbende Klassen koennen diese Methode ueberschreiben, wenn
+  sie die Hook-Prioritaeten einschraenken wollen.
+
+
+  * nomask status HIsHookConsumer(int hookid, object consumer);
+  Diese Methode liefert 1 (true), wenn ein angegebenes Objekt Konsument fuer
+  einen bestimmten Hoooktypen dieses Objekts ist.
+
+
+  * nomask mapping HCopyHookMapping();
+  Diese Methode liefert eine Kopie des Hook-Mappings.
+
+
+
+
+HOOK-CONSUMER
+  Der Hook-Consumer definiert eine Menge von Methoden, die ein Hook
+  implementieren kann, um Hook-Ereignisse auszuwerten.
+
+
+  * status HookRegistrationCallback(
+                object registringObject,
+                int hookid,
+                object hookSource,
+                int registringObjectsPriority,
+                int registringObjectsType)
+  Diese Methode wird vom Hook-Provider aufgerufen, wenn der Hook-Konsument
+  als Surveyor eingetragen ist und ein weiterer Hook eingetragen werden soll.
+  Gibt diese Methode 0 zurueck, dann verbietet der Konsument, dass der
+  andere Konsument als Hook eingetragen wird.
+
+
+  * status HookCancelAllowanceCallback(
+                object cancellingObject,
+                int hookid,
+                object hookSource,
+                int cancellingObjectsPriority,
+                mixed hookData)
+  Diese Methode wird aufgerufen, um herauszufinden, ob ein bestimmter
+  anderer Hook die Ausfuehrung der Hook-Kette unterbrechen darf.
+  Nur Hooks im Bereich H_HOOK_MODIFICATOR werden der Methode uebergeben.
+
+
+  * status HookModificationAllowanceCallback(
+                object modifyingObject,
+                int hookid,
+                object hookSource,
+                int modifyingObjectsPriority,
+                mixed hookData)
+  Diese Methode wird aufgerufen, um herauszufinden, ob ein bestimmter
+  anderer Hook die Daten des Hooks veraendern darf oder nicht.
+  Es werden die Hooks in den Bereichen H_HOOK_MODIFICATOR und
+  H_DATA_MODIFICATOR (in dieser Reihenfolge) aufgerufen.
+
+
+  * mixed HookCallback(
+                object hookSource,
+                int hookid,
+                mixed hookData)
+  Diese Methode wird in jedem Hook-Konsumenten eines Hook-Providers aufgerufen,
+  solange die Verarbeitung nicht vorher abgebrochen wurde.
+  Die Reihenfolge der Abarbeitung wird nach Liste (Surveyor, Hook-Modifikator,
+  Data-Modifikator, Listener) und dort nach Prioritaet durchgefuehrt.
+  Ein Surveyor-Hook kann verhindern, dass Hooks bestimmte Aenderungen
+  durchfuehren.
+
+  Rueckgabewert ist ein Array, das die folgenden Werte beinhaltet.
+
+  H_RETCODE Gibt an, welcher Hook-Typ verwendet wurde.
+      H_NO_MOD => Nichts wurde veraendert.
+      H_ALTERED => Daten wurden veraendert.
+      H_CANCELLED => Hook-Kette soll abgebrochen werden.
+                  => Ausserdem soll die Hook-ausloesende Stelle
+                     abgebrochen werden. Z.B. wird das Defend()
+                     abgebrochen, wenn ei P_TMP_DEFEND_HOOK
+                     mit cancelled beantwortet wird.
+  H_RETDATA Gibt die (evtl. geaenderten) Daten an.
+      mixed-Objekt, das wie der Parameter hookData aufgebaut ist.

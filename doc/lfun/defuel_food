@@ -1,0 +1,69 @@
+FUNKTION:
+    int defuel_food();
+
+DEFINIERT IN:
+    /std/living/life.c
+
+ARGUMENTE:
+    Keine.
+
+BESCHREIBUNG:
+    Enttankt den Spieler automatisch um einen gewissen Essens-Wert,
+    sofern der Spieler ueber einer bestimmten Enttank-Grenze liegt und seit
+    seinem letzten Enttanken eine gewisse Zeit vergangen ist.
+    Alle diese Werte sind rassenabhaengig.
+
+    Es ist also NICHT moeglich, Einfluss auf die Menge des Enttankens
+    zu nehmen. Das ist hier so gewollt.
+    Wer das steuern moechte, sollte reduce_food/drink/alcohol benutzen.
+
+RUECKGABEWERTE:
+    -2, wenn Enttankintervallzeiten zu kurz.
+    -1, wenn Enttankgrenze noch nicht erreicht.
+     0, wenn Enttanken nicht noetig war (Spieler war leer).
+    >0, wenn Erfolg (enttankte Wert wird zurueckgegeben).
+
+BEMERKUNG:
+    defuel_food() ist insofern nuetzlich, als dass dabei die Abfrage von
+    P_FOOD und P_MAX_FOOD des Spielers weggelassen werden kann. Nervige
+    Zahlenspielereien entfallen somit.
+
+    Achtung: Nur Toiletten sollten diese Funktion im Spieler aufrufen!
+    -------  Andere Objekte sollten reduce_food benutzen.
+
+BEISPIEL:
+    #define TP this_player()
+    ...
+
+    switch ( TP->defuel_food() )
+    {
+     case -2:
+      write(BS("Du warst doch erst vor kurzem auf Toilette..."));
+     break;
+
+     case -1:
+      write(BS("Du versuchst Dich zu entleeren, aber irgendwie will "
+               "das nicht so recht klappen."));
+     break;
+
+     case 0:
+      write(BS("Du hast seit langem nichts gegessen, wie willst Du dann "
+               "was loswerden koennen?"));
+     break;
+
+     default:
+      write(BS("Du entleerst Dich einigermaszen. Puh, das tat gut!"));
+     break;
+    }
+
+    ...
+
+SIEHE AUCH:
+----------
+     heilung, drink_alcohol, drink_soft, heal_self, restore_spell_points,
+     reduce_hit_points, check_and_update_timed_key, buffer_sp, buffer_hp,
+     enttanken, eat_food, defuel_drink, , reduce_food, reduce_drink,
+     reduce_alcohol, P_DRINK, P_FOOD, P_ALCOHOL, P_LAST_XP, food
+
+----------------------------------------------------------------------------
+Last modified: Mit Aug 13 02:02:02 2003 by Gabylon

@@ -1,0 +1,8 @@
+NAME:
+	P_TEAM_WANTED_ROW              "team_wanted_row"
+
+DEFINIERT IN:
+	/sys/living/team.h
+
+BESCHREIBUNG:
+	Gewuenschte Reihe des Spielers (von 1 bis MAX_TEAMROWS)

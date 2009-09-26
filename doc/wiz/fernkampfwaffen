@@ -1,0 +1,63 @@
+==============================================================================
+                 Regeln zur Programmierung von Fernkampfwaffen
+==============================================================================
+
+Siehe hierzu: /doc/wiz/balance   (oder 'man balance')
+
+Aktuelle Grenzwerte:
+====================
+
+  Schusswaffe:
+  ============
+
+    Standardobjekt: /std/ranged_weapon.c
+
+     P_STRETCH_TIME    max. P_SHOOTING_WC 
+    ----------------  --------------------
+           1                 100                 
+           2                 130
+
+    P_WC gibt den Schaden an, den man mit der Fernkampfwaffe im Nahkampf
+    macht (sprich: wenn man damit auf einen Gegner einpruegelt) und sollte
+    im Normalfall bei 30-50 liegen.
+    Eine HitFunc wirkt sich auf die P_WC aus, nicht auf P_SHOOTING_WC!
+
+  Munition:
+  =========
+
+    Standardobjekt: /std/unit.c
+
+    max. P_SHOOTING_WC: 60
+
+    Eine HitFunc in der Munition wirkt sich auf P_SHOOTING_WC aus!
+
+  Allgemeines:
+  ============
+
+    Fernkampfwaffen sind generell genehmigungspflichtig!
+
+    In der Waffe legt man ueber P_AMMUNITION fest, welche Art Munition
+    (MUN_*, s. <combat.h>) damit verschossen werden kann. In der Munition
+    muss die Munitions-Art als _ID_ gesetzt sein.
+    Ueber P_STRETCH_TIME legt man fest, alle wieviel Runden die
+    Fernkampfwaffe abgefeuert werden kann (default: 1).
+    Der verursachte Schaden wird aus der Staerke der Fernkampfwaffe
+    und der Staerke der Munition bestimmt. In beiden wird diese in der
+    Property P_SHOOTING_WC angegeben.
+    Zusaetzlich kann man in P_RANGE die Reichweite der Fernkampfwaffe
+    (in Metern) festlegen.
+
+    Hat man einen Raum, der sich innerhalb eines anderen Raumes befindet
+    (z.B. Transporter), so kamm man in dem Raum einen Zahlenwert in die
+    Property P_SHOOTING_AREA schreiben. Hat man eine Waffe, deren P_RANGE
+    groesser oder gleich diesem Zahlenwert ist, so kann man aus dem Raum
+    heraus auf einen Gegner ausserhalb schiessen.
+    Alternativ kann man in einem Raum (A) einen anderen Raum (B) in die
+    Property P_TARGET_AREA schreiben (string oder object); dann kann man
+    von (A) aus auf Gegner in (B) schiessen.
+
+ SIEHE AUCH
+    fernwaffen
+
+==============================================================================
+Paracelsus@MorgenGrauen, 10/08/2000

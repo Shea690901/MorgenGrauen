@@ -1,0 +1,8 @@
+NAME:
+	P_TEAM_AUTOFOLLOW              "team_autofollow"
+
+DEFINIERT IN:
+	/sys/living/team.h
+
+BESCHREIBUNG:
+	Folgewunsch des Spielers, nicht setzbar.

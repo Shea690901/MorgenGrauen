@@ -1,0 +1,34 @@
+FUNKTION:
+
+	int LearnSkill(string skill)
+
+
+ARGUMENTE:
+
+	skill	 : Der zu lernende Skill
+
+
+BESCHREIBUNG:
+
+	Diese Funktion ueberprueft das Argument und gibt, falls keins 
+	angegeben wurde eine Liste mit erlernbaren Skills der Gilde aus. 
+	Falls ein Argument angegeben wird, wird bei dem Spieler dieser 
+	Skill initialisiert, sofern er die notwendigen Anforderungen 
+	erfuellt hat.
+
+
+RUECKGABEWERT:
+
+	0 bei Fehler, 1 bei Erfolg.
+
+
+BEMERKUNGEN:
+
+	Diese Funktion im Gildenobjekt sollte nicht mit der Gleichnamigen
+	im Spieler verwechselt werden.
+
+
+Siehe auch:
+
+	"Learn", "LearnSpell", "InitialSkillAbility", "SkillListe", 
+	"ModifySkill"

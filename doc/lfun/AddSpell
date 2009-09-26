@@ -1,0 +1,81 @@
+AddSpell()
+
+FUNKTION:
+	AddSpell(rate, damage, TextForEnemy, TextForOthers,
+	         dam_type, func, spellarg)
+
+ARGUMENTE:
+	rate -          Relative Haeufigkeit der Anwendung
+	damage -        Der Schadenswert fuer Defend()
+	TextForEnemy -  Text, den der Feind erhalten soll
+	TextForOthers - Text, den andere erhalten sollen
+	dam_type -      Schadenstyp(en) fuer Defend()
+	                (Optional, Default: DT_MAGIC)
+	func -          Funktion, die nach Anwendung aufgerufen werden soll.
+	                (Optional, bekommt als Argumente
+	                 enemy, damage, dam_type)
+	spellarg -      Spell-Argument fuer Defend()
+	                (Optional, Default: 1)
+
+BESCHREIBUNG:
+	Ermoeglicht einfache Angriffs-Zaubersprueche fuer NPCs.
+	Diese Sprueche werden mit der Wahrscheinlichkeit
+	P_SPELLRATE im heart_beat() ausgefuehrt.
+
+RUECKGABEWERT:
+	Keiner
+
+BEMERKUNGEN:
+	TextForOthers kann @WER, @WESSEN, @WEM, @WEN enthalten.
+	An diesen Stellen wird der Name des Gegners eingesetzt.
+	Diese Spells kosten den NPC keine Magiepunkte.
+        Von AddSpell koennen auch andere Funktionen aufgerufen werden,
+        in denen speziellere Sachen mit dem aktuellen Feind angestellt
+        werden koennen.
+
+BEISPIELE:
+	AddSpell(80,400,
+	         "Der Hexer greift Dich mit einem kleinen Feuerball an.\n",
+	         "Der Hexer greift @WEN mit einem kleinen Feuerball an.\n",
+	         ({DT_FIRE,DT_MAGIC}));
+	AddSpell(10,800,
+	         "Der Hexer greift Dich mit einem riesigen Feuerball an.\n",
+	         "Der Hexer greift @WEN mit einem riesigen Feuerball an.\n",
+	         ({DT_FIRE,DT_MAGIC}));
+        AddSpell(10,1,"","",({DT_SLASH}),"haudrauf_fkt");
+
+	(Kleiner Feuerball mit 80% Wahrscheinlichkeit, riesiger mit 10%,
+         haudrauf_fkt mit 10%)
+
+        Die Funktion haudrauf_fkt koennte zu Beginn etwa so aussehen:
+
+        void haufdrauf_fkt(object enemy, int damage, mixed dam_types){
+
+          if( !enemy || !present(enemy,environment()) ||
+              !living(enemy) || enemy->QueryProp(P_GHOST))  return; 
+          ...
+          ...
+          return;
+        }
+
+        Der haudrauf_fkt() wird der Gegner, der Schaden und die Damage-Typen 
+        des Spells uebergeben. Der Rueckgabewert dieser Funktion wird nicht
+        ausgewertet.
+
+        BEACHTE:
+         
+        Ein Spell wird immer in folgender Reihenfolge abgearbeitet:
+        1. Die Texte werden an die Beteiligten gegeben.
+        2. Es wird ausgewuerfelt, ob der Spell abgewehrt wird.
+        3. Im Opder wird Defend() mit den angegebenen Werten aufgerufen.
+        4. Die haudrauf_fktFunktion (so definiert) wird ausgefuehrt.
+
+        Es kann also passieren dass der Spieler im Defend stirbt. Daher 
+        muss geprueft werden, ob der Spieler ein Geist ist, um Folgetode 
+        und aehnliche Unannehmlichkeiten zu vermeiden.
+
+SIEHE AUCH:
+	Defend, P_SPELLRATE
+
+----------------------------------------------------------------------------
+Last modified: Wed Sep 25 22:57:53 2002 by Vanion

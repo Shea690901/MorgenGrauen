@@ -1,0 +1,55 @@
+AddSpecialDetail()
+
+FUNKTION:
+	void AddSpecialDetail(mixed *keys, string func);
+
+DEFINIERT IN:
+	/std/thing/description.c
+
+ARGUMENTE:
+	keys
+	  String oder Array von Strings mit den Namen der Details.
+	func
+	  String mit dem Namen der Funktion, die zur Auswertung aufgerufen
+	  wird.
+
+BESCHREIBUNG:
+	Es wird ein Detail hinzugefuegt, dessen Inhalt nicht von vornherein
+	feststeht, sondern von aeusseren Bedingungen abhaengt. Zu diesem
+	Zweck wird immer, wenn dieses Detail untersucht wird, die Funktion
+	func aufgerufen, um den aktuellen Zustand des Details zu bestimmen.
+	Der Funktion wird als Parameter das Schluesselwort uebergeben, mit
+	dem das Detail untersucht wurde.
+
+RUeCKGABEWERT:
+	keiner
+
+BEISPIELE:
+	Ein zustandsabhaengiges Detail:
+
+	  int hebel_betaetigt;
+	  ...
+	  AddSpecialDetail( ({ "hebel", "schalter" }), "hebel" );
+	  ...
+	  string hebel(string key)
+	  { if(hebel_betaetigt)
+	      return "Der "+capitalize(key)+" steht auf EIN.\n";
+	    else
+	      return "Der "+capitalize(key)+" steht auf AUS.\n";
+	  }
+
+	Man erhaelt verschiedene Ergebnisse beim Untersuchen, je nachdem
+	ob das Flag hebel_betaetigt gesetzt ist oder nicht.
+
+BEMERKUNG:
+	Intern werden Details und SpecialDetails im selben Mapping
+	verwaltet.
+	Man kann statt dieser Funktion deshalb auch AddDetail mit Closures
+	nutzen.
+
+SIEHE AUCH:
+	RemoveSpecialDetail(), P_DETAILS, AddDetail(), AddReadDetail(),
+	AddSmells(), AddSounds(), GetDetail()
+
+----------------------------------------------------------------------------
+Last modified: Tue May  1 17:05:36 2001 by Patryn

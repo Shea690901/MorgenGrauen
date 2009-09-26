@@ -1,0 +1,19 @@
+P_USED_HANDS
+NAME:
+     P_USED_HANDS                  "used_hands"
+
+DEFINIERT IN:
+     /sys/living/combat.h
+
+BESCHREIBUNG:
+     Anzahl der Haende in Benutzung.
+     Effektiv nur ein sizeof(P_HANDS_USED_BY).
+
+     Diese Prop sollte nicht gesetzt werden. Bitte stattdessen UseHands() und
+     FreeHands() benutzen!
+
+SIEHE AUCH:
+     P_HANDS, P_HANDS_USED_BY, P_MAX_HANDS
+     UseHands, FreeHands
+
+17.09.2009, Zesstra

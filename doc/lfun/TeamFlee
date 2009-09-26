@@ -1,0 +1,26 @@
+TeamFlee()
+
+FUNKTION:
+	int TeamFlee()
+
+DEFINIERT IN:
+	/std/living/team.c
+
+ARGUMENTE:
+	keine
+        
+BESCHREIBUNG:
+	Spieler wird zur Flucht in hintere Reihe veranlasst,
+	falls er dies eingestellt hat.
+
+RUECKGABEWERT:
+	1, falls der Spieler in eine hintere Reihe fliehen wollte
+	und nach dem Versuch nicht mehr in der ersten Reihe steht,
+	sonst 0.
+
+BEMERKUNGEN:
+	Beim Teamleiter fuehrt der Fluchtversuch dazu, dass sein
+	Team nicht mehr folgt.
+
+SIEHE AUCH:
+	teams

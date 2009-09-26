@@ -1,0 +1,2944 @@
+Wed Nov 15 21:52:17 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* player/soul.c: typo klatsch(s)t
+
+Tue Nov 14 17:08:39 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* weapon/combat.c, armour/combat.c: Verschleiss
+
+	* living/combat.c: Typo fix
+
+	* living/combat.c: TakeFlaw fuer Waffen und Ruestungen
+
+Tue Nov 14 15:51:01 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: Sensitive Objekte VOR CheckResistance.
+
+Mon Nov 13 20:34:38 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/inventory.c: bugfix
+
+	* container/inventory.c: Bugfix
+
+	* container/inventory.c: Bugfix.
+
+	* living/combat.c: CheckSensitiveAttack, fuer Objekte die empfindlich
+	auf Angriffe reagieren.
+
+	* living/inventory.c: Initial revision
+
+	* room.c, container.c: Sensitive Objekte.
+
+	* container/inventory.c: Initial revision
+
+Mon Nov 13 16:23:08 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* living/attributes.c:
+	Attributmodifier aenderten die maximalen Hit- und Spellpoints nicht.
+
+	* thing/description.c:
+	name(RAW) wird vor der INVIS-Behandlung ausgewertet.
+
+Fri Nov 10 13:52:13 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* living/description.c: is_class_member() angepasst.
+
+	* thing/description.c: Am CLASS-Kram rumgefummelt...
+
+Thu Nov  9 14:42:01 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* unit.c: P_GIVEN_OBJECT fuer funktionierendes give_notify().
+
+	* living/put_and_get.c: give_notify() funktioniert auch bei units.
+
+Thu Nov  9 14:35:23 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* thing/moving.c: Objekte, bei denen P_SENSITIVE gesetzt ist, werden
+	an/abgemeldet, damit z.B. ein Spieler-Objekt weiss,
+	dass es etwas feuerempfindliches im Inventory hat :-)
+
+Wed Nov  8 20:14:41 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* gilde.c: Erlauben jetzt auch Level >36 :)
+
+Wed Nov  8 19:16:29 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/description.c: Zombies und Skelette sind automatisch untot,
+	Hobgoblins sind automatisch Goblins.
+
+	* thing/description.c:
+	is_class_member() und AddToClass() eingefuehrt, siehe Doku :)
+
+Mon Nov  6 19:39:14 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/viewcmd.c: 'i' korrigiert/erweitert
+
+	* player/base.c: ???
+
+Mon Nov  6 14:59:05 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: Flucht mit Zeitverzoegerung von Defend() ausgeloest.
+
+Mon Nov  6 14:00:14 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/moving.c: Begruessungsschlag debugged
+
+Mon Nov  6 12:44:30 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* shells/hobbit.c: Typos in Rassenbeschreibung gefixed.
+
+Mon Nov  6 09:48:57 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/viewcmd.c: "-s" bei inv wieder eingebaut
+
+Thu Nov  2 18:52:23 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* gilde.c: detypoisiert (Toeter)
+
+Thu Nov  2 14:55:29 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* player/base.c: Vergiftung wird in score/info angezeigt.
+
+Tue Oct 31 18:32:41 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/base.c: extendet mout
+
+	* living/moving.c: extended mout
+
+	* player/viewcmd.c: i erweitert
+
+Tue Oct 31 11:32:07 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* user_filter.c: Hobbits
+
+Tue Oct 31 10:38:20 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* shells/hobbit.c: Initial revision
+
+Wed Oct 25 13:33:14 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* gilde.c: Zeitungsautomat raus...
+
+	* player/exploration.c:
+	FPs werden intern in einer Variablen verwaltet...
+
+Mon Oct 23 13:12:35 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* living/description.c:
+	Lebewesen koennen auch mit P_INVIS unsichtbar gemacht werden.
+
+	* living/put_and_get.c:
+	"nimm alles aus beutel" leiefrt bei geschlossenen Beuteln nicht mehr
+	fuer jeden Gegenstand im Beutel "Aber der Beutel ist doch geschlossen."
+
+Thu Oct 19 19:43:20 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.c, player/life.c, player/objects.c, player/potion.c,
+	  player/quests.c, living/description.c, living/life.c:
+	ME->'s raus
+
+	* room.c: ME-> raus
+
+Wed Oct 18 20:45:02 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* weapon/moving.c: prototyp fuer DoUnwield
+
+	* armour/moving.c: include armour.h
+
+	* armour/moving.c: unnuetze ME->'s raus
+
+	* room/description.c, weapon/moving.c, living/life.c: ME->'s raus
+
+	* living/life.c: 2 more ME->'s
+
+	* living/life.c: removed some useless ME->'s
+
+	* player/command.c, player/description.c, player/life.c,
+	  player/potion.c, player/restrictions.c, player/viewcmd.c:
+	ME->'s raus
+
+	* player/base.c: Ein ME-> wieder rein (name()) fuer den tarnhelm
+
+	* player/base.c, weapon.c: ME->'s raus
+
+	* thing/language.c: Unnuetze ME->'s raus
+
+Tue Oct 17 17:13:10 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* shells/magier.c: Heal bevorzugt Lebewesen im Raum.
+
+Mon Oct 16 09:36:29 1995  Silvana  <Silvana@MG.uni-muenster.de>
+
+	* npc/combat.c: Query(P_AGGRESSIVE) nach QueryProp(P_AGGRESSIVE)
+	Wird hoffentlich nicht zu langsam dadurch...
+
+Fri Oct 13 13:50:43 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* corpse.c: Leichen werden nie voll... (Huhu Boing! ;)
+
+Fri Oct 13 13:07:21 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.c: Aenderung am fluestern
+
+Fri Oct 13 11:58:30 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* thing/properties.c:
+	SetProperties() fragt nicht nur PROTECTED, sondern auch SECURED ab.
+
+Wed Oct 11 11:55:14 1995  Boing  <Boing@MG.uni-muenster.de>
+
+	* living/life.c:
+	Im Todesfall werden Objekte nicht mehr mit NOCHECK in die Leiche
+	bewegt, dies fuehrte zu ueblen Nebenwirkungen bei verflichten
+	Objekten.
+
+	* living/combat.c:
+	In Attack() int damage_type is now mixed damage_type.
+
+Mon Oct  9 20:52:51 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.c: Was? ICH hab das gelockt? Strange ...
+
+Mon Oct  9 11:57:34 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* player/channel.c: ChannelHistory
+
+Thu Oct  5 11:47:44 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* player/moving.c: Froesche huepfen
+
+	* living/life.c: Gift wirkt bei Netztoten ueberhaupt nicht mehr
+	Zwerge heilen INDOORS schneller, Elfen draussen
+
+Wed Oct  4 18:38:30 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* player/restrictions.c:
+	Benachteiligung von Froeschen verschoben auf A_STR.
+
+	* living/attributes.c:
+	Jetzt kann man beim Setzen von P_ATTRIBUTES_MODIFIER
+	auch das Objekt angeben, indem man ein Array uebergibt,
+	in dem als erstes das Objekt steht und als zweites der Wert.
+	(Notwendig wegen Verhalten von previous_object() bei closures)
+
+Wed Oct  4 17:21:40 1995  Catweazle  <Catweazle@MG.uni-muenster.de>
+
+	* player/command.c: Aliasse von Vielfachspaces befreit
+
+Wed Oct  4 16:18:20 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* player/soul.c: Bugfix bei reibe
+
+	* player/base.c: kleine Aenderung an set_title()
+
+Mon Oct  2 20:07:18 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* player/restrictions.c:
+	Benachteiligung von Froeschen bei der Tragkraft.
+
+Wed Sep 27 18:35:44 1995  Toeter  <Toeter@MG.uni-muenster.de>
+
+	* player/description.c: Unsichtbare Waffen/Ruestungen/Objekte werden
+	in der Langbeschreibung nicht mehr angezeigt.
+
+Tue Sep 26 09:39:01 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* npc/info.c, room/description.c, room/exits.c, thing/commands.c:
+	exploration points
+
+Fri Sep 22 13:24:43 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* thing/commands.c: exploration points
+
+	* room/exits.c: exploration points
+
+Thu Sep 21 13:16:19 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* laden.c: Nummern werden rechtbuendig ausgegeben (bei zeige)
+
+	* player/exploration.c: create(), mehr Sicherheit in _set_ep
+
+	* player/base.c: exploration::create() eingefuegt
+
+Wed Sep 20 17:03:27 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* player/exploration.c: P_EP wird noch gesaved.
+
+	* player/exploration.c: Hatte SAVE vergessen.
+
+	* player/base.c: Exploration-handler eingefuegt.
+
+	* player/exploration.c: Initial revision
+
+Wed Sep 20 16:22:39 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* npc/info.c, room/description.c: exploration points
+
+Wed Sep 20 09:15:05 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/base.c: remote via Message
+
+	* player/base.c: REmote verbessert (Toeter)
+
+Mon Sep 18 11:40:43 1995  Toeter  <Toeter@MG.uni-muenster.de>
+
+	* player/description.c: _query_racestring() -> QueryProp(P_RACESTRING)
+
+	* shells/elf.c, shells/human.c, shells/magier.c:
+	_query_average_size() -> SetProp(P_AVERAGE_SIZE,..)
+
+Fri Sep 15 12:40:12 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* room.c: Hack, damit der gebraeuchliche Fehler
+	TP->SetProp(P_DRINK,QueryProp(P_DRINK)+x);
+	keine guenstigen Folgen fuer Spieler hat :-)
+
+Thu Sep 14 13:22:04 1995  Boing  <Boing@MG.uni-muenster.de>
+
+	* player/base.c:
+	It's no longer possible to shadow the own player object
+
+Tue Sep 12 11:06:54 1995  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* player/soulhelp.c: zeige auskommentiert
+
+	* player/soul.c: "zeige" aus-ifedef'efd
+
+Mon Sep 11 18:20:31 1995  Catweazle  <Catweazle@MG.uni-muenster.de>
+
+Fri Sep  8 14:37:56 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/magier.c: showpresay fixed
+
+	* player/comm.c: CAN_PRESAY eingebaut
+
+Fri Sep  8 13:09:42 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* player/soul.c:
+	Bei "frage" und "antworte" wird P_PERM_STRING beruecksichtigt
+	Bug in "schweige" gefixed
+
+	* player/comm.c: P_PERM_STRING fuer Sprachflueche.
+
+	* player/base.c:
+	BecomesNetDead() wird nun auch im Inventar des Spielers aufgerufen.
+
+Thu Sep  7 09:49:52 1995  Boing  <Boing@MG.uni-muenster.de>
+
+	* player/soul.c:
+	NPCs koennen die Seele jetzt wieder benutzen, Abfrage
+	this_interactive() != ME auskommentiert in SoulComm().
+
+Thu Sep  7 08:06:05 1995  Silvana  <Silvana@MG.uni-muenster.de>
+
+	* unit.c: Units koennen P_LONG verarbeiten.
+
+Wed Sep  6 19:07:10 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/life.c: Move corpse silently
+
+Wed Sep  6 19:04:41 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: PresentEnemies() war schon lange benoetigt :-)
+	Im heart_beat() wird der Feind jetzt mit SelectEnemy() ausgewaehlt,
+	das erlaubt Monstern eine andere Auswahlstrategie.
+	QueryDefend() macht das gleiche, daher werden bevorzugte
+	Feinde jetzt auch bei Spells bevorzugt.
+
+	* inpc/items.c, inpc/boozing.c: Initial revision
+
+Tue Sep  5 15:03:33 1995  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* player/soulhelp.c:
+	Bugfix fuer nicht vorhandene Bemerkungen; Layout der Hilfe
+
+Fri Sep  1 12:33:18 1995  Silvana  <Silvana@MG.uni-muenster.de>
+
+	* living/life.c: SetProp(P_TMP_DIE_HOOK,...) wird geloggt.
+
+Fri Sep  1 11:39:49 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* user_filter.c: minor bug fixes (++i statt i++)
+
+Fri Sep  1 11:03:40 1995  Silvana  <Silvana@MG.uni-muenster.de>
+
+	* living/life.c: P_TMP_DIE_HOOK eingebeut.
+
+Wed Aug 30 13:48:29 1995  Boing  <Boing@MG.uni-muenster.de>
+
+	* living/combat.c:
+	Die disable-attack Abfrage prueft jetzt ob der Wert positiv ist anstatt
+	einer einfachen Wahrheitsabfrage -> Keine Endlosparalyse bei negativem
+	Startwert.
+
+Tue Aug 29 17:11:08 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* npc/info.c: check for closure
+
+Tue Aug 29 16:22:10 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* armour/combat.c:
+	Ruestungen auch gegen DT_WHIP/DT_RIP, etwas optimiert
+
+	* living/combat.c:
+	RESISTANCE/VULNERABILITY umgestellt auf P_RESISTANCE_STRENGHTS:
+	Mapping mit Schadensfaktoren - 1.0 fuer jeden DT
+
+Mon Aug 28 10:03:00 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/human.c: mensch->menschen (mist)
+
+	* shells/elf.c, shells/human.c, shells/magier.c: _query_race_string
+
+	* shells/elf.c, shells/human.c, shells/magier.c:
+	_query_average_size eingebaut
+
+Thu Aug 24 19:32:22 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* shells/magier.c:
+	Unsichtbare Magier haben keine id mehr fuer Nichtmagier.
+
+Thu Aug 24 19:22:43 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/description.c: living -> Living
+
+	* armour.c: Added id 'Ding'
+
+	* armour.c: removed id 'ding'
+
+	* laden.c: Werte angepasst.
+
+Thu Aug 24 19:16:03 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* shells/magier.c: x
+
+Thu Aug 24 19:15:20 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living.c: Add id 'Living'
+	instead of 'living'
+
+	* thing.c: Add id 'Ding' instead of 'ding'
+
+Wed Aug 23 17:44:19 1995  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* player/soulhelp.c: KEIN KOMMENTAR
+
+	* player/soulhelp.c: *** empty log message ***
+
+	* player/soulhelp.c:
+	Bugfix. Warum mach ich immer zu frueh ci -u ? *seufz*
+
+	* player/soulhelp.c: Bastel, strick
+
+Tue Aug 22 16:56:59 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* weapon/combat.c: include moving.h
+
+	* weapon/combat.c: Fixed bug: Unwield cursed weapon if we died
+
+	* weapon/moving.c: M_NOCHECK an DoUnwield uebergeben
+
+Mon Aug 21 16:35:58 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: P_PREFERED_ENEMY beruecksichtigt.
+	Array mit Wharscheinlichkeit, dass dies beruecksichtigt wird,
+	an Position 0 und restliche Elemente bevorzugte Feinde.
+
+Mon Aug 21 16:08:11 1995  Boing  <Boing@MG.uni-muenster.de>
+
+	* tray/description.c:
+	Das richtige Pronomen wird in der Beschreibung verwendet.
+
+Mon Aug 21 13:32:02 1995  Hate  <Hate@MG.uni-muenster.de>
+
+	* player/comm.c: Kobold changes (adds time of msg)
+	away (tells get time add-on)
+
+Fri Aug 18 16:49:37 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* living/life.c: Grmpfl... ein "else" vergessen... ;)
+
+Tue Aug 15 17:57:53 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* living/life.c: Netztote sterben nicht mehr an Gift
+
+Tue Aug 15 09:40:07 1995  Silvana  <Silvana@MG.uni-muenster.de>
+
+	* spellbook.c:
+	Im Erfolgsfall informiert der Spell den Raum, wer welchen
+	Spell gecastet hat (argl - ohne vernuenftigen Editor schaff ich das
+	nie ohne Typo...)
+
+Mon Aug 14 06:38:56 1995  Boing  <Boing@MG.uni-muenster.de>
+
+	* player/quests.c:
+	Beim Loesen einer Quest wird nun eine mail an den Spieler geschickt.
+
+Thu Aug 10 19:41:40 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* player/life.c: NotifyPlayerDeath auch an Killer schicken.
+
+Thu Aug 10 11:06:01 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* spellbook.c: Bugfix in FindGroup
+
+Mon Aug  7 19:06:37 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* thing/description.c: RemoveId() und RemoveAdjective()
+
+Mon Aug  7 16:20:30 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/put_and_get.c: put only one thing a time
+
+	* living/put_and_get.c:
+	Fixed weight bug when putting stuff from inv into container
+
+Thu Aug  3 21:50:30 1995  Hate  <Hate@MG.uni-muenster.de>
+
+	* shells/filesys/make.h: Initial revision
+
+	* shells/filesys/make.c: when no file is given use the last object id
+	added error message when no file is given and no last object id present
+
+	* shells/filesys/filesys.c:
+	removed error message when no file is given to upd
+
+Thu Aug  3 18:31:17 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* gilde.c: Bugfix (hoffentlich)
+
+Tue Aug  1 14:52:17 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* user_filter.c: kwer frosch
+
+	* living/skills.c: GildenLevel(Abenteurer)=Level.
+
+	* gilde.c: Rekursion vermieden.
+
+	* gilde.c: Titel-Behandlung.
+
+	* living/skills.c: Gilden-Titel.
+
+Fri Jul 28 10:47:46 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* gilden_ob.c: return-wert bei nicht erfolgreichem eintritt <0
+
+Wed Jul 26 14:35:00 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* living/combat.c: environment(ME)->environment() after Flee()
+	Flee can remove the player object.
+
+Tue Jul 25 13:32:48 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* restriction_checker.c:
+	Wenn keine Alkohol-Einschraenkung da war durfte
+	man NICHTS getrunken haben...
+
+	* spellbook.c: NEXT_SPELL_TIME wird gesaved.
+
+Tue Jul 25 09:39:57 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* player/comm.c: Handling von P_DEAF
+
+Mon Jul 24 19:30:33 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* player/moneyhandler.c:
+	AddMoney-Logging, zum Auffinden von nicht-std-laeden usw.
+
+Mon Jul 24 18:39:52 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.c: Bei QueryProp nicht this_object() als Argument
+
+Mon Jul 24 16:47:36 1995  Silvana  <Silvana@MG.uni-muenster.de>
+
+	* restriction_checker.c: Typo fixed (< statt > )
+
+Mon Jul 24 11:12:13 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* player/viewcmd.c: CannotSee() geaendert:
+	varargs int CannotSee(int silent);
+
+	* living/life.c: Gift etwas logischer gemacht.
+	Zufallselement in Ueberwindung der Vergiftung eingebaut.
+
+	* gilden_ob.c:
+	austreten() varargs gemacht; gibt Verluste an GILDENMASTER weiter.
+
+Thu Jul 20 15:47:47 1995  Boing  <Boing@MG.uni-muenster.de>
+
+	* player/life.c:
+	_set_align() ist jetzt ueberladen, keine Beschraenkung mehr fuer
+	Spieler.
+	Siehe dazu auch den direkten Kommentar zur Funktion.
+
+	* living/life.c:
+	Kleine SChoenheitskorrektur an der alignment-Berechnung
+
+Wed Jul 19 17:09:10 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/combat.c: Yeah
+
+	* living/combat.c: be busier
+
+	* living/life.c: Ghosts dont die
+
+Wed Jul 19 12:34:29 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* living/life.c: Gift ein wenig geaendert.
+
+Wed Jul 19 11:46:19 1995  Boing  <Boing@MG.uni-muenster.de>
+
+	* living/life.c:
+	Alignment-Veraenderung wird nach einer neuen Formel berechnet, die
+	alte Formel war viel zu krass.
+
+Tue Jul 18 15:04:16 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* laden.c: Kleine Korrektur.
+
+	* laden.c: Inflate/Truncate-SellValue eingebaut.
+
+	* laden.c: Query{Buy/Sell}Value eingebaut.
+
+Tue Jul 18 13:07:01 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/std_skills.c: Nightvision Bugfix
+
+Tue Jul 18 12:07:08 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* gilde.c: ein bisserl reformatierung der questliste
+
+Mon Jul 17 14:06:31 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* pub.c:
+	Falls bei AddFood/AddDrink Funktionen angegeben werden, bekommen diese
+	den Zahler und den Empfaenger als Parameter uebergeben.
+
+	* gilde.c: _unparsed_args() in banish()
+	Variablen static gemacht
+
+Sun Jul 16 13:58:53 1995  Silvana  <Silvana@MG.uni-muenster.de>
+
+	* living/combat.c: Und nochmal: Trainigsraum fuer Karateka.
+
+	* player/life.c: Dito in do_damage()
+
+	* player/life.c:
+	Uebungsraum fuer Karateka eingetragen in _set_playerkills()
+
+Thu Jul 13 10:29:51 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: Mega-BUG-Fix.
+
+Wed Jul 12 17:53:09 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* laden.c: m_delete turned into efun::m_delete
+
+Tue Jul 11 14:54:19 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* virtual/v_compiler.c: turned Validate into ME->Validate
+
+	* laden.c, store.c: Ask bank for values now (runtime changeable!)
+
+Tue Jul 11 14:09:22 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: Auch BODY laesst sich weniger wirksam machen, gegen
+	spells mit PHYSICAL_ATTACK
+
+	* preload_file: RoutingD verlegt.
+
+Mon Jul 10 17:26:31 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* pub.c, store.c: Only call bank if sum!=0 to keep logs clean
+
+	* laden.c: Formula change ...
+
+	* laden.c: Log if out of money
+
+	* laden.c, store.c, pub.c: use bank.h
+
+Fri Jul  7 14:22:03 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: Auch Body hilft gegen Physical Attacks.
+
+	* armour/combat.c:
+	Physcial Attacks (z.B. Karate) werden auch abgeblockt.
+
+Fri Jul  7 13:20:34 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* laden.c: Mengenabhaengige Preise
+
+Thu Jul  6 07:56:25 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* room/description.c:
+	In lies() funcall(detail) durch process_string(detail) ersetzt.
+
+Wed Jul  5 18:47:38 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* pub.c: Ueberschuesse an Bank abfuehren :)
+
+	* container/restrictions.c:
+	MayAddWeight beachtest, auch das environment (i.e. Spieler) (Rumata)
+
+Wed Jul  5 14:44:49 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* living/put_and_get.c:
+	Abfrage, dass Beutel durch reinstecken zu schwer werden koennten.
+
+	* living/put_and_get.c: kommando zurueck
+
+Wed Jul  5 13:49:31 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/put_and_get.c:
+	"stecke" nimmt die Sachen zuerst, damit spieler nichts in Beutel
+	stecken koennen, dass sie nicht tragen koennen. (Rumata)
+
+Tue Jul  4 16:43:34 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* inpc/nobank.c: Initial revision
+
+	* laden.c: Auch von Laeden sollte der Router wissen, wo sie liegen...
+
+	* pub.c: Klammerung verbessert.
+
+	* preload_file: RoutingD eingetragen.
+
+	* room/exits.c: Registrierung von Exits beim Routing Daemon
+
+	* pub.c: Kneipen werden beim Routing-Daemon registriert,
+	damit NPCs auch dorthin finden :-)
+
+Mon Jul  3 17:32:56 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* player/command.c: made decay_average faster
+
+Mon Jul  3 13:42:28 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* unit.c: if(!is_clone(ME))return;
+	 is not very useful here. :-)
+
+Mon Jun 26 15:22:16 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.c: SWITCH jetzt lesbarer
+
+	* thing/properties.c: switch to speed things up
+
+	* weapon/combat.c: return 0 in DoUnwield for cursed weapons
+
+	* thing/properties.c: enforce shared strings
+
+Thu Jun 22 17:47:52 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/command.c: *** empty log message ***
+
+Fri Jun 16 21:55:42 1995  Silvana  <Silvana@MG.uni-muenster.de>
+
+	* living/combat.c: P_TMP_DEFEND_HOOK with same args as Defend()
+
+Fri Jun 16 17:33:20 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* room/description.c:
+	Differentiate between details and special details on QueryProp
+
+Fri Jun 16 12:21:01 1995  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* gilde.c: added argument to QueryDontneed call
+
+Wed Jun 14 09:05:18 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* container.c, armour.c, thing.c:
+	read() nach thing/description verlegt.
+
+	* thing/description.c: read() nach hier verlegt.
+
+Tue Jun 13 13:38:38 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* restriction_checker.c: Abfrage auf P_ALCOHOL/DRINK/FOOD
+
+Tue Jun 13 07:28:15 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* player/comm.c:
+	Bisher wirkte oropax auf Spieler wie ignoriere. DAS WILL MAN NICHT!
+	Ausserdem ist der Code in Message wie Kraut und Rueben :-(
+	Deshalb nur: Buxfix.
+
+Wed Jun  7 16:20:27 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.c: Argl
+	ARGL
+	A R G L
+	Da war ein Typo - 8129 statt 8192 ....
+	A   R   G   L
+	Der hat mich 3 oder 4 Stunden gekostet, weil ich ihn DA nicht vermutet
+	hatte ...
+	WAAAAHHHHHHHH!!!
+
+Wed Jun  7 14:54:16 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* shells/magier.c: pwho now shows strength of HANDS
+
+Tue Jun  6 21:15:27 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.c: _clear_method_cache
+
+	* laden.c: silvanas Muellschlucker
+
+	* living/std_skills.c: Initial revision
+
+	* npc/info.c, room/commands.c, room/description.c, shells/magier.c,
+	  weapon/combat.c, armour/combat.c, armour.c, corpse.c, gilde.c,
+	  gilden_ob.c, laden.c, lightsource.c, newsclient.c, pub.c,
+	  player/comm.c, player/viewcmd.c, player/command.c:
+	_notify_fail
+
+Fri Jun  2 13:03:45 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* unit.c, weapon/moving.c: move made varargs
+
+	* weapon.c: move/remove moved to weapon/moving.c
+	move made varargs
+
+	* thing/moving.c, armour/moving.c: move made varargs
+
+Fri Jun  2 12:44:37 1995  Hate  <Hate@MG.uni-muenster.de>
+
+	* weapon/moving.c:
+	Neu geschrieben, da verschwunden (aus weapon.c) (Rumata)
+
+Wed May 31 17:57:36 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* player/command.c: Regexp fuer Unali
+
+Mon May 29 18:43:25 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/command.c: No longer support Alias conversion mechanism
+
+Fri May 26 07:29:39 1995  Catweazle  <Catweazle@MG.uni-muenster.de>
+
+	* laden.c: buy hatte sich mit der zeitung gebissen
+
+Tue May 23 17:14:01 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/viewcmd.c: give race as argument to GetDetail
+
+	* room/description.c: lower_case the race
+
+	* room/description.c: Details und Special-Details vereinheitlicht
+	Rassenspezifische Details eingebaut
+
+Tue May 23 11:42:07 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* unit.c: Jetzt aber... ;)
+
+	* unit.c: Keine Gewichtsabfrage bei negativen Mengen im move()
+
+Mon May 22 19:33:11 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* gilde.c: 1196 -> QP_MIN (defined in questmaster.h)
+
+	* gilde.c: QueryDontneed() called
+
+Mon May 22 18:38:24 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/put_and_get.c: Selber zeigen geht nicht mehr
+
+	* living/put_and_get.c: Removed extra ! from if ...
+
+Mon May 22 13:47:18 1995  Hate  <Hate@MG.uni-muenster.de>
+
+	* shells/filesys/filesys.c:
+	fixed bug with USAGE() it didn'treturn sometimes
+
+Mon May 22 11:58:08 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* shells/magier.c:
+	meldung ueber das idle-ausloggen geht an this_object()
+
+Mon May 22 09:36:36 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/moving.c: Fixed bug in movemessages
+
+Mon May 22 09:12:16 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* living/skills.c: Wandern von gildenlosen Skills/Spells beseitigt.
+
+Mon May 22 07:17:33 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/put_and_get.c: Zeige eingebaut
+	aufgeraeumt
+
+	* living/moving.c: clean_up
+
+	* living/combat.c: Flee even if attack is still disabled
+
+	* living/life.c: Minor speedups
+
+Fri May 19 16:23:18 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* corpse.c: Neue diemessages
+
+Thu May 18 19:13:22 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* npc.c: Guard wird inherited.
+
+	* npc/guard.c: Initial revision
+
+Mon May 15 06:58:33 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.c: NOSETMFOUND etc
+
+Wed May 10 19:29:31 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: SI_ENEMY wurde nicht gesetzt.
+
+Wed May 10 09:18:12 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* player/objects.c: P_CMSG -> P_CLONE_MSG, P_DMSG -> P_DESTRUCT_MSG
+
+Tue May  9 20:32:07 1995  Hate  <Hate@MG.uni-muenster.de>
+
+	* player/objects.c: we now use P_DMSG and P_CMSG
+
+Tue May  9 08:45:55 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* tray.c: copied from container
+
+	* tray/description.c: Moved from container ...
+
+Mon May  8 21:39:30 1995  Hate  <Hate@MG.uni-muenster.de>
+
+	* util/pager.c: added E_CAT
+
+Mon May  8 17:23:55 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.c: Bug in query_prop
+
+Thu May  4 15:13:38 1995  Hate  <Hate@MG.uni-muenster.de>
+
+	* util/pager.c: wrong condition ;)
+
+	* util/pager.c: fixed bug in E_PROMPT condition for short strings
+
+Wed May  3 19:20:33 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.c: no nomask ...
+
+Wed May  3 15:38:32 1995  Hate  <Hate@MG.uni-muenster.de>
+
+	* util/pager.c:
+	added flags to More(), now inly E_PROMPT stops at end of file
+
+	* util/pager.c: there's always a bug in fread()
+	but we fixed it!
+
+Wed May  3 13:03:00 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* util/pager.c: fixed command() bug (must be eval_command())
+
+Wed May  3 13:01:15 1995  Hate  <Hate@MG.uni-muenster.de>
+
+	* more.c: fixed some bugs in fread
+
+Wed May  3 08:36:02 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* unit.c: LAST_CONTENTS_CHANGE
+
+	* more.c: Old more again
+
+Tue May  2 17:29:42 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.c: _locally_handled -> -2
+
+	* util/input.c, util/pager.c: Initial revision
+
+	* more.c: testing rcs.
+
+	* more.c: XX
+
+	* more.c: New more by hate
+
+	* thing/properties.c:
+	Special hack ("_locally_handled") for Props w/o method ...
+	may cost MUCH memory, but preserve LOTS of time. Need to test.
+
+	* thing/properties.c:
+	Trade of some memory for performance by creating closures for each
+	_query_ and _set_ methods. Keep this closures for further usage. As
+	they are bound to this_object, there should be no problem.
+
+Fri Apr 28 19:29:55 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* corpse.c: more killmessages
+
+Fri Apr 28 09:29:36 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/skills.c: Jof hatte was kaputtverbessert...
+
+Thu Apr 27 19:52:35 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/viewcmd.c: UKM removed .
+
+	* weapon/combat.c: Typo fixed (missing +)
+
+	* weapon/combat.c: Some funcalls, replaced some ME->name() by name()
+
+	* living/life.c: removed some unnecessary ME->'s
+
+	* player/life.c: hook for _set_sp
+
+	* corpse.c: Dont remeber ...
+
+	* armour/combat.c: use closures for repeated calls to QueryProp/SetProp
+
+	* living/description.c: _query_container()
+
+Wed Apr 26 18:14:28 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/moving.c: Some speed opimizations
+
+	* living/combat.c: callothers to funcalls
+
+Wed Apr 26 16:52:14 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/skills.c: Optimierung: lfun-closure fuer Gildenaufruf merken.
+
+Wed Apr 26 16:32:24 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/skills.c: made load_object private static
+
+Wed Apr 26 16:30:53 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/skills.c: Optimierung
+
+Wed Apr 26 16:29:34 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/objects.c: fixed minor bug in load()
+
+Wed Apr 26 15:44:17 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* npc.c: Skillsystem endgueltig eingebaut.
+
+	* living.c: Skillsystem endgueltig eingebaut
+
+Wed Apr 26 15:19:42 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/elf.c: Typo fixed
+
+	* shells/elf.c: Toeters Rassenbeschreibung
+
+Mon Apr 24 11:58:28 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* shells/human.c: Groesse 170 cm
+
+	* shells/elf.c: Groesse 195 cm.
+
+	* player/description.c: Froesche (von Spielern) sind jetzt 20 cm gross.
+
+Fri Apr 21 18:02:35 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/skills.c:
+	changed some SetProp/QueryProp into Set/Query for speed ...
+
+	* spellbook.c: seteuid(getuid())
+
+Thu Apr 20 18:54:31 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* container/restrictions.c: Implement caching of weightcontents
+
+Tue Apr 18 15:35:31 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* user_filter.c: Filterung nach Gilden
+
+Thu Apr 13 15:35:57 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* gilden_ob.c: Bugfix
+
+Thu Apr 13 14:55:10 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* lightsource.c: variable lightdescrs by array
+
+Fri Apr  7 14:30:30 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* room/para.c: Optimierung.
+
+Wed Apr  5 20:09:53 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/life.c: Dont give xp if we dont have xp
+
+Wed Apr  5 14:03:33 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* room/para.c:
+	Falls Parallelraum nicht geladen werden kann -> normale Welt.
+
+	* room/para.c: Initial revision
+
+Mon Apr  3 09:29:42 1995  Hate  <Hate@MG.uni-muenster.de>
+
+	* shells/filesys/primitives.c: fixed bug in grep of emty files
+
+Fri Mar 31 15:04:42 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* user_filter.c: Filterung nach Rasse und Geschlecht moeglich.
+
+Thu Mar 30 19:40:18 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* user_filter.c: Bugfix
+
+	* user_filter.c: Regionen
+
+	* user_filter.c: Initial revision
+
+Tue Mar 28 08:31:19 1995  Boing  <Boing@MG.uni-muenster.de>
+
+	* spellbook.c: Typo ausgemerzt
+
+Mon Mar 27 10:32:01 1995  Boing  <Boing@MG.uni-muenster.de>
+
+	* npc/combat.c:
+	Wenn der letzte Spell eine relativ hohe Wahrscheinlichkeit hatte, sank
+	damit die Gesamtwahrscheinlichkeit - fixed.
+
+	* armour/combat.c:
+	QueryDefend() repariert .. Ruestungen waren zur Zeit total nutzlos.
+
+Thu Mar 23 11:17:55 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* shells/magier.c:
+	move im remove nur, wenn der magier nich schon da ist. :-)
+	doppelstes zerstoeren der nicht autoloadobjekte entfernt.
+
+	* room.c: ausgaenge werden fuer blinde und dunkle unsichtbar.
+
+Wed Mar 22 19:10:01 1995  Catweazle  <Catweazle@MG.uni-muenster.de>
+
+	* unit.c: Units <4 nicht mehr unendlich nehmbar
+
+	* living/combat.c: Arenalogging repariert
+
+	* unit.c: Bugfixing by Vrai
+
+Tue Mar 21 19:38:14 1995  Boing  <Boing@MG.uni-muenster.de>
+
+	* living/life.c:
+	Magier koennen jetzt essen und trinken so viel sie wollen.
+
+Mon Mar 20 22:41:09 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/command.c:
+	Bugfix for unparsed args (double " " removed to early)
+
+Thu Mar 16 14:47:38 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* shells/filesys/filesys.c: man -M geht jetzt...
+
+Mon Mar  6 21:12:05 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/magier.c: Reconnect ...
+
+	* player/command.c:
+	Fixed bug in handling of hist-replacement with aliases
+
+Fri Mar  3 19:58:39 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/filesys/filesys.c: _ed_stack STATIC now
+
+	* player/command.c:
+	Fixed some bugs according to special char filtering and aliases
+
+	* player/comm.c: 1/2 MP/Zeichen beim rufen
+
+	* player/command.c: Allow soul commands for \\\ now :)
+
+	* player/command.c: Allow UMLAUTE in Aliases ...
+
+Thu Mar  2 20:16:52 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/combat.c: check for player exists in plattacked
+
+	* player/comm.c: per char shout cost ...
+
+Wed Mar  1 20:15:56 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/combat.c: Log arena kills
+
+Wed Mar  1 18:10:47 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: bugfix
+
+Wed Mar  1 15:58:09 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/life.c: P_LAST_KILLER
+	NotifyPlayerDeath
+
+	* shells/magier.c: destruct non-autoload-objects on quit
+
+Tue Feb 28 11:09:48 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/combat.c: Try to remember ATTACKER when PKing ...
+
+	* player/life.c, player/spells.c: Moved Attack-Logging to living/combat
+
+Fri Feb 24 10:50:01 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/command.c: some parser bugs ...
+
+Thu Feb 23 20:52:40 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/attributes.c: Vereinfachung.
+
+	* living/attributes.c:
+	Attribut-Modifier eingebaut. Diese koennen nur von
+	dem Objekt geaendert werden, das sie gesetzt hat.
+
+	* shells/magier.c: Auch fuer Magier ATTRIBUTES_OFFSETS...
+
+	* living/combat.c: Bei Spells kann mit SP_SHOW_DAMAGE angegeben werden,
+	dass der Treffer gezeigt werden soll, und in SP_REDUCE_ARMOUR
+	koennen bestimmte Armourtypen abgewertet werden.
+
+Thu Feb 23 14:33:59 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* room/description.c: IDs nur noch von innen (wargon)
+
+Thu Feb 23 12:33:37 1995  Hate  <Hate@MG.uni-muenster.de>
+
+	* shells/filesys/primitives.c: Bugfix for CP by wargon
+
+Wed Feb 22 13:11:25 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* player/description.c, living/description.c, unit.c:
+	long() now declared varargs
+
+Wed Feb 22 13:05:56 1995  Hate  <Hate@MG.uni-muenster.de>
+
+	* container/description.c: long declared as varargs (Rumata)
+	Hate=?
+
+Tue Feb 21 16:37:54 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* player/comm.c: shout costs for seers
+
+Tue Feb 21 13:34:02 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* player/viewcmd.c: Magier koennen jetzt auch im Dunkeln sehen.
+
+Tue Feb 21 11:50:57 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/filesys/filesys.c: ...
+
+	* shells/filesys/make.c: Initial revision
+
+Mon Feb 20 19:36:26 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: SI_SPELL kann bei Kampfspells gesetzt werden
+
+	* living/combat.c: Feind wird bei Kampfskills mit uebergeben
+	Waffentyp im Skill setzbar
+
+Mon Feb 20 16:32:45 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* player/comm.c: SHOUT_COST evaluated per line
+
+Mon Feb 20 11:01:38 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/combat.c: Optimizations
+
+	* armour/combat.c: Replaces SetProp in create by Set
+
+	* armour.c: Fixed bug creating senseless log messages
+
+Tue Feb 14 23:06:49 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/command.c: _unparsed_args jetzt fuer alle ...
+	aeh parser meine ich
+
+	* shells/filesys/filesys.c: ls-bug (break_string raus)
+
+Fri Feb 10 17:22:56 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* laden.c: fixed bug in use of sscanf when buying by number
+
+Wed Feb  8 02:05:26 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* room/items.c: Mit 1 anstelle des Property-Mappings kann man jetzt
+	die Blueprint anstelle eines gecloneten Objektes nehmen
+	(1==UNIQUE)
+
+	* shells/magier.c: goto verbessert
+
+Mon Feb  6 22:20:11 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/filesys/filesys.c: .ftp -> .readme
+
+Mon Feb  6 22:14:18 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* def_workroom.c: strong_types and some details added
+
+Mon Feb  6 19:46:44 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* unit.c: RCS rein
+
+	* armour.c, container.c, corpse.c, def_workroom.c, gilde.c, laden.c,
+	  lightsource.c, living.c, more.c, newsclient.c, npc.c, pub.c,
+	  restriction_checker.c, room.c, store.c, transport.c, tray.c:
+	RCS-Logs aufgeraeumt (leere Logs raus usw)
+
+	* gilden_room.c: Inserted RCS-Header
+
+	* gilden_ob.c: Updated RCS Logs
+
+	* spellbook.c: Initial revision
+
+	* room/items.c: remove REF_NONE entries w/ destructed obj from list
+
+	* player/command.c: variable histsize
+
+Fri Feb  3 20:35:58 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* npc/combat.c:
+	Zusatzparameter bei AddSpell(); wird bei erfolgtem Spell im
+	NPC aufgerufen.
+
+Fri Feb  3 15:14:28 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.c: PRESAY nur fuer Magier anzeigen
+
+Tue Jan 31 19:01:04 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/magier.c: Leere/sinnlose Logmessages ("Typo fixed") entfernt
+
+	* shells/magier.c: unparsed_args fuer in/at/echoall/mecho/echoto/goto
+
+Tue Jan 31 18:47:18 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* shells/magier.c: Unparsed Args bei goto und echoall.
+
+Tue Jan 31 15:49:30 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/magier.c: reset() korrigiert ...
+
+	* living/life.c:
+	current_object d/gebirge/boing/sm/mon/killerpopel#268339 destructed
+	beseitigt
+	SetProp(P_HP) in do_damage vorgezogen zu diesem zwecke
+
+Mon Jan 30 10:50:57 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/life.c: Dont LOG pks in new arena
+
+Wed Jan 25 22:33:15 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* lightsource.c: short() returns 0 if P_SHORT==0
+
+Wed Jan 25 22:26:23 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/combat.c, living/moving.c: Bugfixes
+
+Wed Jan 25 22:26:20 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* weapon.c: short() returns 0 if P_SHORT==0
+
+Wed Jan 25 17:41:24 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/viewcmd.c: Bugfix (lang/kurz)
+
+	* player/command.c: Bugfixes :)
+
+Wed Jan 25 16:29:01 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* pub.c: Fehler bei Einrueckung im Menue behoben.
+
+Tue Jan 24 23:55:24 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/viewcmd.c: ULTRAKURZ
+
+	* living/combat.c: no_more_attacks
+
+	* player/command.c: unpares
+
+Tue Jan 24 16:19:23 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* living/combat.c: attack_busy added
+
+Mon Jan 23 17:47:39 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/command.c: Multi-Level unparsed args
+
+Mon Jan 23 13:34:37 1995  Boing  <Boing@MG.uni-muenster.de>
+
+	* npc/combat.c:
+	Faktor 10 bei den Spells entfernt, es wird schon in Defend() durch 10
+	geteilt.
+
+Fri Jan 20 19:53:53 1995  Hate  <Hate@MG.uni-muenster.de>
+
+	* preload_file: added inews
+
+Fri Jan 20 11:30:30 1995  Boing  <Boing@MG.uni-muenster.de>
+
+	* laden.c: 'verkaufe x aus y' ist jetzt moeglich.
+
+Thu Jan 19 14:54:17 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* living/description.c: new description of physical condition
+
+	* room/description.c: bugfix
+
+Tue Jan 17 18:19:27 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: Noch ne Fehlerkorrektur
+
+Tue Jan 17 17:44:43 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* unit.c: dest kein object => inv = ({ })
+	im move
+
+Tue Jan 17 17:33:10 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: Fehler bei InformDefend behoben.
+
+Tue Jan 17 15:46:01 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* player/comm.c: _unparsed_args() --> mruf
+
+Tue Jan 17 13:58:28 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* room/description.c: lowercase all details
+
+Fri Jan 13 18:55:45 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/command.c: Dont lower_case verb ...
+
+	* player/command.c: togglebare unparsed_args
+
+	* player/channel.c, player/command.c, player/objects.c,
+	  player/viewcmd.c:
+	... unparsed_args
+
+	* player/comm.c, player/command.c: _unparsed_args
+
+Thu Jan 12 10:26:04 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* laden.c: DoList() now uses More() ;)
+
+Tue Jan 10 16:20:56 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/command.c: display new aliases
+
+Tue Jan 10 00:54:08 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* laden.c: fixed some bugs in do_sell()
+
+Mon Jan  9 18:28:05 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/command.c: default_notify_fail
+
+	* player/command.c: Neues Aliassystem usw
+
+Fri Jan  6 16:35:02 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.c: check for destructed objeckt with closure-methods
+
+Thu Jan  5 11:23:48 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* player/quests.c: in GiveQuest: explode -> efun::explode
+
+Tue Jan  3 16:58:25 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* player/comm.c:
+	hint to use channels, when running on low spellpoints ...
+
+Mon Jan  2 17:07:49 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.c: display some channels by default
+
+Wed Dec 21 18:46:04 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* armour/combat.c: Added a capitalize ...
+
+Wed Dec 14 19:41:22 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/life.c: *** empty log message ***
+
+Wed Dec 14 09:59:04 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* npc.c:
+	verbessertes infosystem, jetzt kann bei AddInfo ein dritter parameter
+	uebergeben werden, der zur erzeugung mehrzeiliger infos dient.
+
+	* npc/info.c:
+	infos koennen jetzt mit indents versehen werden zur erzeugung von
+	mehrzeiligen infos, die wie spielermeldungen aussehen.
+
+Sun Dec 11 17:54:09 1994  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* player/soulhelp.c: Grr.   Was vergessen gehabt.
+
+	* player/soulhelp.c: Ops
+
+	* player/soulhelp.c: Veben. Meine natuerlich Verben.
+
+Fri Dec  9 17:05:53 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/attributes.c: made offsets static
+
+Wed Dec  7 19:12:13 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.c:
+	dont respond to ignored players if we are invis wizzies
+
+	* weapon.c: check if unwielded in move/remove
+
+Tue Dec  6 10:11:38 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* living/life.c:
+	Neue Prop P_KILLER wird im Todesfall auf das toetende Objekt gesetzt.
+
+	* pub.c: Typo gefixed ...
+
+	* corpse.c:
+	Ueber P_MURDER_MSG kann das gekillte Monster jetzt seinen Text auf
+	[Moerder] selber festlegen. Thanks to Silvana
+
+Thu Dec  1 13:59:37 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* weapon/combat.c:
+	Waffen mit P_CURSED gesetzt koennen nicht mehr weggesteckt werden.
+
+	* armour/combat.c:
+	Ruestungen mit P_CURSED gesetzt koennen nicht mehr ausgezogen werden.
+
+Thu Dec  1 13:29:59 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* room/items.c: clean_double
+
+	* player/command.c: dont save history
+
+	* player/comm.c: ruf und unsichtbare
+
+	* player/shadows/pony.c: ?
+
+	* player/shadows/block_shadow.c: Initial revision
+
+	* armour/combat.c, armour/moving.c: Minor bugfixing
+
+Wed Nov 30 01:03:41 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* living/life.c: Set(P_DEADS) in die()
+
+	* living/life.c: counting num of deads
+
+Mon Nov 28 11:48:36 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* room/items.c: cleaner ...
+
+Mon Nov 21 19:18:53 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* thing/properties.c: added F_MODE_AS, F_MODE_AD
+
+Thu Nov 17 09:49:38 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* npc/info.c: typesafe gemacht, frage hook installiert
+
+Wed Nov  9 23:56:12 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* pub.c: logging of AddDrink()
+
+	* gilde.c: Seerlevel now up to 35
+
+Wed Nov  2 21:28:49 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* def_workroom.c: added leading / to gilden/abenteurer
+
+Wed Oct 26 16:33:28 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/command.c: save history ...
+
+Wed Oct 26 01:35:52 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* laden.c: narrower output of 'zeige'
+
+Wed Oct 26 01:25:27 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* def_workroom.c, shells/human.c: Gilde verlegt.
+
+Fri Oct 21 15:12:07 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* player/life.c: Bug in do_damage() gefixed.
+
+Wed Oct 19 15:58:19 1994  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* player/soulhelp.c: Update.
+
+Tue Oct 18 09:28:21 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* room.c: wargons aenderungen
+
+Mon Oct 17 22:17:07 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* player/comm.c: bugfix :-(
+
+	* player/comm.c: P_CAN_FLAGS added
+
+Mon Oct 17 12:10:47 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* npc/info.c: P_LOG_INFO eingebaut.
+
+Sun Oct 16 16:50:25 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* player/life.c: Zweitie-Tode werden geloggt
+
+Sat Oct 15 15:31:51 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* shells/filesys/filesys.c: change in upd
+	possibility to update/reclone etc instances
+
+Fri Oct 14 15:36:13 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* gilden_ob.c: restriction-mappings fuer gildenlevel zugelassen.
+
+Fri Oct 14 09:26:45 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* living/description.c: P_LONG corrected, can be 0
+
+Thu Oct 13 12:33:20 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.c: erwiedere/teile . mit
+
+Wed Oct 12 17:36:06 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* npc/combat.c: Fehler bei Attack-Spells beseitigt.
+
+Fri Oct  7 14:58:38 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* gilde.c: output of 'liste' changed
+
+Fri Oct  7 12:55:12 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* room.c: replace_program-hack
+
+Thu Oct  6 16:35:45 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* corpse.c:
+	Keine Moerder-Meldung wenn ein Magier ein Monster darniedermeuchelt. :)
+
+Thu Oct  6 11:20:49 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* npc.c: NPCs koennen jetzt die Spells benutzen.
+
+Wed Oct  5 16:01:03 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* pub.c: Funktionen query_food und query_drink eingefuehrt.
+
+Fri Sep 30 14:23:34 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: Fehler in letzter Aenderung behoben.
+
+	* living/combat.c: Beliebige Befehle zur Flucht zugelassen.
+
+	* living/combat.c: Fehler in Flee() behoben.
+
+Thu Sep 29 20:46:37 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: P_WIMPY_DIRECTION fuer bevorzugte fluchtrichtung
+
+	* living/skills.c: Initial revision
+
+	* living/moving.c, living/combat.c: *** empty log message ***
+
+	* restriction_checker.c: Initial revision
+
+	* gilden_ob.c:
+	Natuerlich sollen nur Gildenmitglieder Gildenspezifische Level
+	erhalten...
+
+	* gilden_room.c, gilden_ob.c: Initial revision
+
+	* gilde.c:
+	notify_fail statt write und den nicht anwesenden Gnom entfernt.
+
+Wed Sep 28 17:46:25 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/description.c: INVIS Abfrage in short
+
+Mon Sep 26 20:32:34 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* laden.c:
+	Beim schaetzen kommt bei Wert 1 nun '1 Goldstueck' statt
+	'1 Goldstuecke'.
+
+Mon Sep 26 16:03:12 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* gilde.c: added playername argument to liste command
+
+Fri Sep 23 20:20:55 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* thing/restrictions.c:
+	added SetProp(P_WEIGHT, 1000) <- from description
+
+	* thing/description.c:
+	removed SetProp(P_WEIGHT, 1000) -> moved to restrictions
+
+Fri Sep 23 11:12:30 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: Fehler in AddDefender behoben.
+
+Thu Sep 22 16:44:17 1994  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* unit.c: Bugfix laut Troy
+
+Thu Sep 22 16:27:24 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* thing/language.c:
+	added P_GENDER, removed from /std/living/description.c
+
+	* shells/filesys/filesys.c: added handling of virtual compilers to ls
+
+	* living/description.c:
+	removed P_GENDER, migrated to /std/thing/language.c
+
+Thu Sep 22 13:40:25 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: Moeglichkeiten von TMP_ATTACK/DEFEND_HOOK erweitert.
+
+Thu Sep 22 09:42:41 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* thing/language.c: some minor style fixes
+
+	* player/life.c: (Rumata) selbstmord verhindern.
+
+	* player/command.c: (Rumata) list of aliases improved ...
+
+Thu Sep 22 09:35:21 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* living/description.c:
+	RAW beruecksichtigen, SetArticle -> SetProp( P_ARTICLE
+
+Thu Sep 22 09:28:46 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.c: (Rumata) aufraeumaktion (keine Aenderungen)
+
+Tue Sep 20 16:23:16 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* armour/combat.c:
+	QueryDefend() bekommt jetzt den aktuellen Angreifer als dritten
+	Parameter mitgeliefert. Das war laut Dokumentation und living/combat
+	schon immer der Fall ...
+
+Thu Sep 15 17:43:02 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/moving.c: Nachtsicht wird benutzt, falls Faehigkeit vorhanden.
+
+	* player/viewcmd.c: Fehler in Nachtsicht behoben.
+
+	* player/viewcmd.c:
+	Nachtsicht, falls entsprechende Faehigkeit vorhanden.
+
+	* living/attributes.c:
+	Zwei Zeilen waren vertauscht, daher wurden SP/HP geupdated
+	BEVOR die neuen Attribute gesetzt wurden...
+
+	* living/combat.c:
+	P_DEFENDER, P_TMP_ATTACK_HOOK und P_TMP_DEFEND_HOOK eingefuehrt.
+	TMP-Hooks fuer kurzzeitiges Ueberschreiben von Attack/Defend
+	Defender werden ueber Angriff informiert, einer kann Werte aendern.
+
+Wed Sep 14 19:38:59 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* weapon/combat.c:
+	Funktion wield_me eingebaut, die den Namen nicht verlangt.
+
+	* living/combat.c: MagicAttack/Defense Fight-Skills
+
+Tue Sep 13 16:36:24 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/attributes.c: Automatisches Update NUR bei Spielern.
+
+	* living/attributes.c: Automatisches Update von MAX_SP und MAX_HP
+
+	* shells/human.c: Int+1, Str+1, Con+1, Dex+3
+
+	* shells/elf.c: Int+3, Dex+2, Con+1
+
+	* living/attributes.c:
+	Rassenspezifische Offsets fuer Attribute eingebaut.
+
+Mon Sep 12 18:30:11 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c:
+	Skill-Attribut SPEED beim heart_beat beruecksichtigt.
+
+Sun Sep 11 17:10:49 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* player/channel.c:
+	Seher koennen jetzt auch ohne spellpoints die channel benutzen
+
+Thu Sep  8 17:46:13 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* npc.c: Skillsystem testweise eingebaut.
+
+	* living.c: Skillsystem testweise eingebaut
+
+Thu Aug 25 12:10:00 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/moving.c: fixes
+
+Wed Aug 24 17:56:49 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/life.c: fixed show_age
+
+Tue Aug 23 23:47:53 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* living/combat.c: no damage by netdeads
+
+	* living/put_and_get.c:
+	recognize P_NOGET when moving objects into containers
+
+Mon Aug 22 17:57:05 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* room/doors.c: return type of AddSpecialExit is now void
+
+	* room/exits.c: changed return type of AddSpecialExit to void
+
+Fri Aug 19 16:18:43 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* shells/magier.c: fixed typo
+
+Fri Aug 19 08:25:22 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* corpse.c: Logfile fuer Moerder verbessert...
+
+Thu Aug 18 18:57:51 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* corpse.c: bugfix (rochus changed the position of the 4)
+
+	* corpse.c: Added Messages when a Monster dies (special formula used!)
+
+Thu Aug  4 20:01:50 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* player/comm.c: fixed the kobold command
+
+Wed Aug  3 21:33:27 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* player/comm.c: included "kobold" command to flush message cache
+
+Tue Aug  2 12:31:44 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* transport.c: Nur noch EIN call_out gleichzeitig.
+
+Tue Aug  2 10:52:09 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.c: oropax
+
+Mon Aug  1 13:10:31 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/moving.c: remove() with deep_inv
+
+Thu Jul 28 17:33:30 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* player/comm.c: changed messages
+
+Wed Jul 27 14:50:14 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* virtual/v_compiler.c: suid
+
+	* npc.c, store.c: made suid
+
+Sat Jul 23 01:19:09 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.c: filter_string removed
+
+	* player/comm.c: Back to (working) 2.28
+
+Fri Jul 22 21:27:40 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.c: IGNORIERE teilweise weg, zu buggy
+
+Wed Jul 20 19:41:20 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* player/comm.c: fixed bug in ignore handling
+
+Tue Jul 19 16:17:52 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* room/exits.c: bugfix in AddExit()
+
+Sat Jul 16 15:24:08 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* player/comm.c: bugfix in ignore check
+
+Fri Jul 15 14:14:16 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* player/comm.c: added earmuffs handling...
+
+Fri Jul 15 12:59:28 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/command.c: typofix
+
+Thu Jul 14 21:53:56 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* player/comm.c: major changes in the communication (Message())
+	cleanup of other functions
+
+Thu Jul 14 15:16:44 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/filesys/manual.c: Initial revision
+
+	* player/channel.c, player/comm.c, player/command.c, player/objects.c,
+	  player/potion.c, player/quests.c, player/viewcmd.c:
+	Removed command mappings
+
+Thu Jul 14 09:04:06 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* room.c: in clean_up():
+	call remove() instaed of destruct.
+	destruct only if remove didnt succeed.
+
+Wed Jul 13 17:23:59 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* shells/filesys/asynchron.c:
+	added message when going into asynchrone mode
+
+Tue Jul 12 13:43:49 1994  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* player/soulhelp.c: Initial revision
+
+Tue Jul 12 00:10:37 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* npc/combat.c: Vars weg
+
+Tue Jul 12 00:09:10 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* room/commands.c, room/description.c, room/doors.c, room/exits.c,
+	  room/items.c, room/moving.c, room/restrictions.c:
+	clean up
+
+Tue Jul 12 00:06:43 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/command.c, player/objects.c, player/viewcmd.c:
+	Weg mit AddAction
+
+	* shells/magier.c: Weg mit AddAction ...
+
+Mon Jul 11 08:26:41 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/commands.c: goto 2.9 da 2.10 nicht im geringsten lief !!!!
+	FRUST (Rumata)
+
+Sun Jul 10 23:16:35 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/command.c: Weg mit add_action ...
+
+	* thing/commands.c:
+	add_action("_cl","") instead of many add_actions - save mem
+
+	* armour.c, container.c, gilde.c, npc.c, thing.c, tray.c, weapon.c:
+	Weg mit "show"
+
+	* thing/moving.c: rmoved _filter_remove
+
+	* thing/language.c: made _set... static
+
+Sun Jul 10 00:01:07 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* room.c: removed MayAddWeight (is defined in restrcitions.c)
+
+Wed Jul  6 16:44:43 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* thing/commands.c: add_commands sicherer gemacht
+
+Tue Jul  5 10:41:20 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* gilde.c: asText() gab (sinngemaess) 'eine Abenteuer' zurueck.
+
+Thu Jun 30 11:17:54 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* gilde.c: fixed typo in liste()
+
+Thu Jun 30 10:00:40 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* gilde.c: list() gruppiert nun die abenteuer nach QP-Gruppen.
+
+Wed Jun 29 17:58:41 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* room/exits.c: removed leftovers of old doors
+
+Wed Jun 29 17:30:27 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* room/doors.c: add_action statt AddCmd
+
+Wed Jun 29 13:45:30 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* room.c, room/description.c, room/doors.c, room/exits.c:
+	Removed old AddDoor/AddDoor2 stuff
+
+Wed Jun 29 08:56:10 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* npc/info.c: xxx _s_chaut Dich fragend an, TYPO behoben
+
+Mon Jun 27 14:38:05 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* thing/description.c: bugfix in name()
+
+Mon Jun 27 11:37:28 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/life.c: hp hooks
+
+Sat Jun 25 01:23:10 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* thing/moving.c:
+	PreventInsert() called in every case in move() to supply InsertHook
+	list
+
+Sat Jun 25 01:21:54 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* store.c:
+	aufraeumen() will now be called by reset() instead by a call_out loop
+
+Fri Jun 24 18:50:30 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* unit.c: Bug in ID
+
+	* living/moving.c: New following implemented
+
+Wed Jun 22 18:55:42 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* room/exits.c: made relative paths possible in _MakePath()
+
+Tue Jun 21 18:43:19 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/hate.c: Initial revision
+
+	* shells/elf.c, shells/human.c, shells/magier.c:
+	RACE... in _query umgewandelt (save mem)
+
+Tue Jun 21 11:49:29 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* npc/info.c: replaced SetDefaultInfo() by SetProp(P_DEFAULT_INFO,...)
+
+Mon Jun 20 18:10:06 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* player/channel.c: fixed bug in channelmsg, no multiple channels
+
+Mon Jun 20 09:49:32 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/combat.c: Inserted update_hunt_times
+
+	* npc/combat.c: Fixed endless-hunt-bug
+
+Sat Jun 18 11:19:55 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* lightsource.c:
+	Fixed "Es wird dunkel als Quengistus eine Magnesiumfackel erlischt."
+
+	* living/combat.c: Fixed InsertEnemy
+
+Fri Jun 17 13:13:11 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/magier.c: Nicht-Lernende duerfen weiterbeaten
+
+	* shells/magier.c:
+	Mach den HB aus, wenn wir nicht verfolgen und auch nicht kaempfen ...
+
+Thu Jun 16 21:25:53 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* gilde.c: bugfixing
+
+	* container.c, tray.c: removed SetWeight
+
+Thu Jun 16 19:58:45 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* thing/description.c: added multiple active adjectives (P_NAME_ADJ)
+
+Thu Jun 16 19:55:58 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* unit.c: Rewritten ... will it work ... ?
+
+Wed Jun 15 15:23:40 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* room.c: Bugfix in show() (Jof's work)
+
+Wed Jun 15 14:48:17 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* gilde.c: fixed bug when creating seer
+
+Mon Jun 13 23:18:16 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* gilde.c: 'liste' command changed
+
+Mon Jun 13 20:14:32 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/life.c, player/life.c: /log/KILLS Eintrag geaendert.
+
+	* corpse.c: Property corpse_decay eingebaut, damit sich das auch von
+	aussen regeln laesst (z.b. fuer Aufgaben, bei denen man die
+	Leichen von bestimmten Monstern braucht...)
+
+Mon Jun 13 16:46:18 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/filesys/filesys.c: Reinsertet #'...
+
+	* container/restrictions.c, living/attributes.c, living/combat.c,
+	  living/description.c, living/life.c, npc.c, player/comm.c,
+	  player/description.c, player/life.c, player/potion.c,
+	  player/quests.c, player/restrictions.c, player/skills.c,
+	  room/restrictions.c, shells/filesys/filesys.c, thing/commands.c,
+	  thing/description.c, thing/restrictions.c:
+	Removed SET_METHODs
+
+	* thing/properties.c: Save memory in some ways ...
+
+Fri Jun 10 23:46:17 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/magier.c: ping
+
+Thu Jun  9 17:52:02 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/description.c: ID bug once more
+
+	* room.c: " clean count " Logik eingebaut
+
+Wed Jun  8 19:54:28 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/description.c: Bug in id()
+
+Tue Jun  7 17:38:44 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/base.c: Prototype for quit()
+
+	* shells/filesys/filesys.c: Bugfix in find_file
+
+Mon Jun  6 17:55:44 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* laden.c:
+	"schaetz lebewesen" -> "Naja, ich denke, 0 Goldstuecke waere er schon
+	wert."
+	Sinnvollere Message eingebaut (mit notify_fail und return 0,
+	damit der Zauberspruch "schaetz" noch funktioniert.)
+
+Mon Jun  6 09:42:32 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* armour/combat.c: wear all :)
+
+	* thing/commands.c: All commands stored as closures
+
+Fri Jun  3 08:55:37 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* shells/filesys/filesys.c:
+	bugfix in normalize (did not expand ~/ to /players/user/)
+
+Wed Jun  1 15:18:56 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* shells/filesys/asynchron.c, shells/filesys/filesys.c,
+	  shells/filesys/primitives.c:
+	Initial revision
+
+Tue May 31 19:24:50 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.c: Message transmitted.
+
+	* npc.c: catch_tell wieder rein
+
+Mon May 30 19:20:05 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/magier.c: JETZT geht's netztoten Magiern an den Kragen - WUERG
+
+	* npc/chat.c: Removed useless vars.
+
+	* npc.c: Removed sequencer
+
+Mon May 30 18:36:10 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* shells/magier.c: new filesys.c
+
+Fri May 27 07:31:08 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* living/description.c: P_TRANSPARENT in long()
+
+Thu May 26 19:31:28 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/restrictions.c: Fehlende Includes (GRUMMEL)
+
+	* player/restrictions.c: GHOST-Abfrage ...
+
+Thu May 26 19:13:16 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.c: Geister koennen kein Attack(enemy) mehr ausfuehren.
+
+	* living/life.c: Kein do_damage mehr, wenn der Gegner ein Geist ist.
+
+Wed May 25 22:29:44 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* sys_debug.h: added some useful stuff.
+
+Tue May 24 21:48:54 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* room/exits.c: removed debug output
+
+Tue May 24 19:16:18 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* room.c, room/description.c, room/exits.c: added support for NewDoors
+
+	* room/doors.c: Initial revision
+
+Tue May 24 13:28:18 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/magier.c:
+	Magier werden jetzt bei zu langer Idle-Zeit disconnected
+
+Sat May 21 00:39:02 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/filesys.c: longcd :)
+
+Sat May 21 00:32:03 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* player/quests.c: new function DeleteQuest()
+
+Thu May 19 14:47:46 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* player/description.c: Bugfix in short()
+
+Wed May 18 13:48:39 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/filesys.c: P_SHORT_CWD und .ftp
+
+	* shells/magier.c: P_SHORT_CWD
+
+Tue May 17 21:06:38 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* npc/combat.c: Typo preset statt present beseitigt.
+
+Mon May 16 23:40:54 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* player/quests.c: minor changes in QiveQuest()
+
+	* gilde.c: fixed bug in command 'liste'
+
+Mon May 16 07:06:24 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* shells/magier.c: Fixed missing \n
+
+	* npc/combat.c: One more check for env.
+
+Mon May 16 06:32:31 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* npc/combat.c: Reset beat_off_num to zero
+
+Sun May 15 18:11:04 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/combat.c, living/life.c, living/moving.c,
+	  living/put_and_get.c:
+	Clean-Ups
+
+	* container/restrictions.c: cleanups
+
+	* shells/magier.c: Checks auf P_WANTS_TO_LEARN ergaenzt
+
+	* player/command.c: Check in do ergaenzt
+
+	* player/description.c, player/filesys.c, player/life.c:
+	Some more checks ...
+
+	* shells/magier.c: LEARNING eingebaut
+
+	* living/put_and_get.c: Cleanups
+
+Sun May 15 16:48:12 1994  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* npc.c: clean-ups
+
+	* container/restrictions.c: Clean-Ups
+
+	* container.c: clean-ups
+
+	* armour.c: ExistsProp ist jetzt ENDGUELTIG weg :)
+
+	* armour.c, armour/combat.c: Fixups
+
+	* npc/combat.c: Clean-Ups and earlier stopping of HB
+
+	* npc/chat.c: Removed unused catch_tell-stuff
+
+Fri May 13 17:27:19 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* transport.c: Added __restart() to restart call_out loops
+
+	* player/quests.c: fixed Bug in QueryQuest()
+
+Thu May  5 18:32:53 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* player/comm.c: fixed bug in _query_intermud
+
+	* player/channel.c: parse complete (I hope)
+
+	* player/comm.c: added P_STD_CHANNEL
+
+	* player/channel.c: bugfixes for -% etc.
+
+Thu May  5 12:42:38 1994  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* living/life.c: Corpse nach wahl mit P_CORPSE
+
+Thu May  5 10:03:04 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* transport.c: Moved #defines to .h
+
+Wed May  4 22:47:50 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* player/comm.c: added channels
+
+	* player/channel.c: Initial revision
+
+Tue May  3 19:37:26 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* preload_file: udpmail
+
+Tue May  3 16:26:14 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* shells/magier.c: HEAL logfile um Datum erweitert
+
+Mon May  2 17:24:34 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* living/life.c: capitalized messages for poison
+
+Thu Apr 28 09:27:32 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* living/put_and_get.c: geben funktionert auch mit adjektiven
+
+Thu Apr 21 13:27:44 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.c: INTERMUD stuff added
+
+Wed Apr 20 13:32:22 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.c: removed MUDLINK
+
+Mon Apr 18 13:37:37 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* laden.c: Logfile fuer Verkaeufe wieder eingebaut.
+
+Fri Apr 15 17:57:46 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* player/life.c:
+	Alle Gegner geben beim Tod des Spielers die Jagd auf ihn auf.
+
+Thu Apr 14 23:02:15 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* living/combat.c: added set_heart_beat(1) to InsertEnemy
+
+Wed Apr 13 18:59:42 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* lightsource.c:
+	erloeschende Fackeln werden nicht mehr gemeldet wenn man sie nicht mehr
+	hat
+
+Wed Apr 13 14:57:23 1994  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* shells/highlander.c: Initial revision
+
+Wed Apr 13 12:04:14 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* thing/description.c: P_CLONER secured
+
+Tue Apr 12 15:04:37 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* shells/magier.c: removed loading of .profile.c
+
+Thu Apr  7 21:40:19 1994  Freund  <Freund@MG.uni-muenster.de>
+
+	* player/moneyhandler.c:
+	Wenn 0 Muenzen uebergeben werden, wird jetzt immer sofort ein Erfolg
+	gemeldet... :)
+
+Thu Apr  7 13:00:58 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/objects.c: cloning message :)
+
+Thu Apr  7 10:51:29 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* thing/description.c: RAW added
+
+Thu Apr  7 09:36:31 1994  Freund  <Freund@MG.uni-muenster.de>
+
+Wed Apr  6 22:20:45 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* player/quests.c: removed QueryQP(), SetQP() and QueryQuests()
+
+Wed Mar 30 12:32:57 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* living/life.c: changed drink messages to tell_object(ME
+
+Tue Mar 29 12:37:35 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* pub.c: Fehlende Abfrage von str in bestelle() eingefuegt.
+
+	* laden.c: Fehler mit /std/money statt obj/money behoben
+
+Mon Mar 28 08:39:43 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* transport.c: Leave() verbessert.
+
+Mon Mar 28 07:27:29 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.c: removed extra_flag
+
+Fri Mar 25 17:47:10 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.c: unbound-Closures erlaubt - testweise
+
+	* living/life.c: Logging kills
+
+Thu Mar 24 21:26:10 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* virtual/v_compiler.c: QueryObjects() added
+
+Wed Mar 23 20:40:26 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/magier.c: goto schaltet den followmode aus
+
+Wed Mar 23 17:31:55 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* gilde.c: Aenderung der Spielertitel
+
+	* player/potion.c:
+	automatisches Abspeichern nach erhoehen eines Attributs
+	(Das WAR schon mal drin!!!! *curse*)
+
+Tue Mar 22 13:51:42 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* unit.c: Fixed remove-Bug (hopefully)
+
+	* unit.c: added zerocheck
+
+Mon Mar 21 16:48:13 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* container.c, container/restrictions.c, corpse.c, def_workroom.c,
+	  gilde.c, laden.c, lightsource.c, living.c, living/attributes.c,
+	  living/combat.c, living/description.c, living/life.c,
+	  living/moving.c, living/put_and_get.c, more.c, newsclient.c, npc.c,
+	  npc/chat.c, npc/combat.c, npc/info.c, npc/put_and_get.c,
+	  npc/sequencer.c, player/comm.c, player/viewcmd.c, pub.c, room.c,
+	  room/commands.c, room/description.c, room/exits.c, room/items.c,
+	  room/moving.c, room/restrictions.c, secure_thing.c, shells/elf.c,
+	  shells/human.c, shells/magier.c, thing/commands.c,
+	  thing/description.c, thing/properties.c, thing/restrictions.c,
+	  transport.c, tray.c, tray/description.c, unit.c,
+	  virtual/v_compiler.c, weapon.c, weapon/combat.c:
+	Reindented files using emacs - once again
+
+Mon Mar 21 10:10:10 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* player/viewcmd.c: long() gets now the arg how it was lokked at.
+
+Sun Mar 20 17:35:54 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* living/combat.c: Optimized QueryProp(P_HANDS) during combat
+
+Fri Mar 18 18:56:34 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/life.c: LEARNER koennen nicht mehr sterben
+
+	* room/description.c: changed id to meet definition in std/player/base
+
+	* thing/description.c: id mit 2 Args - fuer strong types in base.c
+
+	* player/moving.c: DONE
+
+	* thing/properties.c: Fix in SECURED
+
+	* living/attributes.c, living/combat.c, living/description.c,
+	  living/life.c, living/moving.c, living/put_and_get.c,
+	  container/description.c, container/restrictions.c, armour/combat.c,
+	  thing/commands.c, thing/description.c, thing/language.c,
+	  thing/moving.c, thing/properties.c, thing/restrictions.c,
+	  thing/util.c:
+	Fixed indentation
+
+Thu Mar 17 23:36:55 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.c, player/command.c, player/description.c,
+	  player/filesys.c, player/life.c, player/moneyhandler.c,
+	  player/moving.c, player/objects.c, player/potion.c, player/quests.c,
+	  player/restrictions.c, player/skills.c, player/spells.c,
+	  player/viewcmd.c:
+	PROTECTED -> SECURED & Reindented
+
+	* thing/properties.c: SECURED implemented (Hate)
+
+Wed Mar 16 20:13:04 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* npc/combat.c: Changed times of HB_CHECK
+
+Wed Mar 16 19:02:06 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* thing/description.c: fixed bug in id()
+
+Wed Mar 16 01:21:01 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* shells/human.c: Rassenbeschreibung
+
+Tue Mar 15 23:46:48 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* shells/magier.c: P_ENEMY_DEATH_SEQUENCE fuer Magier gesetzt :-)
+
+Mon Mar 14 22:35:54 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* room/items.c: Added a call to the persisten object daemon in create()
+	changed AddItem() to be able to configure object via 3rd argument
+
+Mon Mar 14 17:39:05 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/moving.c: one more check for exit
+
+	* player/command.c: last_command_env
+
+	* living/moving.c: only call exit() if NOT m_nocheck
+
+	* living/moving.c: removed catch() around call of exit.
+
+	* player/objects.c: Fixed cloning
+
+Fri Mar 11 21:47:29 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/magier.c:
+	HEAL nicht mehr loggen wenn Magier oder Testplayer geheilt werden.
+	Sonst wird das Log so unuebersichtlich
+
+	* weapon/combat.c: type
+	typo
+
+	* weapon/combat.c: uwield -> unwield
+
+	* weapon.c: inserted missing init()
+
+Thu Mar 10 20:12:58 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* room.c: Noch ein paar Aenderungen an clean_up
+
+	* room.c: removed clean_up - Logging
+
+	* room/items.c: Bug in create fixed.
+
+Thu Mar 10 19:36:25 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* shells/magier.c: logfile fuer heal
+
+Thu Mar 10 18:38:29 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* room/items.c:
+	AddItem() now returns the object it cloned and
+	"/players/jonas/schilderm" is added.
+
+Thu Mar 10 14:49:49 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* room/description.c:
+	in lies() write(detail) durch write(funcall(detail)) ersetzt
+
+Wed Mar  9 22:01:54 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* player/command.c: hmm, I forgot the changes!!
+
+	* thing/commands.c: changes made and commands.h created
+
+	* weapon/combat.c: changed to strong_types
+
+	* thing.c: minor changes to meet new lib order
+
+	* weapon.c: cleaned up :)
+
+Wed Mar  9 16:18:03 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/magier.c: Typo fixed
+
+	* shells/magier.c: protect eingebaut
+
+Tue Mar  8 17:01:35 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* lightsource.c: capitalizes eingebaut
+
+Mon Mar  7 19:55:35 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* thing/properties.c:
+	improved Set() by adding a zero values property remover
+
+Mon Mar  7 17:32:32 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* container.c, thing.c, tray.c, weapon.c: Removed ExistsProp()
+
+	* thing/moving.c: some includes added
+
+	* thing/moving.c: removed some this_object()-> from move()
+
+Mon Mar  7 13:08:22 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/description.c: kleinere Optimierungen
+
+	* thing/description.c: this() removed
+
+	* thing/properties.c: extern_call() wieder eingebaut
+
+Fri Mar  4 19:56:18 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* unit.c: fixed long()
+
+Thu Mar  3 20:53:08 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* preload_file: Added some stuff to see where the time is used up :)
+
+	* thing/description.c: Syntax err in create fixed
+
+	* thing/description.c: P_CLONER ---
+
+Thu Mar  3 19:19:55 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* thing.c: Im dunkeln kann P_READ_MSG nicht mehr gelesen werden
+
+Thu Mar  3 19:13:57 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* armour/combat.c: Minor bugfix
+
+Thu Mar  3 19:12:58 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* room/description.c:
+	Im Dunkeln kann man keine ReadItems mehr lesen
+
+Thu Mar  3 18:30:45 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/put_and_get.c: capitalize in ME_TOO_HEAVY error
+
+Thu Mar  3 09:02:49 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* shells/magier.c: people etwas verbessert.
+
+Thu Mar  3 01:48:25 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* more.c: Suchegeschwindigkeit mit / verbessert.
+
+Mon Feb 28 22:42:06 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* more.c: \n inserted in showlines ...
+
+Mon Feb 28 22:37:14 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* gilde.c: new quest list and removed some superfluous trash
+
+Fri Feb 25 09:58:15 1994  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* living/life.c: Das mit dem alte Version holen muss ich mal ueben...
+
+	* living/life.c:
+	der Koehler sagt: <Hick>!  - capitalize drumrumgemacht auf Bitte Troy
+
+Thu Feb 24 19:52:56 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* player/viewcmd.c: no detail logging anymore. it proved nonvaluable
+
+Thu Feb 24 13:05:25 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/description.c, thing/properties.c, thing/restrictions.c:
+	Private removed
+
+Thu Feb 24 13:04:42 1994  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* living/life.c:
+	Endlich gefunden, warum das poisonlog so zugemuellt wurde. Beseitigt.
+
+Thu Feb 24 13:04:21 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* room/exits.c, room/items.c, room/restrictions.c, weapon/combat.c,
+	  player/comm.c, player/description.c, player/life.c, player/potion.c,
+	  player/quests.c, player/restrictions.c, player/skills.c, npc.c,
+	  transport.c, living/attributes.c, living/combat.c,
+	  living/description.c, living/life.c:
+	Private removed
+
+Wed Feb 23 16:50:53 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* player/comm.c: fixed presay bug in various commands ;)
+
+Wed Feb 23 16:41:36 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.c: fixed Bug in TELL with Presay
+
+Wed Feb 23 12:52:00 1994  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* living/life.c: Bug inserted last time killed again
+
+	* living/life.c: Auf der Suche nach doofen loggingtexten...
+
+Wed Feb 23 08:47:52 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/objects.c: Fixed some bugs in cloning
+
+Tue Feb 22 19:19:12 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* room/description.c: typofix
+
+	* room/description.c: Fixed bug in ROOMMESSAGES
+
+Mon Feb 21 21:54:50 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* room/description.c:
+	changed call_out for WriteRoomMessage to be abandoned
+	if no interactive is in the room
+
+Mon Feb 21 12:18:49 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* room/exits.c: checked for existance of exits in _normalfunction
+
+Sat Feb 19 17:39:51 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* shells/magier.c: changed echo-log filenames
+
+Sat Feb 19 15:34:09 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* shells/magier.c:
+	remove() geaendert, magier werden jetzt wieder in ihrem workroom
+	ausgeloggt
+
+Fri Feb 18 22:34:59 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* pub.c: the order string will be transparent to uppercased words
+
+Fri Feb 18 12:28:31 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* room.c: clean_up didnt work as it should
+
+	* room/items.c: another bug in do_refresh fixed ...
+
+Thu Feb 17 17:57:18 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* living/life.c: void varargs die() -> varargs void die()  ;)
+
+	* living/moving.c: strong_types
+
+Thu Feb 17 16:39:57 1994  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* living/life.c: Poison geht erst mal
+
+Thu Feb 17 13:21:01 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* room/items.c: check for pointerp in do_refresh
+
+Wed Feb 16 16:42:00 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* room/items.c: Fixed nasty refresh-bug
+
+Wed Feb 16 16:23:04 1994  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* living/life.c:
+	Huch, hab ich was geaendert? Auf jedenfall tut das Gift noch immer
+	nicht, diesmal aber wegen player/life zum Teil. Ich gebe das file jetzt
+	eigentlich auch nur wieder frei, damit andere bei Bedarf ran koennen.
+
+	* living/life.c:
+	Nicht schlagen - noch ein loggingfix, warum kann ich so was nicht
+	beim ersten Anlauf merken *seufz* ?
+
+	* living/life.c: Bug im poisonlogginf (hoffentlich) fixed
+
+	* living/life.c: Added logging of poison set
+	Sorry: Meine natuerlich habe Logging des Aufrufs von _set_poison rein
+
+	* living/life.c:
+	Gift eingebaut. Hoffentlich geht's :)  Was ich eben vergessen hab:
+	Hate: Wenn Du Dich ausloggst, dann sei doch so nett, auch die files
+	wieder freizugeben, die Du gelockt hast :)
+
+Wed Feb 16 13:34:15 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* living/life.c: Was weiss ich.  -Highlander.
+
+Wed Feb 16 13:11:36 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* npc/combat.c:
+	Jetzt werden Magier WIRKLICH nur noch von aggressiven Monstern
+	angegriffen, wenn sie sichtbar sind UND mschau aus haben
+	(hatte bei der ersten Aenderung noch etwas vergessen :)
+
+Tue Feb 15 22:55:10 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* gilde.c:
+	made recommended player level in command 'liste' visible for all
+	players
+
+Tue Feb 15 17:46:34 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* room/items.c: changed item implementation to array from mapping
+
+	* room.c: changed clean_up to meet array implementation of items
+
+Tue Feb 15 09:54:22 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/magier.c: verfolger() eingebaut
+
+Wed Feb  9 23:16:42 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* player/viewcmd.c: Added logging of nonexisting details.
+
+Wed Feb  9 18:44:46 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/magier.c: force now outputs a message to victim
+
+	* shells/magier.c: follow-mode now only works with mschau-flag set
+
+Wed Feb  9 05:06:56 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* room/exits.c:
+	bugfix: replaced QueryProp(P_EXITS) by Query(P_EXITS) because
+	Queryprop(P_EXITS) returns only NORMAL exits and cuts out Special exits
+
+Tue Feb  8 20:15:25 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* pub.c: && nimmt den Nominativ !
+
+	* lightsource.c: QueryProp(P_NAME) eliminiert.
+
+	* living/description.c: P_NAME kann wieder ARRAY-Wertig sein.
+
+Tue Feb  8 19:34:58 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* room/exits.c: removed debug message
+
+	* gilde.c: Removed 'banish-message' in init()
+
+Wed Feb  2 21:24:48 1994  hate  <hate@MG.uni-muenster.de>
+
+	* room.c: debug_log for clean_up
+
+	* room.c: clean_up fixes
+
+Wed Feb  2 21:13:28 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* room/description.c: Description updated.
+
+Wed Feb  2 12:01:51 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* shells/magier.c: no error when .profile.c does not exists.
+
+Tue Feb  1 19:32:28 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* virtual/v_compiler.c: Initial revision
+
+Tue Feb  1 19:11:13 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* armour.c, weapon.c: Added default-ID "ding"
+
+	* shells/magier.c: .profile->setup(ob) is now called on logon
+
+Tue Feb  1 18:14:41 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* living/combat.c: P_DISABLE_ATTACK testet auf integer.
+
+Mon Jan 31 11:40:49 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* more.c: efun::explode and fix of screensize
+
+Sat Jan 29 00:34:24 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/magier.c: Removed fancy snoop message :)
+
+Thu Jan 27 22:36:09 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* living/combat.c: initial whimpy value set to 20
+
+Thu Jan 27 16:48:29 1994  Rochus Wessels  <rochus@MG.uni-muenster.de>
+
+	* npc/combat.c:
+	Magier werden nur noch von aggressiven Monstern angegriffen, wenn
+	sie sichtbar sind UND den Blick des Magiers aufgegeben haben.
+
+Thu Jan 27 15:33:48 1994  jof  <jof@MG.uni-muenster.de>
+
+	* living/combat.c: livings cannot attack themselves.
+
+	* shells/magier.c: IN geht wieder
+
+Wed Jan 26 16:31:23 1994  Freund  <Freund@MG.uni-muenster.de>
+
+	* shells/elf.c:
+	Aufgrund neuer Elfensiedlung wurde Prayroom geaendert. -Freund.
+
+Wed Jan 26 16:30:08 1994  Rochus Wessels  <rochus@MG.uni-muenster.de>
+
+	* shells/human.c:
+	PrayRoom geaendert von /room/pray_room auf
+	/d/ebene/room/PortVain/pray_room
+
+Tue Jan 25 15:50:34 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* room/exits.c:
+	changed QueryProp(P_EXITS) to Query(P_EXITS) in RemoveExit()
+
+Tue Jan 25 12:16:21 1994  jof  <jof@MG.uni-muenster.de>
+
+	* shells/magier.c: P_FOLLOW_SILENT
+
+	* npc.c: show nur noch fuer Learner++
+
+Tue Jan 25 12:08:36 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* shells/magier.c: echo logging implemented
+
+	* player/quests.c: take into account activ-flag in GiveQuest()
+
+Mon Jan 24 17:11:54 1994  hate  <hate@MG.uni-muenster.de>
+
+	* transport.c: added function QuerzPosition()
+
+	* lightsource.c: simple tzpo fixed *missing dot at end of text(
+
+Mon Jan 24 14:51:16 1994  jof  <jof@MG.uni-muenster.de>
+
+	* shells/magier.c: trans fuer monster wieder moeglich gemacht
+
+	* player/comm.c: capitalize fuer froesche
+
+	* player/comm.c: capitalizes
+
+Mon Jan 24 12:09:26 1994  samo  <samo@MG.uni-muenster.de>
+
+	* more.c: Alte Statuszeile wieder eingesetzt (es gab Beschwerden :)
+
+Thu Jan 20 16:54:39 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells/magier.c: echo raus, ist jetzt in comm.c
+
+	* player/comm.c: echo fuer Seher
+
+Thu Jan 20 11:10:47 1994  jof  <jof@MG.uni-muenster.de>
+
+	* more.c: Changes initial startline to 1
+
+Wed Jan 19 14:40:47 1994  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* more.c: Variable SCREENSIZE !
+
+Tue Jan 18 18:05:35 1994  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* more.c: New More by Samo
+
+	* player/viewcmd.c: corrected inventory-command
+
+Mon Jan 17 23:35:05 1994  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* living/put_and_get.c: new indentation
+
+	* living/life.c: changed indentation
+
+	* npc.c: Type required for reset()
+
+	* npc.c: empty reset inserted
+
+Fri Jan 14 22:49:09 1994  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* container/restrictions.c: fixed bug in create() : MAX -> TOTAL
+
+	* shells/magier.c: people verbessert
+
+	* shells/magier.c: P_HANDS autoload
+
+	* armour.c, weapon.c: reset eingebaut !
+
+	* container.c: reset eingebaut, lfuns sollten vorhanden sein !
+
+	* thing.c: reset eingefügt. lfuns sollten alle vorhanden sein !

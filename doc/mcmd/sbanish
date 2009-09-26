@@ -1,0 +1,51 @@
+
+sbanish
+-------
+
+ MAGIERKOMMANDO:
+    sbanish <adresse> <tage>
+
+ ARGUMENTE:
+
+     <adresse>
+        IP-Adresse des Opfers
+     <tage>
+        Die Dauer der Sperrung
+
+ BESCHREIBUNG:
+    Mit diesem Befehl kann man verhindern, dass sich von bestimmten Adressen
+    aus Gaeste einloggen oder neue Spieler angelegt werden..
+    
+    Die Dauer wird in Tagen angegeben. Eine Angabe von -1 setzt eine 
+    unbefristete Sperre; mit einer Dauer von 0 Tagen loescht man eine gesetzte 
+    Sperre.
+
+    Die Angabe von 'sbanish' ohne Parameter gibt eine Liste aller gesperrten
+    Adressen aus.
+
+    Die zu sperrende IP-Adresse muss in der Form 'n.n.n.n' angegeben werden.
+    Um ganze Subnetze auf einen Schlag zu sperren, kann man die letzten acht
+    oder 16 Bit der Adresse weglassen. Der Befehl 'sbanish 192.3 20' wuerde
+    z.B. das komplette Class-B Netz 192.3.n.n fuer zwanzig Tage sperren.
+
+    Dieser Befehl steht eingeschraenkt ab Level 26 zur Verfuegung:
+
+      - ab Level 26 kann man bis zu zehn einzelne IPs fuer einen Tag sperren
+        und eigene Sperrungen wieder aufheben
+      - ab Level 40 kann man bis zu zehn IPs und/oder Class-C Subnetze fuer
+        einen Tag sperren und eigene Sperrungen wieder aufheben
+      - Hilfssheriffs und Erzmagier koennen beliebig viele IPs bzw. Class-B
+        oder Class-C Subnetze fuer beliebige Zeitraeume sperren sowie fremde
+        Sperrungen wieder aufheben
+
+ BEMERKUNGEN:
+    Ein sbanish fuehrt ausdruecklich _nicht_ dazu, dass sich von den
+    entsprechenden Adressen keine betehenden Spieler mehr einloggen koennen.
+    Weiterhin ist ein sbanish unwirksam, sofern der Login-Versuch ueber den
+    SSL-Tunnel erfolgt.
+
+ SIEHE AUCH:
+    banish, mbanish, tbanish
+
+ LETZTE AeNDERUNG:
+    Sat, 25.05.2002, 01:30:00 von Tiamak

@@ -1,0 +1,41 @@
+P_ENEMY_DEATH_SEQUENCE
+
+NAME:
+     P_ENEMY_DEATH_SEQUENCE        "enemy_death_sequence"
+
+DEFINIERT IN:
+     /sys/properties.h
+
+BESCHREIBUNG:
+     Ueber diese Property kann Einfluss auf die Todessequenz eines getoeten
+     Spielers genommen werden. Sie muss im im toetenden Objekt, d.h. dem
+     Objekt welches die()/do_damage()/Defend() im Spieler gerufen hat gesetzt
+     sein.
+
+     Es gibt folgende gueltige Werte:
+     - string:		Pfad zu einer eigenen Todessequenz im gueltigen Format
+     - mixed*		Eine Todessequenz im Format des Todesraumes:
+			({ <int gesamtlaenge>, <mapping index:meldung> })
+     - mapping		In Todessequenz einzufuegende Zeilen, Format:
+			([<int zeitindex>:<string text>])
+
+BEISPIELE:
+     // eigene DSQ
+     SetProp(P_ENEMY_DEATH_SEQUENCE,
+	".../passende_dsq.txt");
+
+     // eigene DSQ im Todesraumformat:
+     SetProp(P_ENEMY_DEATH_SEQUENCE,
+	({ 2, ([1: "DU LERNST AUS DEINEM FEHLER."])}));
+
+     // Einfuegen einer Meldung in irgend eine Todessequenz
+     SetProp(P_ENEMY_DEATH_SEQUENCE,
+	([5: "Du hoerst deinen Moerder hoehnisch kichern."]));
+
+SIEHE AUCH:
+     Tod:		die(L)
+     Todesmeldungen:	P_KILL_NAME, P_KILL_MSG, P_DIE_MSG, P_MURDER_MSG
+			P_ZAP_MSG, P_ENEMY_DEATH_SEQUENCE
+     Sonstiges:		P_CORPSE, P_NOCORPSE, /room/death/death_room.c
+
+10.Feb 2005 Gloinson

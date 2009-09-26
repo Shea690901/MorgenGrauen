@@ -1,0 +1,22 @@
+
+verfolge
+--------
+
+ MAGIERKOMMANDO:
+    verfolge [<name>]
+
+ ARGUMENTE:
+
+     <name> (optional)
+        Name eines (eingeloggten) Spielers oder eines NPCs
+
+ BESCHREIBUNG:
+    Du verfolgst den Spieler oder den NPC <name> durch das ganze MUD.
+
+    `verfolge' ohne Parameter bricht die Verfolgung ab.
+
+ SIEHE AUCH:
+    goto, snoop
+
+ LETZTE AeNDERUNG:
+    Thu, 24.07.1997, 09:00:00 von Wargon

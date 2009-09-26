@@ -1,0 +1,31 @@
+P_ARMOUR_TYPE
+
+NAME:
+     P_ARMOUR_TYPE "armour_type"
+
+DEFINIERT IN:
+     <armour.h>
+
+BESCHREIBUNG:
+     In dieser Property wird der Typ einer Ruestung festgehalten. Man sollte
+     hier nur die in <combat.h> definierten Konstanten verwenden.
+
+     Der Ruestungstyp AT_MISC ist schnoedem Tand und anderem nutzlosen
+     Kram vorbehalten. Auf keinen Fall darf eine AT_MISC-Ruestung ueber
+     eine AC > 0 verfuegen noch irgendwie kampfrelevante Bedeutung be-
+     sitzen.
+
+BEMERKUNGEN:
+     Die P_AC wird bei AT_MISC-Ruestungen gar nicht erst ausgewertet.
+     DefendFuncs werden zwar ausgewertet, aber bitte ueberlegt euch gut, ob
+     ihr sie braucht (Rechnzeit im Kampf ist kritisch!) und ob sie seitens der
+     Balance in eurem Fall erlaubt sind.
+
+SIEHE AUCH:
+     Verwandt:		QueryArmourByType(L), P_WEAPON
+     Ruestungen:	P_AC, P_ARMOUR_TYPE, P_NR_HANDS
+     Sonstiges:		P_EQUIP_TIME, P_LAST_USE
+     Code:		/std/armour.c
+     Gildenergaenzung:	P_GLOVE_FINGERLESS
+
+10.Okt 2006 Gloinson

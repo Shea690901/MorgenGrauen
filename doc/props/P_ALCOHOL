@@ -1,0 +1,16 @@
+NAME:
+	P_ALCOHOL			"alcohol"
+
+DEFINIERT IN:
+	/sys/living/life.h
+
+BESCHREIBUNG:
+	Numerischer Wert fuer den Grad der Betrunkenheit eines Lebewesens.
+	Der maximale Wert steht in P_MAX_ALCOHOL.
+
+SIEHE AUCH:
+	P_MAX_ALCOHOL, P_ALCOHOL_DELAY, drink_alcohol,
+	P_FOOD, P_DRINK
+
+----------------------------------------------------------------------------
+Last modified: Tue Dec 18 12:16:10 2001 by Patryn

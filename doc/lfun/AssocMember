@@ -1,0 +1,26 @@
+AssocMember()
+
+FUNKTION:
+	int AssocMember(object npc)
+
+DEFINIERT IN:
+	/std/living/team.c
+
+ARGUMENTE:
+	Der zuzuordnende NPC.
+        
+BESCHREIBUNG:
+	Ordnet einen NPC einem Spieler zu. Dieser ist dann
+	immer im Team des Spielers, moeglichst in der gleichen Reihe.
+
+RUECKGABEWERT:
+	1, falls Zuordnung erfolgreich, sonst 0.
+
+BEMERKUNGEN:
+	1. Kann nur von Gilden, Spellbooks, vom Objekt selber
+	und vom zuzuordnenden NPC aufgerufen werden.
+	2. Einem NPC, der selber einem Spieler zugeordnet ist,
+	kann kein NPC zugeordnet werden.
+
+SIEHE AUCH:
+	teams

@@ -1,0 +1,15 @@
+
+NAME:
+	P_HEALPOTIONS		"healpotions"
+
+DEFINIERT IN:
+	/sys/player/potion.h
+
+BESCHREIBUNG:
+	Die Property enthaelt ein Mapping mit den 4 aktiven
+	Heiltrankstellen des Spielers als key und die letzte
+	Fundzeit als arg. Hierueber wird gesteuert, dass der
+	Spieler nicht unendlich oft eine Heilung erfaehrt,
+	sondern das er einer zeitlichen Sperre unterliegt.
+
+ 

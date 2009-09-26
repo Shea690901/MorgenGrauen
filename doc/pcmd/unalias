@@ -1,0 +1,40 @@
+
+unalias
+-------
+
+ KOMMANDO:
+    unalias <alias>
+    unalias <muster>
+
+ ARGUMENTE:
+
+     <alias>
+        Das zu entfernende Alias
+     <muster>
+        Muster, das die zu entfernenden Aliase beschreibt
+
+ BESCHREIBUNG:
+    (Statt `unalias' kann man auch `unali' verwenden!)
+
+    Es werden ein oder mehrere Aliase geloescht.
+
+    *Achtung!* Es erfolgt keine Sicherheitsabfrage!
+
+ BEISPIELE:
+    Ein einzelnes Alias loeschen:
+
+    > unalias weg
+
+    Alle "tm"-Aliase loeschen (man beachte den . vor dem *):
+
+    > unalias tm.*
+
+    Alle Aliase loeschen, die auf Ziffern liegen:
+
+    > unalias [0-9]
+
+ SIEHE AUCH:
+    alias
+
+ LETZTE AeNDERUNG:
+    Thu, 24.07.1997, 09:00:00 von Wargon

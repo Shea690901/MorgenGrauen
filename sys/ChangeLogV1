@@ -1,0 +1,586 @@
+Tue Nov 14 12:36:58 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* living/combat.h: Es heisst STRENGTH und nicht STRENGHT... ;)
+
+Mon Nov 13 19:51:24 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* sensitive.h: Prototype fuer CheckSensitiveAttack
+
+	* sensitive.h: Initial revision
+
+Thu Nov  9 14:24:34 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* thing/moving.h: P_SENSITIVE eingefuehrt
+	Zweck: Registrierung von bestimmten Objekten, die bei Ereignissen,
+	auf die sie empfindlich reagieren, informiert werden sollen.
+
+Thu Nov  9 12:02:54 1995  Toeter  <Toeter@MG.uni-muenster.de>
+
+	* properties.h: P_GIVEN_OBJECT fuer units (Wargon)
+
+Wed Nov  8 19:34:04 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* class.h: Initial revision
+
+	* thing/description.h: Prototypes fuer is_class_member und AddToClass
+
+	* thing/description.h:
+	P_CLASS eingefuehrt, kann als Verallgemeinerung von P_RACE
+	gebraucht werden (z.B. Zombiedrache gehoert sowohl zu
+	Untoten wie auch zu Drachen), aber auch fuer Gegenstaende
+	(z.B. Klasse "Sprengstoffe" oder "Artillerie")
+
+	* player/description.h:
+	P_CLASS war nicht gebraucht und wird jetzt woanders benutzt.
+
+Thu Nov  2 14:37:01 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* health.h: MAX_POISON auf 11 gesetzt... ;)
+
+Thu Oct 19 19:33:05 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player.h: strange typo fixed
+
+Wed Oct 18 20:47:18 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* armour.h: Nochn typo
+
+	* armour.h: typo fixed
+
+	* living/life.h: corrected prototype for die()
+
+Thu Oct  5 12:10:59 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* userinfo.h: USER_CREATION_DATE
+
+Mon Sep 18 11:39:39 1995  Toeter  <Toeter@MG.uni-muenster.de>
+
+	* properties.h: P_RACESTRING eingefuehrt
+
+Tue Sep 12 14:25:30 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* combat.h: DT_SOUND
+
+Fri Sep  8 14:11:34 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/base.h, player/can.h: CAN_PRESAY
+
+Fri Sep  8 10:59:47 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* player/comm.h: P_PERM_STRING fuer Sprachflueche
+
+Wed Sep  6 19:12:36 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.h: Prototypen fuer PresentEnemies() und SelectEnemy()
+
+Wed Sep  6 05:17:01 1995  Silvana  <Silvana@MG.uni-muenster.de>
+
+	* new_skills.h: P_TMP_ATTACK_MOD
+
+Fri Sep  1 08:38:58 1995  Silvana  <Silvana@MG.uni-muenster.de>
+
+	* new_skills.h: P_TMP_DIE_HOOK
+
+Tue Aug 29 10:47:41 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.h:
+	P_RESISTANCE_STRENGHTS: Vereinheitlichung und Verbesserung
+	von RESISTANCE/VULNERABILITY
+
+Mon Aug 28 09:43:06 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/description.h: P_AVERAGE_SIZE eingebaut
+
+Mon Aug 21 16:18:18 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/combat.h: P_PREFERED_ENEMY eingefuehrt.
+
+Thu Aug 10 17:28:06 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* properties.h: Inserted keep_on_sell
+
+Mon Aug  7 19:09:16 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* thing/description.h: Prototypes fuer RemoveId/Adjective
+
+Tue Aug  1 09:37:50 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* combat.h: DT_WHIP.
+
+Tue Jul 25 08:54:43 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* player/comm.h: P_DEAF
+
+Wed Jul 19 12:50:17 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* health.h: MAX_POISON angepasst.
+
+Wed Jul 12 13:05:36 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* bank.h: 90% -> 30&
+
+Mon Jul 10 09:59:15 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* routingd.h: RoutingD nach /p/daemon verlegt.
+
+Mon Jul 10 07:27:19 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* bank.h: Initial revision
+
+Fri Jul  7 14:03:41 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* new_skills.h: SP_PHYSICAL_ATTACK eingefuegt
+
+Tue Jul  4 15:36:11 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* routingd.h: Initial revision
+
+Mon Jul  3 16:52:03 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* combat.h: DT_RIP
+
+Mon Jun 19 15:33:44 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* defines.h: TI wieder raus
+
+	* defines.h: lauter IFDEFs
+	BS_*
+
+Tue Jun  6 20:33:49 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.h: SETCACHED/QUERYCACHED
+
+	* player.h: P_ACTUAL_NOTIFY_FAIL
+
+Thu May 18 19:10:47 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* guard.h: Initial revision
+
+Mon May 15 06:57:59 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.h: added 2 flags
+
+Wed May 10 09:19:07 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* player/base.h: P_CMSG -> P_CLONE_MSG, P_DMSG -> P_DESTRUCT_MSG
+
+Tue May  9 20:31:24 1995  Hate  <Hate@MG.uni-muenster.de>
+
+	* player/base.h: added P_CMSG and P_DMSG
+
+Mon May  8 21:39:08 1995  Hate  <Hate@MG.uni-muenster.de>
+
+	* pager.h: added E_CAT for just cat
+
+Wed May  3 15:39:09 1995  Hate  <Hate@MG.uni-muenster.de>
+
+	* pager.h: added FLAG and E_PROMPT
+
+Wed May  3 13:03:28 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* pager.h: Initial revision
+
+Wed Apr 26 15:57:24 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* new_skills.h: SI_CLOSURE zur Optimierung
+
+Thu Apr 20 18:34:57 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* properties.h:
+	P_LAST_CONTENT_CHANGE: Zeitpunkt der letzten Aenderung des Inhalts.
+
+	* properties.h: P_SIZE
+
+Mon Apr 10 12:16:22 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* properties.h: P_PARA fuer Parallelwelten
+
+Fri Apr  7 11:20:49 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* properties.h: P_FW_* properties eingefuegt (2 an der zahl)
+
+Wed Mar  1 15:53:28 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player.h: P_LAST_KILLER
+
+Tue Feb 28 11:07:38 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* living/description.h: Initial revision
+
+	* living/combat.h: QueryPlAttcked oder so ..
+
+Fri Feb 24 15:22:51 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* combat.h: DT_EXPLOSION und DT_SQUEEZE
+
+Thu Feb 23 18:53:47 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* living/attributes.h: P_ATTRIBUTES_MODIFIER eingebaut.
+	(Fuer gespeicherte Attribut-Modifikation, die nur
+	ein Objekt rueckgaengig machen kann)
+
+	* new_skills.h: Bug behoben.
+
+	* new_skills.h:
+	Im Argument "spell" beim combat kann jetzt ein Mapping stehen,
+	dafuer Definition von SP_NAME, SP_SHOW_DAMAGE, SP_REDUCE_ARMOUR.
+
+Mon Feb 20 19:07:21 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* new_skills.h: SI_ENEMY
+
+Tue Feb  7 23:15:55 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player.h: P_IP_NAME
+
+Thu Feb  2 18:56:57 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/base.h: P_READ_NEWS
+
+Wed Jan 25 17:38:13 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* combat.h: C_AVG, C_MIN, C_MAX usw. fuer P_COMBATCMDS definiert.
+
+	* properties.h: P_COMBATCMDS eingefuehrt fuer sonderwaffen
+
+Tue Jan 24 16:18:44 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* living/combat.h: P_ATTACK_BUSY added
+
+Wed Jan 18 16:07:51 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* properties.h: clockmsg
+
+Tue Jan 17 16:42:02 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* properties.h: P_KILL_NAME added
+
+Fri Jan 13 12:06:51 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player.h: _unparsed_args
+
+Mon Jan  9 12:25:11 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* player.h: default_notify_fail
+
+	* player.h: new props (HISTMIN/SHOW_ALIAS_PROCESSING)
+
+Thu Dec  8 09:51:46 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* npc.h: Initial revision
+
+Tue Dec  6 10:10:49 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* properties.h:
+	P_KILLER (neue prop) wird direkt im Todesfall auf das killer-objekt
+	gesetzt.
+
+	* properties.h: Neue Propertie P_MURDER_MSG (siehe /std/corpse)
+
+Thu Dec  1 13:17:16 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* properties.h:
+	P_CURSED, sollte eigentlich in armour.h und weapon.h, waere dann aber
+	doppelt definiert
+
+Thu Dec  1 13:15:58 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* properties.h: Was weiss ich, was Hate da getrieben hat ... (Boing)
+
+Wed Nov 30 01:03:30 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* armour.h, erq.h, new_skills_.h: Initial revision
+
+Wed Nov 30 01:02:40 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* player/base.h: P_LAST_LOGIN / P_LAST_LOGOUT
+
+	* living/life.h: num_deads -> deads
+
+	* player/base.h: CAN_FLAGS
+
+Thu Nov 24 11:06:27 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* combat.h:
+	Added weapon type WT_MISC, WT_MAGIC is now a valid weapon type.
+
+Mon Nov 21 14:43:13 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* thing/properties.h: F_MODE_AD and F_MODE_AS added
+
+Thu Nov  3 17:00:46 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* udp.h: typo
+
+	* udp.h: Update to intermud 0.7 BETA
+
+Tue Oct 18 09:29:02 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/base.h: wargons aenderungen
+
+Mon Oct 17 21:35:26 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* player/can.h: added CAN_ECHO
+
+	* player/can.h: Initial revision
+
+Mon Oct 17 17:41:01 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* player/base.h: P_SECOND eingebaut
+
+Thu Oct  6 10:22:52 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* player/moneyhandler.h: Initial revision
+
+Wed Oct  5 12:07:39 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* room/description.h: seherhaeuser
+
+Thu Sep 29 16:17:31 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* new_skills.h: Initial revision
+
+Thu Sep 29 15:40:27 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/description.h: *** empty log message ***
+
+Fri Sep 23 21:46:22 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* container.h: removed P_WEIGHT & P_TOTAL_WEIGHT
+
+	* thing/description.h, thing/language.h, thing/moving.h,
+	  thing/restrictions.h:
+	Initial revision
+
+	* thing.h: completed with all necessary include files
+
+	* rooms.h: removed Do_not_load_this_file from raise_error()s!
+
+Thu Sep 22 09:43:24 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* language.h: Added Prototypes for functionality
+
+Tue Sep 20 15:30:27 1994  Boing  <Boing@MG.uni-muenster.de>
+
+	* combat.h: Neuer damage type DT_LIGHTNING
+
+Fri Sep 16 17:46:13 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/quest.h: Changed prototype for GiveQuest
+
+Thu Sep 15 13:26:55 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* lpctypes.h: bugfix unbound_lambda = 5
+
+Wed Sep 14 10:17:06 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* combat.h: WT_MAGIC fuer einheitlichere Behandlung
+
+Tue Sep 13 13:33:15 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* combat.h: WT_HANDS eingefuegt fuer einheitlichere Behandlung
+
+	* living/attributes.h: Offsets aufgenommen.
+
+Fri Sep  9 09:52:53 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* functionlist.h, lpctypes.h: @45
+
+Fri Jul 22 14:11:39 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* defines.h: removed FILTER_STRING
+
+Tue Jul 12 00:11:12 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* ancient.h, skills.h: Initial revision
+
+Thu Jun 30 20:17:09 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* player.h: updated daemon header
+
+Tue Jun 28 10:50:36 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* doorroom.h: added defines to use with SetDoorStatus
+
+Mon Jun 27 11:36:35 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* properties.h: P_HP_HOOKS
+
+Mon Jun 13 06:52:23 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.h: NOSETMETHOD defined
+
+Tue May 24 19:48:03 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* doorroom.h: D_TESTFUNC fuer Tueren hinzugefuegt.
+
+Tue May 24 19:19:27 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* rooms.h: added support for NewDoors
+
+Wed May 18 13:25:03 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* shells.h: P_SHORT_CWD
+
+Fri May  6 08:23:04 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* properties.h: P_FORCE_DEMONST
+
+Thu May  5 19:19:19 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.h: Removed ExistsProp
+
+Thu May  5 12:41:16 1994  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* properties.h: Property P_CORPSE  (fuer Troy)
+
+Thu May  5 10:03:17 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* transport.h: Integrated #defines from .c
+
+	* properties.h: TRANSPORT-Props -> transport.h
+
+	* player.h: Removed some obsolete Props
+	include channel.h
+
+Thu May  5 09:34:09 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* udp_mail.h: Initial revision
+
+Thu Apr 28 10:46:52 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* udp.h: Check for hostname ...
+
+Wed Apr 20 16:51:19 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.h: INTERMUD
+
+	* udp.h: 0.6
+
+Thu Apr  7 10:43:21 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* language.h: RAW added
+
+Tue Mar 29 18:16:51 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* userinfo.h: Changed all indices by 1; USER_NAME removed
+
+Thu Mar 24 21:26:37 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* v_compiler.h: added QueryObjects(); prototype
+
+Sun Mar 20 17:07:28 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* daemon.h: Initial revision
+
+Thu Mar 17 21:14:18 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* thing/properties.h: SECURED inserted
+
+Wed Mar 16 13:31:12 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player.h: P_NETDEAD_INFO done
+
+Tue Mar 15 23:39:32 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* properties.h: Neue Property: P_ENEMY_DEATH_SEQUENCE
+	(mapping mit Messages, die zu bestimmten Zeitpunkten in der
+	Todessequenz des getoeteten Feindes erscheinen sollen)
+
+Mon Mar 14 22:34:38 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* rooms.h: added RITEM_PROPS (properties for added items to configure)
+
+Mon Mar 14 16:40:27 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player.h: P_LAST_COMMAND_ENV
+
+Wed Mar  9 21:46:57 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* thing/properties.h: *** empty log message ***
+
+	* thing/commands.h, weapon.h: Initial revision
+
+	* thing.h: added commands.h
+
+	* properties.h: some minor changes for weapon's
+
+Thu Mar  3 19:49:41 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* properties.h: P_CLONER :)
+
+Thu Mar  3 19:22:43 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* properties.h: Migrated P_NAME from living/description.h
+
+Wed Mar  2 17:42:31 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* doorroom.h: D_FUNC2 (funktion NACH Durchschreiten der Tuer)
+
+Wed Feb 23 11:33:39 1994  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* doorroom.h: Prototyp fuer GetExits angefuegt.
+
+Tue Feb 22 19:59:11 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* doorroom.h: Initial revision
+
+Thu Feb 17 09:53:40 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* room.h, v_compiler.h, wizlist.h: Initial revision
+
+Wed Feb 16 13:10:05 1994  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* health.h: MAX_POISON definiert auf 10
+
+Tue Feb 15 17:47:57 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* rooms.h: changed RITEM_ #define's to meet new implementation
+
+Wed Feb  9 15:57:04 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/base.h: defined HAUSVERWALTER
+
+Tue Feb  8 17:32:41 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* room/description.h: Initial revision
+
+	* rooms.h:
+	no absolute path's anymore and there is a new room/description.h now
+
+	* shells.h: Initial revision
+
+Wed Jan 26 14:17:41 1994  jof  <jof@MG.uni-muenster.de>
+
+	* properties.h: Included SNOOPING.H
+
+	* snooping.h: Initial revision
+
+Tue Jan 25 11:14:48 1994  jof  <jof@MG.uni-muenster.de>
+
+	* player/base.h: follow_silent
+
+Thu Jan 20 16:17:23 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* player/comm.h: CAN_ECHO changed to CANECHO
+
+	* player.h: included player/comm.h
+
+	* player/comm.h: NEW !
+
+Tue Jan 18 01:06:38 1994  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* living/combat.h: Initial revision
+
+Thu Jan  6 12:44:31 1994  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* ansi.h, attributes.h, combat.h, container.h, debug.h, defines.h,
+	  doors.h, functionlist.h, header.h, health.h, language.h,
+	  lpctypes.h, mail.h, moving.h, news.h, properties.h, rooms.h,
+	  sdefines.h, sent.h, std_headers.h, terminal.h, thing.h, transport.h,
+	  udp.h, userinfo.h, util.h, living/attributes.h, living/life.h,
+	  living/put_and_get.h, player.h, living.h, player/base.h, 
+	  player/description.h, player/filesys.h, player/moving.h,
+	  player/potion.h, player/quest.h, player/skills.h, player/viewcmd.h:
+	Initial revision
+

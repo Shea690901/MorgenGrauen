@@ -1,0 +1,22 @@
+IsTeamLeader()
+
+FUNKTION:
+	object IsTeamLeader()
+
+DEFINIERT IN:
+	/std/living/team.c
+
+ARGUMENTE:
+	keine
+        
+BESCHREIBUNG:
+	Testet ob der Spieler ein Teamleiter ist.
+
+RUECKGABEWERT:
+	Falls der Spieler Teamleiter ist wird das Teamobjekt zurueckgegeben,
+	sonst 0.
+
+BEMERKUNGEN:
+
+SIEHE AUCH:
+	teams

@@ -1,0 +1,119 @@
+FOOD, DRINK & ALCOHOL
+=====================
+
+Es wird empfohlen, jede tragbare Heilung ueber "/std/food"
+zu implementieren. Hier braucht man nur wenige Properties setzen, um
+sicherzugehen, dass die Heilung korrekt verlaeuft.
+
+Man muss nur darauf achten, dass die Food-Properties allesamt mit "F"
+beginnen, also F_POISON oder F_ALC z.B.
+Lediglich SHORT, LONG, NAME, WEIGHT, VALUE und MATERIAL sind aus den
+regulaeren Props uebernommen.
+
+Die Properties im Einzelnen:
+---------------------------
+F_IS_FOOD:         1, wenn es aus was Essbarem besteht.
+F_IS_DRINK:        1, wenn es aus was Trinkbarem besteht.
+F_IS_FULL:         1, wenn es noch da ist, respektive der Behaelter noch voll
+                   ist.
+F_MESSAGE:         Die Meldung, die die Umstehenden erhalten, wenn gegessen/
+                   getrunken wird.
+F_EMPTY_CONTAINER: Name fuer den Container, falls vorhanden.
+F_EMPTY_GENDER:    Das leere Gefaess muss ja nicht das selbe Geschlecht
+                   haben wie das volle.
+F_EMPTY_ID:        Die ID fuer das leere Gefaess.
+F_EMPTY_LONG:      Eine Long-Description, wenn das Ding leer ist.
+F_ALC:             Die Menge an Alkohol, die das Getraenk hat. Der Wert muss
+                   zwischen 1 und 100 liegen (respektive 1% und 100%)!
+                   Ein Bier kriegt also zwischen 4 und 12. Wein zwischen 10
+                   und 12. Whisky zwischen 35 und 42.
+                   100 waere reiner Alkohol!
+F_LIQUID:          Die Menge an Fluessigkeit (in ml!), die das Getraenk hat.
+                   ACHTUNG: 1 l == 1000 ml
+                   Eine normale Flasche Bier wuerde also 330 oder 500 haben.
+                   F_POTION darf bei Fluessigkeiten nicht mehr als
+                   F_LIQUID/100 betragen (Eine kleine Flasche Bier sind halt
+                   nur ein paar Schluck).
+F_FOOD_SIZE:       Die Groesse der Speise (in cm).
+                   Ein Broetchen kriegt also eine F_FOOD_SIZE von 5, ein Brot
+                   wuerde 15 bekommen. Die Prop ist sehr wichtig, weil sich
+                   hieraus bestimmt, welches Giftlevel der Spieler bekommt,
+                   wenn FOOD vergiftet ist!
+                   F_POTION sollte bei fester Nahrung nicht groesser als
+                   F_FOOD_SIZE sein.
+F_POTION:          Wie oft kann man abbeissen/trinken?
+F_HEAL:            Soll die Mahlzeit eine Zusaetzliche Heilwirkung haben?
+                   Je groesser die Heilung, umso groesser muss P_FOOD_SIZE
+                   sein, bzw. umso kleiner F_POTION.
+F_NO_CONTAINER:    1, wenn es kein Container hat. Dann wird es nach dem
+                   Essen direkt zerstoert (so F_POTION 0 ist).
+F_BAD:             Falls das Essen verdorben ist, wird P_POISON im Spieler
+                   gesetzt in Abhaengigkeit von F_BAD. Eine Speise kann also
+                   immer mehr verderben (1-10).
+F_POISON:          Nun kann man endlich giftiges Essen bauen! Wird direkt an
+                   den Spieler weitergegeben.
+
+Beispiele:
+---------
+// Ein kleines Broetchen zum Mitnehmen
+inherit "/std/food";
+#include <food.h>
+#include <defines.h>
+//Wieviel Resets soll das Broetchen haltbar sein?
+int h=5;
+create()
+{
+  if (!clonep( TO )) {
+      set_next_reset(-1);
+      return;
+  }
+  ::create();
+  SetProp(P_SHORT,"Ein Broetchen");
+  SetProp(P_LONG,BS("Diese Broetchen sieht ganz schoen lecker aus. "
+                    "Bestimmt hat es eine staerkende Wirkung."));
+  SetProp(P_NAME,"Broetchen");
+// 3 heilungspunkte auf LP und MP pro Biss
+  SetProp(F_HEAL,3);
+// 3 mal kann man abbeissen
+  SetProp(F_POTION,3);
+
+  AddId("broetchen");
+}
+reset()
+{
+  h--;
+  if ( !h )
+   {
+    SetProp(F_BAD,QueryProp(F_BAD)+1);
+            // Nun hat man ein verdorbenes Broetchen im inv, welches mit
+            // der Zeit immer mehr verdirbt (max 10).
+            // Heilen tut es nun natuerlich nicht mehr.
+    if ( ENV(TO) == TP )
+     write(BS("Das Broetchen setzt etwas Schimmel an."));
+   }
+  ::reset();
+}
+
+Hier musste man relativ wenig Props setzen, da das inheritet-file
+fuer diesen Fall schon eine ganze Menge richtiger Props gesetzt hat.
+
+// Eine Whiskyflasche
+inherit "/std/food";
+#include <food.h>
+
+create()
+{
+  if(!clonep( TO )) {
+      set_next_reset(-1);
+      return;
+  }
+  ::create();
+// 10 heilungspunkte auf LP und MP pro Schluck
+  SetProp(F_HEAL,10);
+// 5 Schlucke sind drin
+  SetProp(F_POTION,5);
+
+  AddId(({"whisky","whiskyflasche","flasche"}));
+}
+----------------------------------------------------------------------------
+11.08.2007, Zesstra

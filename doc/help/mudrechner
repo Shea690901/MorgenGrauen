@@ -1,0 +1,26 @@
+Der Mudrechner
+==============
+
+     Das Mud laeuft momentan (Stand 08. April 2004) auf einem
+      - Xeon CPU 2.40GHz 1024MB RAM, 36 + 70 GB Plattenplatz (SCSI)
+      - Abgesichert durch eine USV
+     und ist ueber
+      - 1000MBit Ethernet (extern 155MBit WIN)
+     an das Internet angeschlossen.
+
+     Unter der Adresse mg.mud.de sind ebenfalls:
+      FTP:	- anonym
+		  - zum Hochladen von Partybildern
+		  - zum Zugriff auf Software (inklusive aktueller Mudlib)
+		- mit Magiername/Passwort
+		  - mit den gleichen Rechten des Magiercharakters im MUD
+      WWW:	- die Webseiten des MG
+		- mit Magiername/Passwort (http://mg.mud.de/login)
+		  - Informationen ueber Reportfiles und Status
+     zu erreichen.
+
+ SIEHE AUCH:
+     lag, irc
+
+ LETZTE AeNDERUNG:
+    7. Mai 2004 Gloinson

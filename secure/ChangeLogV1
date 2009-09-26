@@ -1,0 +1,505 @@
+Thu Nov 16 13:28:55 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* merlin.c:
+	Merlin kennt Gilden und seine Rufen triggert nicht mehr bei jedem
+	Mist. ;)
+
+	* explorationmaster.c: DOMAIN_INFO enabled
+
+	* master/misc.c: Zeitweises sperren von Spielern eingebaut.
+
+	* login.c: Behandlung zeitweise gesperrter Spieler eingebaut.
+
+Fri Oct  6 11:41:17 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* exploration.h: Diverse #defines
+
+	* explorationmaster.c: Initial revision
+
+Thu Oct  5 12:36:15 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* login.c: creation_date tut jetzt
+
+Thu Sep 21 13:41:28 1995  Catweazle  <Catweazle@MG.uni-muenster.de>
+
+	* merlin.c: little bugfixing
+
+Wed Sep 20 17:07:32 1995  Catweazle  <Catweazle@MG.uni-muenster.de>
+
+	* merlin.c: Merlin postet jetzt realnames in der zeitung
+
+Wed Sep 20 15:57:39 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* exploration.h: Initial revision
+
+Tue Sep 19 16:55:37 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* simul_efun.c:
+	The object that causes call_out overflow will be destructed.
+
+Tue Sep 19 11:43:54 1995  Catweazle  <Catweazle@MG.uni-muenster.de>
+
+	* merlin.c: Zweities koennen nicht mehr Magier werden
+
+Mon Aug 28 13:56:04 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* login.c: quit on no passwd
+
+Mon Aug 14 06:37:17 1995  Boing  <Boing@MG.uni-muenster.de>
+
+	* questmaster.c:
+	Der Questmaster verschickt beim Loesen einer Quest jetzt eine mail.
+
+Mon Jun 26 11:33:18 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* master.c: modify_command ...
+
+Fri Jun 16 12:56:01 1995  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* questmaster.c:
+	new computation in QueryDontneed() takes player's P_NEEDED_QP into
+	account
+
+Tue Jun  6 08:35:26 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: _notify_fail
+
+Wed May 31 08:19:43 1995  Catweazle  <Catweazle@MG.uni-muenster.de>
+
+	* merlin.c: Spieler mit PK koennen nicht mehr Magier werden
+
+Tue May 30 15:04:13 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* login.c:
+	added loginname() to prevent parallel login with the same name
+
+Mon May 29 06:23:38 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: country ueberarbeitet
+
+Tue May 23 09:16:33 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* simul_efun.c: swap() overloaded
+
+Mon May 22 19:37:22 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* merlin.c: Using QueryDontneed()
+
+	* questmaster.c: 1196 -> QP_MIN (defined in questmaster.h)
+
+	* questmaster.h: Added QP_MIN == 1196
+
+	* questmaster.c:
+	Added QueryDontneed() for dynamic calculation of not needed quests
+
+	* questmaster.h: QDONTNEED removed
+
+Fri May 19 16:22:07 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* guestmaster.c: Initial revision
+
+	* mailer.c: Made some changes to get external mail work with aliases
+
+	* simul_efun.c: ip-maps expanded
+
+Wed May 17 08:43:01 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* questmaster.c: little protection in Channel()
+
+Mon May 15 10:30:12 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: made shutdown more secure
+
+	* simul_efun.c: speed up break_string
+
+	* master/userinfo.c: Fixed some problems in passwd-change
+
+Fri Apr 21 19:32:15 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: Slow don cleaning
+
+Fri Apr 21 18:04:22 1995  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* simul_efun.c: P_CONTENT_CHANGE eingebaut
+
+Fri Apr 21 18:03:31 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* master.c: Debugging mail
+
+Thu Apr 20 12:43:10 1995  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* merlin.c: kleine bug in 'wandern' behoben.
+
+Wed Apr 19 20:31:33 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* questmaster.h: QDONTNEED changed
+
+Tue Apr 18 16:40:25 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* news.c: added dump_group()
+
+Thu Apr 13 17:04:23 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* login.c: check if passwd==name
+
+Wed Apr 12 19:35:38 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* merlin.c: Removed Logging of questions ...
+
+Mon Apr 10 15:28:51 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* master.c: removed some 'catch'es from runtime_error
+
+	* master.h: No more messages to MGZ
+
+Thu Apr  6 19:01:44 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* mailer.c: Fixed adress
+
+Fri Mar 31 17:54:54 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* config.h: onm103 -> mg
+
+Thu Mar 30 13:46:38 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* mailer.c: External mail fixes
+
+	* inetd.c: santana -> mg
+
+	* master.c: Bugfixed.
+
+	* simul_efun.c: Locations ...
+
+Thu Mar 23 18:38:09 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* config.h: changed santana to onm103
+
+Mon Mar 20 15:52:53 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* questmaster.c: ignore optional quests in QueryReadyForWiz()
+
+Mon Mar  6 21:10:15 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* mailer.c: Format fuer externe Mails verbessert (?)
+
+	* simul_efun.c: query_ip_number
+
+	* master/userinfo.c: Bugfixing
+
+	* master/misc.c: IP-Names bei renew_player_object uebernehmen
+
+Tue Feb 28 10:46:51 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* master/network.c: IPNAME-Fixes
+
+	* config.h: UDPSERV-Stuff
+
+	* room_locator.c: Initial revision
+
+	* simul_efun.c: minor bugfixes
+
+	* news.c: Oehm
+
+	* mailer.c: Fixes for mailrelay
+
+	* master.c: Timeouts for IPNAME-Cache
+
+Mon Feb 20 10:22:58 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: No logging of clean_sim any more
+
+	* master.c: Bugs removed
+
+	* master/userinfo.c:
+	Fixed Bug which prevented Cache from being used in many cases
+
+	* master/network.c: NaseFTPD-Changes
+
+Thu Feb 16 17:07:25 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* master/network.c: fix for long mails
+
+Tue Feb 14 23:33:07 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* merlin.c: PostMagier repariert
+
+Mon Feb  6 22:32:21 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* master.c: naseftpsupport -> network.c
+
+	* master/network.c: Naseftp-Support aus master.c, Ftp-Support weg
+
+Wed Feb  1 17:07:32 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* news.c: Changes for HTTP
+
+	* master/userinfo.c: check for : in find_userinfo
+
+Mon Jan 23 17:46:00 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* merlin.c:
+	Postings fuer Statusaenderungen (Spieler -> Seher, Seher -> Magier)
+
+Mon Jan  9 23:06:10 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* merlin.c: notify_player_change-Bug
+
+Tue Jan  3 15:42:44 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: destruct ...
+
+Tue Jan  3 12:34:51 1995  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* master.c: /secure/save_inactive now read-protected
+
+Fri Dec 23 12:39:07 1994  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* login.c: Erinnerung an PK-Verbot fuer neue logins
+
+Fri Dec 23 12:20:43 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* login.c: regexp for banish
+
+Thu Dec  8 18:12:11 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* master/misc.c: Dont give object names to players when renewing
+
+Thu Dec  1 16:30:32 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* merlin.c: done
+
+Wed Nov 30 14:45:19 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* master/userinfo.c: secure-savefile expiring
+
+Thu Nov 24 12:36:52 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: einchecken, 'bug' in destruct behoben ;-) (Rumata)
+
+Mon Nov 21 20:08:59 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* questmaster.c: using P_NEEDED_QP
+
+Thu Nov  3 16:57:39 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* inetd.c: Updated to intermud 0.7 beta
+
+Wed Oct 26 01:34:30 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* merlin.c: /room/gilde -> /gilden/abenteurer
+
+Mon Oct 24 15:42:28 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* master.c: added remove()
+
+Fri Oct  7 14:51:19 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* merlin.c: using XP_NEEDED_FOR_WIZ
+
+	* questmaster.h: added new #define XP_NEEDED_FOR_WIZ
+
+Fri Oct  7 11:05:04 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* master.h: functionlist inherited
+
+Mon Sep 26 13:24:06 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* master/domain.c, master/network.c, master/userinfo.c:
+	fixed userinfo indices
+
+Sat Sep 24 13:06:26 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* master/misc.c: index bug in advance_wizlevel()
+
+	* master/userinfo.c, master.h: removed static from get_full_userinfo()
+
+Fri Sep 23 09:11:03 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* master/domain.c, master/misc.c, master/network.c, master/userinfo.c,
+	  master.h, master.c:
+	Initial revision
+
+Mon Sep 12 18:30:31 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: ueberarbeitung
+
+	* userinfo.c: Initial revision
+
+Fri Sep  9 09:51:22 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: @41- patches
+
+Tue Aug 23 11:35:17 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* questmaster.c: ignore deactivated quests in QueryReadyForWiz()
+
+Fri Aug 12 11:32:39 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* merlin.c: log
+
+Wed Jul 20 15:52:13 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* questmaster.c: fixed max_QP bug in AddQuest
+
+Sat Jul 16 15:02:32 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* simul_efun.c: bugfix in write()
+
+Fri Jul 15 14:13:17 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* simul_efun.c: added printf() as simul_efun
+
+Thu Jul 14 22:00:47 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* simul_efun.c:
+	added special message handling functions tell_object, say, write
+
+Mon Jul 11 22:47:33 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* merlin.c:
+	Merlin no longer informs players about invis wiz leaving the game
+
+Wed Jun 29 15:10:40 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* udp_mail.c: Initial revision
+
+Wed Jun 29 07:20:59 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* questmaster.h: added QGROUPS
+
+Wed Jun 22 14:30:28 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* login.c: bugfix: magier.c was accepted as race!!!
+
+Wed Jun 15 14:47:25 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* merlin.c: clean up inventory on reset
+
+Mon Jun 13 23:19:35 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* merlin.c: bugfix
+
+	* merlin.c: added questgroup information
+
+	* questmaster.c: added questgroup handling in QueryReadyForWiz
+
+	* questmaster.h: added defines for questgroups
+
+Sat Jun 11 00:12:56 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* questmaster.c: Fixed bug in activate/deactivate logging
+
+Mon May 16 09:21:29 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* questmaster.h: changed location of logfile to /log
+
+	* questmaster.c: fixed bug in SetActive()
+
+Wed May 11 09:47:47 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* news.c: expire changed
+
+Tue May 10 21:32:10 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* mailer.c: Huh ?
+
+	* mailer.c: MoveAllMessages()
+
+Tue May  3 18:55:43 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* config.h: PROJECTDIR defined
+
+Mon May  2 18:56:22 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* login.c: TIMEOUT wieder raus
+
+Thu Apr 28 10:29:23 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* login.c: Minor security-fixes
+
+Tue Apr 19 01:43:22 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* questmaster.c: storage of questlist changed from alist to mapping
+	QueryAllQuests() migrated into QueryAllKeys()
+
+Sun Apr 10 16:28:59 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* potionmaster.c: removed superfluous error-message
+
+Wed Apr  6 21:51:03 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* questmaster.c: replaced QueryQP() by QueryProp(P_QP)
+
+Mon Mar 28 08:35:17 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* BANISH: Initial revision
+
+	* simul_efun.c: query_closure_object()
+
+Fri Mar 18 14:14:41 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* inetd.c, simul_efun.c: ELDER_LVL
+
+	* config.h, wizlevels.h: Initial revision
+
+Sat Mar 12 00:28:40 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: Added Call-Out-Stopper
+
+Thu Mar  3 20:55:54 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* news.c: Changed cleanup-Time
+
+Tue Mar  1 22:20:43 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* questmaster.c, questmaster.h: added logging
+
+Mon Feb 28 21:34:37 1994  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* questmaster.h, questmaster.c: Initial revision
+
+Wed Feb 23 19:54:31 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* wahlmaschine.c: Erst ab Level 10 ...
+
+	* wahlmaschine.c: Wahl erst ab Level 5
+
+Mon Feb 21 16:10:17 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: removed P_NAME again from match_living()
+
+Thu Feb 17 17:48:11 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: fix in snoop
+
+	* simul_efun.c: wiz_list et al
+
+Tue Feb 15 09:52:05 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: TI in snoop replaced by PO
+
+Fri Feb 11 13:08:01 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* login.c: Keine Grossbuchstaben mehr im loginnamen. (Rumata)
+
+Tue Feb  8 19:50:54 1994  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* simul_efun.c: Handling von P_NAME erweitert.
+
+Tue Feb  8 17:13:22 1994  Hate  <Hate@MG.uni-muenster.de>
+
+	* simul_efun.c:
+	changed general #include "/sys/properties.h" to the special #include's
+	needed for the master object (this is due to the absolute path needed
+	here)
+	now, the properties.h file doensn't contain any absolute path's anymore
+
+Thu Feb  3 19:51:33 1994  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: Added COTTBUS to subnetlist
+
+	* combat.c, inetd.c, login.c, mailer.c, merlin.c, news.c,
+	  potionmaster.c, sendtest.c, shutdown.c, simul_efun.c, skillmaster.c,
+	  spare_simul_efun.c, updater.c, wahlmaschine.c:
+	Initial revision
+

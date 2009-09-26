@@ -1,0 +1,73 @@
+
+stufen
+======
+
+    Seine (Spieler-)Stufe kann man in jeder Gilde erhoehen. Die einzige
+    Voraussetzung dabei ist es, genuegend Stufenpunkte zu haben.
+
+    Um auf Stufe <x> aufsteigen zu koennen, benoetigt man <x>*100 dieser
+    Stufenpunkte.
+
+    Die einzige Ausnahme ist der Aufstieg vom Spieler zum Seher oder Magier:
+     Um Seher zu werden gibt es zusaetzliche Bedingungen, wie bestimmte
+     Anzahlen von Abenteuerpunkten, Forscherpunkten und Erstkills. Die
+     aktuelle Liste ist unter der Hilfeseite "seher" zu finden.
+     Magier kann man nach Erreichen des Seherstands auf Anfrage bei einem
+     hoeheren Magier werden.
+
+    Bis zur Stufe 19 sehen die Stufenbezeichnungen fuer Abenteurer wie folgt
+    aus:
+
+     +-------+---------+------------------------+---------------------------+
+     | Stufe | St.pkte |       Maennlich        |         Weiblich          |
+     +-------+---------+------------------------+---------------------------+
+     |    19 |    1900 | der angehende Seher    | die angehende Seherin     |
+     +-------+---------+------------------------+---------------------------+
+     |    18 |    1800 | der Held               | die Heldin                |
+     +-------+---------+------------------------+---------------------------+
+     |    17 |    1700 | der Eroberer           | die Erobererin            |
+     +-------+---------+------------------------+---------------------------+
+     |    16 |    1600 | der Entdecker          | die Entdeckerin           |
+     +-------+---------+------------------------+---------------------------+
+     |    15 |    1500 | der Feuerbaendiger     | die Feuerbaendigerin      |
+     +-------+---------+------------------------+---------------------------+
+     |    14 |    1400 | der Schatzsucher       | die Schatzsucherin        |
+     +-------+---------+------------------------+---------------------------+
+     |    13 |    1300 | der Draufgaenger       | die Draufgaengerin        |
+     +-------+---------+------------------------+---------------------------+
+     |    12 |    1200 | der Weltenbummler      | die Weltenbummlerin       |
+     +-------+---------+------------------------+---------------------------+
+     |    11 |    1100 | der Abenteurer         | die Abenteurerin          |
+     +-------+---------+------------------------+---------------------------+
+     |    10 |    1000 | der Reisende           | die Reisende              |
+     +-------+---------+------------------------+---------------------------+
+     |     9 |     900 | der Kundschafter       | die Kundschafterin        |
+     +-------+---------+------------------------+---------------------------+
+     |     8 |     800 | der Jaeger             | die Jaegerin              |
+     +-------+---------+------------------------+---------------------------+
+     |     7 |     700 | der Wegekundige        | die Wegekundige           |
+     +-------+---------+------------------------+---------------------------+
+     |     6 |     600 | der Faehrtensucher     | die Faehrtensucherin      |
+     +-------+---------+------------------------+---------------------------+
+     |     5 |     500 | der Waldlaeufer        | die Waldlaeuferin         |
+     +-------+---------+------------------------+---------------------------+
+     |     4 |     400 | der Wandergeselle      | die Wandergesellin        |
+     +-------+---------+------------------------+---------------------------+
+     |     3 |     300 | der Streuner           | die Streunerin            |
+     +-------+---------+------------------------+---------------------------+
+     |     2 |     200 | der Landstreicher      | die Landstreicherin       |
+     +-------+---------+------------------------+---------------------------+
+     |     1 |     100 | der hoffnungsvolle     | die hoffnungsvolle        |
+     |       |         | Anfaenger              | Anfaengerin               |
+     +-------+---------+------------------------+---------------------------+
+
+    Seherstufen tragen keinen Titel, da jeder Seher seinen Titel selbst frei
+    waehlen darf.
+
+ SIEHE AUCH:
+    seher, magier, magierstufen
+    forscherpunkte, stufenpunkte
+    abenteuer
+
+ LETZTE AeNDERUNG:
+    27.Nov 2006 Gloinson

@@ -1,0 +1,44 @@
+
+typo
+----
+
+KOMMANDO:
+    typo <text>
+    typo <objekt>:<text>
+
+ARGUMENTE:
+
+     <text>
+        Eine Mitteilung
+     <objekt>
+        Ein Objekt, das neben Dir liegt oder in Deinem Inventar ist
+
+BESCHREIBUNG:
+    In den Beschreibungen von Raeumen und Objekten kommt es immer wieder mal
+    zu Tippfehlern, die auch die Testphase des Objektes/Gebietes unerkannt
+    ueberstanden haben.
+
+    Wenn Du einen Tippfehler gefunden hast, so kannst Du den Verantwortlichen
+    mit diesem Befehl davon unterrichten.
+
+    Wenn der Tippfehler in einem Objekt auftaucht, das im Raum liegt oder sich
+    in Deinem Inventar befindet, so kannst Du den Tippfehler mit der zweiten
+    Variante melden. Ansonsten wird der Programmierer des Raumes
+    benachrichtigt, in dem Du gerade stehst.
+
+    Aus diesem Grund solltest Du einen Tippfehler immer sofort melden, wenn Du
+    ihn gefunden hast, und nicht erst, nachdem Du schon drei Raeume weiter
+    gegangen bist.
+
+    Fuer den Programmierer sehr hilfreich ist es uebrigens, wenn Du bei der
+    Meldung noch mit angibst, wo genau der Tippfehler zu finden ist (also z.B,
+    welches Detail Du gerade untersuchst hast o.ae.).
+
+    Zoegere nicht, wenn Du einen Tippfehler findest; Fehlermitteilungen sind
+    *sehr* willkommen!
+
+SIEHE AUCH:
+    fehler, idee, detail
+
+LETZTE AeNDERUNG:
+    Mo, Jan 28.01.02 2002, 23:14:10h von Tilly 

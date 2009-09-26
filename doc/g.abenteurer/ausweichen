@@ -1,0 +1,26 @@
+
+ausweichen
+----------
+
+ ZAUBERSPRUCH:
+    ausweichen
+
+ ARGUMENTE:
+    keine
+
+ FUNKTION:
+    Der Abenteurer weicht dem naechsten Angriff aus. Dieser Angriff muss
+    physikalisch sein, gegen Feuerangriffe oder aehnliches ist der Spruch
+    unwirksam. Ausweichen ist natuerlich nur im Kampf moeglich.
+
+    Der Spruch kostet 10 Magiepunkte und ist ab Stufe 12 erhaeltlich.
+
+ SIEHE AUCH:
+    abenteurer, gilden,
+    licht, identifiziere, schaetz, pfeil, kampfschrei, feuerball, schnell
+
+    *Ist man Mitglied einer anderen Gilde, so muss man fuer die Hilfen zu den
+    Spruechen `hilfe gilde abenteurer <name>' benutzen!*
+
+ LETZTE AeNDERUNG:
+    Thu, 24.07.1997, 09:00:00 von Wargon

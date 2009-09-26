@@ -1,0 +1,22 @@
+TeamPrefix()
+
+FUNKTION:
+	string TeamPrefix()
+
+DEFINIERT IN:
+	/std/living/team.c
+
+ARGUMENTE:
+	keine
+        
+BESCHREIBUNG:
+	Ergibt Team-Prefix eines Spielers.
+
+RUECKGABEWERT:
+	"[Team Teamname] ", falls der Spieler in einem Team ist,
+	""                  sonst.
+
+BEMERKUNGEN:
+
+SIEHE AUCH:
+	teams

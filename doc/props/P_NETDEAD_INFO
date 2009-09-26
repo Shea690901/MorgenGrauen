@@ -1,0 +1,63 @@
+NAME:
+    P_NETDEAD_INFO                "netdead_info"                
+
+DEFINIERT IN:
+    /sys/player.h
+
+BESCHREIBUNG:
+     Wird im Raum gesetzt und wirkt nur, falls dieser Raum ein '#' im
+     object_name() hat (normale Clones, zB "/room/void#10153018").
+     
+     Bei Einschlafen eines Spielers in diesem Raum werden die Werte aus
+     der Property im Spieler gespeichert.
+     Ist beim Aufwachen des Spielers das Raumobjekt zerstoert worden, so
+     wird bei dessen Blueprint (also dem nichtgeclonten Objekt, zB
+     "/room/void") per SetProp() die gespeicherte Information gesetzt
+     und der Rueckgabewert als neuer Raum-Pfad/Raum-Objekt interpretiert.
+     Der Spieler wird in dem Fall dorthin bewegt.
+
+BEISPIELE:
+     #include <properties.h>
+     inherit "/std/room";
+     
+     string create_destiny(mixed val);
+     int create_room(string dir);
+
+     void create() {
+       ::create();
+       
+       if (clonep(this_object()))
+         Set(P_NETDEAD_INFO, random(5));
+       else
+         AddExit("gluecksraum", #'create_room);
+
+       Set(P_NETDEAD_INFO, #'create_destiny, F_SET_METHOD);
+       SetProp(P_LIGHT, 1);
+     }
+     
+     // Raum entfernen, normalerweise so KEINE GUTE IDEE!
+     void BecomesNetDead(object pl) {
+       call_out(#'remove, 30);
+     }
+
+     int create_room(string dir) {
+       object dest = clone_object(object_name(this_object()));
+       this_player()->move(dest, 2);
+       return 1;
+     }
+     
+     string create_destiny(mixed val) {
+       if (intp(val))
+         switch (val) {
+           case 0:
+             return "/d/ebene/room/PortVain/po_haf1";
+           case 1:
+             return "/gilden/klerus";
+           case 2:
+             return "/gilden/karate";
+           default:
+             return "/d/ebene/room/waldweg4";
+         }
+     }
+
+7. August 2009 Gloinson

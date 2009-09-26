@@ -1,0 +1,40 @@
+FUNKTION:
+	void AddInfo( string frage, string meldung );
+	void AddInfo( string* fragen, string meldung );
+	void AddInfo( string frage, string meldung, string indent );
+	void AddInfo( string* fragen, string meldung, string indent );
+
+ARGUMENTE:
+	frage, fragen: Texte auf die Informationen gegeben werden sollen.
+	meldung: Information, die gegeben werden soll.
+	indent: Text, der sich bei mehrzeiligen Meldungen wiederholen soll.
+
+FUNKTION:
+	Wenn ein Spieler ein NPC mittels "frage <monstername> nach <frage>"
+	nach einer Information fragt, so wird die entsprechende Meldung
+	ausgegeben. Dieser Meldung wird der Name des Monsters vorangestellt.
+	
+	Wird ein indent angegeben wo wird die Meldung, falls sie nicht in eine
+	Zeile passt, umgebrochen und jeder Zeile der Indent vorangestellt.
+	Typischerweise ist der indent gleich "sagt: ".
+
+	Mittels der in <npc.h> definierten Frage DEFAULT_INFO kann eine
+	Meldung gesetzt werden, die gegeben werden soll, wenn der Spieler
+	etwas fragt, auf das keine Antwort vorgegeben ist (Dieses ist die
+	neue Form von SetProp( P_DEFAULT_INFO )).
+
+RUECKGABEWERT:
+	keiner
+
+BEISPIELE:
+	AddInfo( ({"geld","muenzen"}), "sagt: ich habe kein Geld.\n" );
+	AddInfo( DEFAULT_INFO, "starrt Dir in die Augen.\n" )
+		Dasselbe wie SetProp( P_DEFAULT_INFO, "starrt..." );
+	AddInfo( "geld", "ich habe zwar kein geld, aber ... blablabla",
+		"sagt: " );
+	Die Frage:
+		frage monster nach geld
+	Ergibt dann:
+		Das Monster sagt: ich habe zwar kein geld, aber ...
+		Das Monster sagt: ... blablabla ...
+		Das Monster sagt: ....

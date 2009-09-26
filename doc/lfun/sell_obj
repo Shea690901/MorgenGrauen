@@ -1,0 +1,42 @@
+sell_obj()
+
+FUNKTION:
+	static string sell_obj(object ob, int short);
+
+DEFINIERT IN:
+	/std/shop.c
+
+ARGUMENTE:
+	ob - der Gegenstand bei dem geprueft werden soll, ob der Laden ihn
+	     von this_player() ankaufen soll.
+        short - Wenn dieses Flag gesetzt ist, sollte der Rueckgabestring
+             moeglichst kurz gehalten werden um den Scroll bei einem
+             verkaufe alles klein zu halten. Ideal sind Strings die nicht
+             laenger als 40-60 Zeichen lang sind, da dann pro Gegenstand
+             mit einer Zeile ausgekommen wird.
+
+RUeCKGABEWERT:
+        Ein String was der Haendler sagen soll wieso der Gegenstand nicht
+	angekauft wird. Der String wird dabei wie folgt umgebrochen:       
+        break_string(str, 78, Name(WER, 1)+" sagt: ") oder bei verkaufe alles
+        break_string(ob->Name(WER)+": "+str, 78)
+
+BESCHREIBUNG:
+	Durch ueberschreiben dieser Funktion ist es relativ einfach zu
+	bestimmen was fuer Objekte ein Laden fuehrt. Aber auch abfragen
+	ob der Laden ueberhaupt mit this_player() handelt, sind moeglich.
+
+BEISPIELE:
+	static string sell_obj(object ob, int short)
+	{
+	   if (ob->QueryProp(P_WEAPON_TYPE))
+	      return "Wir kaufen keine Waffen!";
+	   return ::sell_obj(ob, short);
+	}
+
+SIEHE AUCH:
+	buy_obj(), AddFixedObject(), RemoveFixedObject(), SetStorageRoom(),
+        /std/shop.c
+
+----------------------------------------------------------------------------
+Last modified: Thu Mar 4 15:26:13 1999 by Padreic

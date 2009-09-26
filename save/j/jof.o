@@ -1,0 +1,16 @@
+#0:0
+attributes (["int":20,"str":20,"dex":20,"con":20,])
+attributes_offsets ([])
+properties (["death_info":0;320,"guild_title":(["abenteurer":"der hoffnungsvolle Anfaenger",]);64,"gender":1;64,"guild_level":(["abenteurer":20,]);64,"food":0;64,"start_home":"/players/jof/workroom";64,"carried":0;64,"prompt":"> ";64,"destruct_msg":"verschwindet einfach";64,"invis":0;64,"needed_qp":1680;832,"sp":202;64,"read_news":0;64,"testplayer":0;64,"wants_to_learn":1;192,"last_logout":846760985;960,"deads":0;960,"married":0;64,"channels":({"tod","abenteuer","allgemein",});64,"ep_num":({-3,846761317,});832,"xp":1111111;64,"homepage":0;64,"playerkills":0;320,"last_login":846760901;960,"clone_msg":"zaubert etwas hervor";64,"can_flags":13;64,"show_exits":1;64,"poison":0;64,"informme":0;192,"ignore":({});64,"last_quit":0;448,"earmuffs":0;320,"extralook":0;64,"hp":202;64,"tty":"vt100";64,"mmsgin":"tritt aus einer Schwefelwolke";64,"mmsgout":"verschwindet mit Knall und Schwefelduft";64,"visited_potionrooms":" ";192,"guild_rating":0;64,"presay":0;64,"level":20;320,"frog":0;64,"guild":0;64,"align":0;64,"alcohol":0;64,"clockmsg":0;64,"short_channels":(["a":"Allgemein","N":"Nachrichten","T":"Tod","h":"Seher","b":"Abenteuer","B":"Beileid","G":"Grats","q":"D-chat","M":"Moerder",]);64,"msgin":"kommt an";64,"screensize":20;64,"title":"der Gott";64,"bonus_potions":0;192,"brief":0;64,"intermud":0;64,"waitfor":0;192,"swap_channels":0;64,"msgout":"geht";64,"newskills":0;64,"blind":0;64,"std_channel":"Allgemein";64,"ghost":0;64,"wimpy":20;64,"buffer":0;64,"second":0;64,"questpoints":0;320,"drink":0;64,"lep":0;320,"hands":({" mit blossen Haenden",30,"bludgeon",});64,"called_from_ip":"jacquard.uni-muenster.de";64,"size":170;64,"creation_date":-1;448,"mailaddr":"none";64,])
+age 0
+aliases ([])
+hist_size 40
+show_processing 1
+histmin 1
+default_notify_fail 0
+quests ({})
+potionrooms ({})
+ep ""
+given_scores ""
+plr_adverbs ([])
+auto_load ([])

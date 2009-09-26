@@ -1,0 +1,48 @@
+NAME:
+    P_M_ATTR_MOD                  "magic_attributes_modifier"
+
+DEFINIERT IN:
+    /sys/living/attributes.h
+
+BESCHREIBUNG:
+    Mapping, das die Attribute des Spielers veraendert, der
+    diese Ruestung/Waffe traegt/benutzt.
+    werden.
+
+    Zu beachten: P_M_ATTR_MOD kann problemlos durch ein SetProp()
+    gesetzt werden, es wird nur beruecksichtigt, wenn die Ruestung/Waffe
+    getragen/benutzt wird. Beim tragen/ausziehen/zuecken/wegstecken
+    wird im Spieler automatisch UpdateAttributes() aufgerufen.
+
+    Fuer Krankheiten etc. oder Objekte deren Besitz allein schon die
+    Attribute veraendern sollen verwendet man besser die Property
+    P_X_ATTR_MOD.
+
+    P_X_ATTR_MOD und P_M_ATTR_MOD duerfen einen gemeinsamen kumulierten
+    positiven Grenzwert nicht ueberschreiten. Dieser Grenzwert
+    CUMULATIVE_ATTR_LIMIT ist in /sys/living/attributes.h definiert.
+
+BEMERKUNGEN:
+     Die Werte sollten moeglichst nicht dynamisch geaendert werden.
+     Wenn doch, muss mit TestLimitViolation() am Spieler auf Validitaet
+     geprueft werden und mit UpdateAttributes() an ihm ggf. upgedatet.
+
+BEISPIEL:
+    SetProp(P_M_ATTR_MOD,([A_INT:-2,A_DEX:0]));
+    // Dem Spieler, der das Objekt benutzt, wird 2 von A_INT abgezogen.
+    // Ausserdem werden A_INT und A_DEX gegen weitere Aenderungen durch
+    // andere Waffen/Ruestungen blockiert.
+
+    SetProp(P_M_ATTR_MOD,([A_CON:0]);
+    // Das Objekt blockiert A_CON
+
+SIEHE AUCH:
+	QueryAttribute(), QueryRealAttribute(), QueryAttributeOffset(),
+	SetAttribute(), SetRealAttribute(), UpdateAttributes(),
+	SetTimedAttrModifier(), QueryTimedAttrModifier(),
+	DeleteTimedAttrModifier(),
+        P_X_HEALTH_MOD, P_M_ATTR_MOD, P_M_HEALTH_MOD,
+        P_ATTRIBUTES, P_ATTRIBUTES_OFFSETS, P_TIMED_ATTR_MOD,
+	P_X_ATTR_MOD, P_M_ATTR_MOD, /std/living/attributes.c
+----------------------------------------------------------------------------
+Last modified: Tue Jul 27 20:00:20 2004 by Muadib

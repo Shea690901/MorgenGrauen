@@ -1,0 +1,52 @@
+command_me()
+FUNKTION:
+     int command_me(string str)
+
+DEFINIERT IN:
+     /std/npc.c, /std/player/command.c
+
+BESCHREIBUNG:
+     Fuehrt str wie ein Kommando welches direkt vom Living abgegeben wurde
+     aus.
+
+     Der Rueckgabewert ist >=1 fuer Erfolg und 0 fuer Misserfolg. 
+     Rueckgabewert ist im Erfolgsfall die Hoehe der EvalCost in Ticks. 
+
+     Heutzutage ist diese Lfun weitgehend obsolet, da command() (E) in der
+     Lage ist, Kommandos in anderen Objekten auszuloesen. Daher bitte in neuem
+     Code nach Moeglichkeit nur noch command() nutzen.
+     
+BEMERKUNGEN:
+     - leitet den Befehl einfach nur an command() weiter, um damit die
+       Beschraenkung auf this_object() zu umgehen
+     - beruecksichtigt Aliase, d.h. wenn man Aliase eines Spielers
+       ignoriere will muss man ein \\ (fuer ein \ im Eingabestring)
+       vor den Befehl stellen
+     - nach einem command_me() ist query_verb()==0 !
+       -> Funktion mit 1 abbrechen, nicht mit 0, sonst buggt es potentiell
+
+BEISPIEL:
+     inherit "/std/room";
+
+     void create() {
+      ...
+      AddCmd("schleiche&heran|herum",#'action_schleichen);
+     }
+     
+     static int action_schleichen(string str) {
+      string tmp;
+      ... // was auch immer für Checks
+      tmp=this_player()->QueryProp(P_RACE);
+      if(tmp[<1]=='e'] tmp=tmp[0..<2];
+      write(break_string("Du versuchst leise zu schleichen, dabei passiert "
+		"dir aber ein allzu "+
+		(tmp=="Mensch"?"menschliches":lower_case(tmp)+"isches")+
+		" Missgeschick. Verflucht!",78));
+      this_player()->command_me("\\furze");
+      return 1;
+     }
+
+SIEHE AUCH:
+     enable_commands(E), command(E)
+
+28. Mai 2004 Gloinson

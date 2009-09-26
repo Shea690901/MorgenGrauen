@@ -1,0 +1,90 @@
+Wed Jan 12 14:38:21 1994  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* thing/description.c: not only lower_case ids
+
+	* player/base.c: defined ok()
+
+	* player/filesys.c, player/base.c: moved more from filesys to base
+
+	* player/base.c: PlayerQuit
+
+Mon Jan 10 22:22:53 1994  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* living/combat.c: Fixed Bug in wimpy-code
+
+	* living/life.c: Bug in HP fixed
+
+Sat Jan  8 13:13:21 1994  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* room/exits.c, room/items.c, room/moving.c, room/restrictions.c:
+	changed to #pragma strong_types
+
+Fri Jan  7 12:34:25 1994  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* room/description.c: WriteRoomMessage nur wenn auch Leute drin sind.
+
+	* player/comm.c: Earmuffs made saveable
+
+Wed Jan  5 17:08:35 1994  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* living/attributes.c: changed attributes to mapping
+
+	* player/objects.c: Merged add_object_commands and add_object_commands2
+
+	* player/comm.c, player/command.c, player/description.c,
+	  player/life.c, player/moneyhandler.c, player/moving.c,
+	  player/mudlink.c, player/objects.c, player/potion.c,
+	  player/quests.c, player/restrictions.c:
+	changed save variables partly to mapping entry
+
+Tue Jan  4 10:46:50 1994  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* thing/commands.c, thing/description.c, thing/language.c,
+	  thing/moving.c, thing/properties.c, thing/restrictions.c:
+	NEED_PROTOTYPES added
+
+Mon Jan  3 18:52:48 1994  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* shells/magier.c: Changed for new save file support.
+
+	* thing/properties.c: funcall()
+
+	* thing/properties.c: symbol_function for built_in properties ;)
+
+Thu Dec 30 20:53:50 1993  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* player/description.c: Bug fixed in short()
+
+	* player/base.c: Changed heart_beats
+
+	* thing/properties.c:
+	changed check for nonexisting property to member()
+	Bugfix if(...) ;
+
+	* armour.c: Initial revision
+
+Wed Dec 29 20:36:38 1993  Mud Administrator  <mud@MG.uni-muenster.de>
+
+	* weapon/moving.c, weapon/combat.c, tray/description.c, thing/util.c,
+	  thing/restrictions.c, thing/properties.c, thing/moving.c,
+	  thing/language.c, thing/description.c, thing/commands.c,
+	  shells/magier.c, shells/human.c, shells/elf.c, room/restrictions.c,
+	  room/moving.c, room/items.c, room/exits.c, room/description.c,
+	  room/commands.c, living/put_and_get.c, living/moving.c,
+	  living/life.c, living/description.c, living/combat.c,
+	  living/attributes.c, container/restrictions.c,
+	  container/description.c, armour/moving.c, armour/combat.c,
+	  npc/sequencer.c, npc/put_and_get.c, npc/info.c, npc/comm.c,
+	  npc/combat.c, npc/chat.c, player/shadows/log_remove.c,
+	  player/shadows/pony.c, player/shadows/potion_shadow.c,
+	  player/viewcmd.c, player/spells.c, player/soul.c,
+	  player/restrictions.c, player/skills.c, player/quests.c,
+	  player/potion.c, player/objects.c, player/mudlink.c,
+	  player/moneyhandler.c, player/moving.c, player/life.c,
+	  player/filesys.c, player/command.c, player/description.c,
+	  player/comm.c, player/base.c, container.c, corpse.c, def_workroom.c,
+	  gilde.c, laden.c, lightsource.c, living.c, more.c, newsclient.c,
+	  npc.c, post.c, preload_file, pub.c, room.c, secure_thing.c,
+	  store.c, thing.c, transport.c, tray.c, unit.c, weapon.c:
+	Initial revision
+

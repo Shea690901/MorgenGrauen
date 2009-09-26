@@ -1,0 +1,25 @@
+PresentEnemyRows()
+
+FUNKTION:
+	varargs mixed *PresentEnemyRows(object *here)
+
+DEFINIERT IN:
+	/std/living/team.c
+
+ARGUMENTE:
+	Rueckgabewert von PresentEnemies kann uebergeben werden.
+
+BESCHREIBUNG:
+	Ergibt die feindlichen Reihen.
+
+RUECKGABEWERT:
+	Ein Array bestehend aus MAX_TEAMROWS Arrays mit den Objekten
+        der anwesenden Feinde.
+
+BEMERKUNGEN:
+	Jede Reihe ist Summe der entsprechenden Reihen der
+	anwesenden Teams.
+	Feinde, die in keinem Team sind, stehen im ersten Array.
+
+SIEHE AUCH:
+	teams

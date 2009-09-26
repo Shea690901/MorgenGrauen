@@ -1,0 +1,32 @@
+
+kampfschrei
+-----------
+
+ ZAUBERSPRUCH:
+    kampfschrei <gegner>
+    kampfschrei meldung <schrei>
+
+ ARGUMENTE:
+
+     <gegner>
+        Das Opfer
+     <schrei>
+        Der Text, der dem Opfer entgegengeschleudert wird
+
+ FUNKTION:
+    Der Abenteurer schleudert dem Gegner einen markerschuetternden Kampfschrei
+    entgegen, der ihn so erschreckt, dass er fuer einige Runden langsamer
+    wird. Den Text kann man sich selbst setzen, das Setzen ist natuerlich
+    umsonst und klappt immer.
+
+    Der Spruch kostet 30 Magiepunkte und ist ab Stufe 13 erhaeltlich.
+
+ SIEHE AUCH:
+    abenteurer, gilden,
+    licht, identifiziere, schaetz, pfeil, ausweichen, feuerball, schnell
+
+    *Ist man Mitglied einer anderen Gilde, so muss man fuer die Hilfen zu den
+    Spruechen `hilfe gilde abenteurer <name>' benutzen!*
+
+ LETZTE AeNDERUNG:
+    Thu, 24.07.1997, 09:00:00 von Wargon

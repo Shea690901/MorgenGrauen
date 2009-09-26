@@ -1,0 +1,43 @@
+RemoveSounds()
+
+FUNKTION:
+	void RemoveSounds(mixed*keys);
+
+DEFINIERT IN:
+	/std/thing/description.c
+
+ARGUMENTE:
+	keys
+	  String oder Array von Strings mit den zu entfernenden Details.
+
+BESCHREIBUNG:
+	Diese Funktion entspricht dem RemoveDetail() fuer Standarddetails,   
+	nur koennen hiermit Gerauesche entfernt werden:
+	Entfernt die in <keys> angegebenen Details aus der Liste der
+	vorhandenen Details. Uebergibt man fuer <keys> eine 0, so werden
+	saemtliche Details entfernt!
+
+RUeCKGABEWERT:
+	keiner
+
+BEISPIEL:
+	Wir lassen etwas Musik spielen und wenn wir den Plattenspieler
+	ausmachen, dann endet sie und man hoert auch nichts mehr:
+	  int ausmachen(string str);
+	  ...
+	  AddSounds(({"musik","hip-hop"}),"Klingt nach Hip-Hop...\n");
+	  ...
+	  int ausmachen(string str)
+	  { if(str!="plattenspieler") // OK, OK, _etwas_ bloede Syntax :)
+	      return("WAS moechtest Du ausmachen?\n",0);
+	    if(!GetDetail("musik",0,SENSE_SOUND)) // existiert Musikdetail ?
+	      return("Der Plattenspieler laueft doch gar nicht!\n",0);
+	    RemoveSounds(0);
+	  }
+
+SIEHE AUCH:
+	AddSounds(), P_SOUNDS, RemoveDetail(), RemoveReadDetail(),
+	RemoveSmells(), GetDetail()
+
+----------------------------------------------------------------------------
+Last modified: Wed Jan 14 19:59:11 1998 by Patryn

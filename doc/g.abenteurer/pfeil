@@ -1,0 +1,28 @@
+
+pfeil
+-----
+
+ ZAUBERSPRUCH:
+    pfeil [<gegner>]
+
+ ARGUMENTE:
+
+     <gegner> (optional)
+        Das arme, unschuldige Opfer, das Du umbringen moechtest.
+
+ FUNKTION:
+    Dieser Zauberspruch schleudert einen magischen Pfeil auf den Gegner, der
+    dadurch verwundet wird. Spaetestens nach dem Treffer befindest Du Dich mit
+    dem Gegner im Kampf. Dann kann auch auf das Argument verzichtet werden.
+
+    Der Spruch kostet 10 Magiepunkte und ist ab Stufe 11 erhaeltlich.
+
+ SIEHE AUCH:
+    abenteurer, gilden,
+    licht, identifiziere, schaetz, ausweichen, kampfschrei, feuerball, schnell
+
+    *Ist man Mitglied einer anderen Gilde, so muss man fuer die Hilfen zu den
+    Spruechen `hilfe gilde abenteurer <name>' benutzen!*
+
+ LETZTE AeNDERUNG:
+    Thu, 24.07.1997, 09:00:00 von Wargon

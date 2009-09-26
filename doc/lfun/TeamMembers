@@ -1,0 +1,23 @@
+TeamMembers()
+
+FUNKTION:
+	object *TeamMembers()
+
+DEFINIERT IN:
+	/std/living/team.c
+
+ARGUMENTE:
+	keine
+        
+BESCHREIBUNG:
+	Liefert Teammitglieder des Teams des Spielers.
+
+RUECKGABEWERT:
+	Array mit allen Teammitgliedern.
+
+BEMERKUNGEN:
+	Falls der Spieler in keinem Team ist, enthaelt
+	das Array nur den Spieler.
+
+SIEHE AUCH:
+	teams

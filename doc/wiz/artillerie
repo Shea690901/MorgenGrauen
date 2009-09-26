@@ -1,0 +1,44 @@
+Regeln fuer Artillerie-Objekte
+==============================
+
+1. Definition von Artillerie
+----------------------------
+
+Unter dem Begriff "Artillerie" fasst man alle Objekte zusammen, die
+zusaetzlich zu den vorhandenen Gildenfaehigkeiten durch ein vom
+Spieler initiiertes Kommando direkt Schaden an einem oder mehreren
+Gegnern verursachen.
+
+Waffen und Ruestungen, welche per Kommando Schaden verursachen (z. B.
+Eisstab, Ring vom Schlammdrachen), fallen unter diese
+Definition. Waffen und Ruestungen, die "von sich aus" (ueblicherweise
+per Hit-/DefendFunc) Schaden verursachen (z. B. Todesdrachenpanzer,
+Goblinring), fallen nicht unter diese Definition, sind aber natuerlich
+nach wie vor genehmigungspflichtig.
+
+2. Basisanforderungen
+---------------------
+ 
+Solche Artillerie muss folgenden Anforderungen genuegen:
+
+ a. Artillerie _muss_ P_ATTACK_BUSY beachten (setzen/abfragen).
+ b. Artillerie _muss_ bei Verwendung Konzentrationspunkte 
+    verbrauchen.
+ c. Artillerie darf nicht (bzw. nur begrenzt) gehortet werden
+    koennen.
+ d. Artillerie darf bei Paralyse nicht angewendet werden koennen
+    (P_DISABLE_ATTACK).
+ e. Artillerie muss durch Setzen der Property P_IS_ARTILLERY 
+    gekennzeichnet sein. 
+
+Details werden fallweise entschieden.
+
+
+3. Inkraftreten
+---------------
+
+Diese Regeln treten am 5. August 2003 in Kraft.
+
+
+--------------------------------------------------------------------------
+Letzte Aenderung: Sam,  5. Jul 2003, 22:51:31 von Zook.

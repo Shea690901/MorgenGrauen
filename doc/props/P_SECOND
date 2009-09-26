@@ -1,0 +1,11 @@
+NAME:
+    P_SECOND                      "second"                      
+
+DEFINIERT IN:
+    /sys/player/base.h
+
+BESCHREIBUNG:
+     Spieler ist Zweitie
+
+SIEHE AUCH:
+     P_SECOND_MARK

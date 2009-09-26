@@ -1,0 +1,24 @@
+RemoveAdjective()
+
+FUNKTION:
+     void RemoveAdjective(mixed adj);
+
+DEFINIERT IN:
+     /std/thing/description.c
+
+ARGUMENTE:
+     adj
+          String oder Array von String mit den Adjektiven.
+
+BESCHREIBUNG:
+     Falls einige der vorhandenen Adjektive nicht mehr verwendet werden
+     sollen, koennen sie mit dieser Funktion entfernt werden.
+
+RUeCKGABEWERT:
+     keiner
+
+SIEHE AUCH:
+     AddAdjective(), RemoveId(), /std/thing/description.c
+
+----------------------------------------------------------------------------
+Last modified: Wed May 8 10:23:45 1996 by Wargon

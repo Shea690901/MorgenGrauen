@@ -1,0 +1,15 @@
+NAME:
+    P_SP                          "sp"
+
+DEFINIERT IN:
+    /sys/living/life.h
+
+BESCHREIBUNG:
+     Anzahl der Konzentrationspunkte des Wesens.
+
+SIEHE AUCH:
+     Props:		P_MAX_SP
+     Veraenderung:	reduce_spell_points(), restore_spell_points()
+			buffer_sp()
+
+21.April 2006 Gloinson

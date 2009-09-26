@@ -1,0 +1,23 @@
+Es gibt verschiedene Moeglichkeiten, Attribute zu manipulieren:
+
+P_M_ATTR_MOD: Diese Propertie wird in Ruestungen/Waffen verwendet. Das
+              Attribut wird nur dann veraendert, wenn die Ruestung getragen
+              bzw. die Waffe gezueckt ist.
+
+P_X_ATTR_MOD: Diese Propertie kann in jedem Objekt gesetzt werden, sie
+              veraendert das Attribut des Lebewesens, was das Objekt mit
+              dieser Propertie bei sich traegt.
+
+Alle Gegenstaende, die Attribute veraendern, sind von der Balance genehmigen
+zu lassen. Auch das Senken von Attributen kann positive Auswirkungen fuer
+Spieler haben, da die Attribute sich insgesamt um 4 steigern lassen, sodass
+sich mit Objekten, die Attribute senken, andere Attribute um mehr als 4
+steigern lassen.
+
+Will man ein Attribut ganz ohne positive Nebenwirkung fuer den Spieler senken,
+kann man die Propertie P_TIMED_ATTR_MOD verwenden.
+
+SIEHE AUCH:
+P_M_ATTR_MOD, P_X_ATTR_MOD, P_TIMED_ATTR_MOD
+------------------------------------------------------------------------------
+LETZTE AeNDERUNG: Nonne, Thu Oct 14 19:38:43 CEST 2004

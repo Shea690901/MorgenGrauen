@@ -1,0 +1,25 @@
+IsTeamMove()
+
+FUNKTION:
+	object IsTeamMove()
+
+DEFINIERT IN:
+	/std/living/team.c
+
+ARGUMENTE:
+	keine
+        
+BESCHREIBUNG:
+	Testet ob momentan die Angriffsbewegung ausgefuehrt wird.
+
+RUECKGABEWERT:
+	Falls die Angriffsbewegung gerade ausgefuehrt wird, wird
+	das Teamobjekt zurueckgegeben, sonst 0.
+
+BEMERKUNGEN:
+	Wird intern benoetigt, damit der Begruessungsschlag verzoegert
+	werden kann bis alle Teammitglieder ihre Angriffsbewegung
+	ausgefuehrt haben.
+
+SIEHE AUCH:
+	teams

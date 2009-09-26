@@ -1,0 +1,123 @@
+
+Hallo, willkommen in den unendlichen Weiten der Regionsverzeichnisse!
+
+Du moechtest in einer Region mitprogrammieren? Prima, neue kreative 
+Mitarbeiter sind jederzeit willkommen! Du bist herzlich eingeladen, mit 
+Deinen Ideen zur Entwicklung beizutragen.
+
+Um die Programmierung und anschliessende Abnahme fuer alle Beteiligten
+moeglichst reibungslos zu gestalten, seien Dir zunaechst folgende formale
+Dinge ans Herz gelegt:
+
+
+o  #pragma strong_types soll in allen Files verwendet werden,
+
+o  der Code soll keine Zeilen mit mehr als 78 Zeichen enthalten,
+
+o  der Code soll sauber eingerueckt und sorgfaeltig formatiert sein, aber
+   bitte ohne Tabulatoren,
+
+o  Verwende keine Lambda-Closures! Was auch immer Du vorhast: Es geht
+   ohne. Es sei ausdruecklich auf die Moeglichkeit von inline-Closures
+   verwiesen, wenn Du unbedingt vermeiden willst, eine separate Funktion
+   zu schreiben.
+
+o  kommentiere Deinen Code, insbesondere dort, wo komplexere Objekt-
+   Interaktionen stattfinden, oder wo implizit besondere Eigenschaften
+   (z.B. der Mudlib, oder mathematische "Features") genutzt werden, die im
+   Code nicht auf den ersten Blick ersichtlich oder durchschaubar sind.
+   Daumenregel: "Wenn Du laenger als eine Minute ueber eine Zeile nachdenken
+   musstest, kommentiere sie." ;-) Rechne immer damit, dass jemand, der
+   Deinen Code liest, keine Ahnung hat, was Du da eigentlich tust. :-)
+
+o  wirf bitte nach Abschluss der Arbeiten Platzhalter-Code raus (z.B. leere
+   AddDetail()-Anweisungen) und entferne nicht fuer das Gebiet benoetigte
+   Dateien aus den Verzeichnissen
+
+o  Speicherung von Daten in secure-Verzeichnissen soll bitte nur sehr
+   sparsam erfolgen und nur in Abstimmung mit dem RM.
+
+o  Wenn Defines zum Einsatz kommen, verwende sie bitte moeglichst sparsam
+   und sorge dafuer, dass Defines klar als solche erkennbar sind. Ausser in
+   Faellen, wo es gar nicht anders geht, solltest Du keine Code-Defines
+   verwenden, die mehr umfassen als einfache Funktionsaufrufe wie z.B.
+   #define TP this_player()
+   Fuer uebliche Standardfaelle existiert bereits eine Headerdatei in der 
+   Mudlib unter /sys/defines.h. 
+
+o  Es sei ausdruecklich auf die Manpages "goodstyle", "effizienz", etc.
+   verwiesen.
+
+
+Das soll jetzt nicht heissen, dass der Anschluss von Code kategorisch
+abgelehnt werden wird, der diese Formalien nicht erfuellt. (Ausnahme: Lambda-
+Closures werden in den Regionen nicht mehr akzeptiert.) Ich moechte aber
+wirklich nachdruecklich darum bitten, sie aus einem einfachen Grund
+einzubauen: Du wirst nicht immer der einzige sein, der Deinen Code lesen und
+warten muss, auch in Deiner Abwesenheit koennen Bugs auftreten. Und dann ist
+es wesentlich einfacher, einen Minimalstandard zu haben, der es allen
+ermoeglicht, den Code auch im MG zu lesen und dort zu fixen. Denn nicht immer
+wird es moeglich sein, sich Dateien herunterzuladen und lokal zu bearbeiten.
+
+Zum Bugfixing an dieser Stelle aus aktuellem Anlass eine Anmerkung: Es wird
+von jedem aktiven Regionsmitarbeiter erwartet, dass er einen Fehlerteufel
+(/obj/tools/fehlerteufel) besitzt und dessen Fehlerliste regelmaessig
+durchsieht und aufgetretene Fehler und Warnungen behebt. (Okt. 2007)
+
+
+Zu inhaltlichen Anforderungen:
+
+o  Wenn Du ein komplett neues Gebiet schreiben moechtest, das in einer Region 
+   seinen Platz finden soll, sprich bitte die thematische Ausrichtung mit
+   dem RM ab, bevor Du anfaengst, Code zu schreiben. Falls von Deinen Ideen
+   irgendetwas nicht hierher passen sollte, laesst sich das mit wesentlich
+   weniger Frust im Vorfeld klaeren, als wenn hinterher das halbe Gebiet
+   umgebaut werden muesste. Sollte sich die konzeptionelle Ausrichtung 
+   oder der Umfang waehrend der Programmierung grundlegend aendern, besprich
+   dies bitte kurz mit dem RM.
+
+o  Ob neue oder alte Rechtschreibung, ist im wesentlichen Dir selbst ueber-
+   lassen, jedoch waere es schoen, wenn Du die Spieler-Anreden wie "frueher"
+   ueblich gross schreiben wuerdest ("Du", "Dich", "Dein").
+
+o  Es muessen in jedem Raum gewisse Standarddetails vorhanden sein, z.B.
+   Boden, Decke, Waende, Himmel (Sonne, Wolken), etc. Dies kann man sehr
+   bequem mit dem "Otester" pruefen.
+   Es sei aber ausdruecklich darauf hingewiesen, dass der Otester keinesfalls
+   benutzt werden sollte, um saemtliche vorhandenen Substantive bis ins
+   kleinste zu beschreiben. Es ist schoen, wenn Objekte moeglichst voll-
+   staendig beschrieben werden, aber man sollte es auch nicht uebertreiben.
+
+o  Was bitte nur in Ausnahmefaellen gemacht werden sollte, ist, Details oder
+   Lang-/Kurzbeschreibungen aus Standardraeumen zu inheriten.
+
+o  Falls Du Beschreibungen/Ausgaben in ASCII-Grafik einbinden moechtest, achte
+   bitte darauf, dass Du auf jeden Fall einen kurzen Alternativtext mit-
+   lieferst und diesen ausgibst, wenn der Spieler P_NO_ASCII_ART gesetzt hat.
+   Es besteht immer die Moeglichkeit, dass Spieler mit Sehschwaeche oder Blinde
+   Deine Objekte anschauen, und diese kommen mit Objekten in reiner 
+   ASCII-Grafik nicht zurecht.
+   (Siehe auch die Manpage zu P_NO_ASCII_ART und "hilfe grafik".)
+
+o  Eine Anmerkung zu den Schadensarten DT_HOLY und DT_UNHOLY soll nicht
+   unerwaehnt bleiben: Es wird von vielen Spielern und Magiern als logisch
+   und atmosphaerisch nicht begruendbar empfunden, wenn Gegenstaende oder
+   NPCs diese beiden Schadensarten gleichermassen einsetzen bzw. verursachen
+   koennen. Vergleichbares gilt fuer die gleichzeitige Abwehr beider 
+   Schadensarten. Wenngleich bisher diesbezueglich keine klare Einigung
+   erzielt werden konnte, soll an dieser Stelle dennoch empfohlen werden,
+   von einer gleichzeitigen Nutzung von DT_HOLY und DT_UNHOLY abzusehen.
+   Der zustaendige Regionsmagier muss aber auf jeden Fall in Kenntnis
+   gesetzt werden und entsprechende Objekte zur Pruefung vorgelegt bekommen,
+   falls diese Nutzung dennoch fuer unumgaenglich gehalten wird.
+
+Was keinesfalls akzeptiert wird:
+
+o  Files, die in /players liegen, incl. Headerfiles. Dies erschwert das
+   Reparieren von Bugs ungemein und bringt eine gewisse Unuebersichtlichkeit
+   mit sich. Bitte auch nichts aus /players inheriten (Ausnahmen sind in
+   Absprache mit dem RM natuerlich moeglich).
+
+
+Viel Spass bei der Programmierung! 
+

@@ -1,0 +1,1028 @@
+1999-05-30  Padreic  <Padreic@mg>
+
+	* master.h: show_dir ist aus sicherheitsgruenden inzwischen static.
+
+	* master/userinfo.c:
+	kurzzeitig logfile eingebaut, um Patryn zu ueberfuehren.
+
+	* master/misc.c: show_dir() aus Sicherheitsgruenden static gemacht.
+
+	* master.c: valid_read() und valid_write() ueberarbeitet.
+
+1999-05-30  Padreic  <Padreic@mg>
+
+	* master.h: show_dir ist aus sicherheitsgruenden inzwischen static.
+
+	* master/userinfo.c:
+	kurzzeitig logfile eingebaut, um Patryn zu ueberfuehren.
+
+	* master/misc.c: show_dir() aus Sicherheitsgruenden static gemacht.
+
+	* master.c: valid_read() und valid_write() ueberarbeitet.
+
+1999-05-30  Padreic  <Padreic@mg>
+
+	* master.h: show_dir ist aus sicherheitsgruenden inzwischen static.
+
+	* master/userinfo.c:
+	kurzzeitig logfile eingebaut, um Patryn zu ueberfuehren.
+
+	* master/misc.c: show_dir() aus Sicherheitsgruenden static gemacht.
+
+	* master.c: valid_read() und valid_write() ueberarbeitet.
+
+1999-05-30  Padreic  <Padreic@mg>
+
+	* master.h: show_dir ist aus sicherheitsgruenden inzwischen static.
+
+	* master/userinfo.c:
+	kurzzeitig logfile eingebaut, um Patryn zu ueberfuehren.
+
+	* master/misc.c: show_dir() aus Sicherheitsgruenden static gemacht.
+
+	* master.c: valid_read() und valid_write() ueberarbeitet.
+
+1999-05-30  Padreic  <Padreic@mg>
+
+	* master.h: show_dir ist aus sicherheitsgruenden inzwischen static.
+
+	* master/userinfo.c:
+	kurzzeitig logfile eingebaut, um Patryn zu ueberfuehren.
+
+	* master/misc.c: show_dir() aus Sicherheitsgruenden static gemacht.
+
+	* master.c: valid_read() und valid_write() ueberarbeitet.
+
+1999-05-30  Padreic  <Padreic@mg>
+
+	* master.h: show_dir ist aus sicherheitsgruenden inzwischen static.
+
+	* master/userinfo.c:
+	kurzzeitig logfile eingebaut, um Patryn zu ueberfuehren.
+
+	* master/misc.c: show_dir() aus Sicherheitsgruenden static gemacht.
+
+	* master.c: valid_read() und valid_write() ueberarbeitet.
+
+1999-05-30  Padreic  <Padreic@mg>
+
+	* master.h: show_dir ist aus sicherheitsgruenden inzwischen static.
+
+	* master/userinfo.c:
+	kurzzeitig logfile eingebaut, um Patryn zu ueberfuehren.
+
+	* master/misc.c: show_dir() aus Sicherheitsgruenden static gemacht.
+
+	* master.c: valid_read() und valid_write() ueberarbeitet.
+
+1999-05-30  Padreic  <Padreic@mg>
+
+	* master.h: show_dir ist aus sicherheitsgruenden inzwischen static.
+
+	* master/userinfo.c:
+	kurzzeitig logfile eingebaut, um Patryn zu ueberfuehren.
+
+	* master/misc.c: show_dir() aus Sicherheitsgruenden static gemacht.
+
+	* master.c: valid_read() und valid_write() ueberarbeitet.
+
+1999-05-30  Padreic  <Padreic@mg>
+
+	* master.h: show_dir ist aus sicherheitsgruenden inzwischen static.
+
+	* master/userinfo.c:
+	kurzzeitig logfile eingebaut, um Patryn zu ueberfuehren.
+
+	* master/misc.c: show_dir() aus Sicherheitsgruenden static gemacht.
+
+	* master.c: valid_read() und valid_write() ueberarbeitet.
+
+1999-05-30  Padreic  <Padreic@mg>
+
+	* master.h: show_dir ist aus sicherheitsgruenden inzwischen static.
+
+	* master/userinfo.c:
+	kurzzeitig logfile eingebaut, um Patryn zu ueberfuehren.
+
+	* master/misc.c: show_dir() aus Sicherheitsgruenden static gemacht.
+
+	* master.c: valid_read() und valid_write() ueberarbeitet.
+
+1999-05-30  Padreic  <Padreic@mg>
+
+	* master.h: show_dir ist aus sicherheitsgruenden inzwischen static.
+
+	* master/userinfo.c:
+	kurzzeitig logfile eingebaut, um Patryn zu ueberfuehren.
+
+	* master/misc.c: show_dir() aus Sicherheitsgruenden static gemacht.
+
+	* master.c: valid_read() und valid_write() ueberarbeitet.
+
+1999-05-29  Rikus  <Rikus@mg>
+
+	* scoremaster.h: Dumpfile in SCORES.dump umbenannt
+
+	* exploration.h:
+	einige defines aus dem *.c uebernommen und dumpfile in eprooms.dump umbenannt
+
+	* explorationmaster.c: einige defines ins headerfile verlagert
+
+	* potionmaster.c: Dumpfile in TRAENKE.dump umbenannt
+
+	* explorationmaster.c: Loggen von _zu schnell_ gefundenen FPs
+
+1999-05-27  Hate  <Hate@mg>
+
+	* master.c: Location corrected.
+
+1999-05-27  Padreic  <Padreic@mg>
+
+	* awmaster.c:
+	Security-hole geschlossen durch entfernen eines zauberer-includes
+
+1999-05-25  Padreic  <Padreic@mg>
+
+	* simul_efun.c:
+	in secure_euid() noch ein getuid() durch ein geteuid() ausgetauscht
+
+	* simul_efun.c: neu simul_efun secure_euid()
+
+	* master/domain.c: Neue sicherheitsabfrage in add_domain_master().
+
+1999-05-21  Highlander  <Highlander@mg>
+
+	* master/network.c: Wer weiss, was HL damals dran aenderte... (Rikus)
+
+1999-05-15  MorgenGrauen (admin)  <mud@mg>
+
+	* master.c: HTTP location changed to www.mg.mud.de
+
+1999-05-05  Marcus  <Marcus@mg>
+
+	* config.h: mudhost/ftpid/udpserv ip auf MUDHOST geaendert.
+
+1999-05-05  Marcus  <Marcus@mg>
+
+	* config.h: mudhost/ftpid/udpserv ip auf MUDHOST geaendert.
+
+1999-05-04  Rumata  <Rumata@mg>
+
+	* questmaster.c: QueryQuest* liefern jetzt kopien.
+
+	* simul_efun.c: +deepcopy_array
+
+1999-04-18  Padreic  <Padreic@mg>
+
+	* login.c: new_logon gedebuggt...
+
+1999-04-14  Paracelsus  <Paracelsus@mg>
+
+	* master/misc.c: Bugfix an TBanishName()
+
+1999-04-12  Padreic  <Padreic@mg>
+
+	* simul_efun.c:
+	neue simul_efun object_info, ausserdem kleine korrektur an
+	debug_info(2, ..)
+
+	* merlin.c: noch ein break_string und ich klein
+
+	* merlin.c: Er kennt nun auch Fernwest, ausserdem spricht er einen nun
+	persoenlich mit Namen an bei Nachfragen :).
+
+1999-04-08  Hate  <Hate@mg>
+
+	* master/misc.c:
+	QueryBanished changed to QueryTBanished for TBanishName()
+
+1999-04-07  Rumata  <Rumata@mg>
+
+	* master.c: sys ist nicht mehr von innheralb des muds zu schreiben
+
+	* master.c: ... unbekannte aenderungen ...
+	uid vergabe von objekten, die root waren sicherer gemacht
+	room ist fuer laerner lesbar
+	**
+
+1999-04-06  Padreic  <Padreic@mg>
+
+	* simul_efun.c:
+	deep_present(ob, ob) laeuft nicht mehr ueber deep_inventory()
+	sondern mit: while (ob2=environment(ob2)) if (ob2==ob) return what;
+
+1999-03-30  Paracelsus  <Paracelsus@mg>
+
+	* merlin.c: Funktion Name() analog zu /std/thing/description.c
+
+Tue Mar 30 11:32:40 1999  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* merlin.c: Funktion Name() analog zu /std/thing/description.c
+
+Thu Mar 25 20:39:18 1999  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* simul_efun.c: Bugfix in stretch() (Woody)
+
+Wed Mar 24 16:22:20 1999  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* master/misc.c: Aenderung in renew_player_object()
+
+	* login.c: Umstellung von telnetnegs.c auf mini_telnetnegs.c
+
+	* mini_telnetneg.c: Initial revision
+
+Tue Mar 23 19:34:24 1999  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* master/domain.c:
+	ARCH_SECURITY durch 0 ersetzt, damit das mud wenigstens rebootet
+	(welcher depp benutzt im master eine simul_efun??????????)
+
+Sun Mar 21 18:39:41 1999  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* scoremaster.c: gleiches auch noch fuer AddMiniQuests()
+
+	* scoremaster.c:
+	Neueintraege belegen nun zuerst die Bits, welche in free_num vorgegeben sind
+
+Tue Mar 16 09:43:33 1999  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* master/misc.c:
+	hm, ich vergass es am 11.12. einzuchecken, fragt mich nicht mehr danach :)
+
+	* master/domain.c:
+	Rueckgabe der Regionszugehoerigkeit nur fuer Magier>=Domainmemberlevel
+
+Fri Mar  5 21:51:22 1999  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* simul_efun.c:
+	Optimierung an break_string() und input_to() (Ringor, Woody)
+
+Thu Mar  4 23:22:33 1999  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* merlin.c:
+	bei Magierwerdung dem Finger mitteilen, dass er Sponsorliste aendern muss
+
+Wed Mar  3 22:29:53 1999  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* scoremaster.c:
+	kein automatisches Eintragen von NPCS aus /polayers mehr
+
+Sun Feb 28 21:30:08 1999  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* login.c: SendTelopts() bereits direkt beim Login
+
+Mon Feb 22 16:41:24 1999  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* explorationmaster.c:
+	nomask GiveExplorationPointObject(string key, object ob)
+	eingebaut
+
+Thu Feb 18 15:04:07 1999  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* master.c: valid_read() : Zugriff auf /open
+
+Thu Feb 18 13:20:22 1999  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* simul_efun.c:
+	in move_object() Test nach dem move auf vorhandenes Object vor der Weiterbehandlung
+
+Thu Feb 11 09:45:19 1999  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* awmaster.c:
+	Zusaetzliches Flag fuer Ruestungen die Resistenzen setzen.
+
+Wed Feb 10 11:48:23 1999  Padreic  <Padreic@MG.uni-muenster.de>
+
+	* news.c:
+	einige process_call() abfragen eingefuegt insbesondere in dump_group()
+
+Tue Feb  9 16:49:27 1999  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* master.c: Argumente in runtime_error pruefen.
+
+Tue Feb  9 11:17:55 1999  Catweazle  <Catweazle@MG.uni-muenster.de>
+
+	* master.c: Den richtigen telnet-DriverHook eingetragen
+
+Mon Feb  8 22:16:58 1999  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* merlin.c: notify_player_change() stark vereinfach und optimiert
+
+Mon Feb  8 17:19:07 1999  Marcus  <Marcus@MG.uni-muenster.de>
+
+	* login.c:
+	natuerlich sollten man das telnet_neg() wehnehmen, damit das von filesys/telnetneg.c verwendet werde  kann
+
+Sat Feb  6 21:31:55 1999  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* simul_efun.c: input_to() als simul_efun, fuer Prompt-Erkennung
+
+	* login.c: telnetneg.c wird inherited
+	einige Login-Sperren entfernt
+
+Thu Feb  4 20:01:10 1999  Padreic  <Padreic@MG.uni-muenster.de>
+
+	* login.c:
+	seperates loggen von missglueckten einloggversuchen von erzmagiern
+
+	* news.c:
+	Wenn schon kein static bei GetGroup dann wenigstens ARCH_SECURITY :)
+
+Wed Feb  3 20:34:43 1999  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* news.c:
+	static bei GetGroup(string name) entfernt (newstool funzte nicht mehr)
+
+	* login.c: hatte 1 Debugausgabe vegessen auszubauen
+
+	* simul_efun.c: ind_saved_player() -> __create_player_dummy()
+
+Tue Feb  2 21:11:09 1999  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* scoremaster.h: P_NO_SCORE eingefuegt (keine Vergabe von Killstupsen)
+
+Mon Feb  1 22:22:43 1999  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* news.c: 2 Bugs entfernt (= statt == und einen Wortdreher)
+
+Sat Jan 30 22:54:44 1999  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* scoremaster.c: Bits von Netztoten werden nun auch umgesetzt
+
+	* login.c: Rueckgabe des Playerobjects statt 1 bei Erfolg
+
+	* simul_efun.c: find_saved_player() setzt nun auch netdead
+
+Fri Jan 29 21:14:37 1999  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* login.c:
+	komplett erweitert, um Spieler, die offline sind, mit der efun find_saved_player(string name) einzuladen
+
+	* simul_efun.c:
+	find_saved_player(string name) eingebaut, damit kann man Spieler reinladen, die offline sind
+
+Fri Jan 29 16:10:00 1999  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* spare_simul_efun.c: an simul_efun.c angepasst
+
+	* simul_efun.c: break_string ueberarbeitet (Ringor)
+
+Thu Jan 28 20:42:39 1999  Padreic  <Padreic@MG.uni-muenster.de>
+
+	* news.c: static in GetGroup eingefuegt.
+
+Thu Dec 10 14:48:54 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* room_locator.c: ARCH-SECURITY eingebaut
+
+Sun Dec  6 14:42:53 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* scoremaster.c: Query_to_change erweitert
+
+Fri Dec  4 23:10:50 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* scoremaster.c:
+	to_change eingefuehrt, Automatishes Setzen und Loeschen von Kills bei angegebenen Spilern
+
+Fri Nov 27 22:14:08 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* master/misc.c: Auslesen der history wird auf SNOOP gezeigt
+
+Tue Nov 24 11:17:00 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* master.c: learner koennen jetzt ihr eigenes logfile lesen
+
+Mon Nov  9 21:03:29 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* scoremaster.c: alle Aktionen werden in SACORELOGFILE geloggt
+
+	* scoremaster.h: SCORELOGFILE defined
+
+Wed Aug 19 10:39:05 1998  Boing  <Boing@MG.uni-muenster.de>
+
+	* merlin.c: Bei weibichlichen Sehern ruft Merlin jetzt Seherin
+
+Tue Aug 18 14:30:25 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* news.c: ARCH_SECURITY eingebaut
+
+Sun Aug 16 21:08:01 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* master.c:
+	valid_rwrite() geaendert, dass Schreiben auf alle/common per access_rights von -1 verboten werden kann
+
+Fri Aug 14 21:42:09 1998  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* login.c: IP gesperrt
+
+Thu Aug 13 14:18:11 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* merlin.c: notify_player_change gecatched
+
+Wed Aug 12 07:13:02 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* merlin.c: Seher-FAQ wird bei der Seherwerdung automatisch vergeben
+
+Wed Aug  5 11:31:35 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* bbmaster.c: kein leerzeichen nach dem namen ist besser :-)
+
+Mon Aug  3 09:51:06 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* login.c: Marburg als Einloggort wieder erlaubt
+
+Fri Jul 31 12:05:38 1998  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* simul_efun.c: P_SNOOPFLAGS && -> &
+
+	* simul_efun.c: Wrong place for ) fixed
+
+Wed Jul 29 11:39:55 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* bbmaster.c: Initial revision
+
+Wed Jul 29 11:37:08 1998  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* login.c: (Rumata) war seit Jul 4 ausgechecked
+	__reload_explore
+
+Wed Jul 29 11:14:49 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* master/misc.c: __reload_explore
+
+Tue Jul 28 11:34:57 1998  Jof  <Jof@MG.uni-muenster.de>
+
+	* master/network.c: *** empty log message ***
+
+Mon Jul 27 07:17:39 1998  Jof  <Jof@MG.uni-muenster.de>
+
+	* master/network.c: *** empty log message ***
+
+	* master/network.c: Fixde multipe mail bug ...
+
+	* config.h, master.c: max mails/h
+
+	* master/network.c: Max. size of mail limited to 50k
+	max nr of mails/hour
+
+Thu Jul 23 20:13:41 1998  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* master.c:
+	Auskommentiert: set_driver_hook(H_CREATE_SUPER,       "create"); in inaugurate_master()
+
+Thu Jul 23 19:26:32 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* master/network.c:
+	FtpAcess ist nun fuer Magier mit Spielpause verboten
+
+Tue Jul 21 18:12:18 1998  Marcus  <Marcus@MG.uni-muenster.de>
+
+	* master.c: H_CREATE_SUPER driver hook fehltem, auf "create" gesetzt
+
+Thu Jul 16 20:09:21 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* explorationmaster.c:
+	ShowEPObjects() gibt fuer Magier<Lord keine ID-Nummern der FPs mehr aus
+
+Tue Jul 14 12:48:36 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* master.c: /mail nur noch fuer ROOT lesbar
+	einigen wildwuchs entfernt
+
+	* master.c: lesbarkeit fuer /news/* ROOT only./
+
+Wed Jul  8 08:42:31 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* master.c: fallback, dass logfiles fuer alle schreibbar sind
+	will man das wirklich?
+	anddere moeglichkeit : statt break; return access_rgihts(...)
+
+Tue Jun 30 15:43:30 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* spare_simul_efun.c:
+	spare_simul_efun mal wieder auf den neuesten stand gebracht
+
+Thu Jun 25 07:54:07 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* master.c: schreibrechter fuer /log/<magier> konfigurierbar
+	/log/report/<magier>.rep fer den magier
+
+Wed Jun 24 10:28:29 1998  Jof  <Jof@MG.uni-muenster.de>
+
+	* master/network.c: doReadMail geaednert
+
+Sun May 24 16:58:59 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* explorationmaster.c: ShowEPObjets() debuggt und erweitert
+
+Sun May 24 16:55:38 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* explorationmaster.c: Rumata vergass Einchecken...
+
+Thu May 14 15:29:23 1998  Jof  <Jof@MG.uni-muenster.de>
+
+	* mailer.c, config.h: Neue IP
+
+Sun May 10 22:55:16 1998  Jof  <Jof@MG.uni-muenster.de>
+
+	* master/network.c: Anpassungen fuer neues sendmail.cf
+
+	* mailer.c: Mailer angepasst an neues sendmail.cf
+	Bug bei mehreren Empfaengern und mail von aussen gefixed
+
+Sat May  9 15:41:36 1998  Hate  <Hate@MG.uni-muenster.de>
+
+	* master/network.c: ???
+
+Wed May  6 12:39:08 1998  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: --SOMMERZEIT
+
+Mon Apr 20 11:49:20 1998  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* simul_efun.c:
+	debug_info from ARCH_SECURITY to IS_ARCH changed so upd -f/a work again
+
+Sun Apr 19 16:41:27 1998  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c, master/misc.c: *** empty log message ***
+
+Wed Apr  8 08:22:06 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* simul_efun.c: support fuer sommerzeit
+
+Wed Mar 25 11:40:49 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* master/domain.c: ARCH_SECURITY fuer add/remove_domain_master
+
+Mon Mar 23 17:18:59 1998  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* master/userinfo.c:
+	Bei Selbstloeschungen wird jetzt auch die IP-Nummer mitgeloggt.
+
+Sun Mar 22 22:41:21 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* scoremaster.c:
+	SetScoreBit() und ClearScoreBit(), um Erstkills in Spielern zu setzen/loeschen
+
+	* explorationmaster.c:
+	Routinen zum Loeschen und Setzen bestimmter EPs, Ep-Infos eines Spielers
+	Sicherheit erhoeht
+
+	* potionmaster.c: Routinen fuer PTool implementiert
+
+Mon Mar 16 10:38:09 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* simul_efun.c: defaultbreite bei break_string von 0 auf 78 gesetzt. :)
+
+Sun Mar 15 18:30:06 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* potionmaster.c:
+	Potionmaster geaendert, dass beim Deaktivieren und Aktivieren der ZTs die Gruppenzuordnung erhalten bleibt
+
+Sun Mar 15 18:28:38 1998  Boing  <Boing@MG.uni-muenster.de>
+
+	* potionmaster.c: gute Fraghe
+
+Tue Mar 10 21:46:36 1998  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* pubmaster.c: Bugfix
+
+	* awmaster.c: NotifyACChange disabled
+
+Tue Mar 10 16:04:21 1998  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* merlin.c: Krik hatte vergessen einzuchecken (Rochus)
+	(Krik=Kirk)
+
+Mon Mar  9 14:27:14 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* master/userinfo.c: ach nee, wozu auch
+
+	* master/userinfo.c:
+	set_player_object nur noch fuer ROOTobjekte erlaubt
+
+Sun Mar  8 20:37:25 1998  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* master.c:
+	/d/erzmagier als Verzeichnis fuer lesegeschuetzte verzeichnisse implementiert
+
+	* master/domain.c: /d/erzmagier zaehlt nicht als normale domain
+
+Tue Mar  3 11:56:51 1998  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* pubmaster.c: Pubmaster ueberarbeitet, neue Formel.
+
+Sun Feb 22 15:16:42 1998  Jof  <Jof@MG.uni-muenster.de>
+
+	* master/misc.c: Bug im renew_player_object repariert,
+	der zu einer Verdoppelung von Auto-
+	loadern fuehrte, sofern diese
+	in Containern steckten ...
+
+Sun Feb 15 21:02:02 1998  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* pubmaster.c: Initial revision
+
+Fri Feb 13 17:24:15 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* simul_efun.c: count_bits improved by factor 6!
+	,
+
+Thu Feb 12 18:14:41 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* master/userinfo.c: Userlevel von ROOT auf 100 gesetzt.
+
+Mon Feb  9 15:01:29 1998  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* awmaster.c: Bugfix
+
+Mon Feb  9 09:15:34 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* scoremaster.c:
+	neu Funktion NewNPC(string key,int score) zum Eintragen bisher noch
+	nicht angemeldeter NPCs
+
+Fri Feb  6 08:20:54 1998  Paracelsus  <Paracelsus@MG.uni-muenster.de>
+
+	* awmaster.c: Initial revision
+
+Mon Feb  2 20:45:02 1998  Jof  <Jof@MG.uni-muenster.de>
+
+	* master.c: *** empty log message ***
+
+Thu Jan 22 12:39:14 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* simul_efun.c:
+	secure_level erkennt jetzt jede art von selbstzerstoerern.
+
+	* simul_efun.c: destruct verschoenert
+
+Tue Jan 20 09:13:07 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* simul_efun.c: Made exec more secure.
+	Wrapped process_string into a catch to handle eval cost too high
+	properly.
+
+Mon Jan 19 11:41:08 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* simul_efun.c: exec etwas sicherer gemacht.
+
+Thu Jan 15 09:32:07 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* simul_efun.c: IS_* durch *_SECURITY ersetzt
+	secure_level() als efun eingebaut (nomask!)
+
+Tue Jan 13 22:11:28 1998  Rikus  <Rikus@MG.uni-muenster.de>
+
+	* explorationmaster.c:
+	Bug in ShowEPObjects() entfernt, der dazu fuehrte, dass immer alle
+	FPs einer Region bei einer Anfrage nach denen eines einyelnen
+	Mitrarbeiters kamen
+
+Fri Jan  9 08:46:37 1998  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* explorationmaster.c: cleanup
+
+Thu Jan  8 17:37:20 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* simul_efun.c: process_string sicherer gemacht
+
+Thu Jan  8 10:33:55 1998  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* explorationmaster.c (QueryExplore):
+	leicht geaendertes Verhalten fuer GiveEP()
+
+	* exploration.h: Prototype fuer GiveEP()
+
+Wed Jan  7 16:06:49 1998  Rumata  <Rumata@MG.uni-muenster.de>
+
+	* wizlevels.h: Fontend fuer Padreics Sicherheitsloch.
+
+Thu Dec 25 18:59:09 1997  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* master/misc.c: ???
+	,
+
+Mon Dec 22 08:37:20 1997  Silvana  <Silvana@MG.uni-muenster.de>
+
+	* exploration.h: EP_SMELL, SEP_SOUND (Ich hasse deiesen Editor)!!!
+
+Wed Nov 26 13:07:35 1997  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* explorationmaster.c: Sicherheitsfix
+
+Wed Nov 26 10:21:42 1997  Hate  <Hate@MG.uni-muenster.de>
+
+	* mailer.c: changed smtp protocol
+
+Tue Oct 28 15:48:08 1997  Hate  <Hate@MG.uni-muenster.de>
+
+	* simul_efun.c: check for valid living name
+
+Mon Oct 27 17:59:08 1997  Jof  <Jof@MG.uni-muenster.de>
+
+	* master.c: x
+
+Fri Sep 26 12:14:47 1997  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* master.h: Prototypes deputy support
+
+Fri Sep 26 12:11:22 1997  Hate  <Hate@MG.uni-muenster.de>
+
+	* master.h: Nicht mehr bekannte Aenderugnng :>
+
+Fri Aug 29 11:05:00 1997  Yantro  <Yantro@MG.uni-muenster.de>
+
+	* explorationmaster.c:
+	ShowEPObjects() wieder fuer RMs zugelassen und log eingebaut.
+
+Wed Jul 23 09:04:40 1997  Hate  <Hate@MG.uni-muenster.de>
+
+	* master/misc.c: flag for external call changed.
+
+Tue Jul 22 06:44:44 1997  Hate  <Hate@MG.uni-muenster.de>
+
+	* master/misc.c: added external flag for ls
+
+Mon Jul 21 15:43:13 1997  Hate  <Hate@MG.uni-muenster.de>
+
+	* master/misc.c: changed show_dir() to point to /std/shells/filesys
+
+Wed Jul  2 07:52:43 1997  Boing  <Boing@MG.uni-muenster.de>
+
+	* potionmaster.c:
+	Neue Funktion 'GetListByNumber(int nr)'. Gibt zu einer Zaubertranknummer
+	die zugehoerige Liste aus.
+
+Sun Jun 29 18:38:06 1997  Hate  <Hate@MG.uni-muenster.de>
+
+	* master/network.c: added debug output.
+
+	* master/misc.c: dir format for ftp is more compatible
+
+Mon Jun 16 11:49:40 1997  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* scoremaster.c: Etwas aufgeraeumt
+
+Tue Jun 10 09:04:43 1997  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* config.h: NETDEAD_CHECK_TIME verkuerzt
+
+	* simul_efun.c: *** empty log message ***
+
+Fri May 16 09:16:25 1997  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* master/misc.c (show_dir): valid_read() eingebaut.
+
+Tue Apr 22 13:08:28 1997  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* explorationmaster.c: DOMAIN_INFOs wieder raus...
+
+Tue Apr 15 12:10:19 1997  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* explorationmaster.c: getMatch(): EP_TYPES vergessen...
+	GiveExplorationPoint(): catch() fuer gehackte Savefiles
+
+Wed Apr  9 12:00:51 1997  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* mailer.c (DeliverMail): HELO-Eintrag eingefuegt.
+
+Wed Apr  9 08:00:29 1997  Super-User  <root@MG.uni-muenster.de>
+
+	* mailer.c: *** empty log message ***
+
+Tue Apr  1 08:41:05 1997  Boing  <Boing@MG.uni-muenster.de>
+
+	* questmaster.c:
+	Reitermeldung bei Questloeusngsmail entfernt, das macht der mailer jetzt
+	selbst.
+
+Fri Mar  7 09:46:34 1997  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* explorationmaster.c: Info-Array durch EP_TYPES ersetzt.
+
+	* exploration.h: Neue FP-Typen definiert:
+	- EP_RDET fuer ReadDetails (waren vorher bei Details mit drin)
+	- EP_PUB  fuer Getraenke/Speisen in Kneipen (vorher per EP_MISC)
+	EP_TYPES fuer die Infos definiert
+
+	* scoremaster.h: Update auf Revision 3.0
+
+	* scoremaster.h: Initial revision
+
+Tue Mar  4 17:54:50 1997  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* scoremaster.c: Testfunktion auch fuer Strings
+
+	* scoremaster.c: Initial revision
+
+Wed Feb  5 14:59:39 1997  Jof  <Jof@MG.uni-muenster.de>
+
+	* master.c: Header aufgeraeumt
+
+Wed Feb  5 14:57:54 1997  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* master/domain.c, master/misc.c, master/network.c, master/userinfo.c, simul_efun.c:
+	Header aufgeraeumt
+
+Wed Feb  5 14:49:00 1997  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* simul_efun.c: *** empty log message ***
+
+Wed Feb  5 14:47:06 1997  Hate  <Hate@MG.uni-muenster.de>
+
+	* questmaster.c: Header aufgeraeumt
+
+Wed Feb  5 14:46:35 1997  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* questmaster.h, guestmaster.c, exploration.h, explorationmaster.c:
+	Header aufgeraeumt
+
+Tue Dec 10 13:13:33 1996  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* master/userinfo.c:
+	delete_player(): Seher und Magier werden automatisch gebanisht.
+
+	* master/misc.c:
+	BanishName() fuer das autobanishen von Sehern/Magiern angepasst.
+
+Mon Nov 25 19:14:08 1996  Rochus  <Rochus@MG.uni-muenster.de>
+
+	* master/misc.c:
+	__query_variable ab ARCH, damit es keinen zweiten derartigen Vorfall
+	gibt.
+
+Wed Sep 18 12:27:42 1996  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: *** empty log message ***
+
+Wed Sep 18 08:59:49 1996  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* npcmaster.c, explorationmaster.c:
+	Globale Variablen private gemacht...
+
+Wed Sep 11 10:51:02 1996  Kirk  <Kirk@MG.uni-muenster.de>
+
+	* login.c: Typo bei fehlgeschlagenen Loginversuchen gefixed
+
+Mon Sep  2 11:21:24 1996  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* explorationmaster.c: FPs lassen sich auch in VCs vergeben.
+
+Wed Jun 26 15:04:58 1996  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* login.c: Bugfix fuer invis login (P_INVIS->P_AGE statt 1)
+
+Sun Jun 23 17:37:30 1996  Hate  <Hate@MG.uni-muenster.de>
+
+	* mailer.c: added forward support for incoming mail
+
+Wed Jun 12 12:23:15 1996  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* login.c: Unsichtbar einloggen fuer EMs
+
+Mon Jun  3 13:28:48 1996  Highlander  <Highlander@MG.uni-muenster.de>
+
+	* login.c:
+	Bugfix fuer login after linkdead, wenn email oder so fgrade eingegeben
+	wurde. Courtesy of Mupfel.
+
+Thu May 23 13:41:02 1996  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* potionmaster.c:
+	Die Liste wird in /secure/ARCH anstatt in /etc gespeichert.
+
+Tue May 21 10:32:54 1996  Jof  <Jof@MG.uni-muenster.de>
+
+	* merlin.c: FP fuer Magier-/Seherwerdung etwas genauer...
+
+Wed May 15 23:36:23 1996  Hate  <Hate@MG.uni-muenster.de>
+
+	* master.h: new channel system (changes)
+
+Mon May 13 18:25:56 1996  Jof  <Jof@MG.uni-muenster.de>
+
+	* login.c: *** empty log message ***
+
+Tue May  7 15:22:57 1996  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: Don't know what Jof did!
+
+Mon May  6 12:21:19 1996  Jof  <Jof@MG.uni-muenster.de>
+
+	* simul_efun.c: *** empty log message ***
+
+Sun Apr 28 02:09:51 1996  Jof  <Jof@MG.uni-muenster.de>
+
+	* master/userinfo.c: Removed unneccessary if
+
+Sun Apr 28 02:07:16 1996  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* master/userinfo.c: *** empty log message ***
+
+Wed Apr 10 17:48:37 1996  Jof  <Jof@MG.uni-muenster.de>
+
+	* npcmaster.c:
+	Dump-Funktion eingebaut, damit man auch was zu lesen hat :)
+
+Wed Apr 10 14:32:24 1996  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* npcmaster.c: QueryNPC(): int * -> mixed
+
+Thu Apr  4 12:33:06 1996  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* npcmaster.c:
+	QueryNPCbyNumber() gibt jetzt wirklich Nummer und Score zurueck...
+
+Sat Mar 23 15:37:11 1996  Jof  <Jof@MG.uni-muenster.de>
+
+	* config.h, mailer.c: IP geaendert
+
+Fri Mar 15 12:16:04 1996  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* explorationmaster.c: Regionsmagier konnten zu viele FP sehen...
+
+Wed Mar  6 14:34:51 1996  Jof  <Jof@MG.uni-muenster.de>
+
+	* npcmaster.c: QueryNPCbyNumber eingebaut, Typos gefixed
+
+	* npcmaster.c, npcmaster.h: Initial revision
+
+Wed Mar  6 11:50:15 1996  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* explorationmaster.c: QueryExplorationPoints() benutzt count_bits()
+
+Fri Mar  1 10:01:37 1996  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* explorationmaster.c:
+	Die Abfrage auf this_interactive() hatte in QueryExplore()
+	nichts verloren...
+
+Tue Feb 13 11:06:48 1996  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* explorationmaster.c:
+	Tolle Idee, die Statistik von clean_up() aus zu generiereren...
+	Jetzt wirds von reset() aus gemacht.
+
+Fri Feb  2 12:09:45 1996  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* explorationmaster.c:
+	Es wird noch die Existenz des Statistikgenerators geprueft.
+
+Thu Feb  1 13:58:57 1996  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* explorationmaster.c: clean_up() startet die Statistik.
+
+	* exploration.h: SAVEFILE -> EPSAVEFILE
+	#defines fuer die Statistik rein.
+
+Wed Jan 17 18:00:34 1996  Jof  <Jof@MG.uni-muenster.de>
+
+	* mailer.c: Removed %-Support
+
+	* mailer.c: *** empty log message ***
+
+Fri Jan  5 17:08:57 1996  Jof  <Jof@MG.uni-muenster.de>
+
+	* merlin.c: QGROUP_3 auch hier entfernt
+
+Tue Jan  2 14:27:23 1996  Boing  <Boing@MG.uni-muenster.de>
+
+	* questmaster.c: 3 -> sizeof(QGROUPS) in QueryReadyForWiz()
+
+Mon Jan  1 14:22:32 1996  Jof  <Jof@MG.uni-muenster.de>
+
+	* questmaster.c, questmaster.h:
+	Vierte questgruppe entfernt, einige Schoenheitskorrekturen.
+
+Thu Dec 21 11:49:57 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* explorationmaster.c: Set/QueryAverage() fuer die Statistik
+
+	* exploration.h: RCS-Header rein, MIN_EP fuer die Statistik
+
+Tue Dec 12 14:49:41 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* login.c: *** empty log message ***
+
+Thu Dec  7 20:55:03 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* login.c: Minor fix at remoteip
+
+Wed Nov 29 13:09:20 1995  Wargon  <Wargon@MG.uni-muenster.de>
+
+	* master/misc.c: && statt || im TBanishName()...
+
+	* master/misc.c:
+	TBanishName() kann auch vom Betroffenen selbst benutzt werden.
+
+Wed Nov 22 14:37:10 1995  Jof  <Jof@MG.uni-muenster.de>
+
+	* master/domain.c, master/misc.c, master/network.c, potionmaster.c,
+	  questmaster.c, questmaster.h, room_locator.c, simul_efun.c,
+	  skillmaster.c, udp_mail.c, wizlevels.h, combat.c, config.h,
+	  exploration.h, explorationmaster.c, guestmaster.c, inetd.c,
+	  login.c, mailer.c, master.c, master.h, merlin.c, news.c:
+	Updated to rev 3.0
+

@@ -1,0 +1,3448 @@
+2006-08-26  Humni  <Humni@mg>
+
+	* new_skills.h: P_WEAPON_TEACHER fuer Kampfausbilder hinzugefuegt
+
+2006-07-16  Muadib  <Muadib@mg>
+
+	* combat.h: defendinfos eingebaut
+
+2006-04-25  Miril  <Miril@mg>
+
+	* class.h: CL_FURIE fuer Ark eingefuegt
+
+2006-01-05  Zook  <Zook@mg>
+
+	* player/base.h:
+	Neue Property P_MESSENGER fuer Messenger-Dienste anders als ICQ
+	eingefuehrt.
+
+2005-10-18  Zook  <Zook@mg>
+
+	* player/base.h: Neue Property P_NO_ASCII_ART eingefuegt.
+
+2005-08-21  Humni  <Humni@mg>
+
+	* thing/moving.h:
+	Vorbereitung fuer eine Put-And-Get-Aenderung mit neuen Meldungen: hier neue Properties.
+
+2005-07-23  Miril  <Miril@mg>
+
+	* player/fao.h: Define fuer Mitgliedschaft ergaenzt
+
+2005-06-23  Humni  <Humni@mg>
+
+	* new_skills.h: SI_SKILLDAMAGE_BY_ROW eingefuegt.
+
+2005-06-03  Muadib  <Muadib@mg>
+
+	* player/fao.h: New file.
+
+2005-05-28  Muadib  <Muadib@mg>
+
+	* player.h: fraternitas aenderung
+
+2005-04-18  Muadib  <Muadib@mg>
+
+	* player/base.h: hardcore
+
+2005-01-10  Zook  <Zook@mg>
+
+	* class.h:
+	Klasse CL_ILLUSION fuer Lebewesen und Gegenstaende eingefuegt.
+
+2005-01-04  Humni  <Humni@mg>
+
+	* player.h: P_NEWBIE_GUIDE eingefuegt
+
+2004-11-29  Nonne  <Nonne@mg>
+
+	* food.h: F_HEAL in F_HEAL_SP und F_HEAL_HP gesplittet
+
+	* food.h: New file.
+
+2004-09-02  Humni  <Humni@mg>
+
+	* living/combat.h: DISABLE_TOO_EARLY auf neuen Wert gesetzt.
+
+2004-08-13  Muadib  <Muadib@mg>
+
+	* living/attributes.h:
+	notify in SetTimedAttrModifier auf mixed umgestellt
+
+2004-08-11  Vanion  <Vanion@mg>
+
+	* living/life.h:
+	reduce_spell_points() und restore_hit_points() definiert.
+
+2004-08-10  Humni  <Humni@mg>
+
+	* living/combat.h: P_NEXT_DISABLE_ATTACK eingebaut
+
+2004-07-27  Muadib  <Muadib@mg>
+
+	* living/attributes.h: P_TIMED_ATTR_MOD
+
+2004-07-07  Humni  <Humni@mg>
+
+	* new_skills.h: SI_LEARN_ATTRIBUTE eingefuegt
+
+2004-07-07  Rikus  <Rikus@mg>
+
+	* new_skills.h: SR_INCLUDE_GUILD und SR_INCLUDE_GUILD definiert
+
+2004-07-05  Nonne  <Nonne@mg>
+
+	* unit.h: P_ROT_MSG eingefuegt, fuer verrottende Unit-Ari
+
+2004-06-29  Vanion  <Vanion@mg>
+
+	* living/attributes.h: Anpassung X/M-Modifier
+
+2004-06-12  Vanion  <Vanion@mg>
+
+	* thing/lighttypes.h: P_LIGHT_TYPE und CheckLightType eingebaut.
+
+2004-06-06  Vanion  <Vanion@mg>
+
+	* living/life.h: P_LAST_DEATH_PROPS implemenitert.
+
+2004-05-20  Vanion  <Vanion@mg>
+
+	* thing.h: lighttypes eingebunden.
+
+	* thing/lighttypes.h: New file.
+
+2004-04-09  Vanion  <Vanion@mg>
+
+	* player/util.h, udp_language.h: New file.
+
+2004-04-07  Vanion  <Vanion@mg>
+
+	* www.h: Der Fingerdaemon ist nach /p/daemon umgezogen.
+
+2004-04-07  Vanion  <Vanion@mg>
+
+	* www.h: Der Fingerdaemon ist nach /p/daemon umgezogen.
+
+2004-04-07  Vanion  <Vanion@mg>
+
+	* www.h: Der Fingerdaemon ist nach /p/daemon umgezogen.
+
+2004-04-07  Vanion  <Vanion@mg>
+
+	* www.h: Der Fingerdaemon ist nach /p/daemon umgezogen.
+
+2004-04-07  Vanion  <Vanion@mg>
+
+	* www.h: Der Fingerdaemon ist nach /p/daemon umgezogen.
+
+2004-03-21  Vanion  <Vanion@mg>
+
+	* player/base.h: P_ALLOWED_SHADOW definiert.
+
+2004-03-17  Humni  <Humni@mg>
+
+	* combat.h: P_LAST_PEACE_TIME eingefuegt.
+
+2004-03-15  Vanion  <Vanion@mg>
+
+	* living/put_and_get.h:
+	P_PUT_MSG, P_GET_MSG, P_DROP_MSG, P_PICK_MSG, NO_PNG_MSG definiert und eingebaut. Code etwas aufgeraeumt.
+
+2004-03-15  Humni  <Humni@mg>
+
+	* living/combat.h: QueryPacify eingebaut
+
+	* combat.h:
+	P_ACCEPT_PEACE eingebaut, erlaubt das alte Befriede-Verhalten.
+
+2004-01-25  Vanion  <Vanion@mg>
+
+	* thing/commands.h: Ueberarbeitung von AddCmd() und RemoveCmd().
+
+2003-12-30  Vanion  <Vanion@mg>
+
+	* werliste.h, quest_items.h: New file.
+
+2003-12-10  Zook  <Zook@mg>
+
+	* userinfo.h: USER_GUILD eingefuegt zur Speicherung der Gilden.
+
+2003-12-09  Vanion  <Vanion@mg>
+
+	* living/life.h:
+	Erweiterung der Funktionen drink_alcohol, drink_soft, eat_food um die Moeglichkeit einen freien Text ausgeben zu lassen. Danke an Gabylon.
+
+2003-11-12  Rikus  <Rikus@mg>
+
+	* living/combat.h: Prototype von Flee gefixed
+
+2003-11-11  Muadib  <Muadib@mg>
+
+	* defuel.h: statistik
+
+2003-10-16  Rikus  <Rikus@mg>
+
+	* combat.h:
+	WT_STAFF als gueltigen Ruestungstyp eingetragen und definiert
+
+2003-09-30  Rikus  <Rikus@mg>
+
+	* new_skills.h: SP_NO_ACTIVE_DEFENSE definiert
+
+2003-09-15  Vanion  <Vanion@mg>
+
+	* living/description.h: P_REAL_RACE
+
+2003-09-09  Muadib  <Muadib@mg>
+
+	* defuel.h: defuel
+
+	* defuel.h: New file.
+
+2003-08-24  Humni  <Humni@mg>
+
+	* class.h: CL_DARKELF eingefuegt.
+
+2003-08-12  Rikus  <Rikus@mg>
+
+	* living/life.h: reduce_hit_points statt reduce_hit_point
+
+2003-08-07  Rikus  <Rikus@mg>
+
+	* shells.h: P_SHORT_CWD raus
+
+	* thing/properties.h: P_EUID und P_UID raus
+
+	* thing/description.h:
+	P_INVIS hierher verlegt und prototype fuer GiveEP rein
+
+	* doorroom.h:
+	prototypes oeffnen und schliessen haben hier nix zu suchen
+
+2003-08-06  Vanion  <Vanion@mg>
+
+	* inpc.h: Too long eval-Logging rausgeschmissen.
+
+	* inpc/select.h: INPC_DONT_WIELD_WEAPONS eingebaut.
+
+2003-07-30  Rikus  <Rikus@mg>
+
+	* thing.h: util.h nicht mehr includen
+
+2003-07-10  Vanion  <Vanion@mg>
+
+	* properties.h: quest_items.h eingebunden.
+	**
+	(gna, ich schreib zu viele MPA-Artikel :(
+
+2003-07-05  Zook  <Zook@mg>
+
+	* combat.h: Prop fuer Artillerie (P_IS_ARTILLERY) eingefuegt.
+
+2003-06-26  Humni  <Humni@mg>
+
+	* seil.h: New file.
+
+2003-06-25  Humni  <Humni@mg>
+
+	* thing/seil.h: New file.
+
+2003-06-23  Humni  <Humni@mg>
+
+	* new_skills.h: SI_ATTACK_BUSY_AMOUNT eingefuegt.
+
+2003-05-06  Vanion  <Vanion@mg>
+
+	* magier.h: clone -f
+
+2003-05-06  Zook  <Zook@mg>
+
+	* magier.h: Bugfix bei clone, obsoletes MODE_MAN entfernt.
+
+2003-04-20  Humni  <Humni@mg>
+
+	* thing/material.h: MAT_CLAY (Ton) hinzugefuegt.
+
+2003-04-18  Vanion  <Vanion@mg>
+
+	* thing/description.h:
+	Prototypen fuer Add(Special)Detail und Remove(Special)Detail eingefuegt.
+
+2003-03-05  Humni  <Humni@mg>
+
+	* combat.h: P_LAST_PEACE_TIME eingefuegt.
+
+2003-03-04  Rikus  <Rikus@mg>
+
+	* daemon/mand.h: doc-Verzeichnis new aus Suchpfad ausgeschlossen
+
+	* magier.h: Define fuer Ausgabeumlenkung des grep in eine Datei
+
+2003-03-01  Vanion  <Vanion@mg>
+
+	* unit.h, std_headers.h: Prototyp korrigiert.
+
+2003-02-19  Rikus  <Rikus@mg>
+
+	* magier.h: MAX_ARRAY_SIZE definiert und Prototypes entfernt
+
+	* logging.h: INTERMUDLOGPATH definiert
+
+2003-02-17  Rikus  <Rikus@mg>
+
+	* player/skills.h: war ausgecheckt seit Jahren...
+
+	* player/telnetneg.h: New file.
+
+	* thing/material.h: MAT_BIRCH hinzugefuegt
+
+	* daemon/mand.h, magier.h, logging.h, debug_info.h: New file.
+
+	* daemon.h: mand.h included
+
+2003-01-30  Humni  <Humni@mg>
+
+	* new_skills.h:
+	Gildenmaster liegt jetzt in secure, GUILDMASTER angepasst.
+
+	* new_skills.h: P_GUILD_DEACTIVATE_SKILLS eingefuegt
+
+2003-01-29  Humni  <Humni@mg>
+
+	* armour.h:
+	P_LAST_WEAR_ACTION, WA_WEAR, WA_UNWEAR eingefuegt fuer erschwerten Ruestungswechsel
+
+2002-12-17  Rikus  <Rikus@mg>
+
+	* class.h: CL_ALL eingefuehrt
+
+	* fishing.h: /n in den IDs sollte \n sein
+
+	* new_skills.h: SI_CLOSURE richtig definiert
+
+2002-12-08  Humni  <Humni@mg>
+
+	* death_room.h: New file.
+
+2002-11-05  Tilly  <Tilly@mg>
+
+	* combat.h:
+	Werte in KEEP_ARMOUR_CLASS neu berechnet. Sie betragen jetzt Genehmigungsgrenze - 5% der max.AC
+
+2002-10-16  Rikus  <Rikus@mg>
+
+	* inpc.h: Logfile fuer Tickverbrauch definiert
+
+2002-09-20  Tilly  <Tilly@mg>
+
+	* weapon.h:
+	P_WIELD_MSG und P_UNWIELD_MSG definiert. Siehe man-Pages fuer Details
+
+	* armour.h:
+	P_WEAR_MSG und P_UNWEAR_MSG definiert. Siehe man-Pages fuer Details
+
+2002-08-28  Rikus  <Rikus@mg>
+
+	* room/exits.h: auf strong_types umgestellt
+
+	* living/raceskills.h, daemon/channel.h, daemon/html.h, daemon/irc.h, daemon/object.h, daemon/whois.h, objectinfo.h, sys_debug.h:
+	New file.
+
+	* combat.h, news.h, std_headers.h: auf strong_types umgestellt
+
+2002-08-28  Rikus  <Rikus@mg>
+
+	* room/exits.h: auf strong_types umgestellt
+
+	* living/raceskills.h, daemon/channel.h, daemon/html.h, daemon/irc.h, daemon/object.h, daemon/whois.h, objectinfo.h, sys_debug.h:
+	New file.
+
+	* combat.h, news.h, std_headers.h: auf strong_types umgestellt
+
+2002-07-22  Rikus  <Rikus@mg>
+
+	* player.h: TMP_NEED_PROTOTYPES in PLAYER_TMP_NEED_PROTOTYPES umbenannt
+
+2002-02-10  Silvana  <Silvana@mg>
+
+	* player/base.h: P_WAITFOR_FLAGS eingefuehrt
+
+2002-02-09  Tilly  <Tilly@mg>
+
+	* daemon.h:
+	Vorbereitungen fuers neue 'reise': #include "/sys/daemon/traveld.h"
+
+	* daemon/traveld.h: New file.
+
+	* transport.h:
+	Vorbereitungen fuer das neue 'reise': Defines P_TRAVEL_INFO (Infos ueber die geplante Reise eines Spielers), P_NO_TRAVELING (in Transportern oder Raeumen, hier steht 'reise' nicht zur Verfuegung), P_TRAVEL_CMDS (analog zu ENTERCM und LEAVECMDS) und P_HARBOUR (in Zielraeumen mit eindeutiger Kennzeichnung des Hafens)
+
+2002-01-28  Tiamak  <Tiamak@mg>
+
+	* thing/properties.h: Prototype fuer Set() angepasst.
+
+2001-11-07  Zook  <Zook@mg>
+
+	* class.h:
+	CL_SHAPECHANGER fuer Gestaltwandler wie Werwoelfe und aehnliches
+	aufgenommen.
+
+2001-08-13  Nachtwind  <Nachtwind@mg>
+
+	* new_skills.h: Neue Properties:
+	P_SUBGUILD_TITLE  Eventueller Zusatz zum Namen der Gilde, zB Clan
+	P_VISIBLE_SUBGUILD_TITLE analog zu P_VISIBLE_GUILD.
+
+2001-04-06  Boing  <Boing@mg>
+
+	* combat.h:
+	Neue Konstanten: MAX_TWOHANDED_WC und MAX_ONEHANDED_WC, die Einhaltung
+	der Einhand-WC wird bisher nicht ueberprueft.
+
+2001-03-07  Rochus  <Rochus@mg>
+
+	* thing/material.h:
+	Auf vielfachen Wunsch einer einzelnen Nonne: MAT_FUNGUS :)
+
+2001-02-20  Rikus  <Rikus@mg>
+
+	* userinfo.h: USER_EK und USER_MQ definiert
+
+2001-01-27  Tiamak  <Tiamak@mg>
+
+	* living/life.h: P_CORPSE_DECAY_TIME definiert.
+
+2000-12-23  Rikus  <Rikus@mg>
+
+	* userinfo.h: Eintrag USER_EP eingefuegt
+
+2000-10-16  Silvana  <Silvana@mg>
+
+	* player/base.h: P_SHOWEMAIL definiert
+
+2000-10-03  Paracelsus  <Paracelsus@mg>
+
+	* new_skills.h: P_GUILD_PREPAREBLOCK definiert
+
+2000-09-30  Silvana  <Silvana@mg>
+
+	* player/base.h: P_TIMEZONE definiert
+
+2000-09-23  Tiamak  <Tiamak@mg>
+
+	* defines.h: IS_PARA debugged und auf String anwendbar gebaut.
+
+2000-08-25  Silvana  <Silvana@mg>
+
+	* living/life.h: P_LAST_DEATH_TZIME definiert
+
+2000-08-22  Silvana  <Silvana@mg>
+
+	* living/life.h: P_TIMING_MAP definiert
+
+	* living/life.h: P_STOMACH_LAST_EMPTIED definiert
+
+2000-08-19  Paracelsus  <Paracelsus@mg>
+
+	* living/combat.h: Prototypes
+
+	* living/life.h: private-Prototype entfernt
+
+	* thing/language.h: Die private-Prototypes ganz rausgeschmissen
+
+2000-08-18  Tiamak  <Tiamak@mg>
+
+	* thing/language.h: Hotfix wegen -Debug-Scroll.
+	Jetzt darfst Du wieder weitermachen, Para ;-)
+
+2000-08-18  Paracelsus  <Paracelsus@mg>
+
+	* living/moving.h: Debug
+
+	* thing/commands.h: Prototype von _cl() angepasst
+
+	* living/life.h: Prototypes
+
+2000-08-16  Paracelsus  <Paracelsus@mg>
+
+	* living/moving.h: kleine Aenderung
+
+	* living.h: Aeh ... doch erstmal ohne living/moving.h
+
+	* living.h: include von living/moving.h
+
+	* living/moving.h: New file.
+
+	* living/attributes.h: Prototypes
+
+	* combat.h: includet nun auch ranged_weapon.h
+
+2000-08-15  Paracelsus  <Paracelsus@mg>
+
+	* living/combat.h: Prototypes (prelude)
+
+	* ranged_weapon.h: Prototypes
+
+	* ranged_weapon.h: New file.
+
+	* thing/commands.h, thing/language.h, thing/moving.h, thing/properties.h, thing/restrictions.h:
+	Prototypes
+
+	* thing/util.h: New file.
+
+	* thing.h: include von /sys/thing/util.h
+
+2000-08-10  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: P_TARGET_AREA definiert
+
+2000-07-22  Silvana  <Silvana@mg>
+
+	* npc.h: P_NPC_INFO definiert.
+
+2000-07-10  Silvana  <Silvana@mg>
+
+	* class.h: Neue Clasesses, .
+	Unter anderem CL_FEINELINE.
+
+2000-07-05  Tiamak  <Tiamak@mg>
+
+	* thing/description.h: P_CLONE_TIME eingefuehrt.
+
+2000-07-01  Rochus  <Rochus@mg>
+
+	* player/base.h: P_LOCATION fuer selbstgesetzte Ortsangabe definiert
+
+2000-06-30  Tiamak  <Tiamak@mg>
+
+	* properties.h: P_ORIG_FILE_NAME eingefuehrt fuer Leichen.
+
+2000-06-29  Zook  <Zook@mg>
+
+	* thing/material.h: MAT_TURQUOISE (Tuerkis) eingefuegt.
+
+2000-06-24  Paracelsus  <Paracelsus@mg>
+
+	* class.h:
+	CL_GHOST eingetragen, CL_GHOUL alphabetisch eingeordnet (G kommt vor H, nicht nach Z, Kinners!)
+
+2000-06-07  Tiamak  <Tiamak@mg>
+
+	* living/combat.h: P_DEATH_MSG eingefuehrt.
+
+2000-06-01  Tiamak  <Tiamak@mg>
+
+	* player/base.h: P_SIBLINGS eingefuehrt fuer Blutsbruederschaftstool
+	von Wurst.
+
+2000-05-17  Paracelsus  <Paracelsus@mg>
+
+	* spellbook.h: New file.
+
+2000-04-11  Paracelsus  <Paracelsus@mg>
+
+	* new_skills.h: P_GUILD_PREVENTS_RACESKILL definiert
+
+2000-03-25  Paracelsus  <Paracelsus@mg>
+
+	* thing/description.h: Prototyp fuer match_ids()
+
+2000-03-20  Paracelsus  <Paracelsus@mg>
+
+	* living.h, new_skills.h, weapon.h: Defines fuer allg. Kampfskills
+
+2000-03-16  Paracelsus  <Paracelsus@mg>
+
+	* living/skills.h: Einige 'static's
+
+2000-03-13  Paracelsus  <Paracelsus@mg>
+
+	* living/skills.h: New file.
+
+	* living.h: living/skills.h included
+
+	* new_skills.h:
+	Prototypen fuer living/skills.c nach living/skills.h ausgelagert
+
+2000-03-10  Paracelsus  <Paracelsus@mg>
+
+	* unit.h: New file.
+
+2000-03-06  Paracelsus  <Paracelsus@mg>
+
+	* new_skills.h: SK_SHOOT definiert
+
+2000-03-04  Paracelsus  <Paracelsus@mg>
+
+	* pub.h: P_NO_STD_DRINK hierher verschoben.
+
+	* room/description.h: P_NO_STD_DRINK hat da nix zu suchen.
+
+	* pub.h: Einige Defines
+
+2000-02-28  Tiamak  <Tiamak@mg>
+
+	* living/life.h: P_LAST_XP definiert.
+
+2000-02-28  Paracelsus  <Paracelsus@mg>
+
+	* living/combat.h: Property-Defines gehoeren in ein .h, nicht in ein .c
+
+2000-02-21  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: P_UNWIELD_TIME gehoert natuerlich nicht hier rein.
+
+	* weapon.h: Hier gehoert P_UNWIELD_TIME natuerlich hin.
+
+2000-02-20  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: P_UNWIELD_TIME definiert
+
+2000-02-19  Padreic  <Padreic@mg>
+
+	* room/description.h: P_LIGHT_ABSORPTION definiert.
+
+2000-02-12  Padreic  <Padreic@mg>
+
+	* ansi.h: ANSI_BG_BLACK ist "[[40m" und nicht "[[30m"
+
+2000-02-09  Padreic  <Padreic@mg>
+
+	* weapon/description.h, player/base.h, player/can.h, player/comm.h, player/description.h, player/moving.h, player/potion.h, player/quest.h, player/viewcmd.h, room/description.h, room/exits.h, thing/commands.h, thing/description.h, thing/language.h, thing/material.h, thing/moving.h, thing/properties.h, thing/restrictions.h, living/attributes.h, living/combat.h, living/description.h, living/life.h, living/team.h, transport.h, v_compiler.h, weapon.h:
+	Propertys verschoben und neu formatiert
+
+	* lightsource.h: New file.
+
+	* npc.h, player.h, properties.h, rooms.h:
+	Propertys verschoben und neu formatiert
+
+	* armour.h, combat.h, container.h:
+	einige Propertys verschoben und neu formatiert
+
+	* player/skills.h: *** empty log message ***
+
+2000-01-28  Nachtwind  <Nachtwind@mg>
+
+	* new_skills.h: ABGEWEHRT definiert. (Ergaenzt ERFOLG und MISSERFOLG)
+
+2000-01-20  Tiamak  <Tiamak@mg>
+
+	* mail.h: Weiteres #define: NO_CARBON_COPIES.
+
+2000-01-20  Boing  <Boing@mg>
+
+	* combat.h: AT_GLASSES wieder ausgebaut
+
+2000-01-20  Tiamak  <Tiamak@mg>
+
+	* mail.h: Zwei neue #defines fuer DeliverMail():
+	NO_USER_ALIASES und NO_SYSTEM_ALIASES.
+
+2000-01-19  Padreic  <Padreic@mg>
+
+	* moving.h: REJECT_LIGHT_MODIFIER hinzugefuegt.
+
+	* living/description.h: Prototype fuer CannotSee() definiert
+
+	* player/description.h: P_EXTRA_LOOK entfernt da doppelt definiert.
+
+	* combat.h: AT_GLASSES eingefuehrt.
+
+	* properties.h: P_LIGHT_MODIFIER eingefuehrt
+
+2000-01-12  Padreic  <Padreic@mg>
+
+	* properties.h: P_PLAYER_LIGHT und P_INT_LIGHT eingefuehrt.
+
+1999-12-17  Tiamak  <Tiamak@mg>
+
+	* moving.h:
+	ME_NOT_ALLOWED eingefuehrt als Rueckgabewert fuer Raeume, die
+	von Spielern nicht betreten werden duerfen (P_NO_PLAYERS).
+
+1999-12-15  Padreic  <Padreic@mg>
+
+	* properties.h: P_INT_LIGHT hinzugefuegt
+
+1999-12-08  Tiamak  <Tiamak@mg>
+
+	* rooms.h: P_NO_PLAYERS definiert.
+
+1999-11-30  Tiamak  <Tiamak@mg>
+
+	* living/life.h: die() hat einen neuen Parameter bekommen.
+
+1999-11-29  Tiamak  <Tiamak@mg>
+
+	* life.h: New file.
+
+1999-11-08  Rochus  <Rochus@mg>
+
+	* player/base.h: P_ICQ
+
+1999-11-04  Tiamak  <Tiamak@mg>
+
+	* rooms.h: P_ROOMTYPE -> P_ROOM_TYPE
+
+	* rooms.h: P_ROOMTYPE definiert.
+
+rcs2log -R -r -d>1999-11-02
+1999-09-29  Paracelsus  <Paracelsus@mg>
+
+	* pub.h: New file.
+
+1999-08-27  Wim  <Wim@mg>
+
+	* thing/material.h: Neues Material: Satin
+
+1999-08-26  Paracelsus  <Paracelsus@mg>
+
+	* new_skills.h:
+	SI_SKILLBONUS ist eigentlich Schwachsinn, das kann ich auch anders machen...
+
+	* new_skills.h: SI_SKILLBONUS definiert
+
+	* new_skills.h: SHOOT(x) definiert
+
+	* combat.h: VALID_SHOOT_SKILL definiert
+
+	* player/base.h: P_SHELL_VERSION definiert
+
+1999-08-25  Hate  <Hate@mg>
+
+	* room/exits.h, ansi.h: *** empty log message ***
+
+1999-08-23  Paracelsus  <Paracelsus@mg>
+
+	* properties.h: P_NOSELL definiert
+
+1999-07-27  Paracelsus  <Paracelsus@mg>
+
+	* new_skills.h: SI_TESTFLAG definiert
+
+1999-07-13  Wim  <Wim@mg>
+
+	* rooms.h:
+	P_NEVER_CLEAN definiert (findet laengst aAnwendung in room.c)
+
+1999-07-11  Padreic  <Padreic@mg>
+
+	* defines.h: neue defines REAL_UID und REAL_EUID
+
+1999-06-29  Padreic  <Padreic@mg>
+
+	* combat.h: morgens um die uhrzeit sollte man noch nicht arbeiten, muss
+	natuerlich RW_VICTIM heissen... *seufz*
+
+	* combat.h: RW_ENEMY eingefuehrt fuer die Schussmeldung des Feindes.
+
+1999-06-27  Paracelsus  <Paracelsus@mg>
+
+	* class.h: Neue Klasse CL_AMMUNITION fuer Munition
+
+	* combat.h: AT_QUIVER, damit man die Munition fuer die Fernkampfwaffen
+	auch irgendwo unterbringen kann.
+
+	* class.h: CL_FROG
+
+	* combat.h: Typo-Fix
+
+1999-06-26  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: Neu: Defines fuer Parierwaffen
+	Neu: Defines fuer Fernkampfwaffen (Padreic)
+	Ueberarbeitung, Kommentare.
+
+1999-06-16  Padreic  <Padreic@mg>
+
+	* health.h: NO_REG eingefuegt
+
+1999-06-16  Rikus  <Rikus@mg>
+
+	* thing/material.h: Chiffon und Spitze als Stoffe hinzugefuegt
+
+1999-05-27  Padreic  <Padreic@mg>
+
+	* daemon.h: includet nun nichts mehr aus /p/daemon/*
+
+1999-05-27  Hate  <Hate@mg>
+
+	* daemon.h: *** empty log message ***
+
+1999-04-26  Rikus  <Rikus@mg>
+
+	* player/base.h: P_SECOND_LIST eingefuegt, Liste der 2ties
+
+1999-04-16  Padreic  <Padreic@mg>
+
+	* combat.h: irgendwer hatte AT_BELT ausgebaut. Nun ists wieder drin.
+
+1999-04-13  Padreic  <Padreic@mg>
+
+	* thing/language.h: P_PLURAL neu definiert
+
+	* language.h: ist jetzt nur noch ein #include <thing/language.h>
+
+1999-04-07  Padreic  <Padreic@mg>
+
+	* class.h: Neue Klasse CL_GHOUL
+
+1999-03-23  Rochus  <Rochus@mg>
+
+	* new_skills.h:
+	SI_PREPARE_MSG, spruchvorbereitung, abbruch und noch beschaeftigt
+
+	* new_skills.h: Typo
+
+	* new_skills.h: SI_NUMBER_ENEMIES und SI_NUMBER_FRIENDS definiert.
+	Wird in sinfo reingeschrieben, damit Verteilungsfunktionen
+	dies beruecksichtigen koennen.
+
+	* new_skills.h: SI_DISTANCE, WIDTH, DEPTH
+
+	* new_skills.h:
+	SI_COLLATERAL_DAMAGE fuer Schadenanteil bei Freunden bei Flaechenspells
+
+	* new_skills.h:
+	SP_GLOBAL_ATTACK zur Kennzeichnung von Flaechenangriffen
+
+1999-03-15  Rochus  <Rochus@mg>
+
+	* properties.h: P_DEATH_SPONSORED_BY
+
+1999-03-15  Rumata  <Rumata@mg>
+
+	* combat.h: ikommando zurueck
+
+	* combat.h: neuer AT_BELT
+
+1999-03-07  Rikus  <Rikus@mg>
+
+	* player/base.h: vis() und invis() um string inform erweitert
+
+1999-03-01  Padreic  <Padreic@mg>
+
+	* moving.h: ME_TOO_HEAVY_FOR_ENV und TOO_MANY_OBJECTS definiert
+
+1999-02-24  Padreic  <Padreic@mg>
+
+	* container.h: P_TOTAL_OBJECTS und P_MAX_OBJECTS eingefuegt.
+
+1999-02-24  Hate  <Hate@mg>
+
+	* container.h: Hate hatte wohl vergessen es wieder einzuchecken
+	letzte Aenderung war am 16 April 1997 (Padreic)
+
+1999-02-17  Padreic  <Padreic@mg>
+
+	* defines.h: BLUE_NAME nochmal ein wenig optimiert
+
+1999-02-10  Rikus  <Rikus@mg>
+
+	* combat.h: WT_WHIP mit zu VALID_WEAPON_TYPE hinzugefuegt
+
+1999-02-10  Boing  <Boing@mg>
+
+	* combat.h: Neuer Waffentyp: WT_WHIP
+
+1999-02-06  Paracelsus  <Paracelsus@mg>
+
+	* properties.h: P_TTY_SHOW definiert
+
+	* living/attributes.h: Typo-Fix
+
+1999-02-05  Paracelsus  <Paracelsus@mg>
+
+	* telnet.h: New file.
+
+	* properties.h: Properties P_TTY_COLS, P_TTY_ROWS, P_TTY_TYPE definiert
+
+1999-02-04  Padreic  <Padreic@mg>
+
+	* defines.h: neues define BLUE_NAME(ob)
+
+1999-02-02  Rikus  <Rikus@mg>
+
+	* living/life.h: P_NO_XP eingefuegt (keine XPs beim Kill vergeben)
+
+1999-02-01  Rikus  <Rikus@mg>
+
+	* properties.h: P_VISUALBELL hinzugefuegtm P_WAITFOR_SILENT entfernt
+
+1999-01-29  Paracelsus  <Paracelsus@mg>
+
+	* defines.h: BS_INDENT_ONCE definiert
+
+1999-01-28  Paracelsus  <Paracelsus@mg>
+
+	* living/attributes.h: Auch noch P_M_HEALTH_MOD definiert
+
+	* living/attributes.h: P_M_ATTR_MOD definiert
+
+1999-01-26  Paracelsus  <Paracelsus@mg>
+
+	* living/combat.h: P_LAST_DAMAGE und P_LAST_DAMTIME definiert
+
+1999-01-25  Rochus  <Rochus@mg>
+
+	* new_skills.h: Bugfix
+
+1999-01-24  Rikus  <Rikus@mg>
+
+	* properties.h: P_WAITFOR_SILENT eingefuegt
+
+	* new_skills.h: defines fuer FindGrpoup() eingefuegt
+
+1999-01-21  Boing  <Boing@mg>
+
+	* properties.h: Neue Property P_NO_PARA_TRANS
+
+1999-01-20  Paracelsus  <Paracelsus@mg>
+
+	* npc.h: DEFAULT_NOINFO und P_PRE_INFO definiert
+
+1999-01-18  Rochus  <Rochus@mg>
+
+	* combat.h: P_ENABLE_IN_ATTACK_OUT
+
+1999-01-14  Rochus  <Rochus@mg>
+
+	* new_skills.h:
+	SP_NO_ATTACK fuer Angriff ohne InsertEnemy und do_damage
+
+	* new_skills.h: SP_NO_DO_DAMAGE
+
+1999-01-08  Rochus  <Rochus@mg>
+
+	* living/team.h: Prototype fuer InformRowChange
+
+1998-12-29  Rochus  <Rochus@mg>
+
+	* living/team.h: Prototype mit forcefrom
+
+1998-12-21  Rochus  <Rochus@mg>
+
+	* living/combat.h: InitAttack/ExitAttack
+
+	* living/team.h: *** empty log message ***
+
+1998-12-18  Rochus  <Rochus@mg>
+
+	* living/team.h: *** empty log message ***
+
+	* living/team.h: Prop fuer Teamfarbgrenzen
+
+1998-12-16  Rochus  <Rochus@mg>
+
+	* living/team.h: *** empty log message ***
+
+1998-12-15  Rochus  <Rochus@mg>
+
+	* living.h: team.h includet.
+
+	* living/team.h: New file.
+
+1998-12-14  Rochus  <Rochus@mg>
+
+	* living/combat.h: Prototype fuer InsertSingleEnemy
+
+1998-12-04  Rumata  <Rumata@mg>
+
+	* rooms.h: +REFRESH_MOVE_HOME
+
+1998-12-03  Rumata  <Rumata@mg>
+
+	* thing/material.h: +IRON_WOOD
+
+1998-11-09  Rikus  <Rikus@mg>
+
+	* properties.h: P_FORCE_MURDER_MSG eingefuehrt
+
+1998-10-28  Rochus  <Rochus@mg>
+
+	* weapon.h: P_MAX_WC, fuer bessere Tests von Gildenbeschraenkungen.
+
+1998-10-28  Rumata  <Rumata@mg>
+
+	* living/put_and_get.h: select_objects -> find_obs
+
+	* moving.h: methoden fuer find_obs in put_and_get definiert
+
+1998-09-13  Paracelsus  <Paracelsus@mg>
+
+	* living/combat.h: Attack2()-Prototyp
+
+1998-09-12  Paracelsus  <Paracelsus@mg>
+
+	* living/attributes.h: P_X_HEALTH_MOD definiert
+
+1998-08-24  Rochus  <Rochus@mg>
+
+	* new_skills.h: SA_CHANGE_OBJECT definiert um den caster zu speichern.
+
+1998-08-23  Paracelsus  <Paracelsus@mg>
+
+	* properties.h: P_NO_TOPLIST
+
+	* new_skills.h: SI_NOMAGIC_MSG
+
+1998-08-21  Rochus  <Rochus@mg>
+
+	* player/base.h: P_DAILY_PLAYTIME fuer Spieldauer pro Tag eingebaut.
+
+1998-08-09  Rikus  <Rikus@mg>
+
+	* properties.h: P_WAITFOR:_REASON eingefuegt
+
+1998-07-22  Silvana  <Silvana@mg>
+
+	* thing/moving.h: P_LAST_MOVE definiert
+
+	* combat.h: P_EQUIP_TIME definiert
+
+1998-07-20  Rikus  <Rikus@mg>
+
+	* defines.h: IS_PARA(ob) als Erkennung fuer Pararaeume eingefuehrt
+
+1998-07-14  Jof  <Jof@mg>
+
+	* defines.h:
+	(Rumata) keine ahnung, was Jof vor 5 Monaten gemacht hat. :-)
+	IS_CLONE und IS_BLUE beschleunigt (auf den stand von simul_efun
+	gebracht.)
+
+1998-07-13  Rumata  <Rumata@mg>
+
+	* npc.h: CLONE_NO_CHECK
+
+1998-07-10  Rumata  <Rumata@mg>
+
+	* properties.h: npc.h
+
+	* npc.h: AddItem fuer npcs vorbereiten.
+
+1998-06-20  Rikus  <Rikus@mg>
+
+	* bank.h: P_STORE_CONSUME und P_MIN_STOCK eingefuegt
+
+1998-04-27  Rumata  <Rumata@mg>
+
+	* living/life.h: +P_ENEMY_DAMAGE
+
+1998-04-11  Silvana  <Silvana@mg>
+
+	* living/life.h: P_NO_REGENERATION
+
+	* doorroom.h: D_RESET_MSG, D_OPEN_WITH_MOVE
+
+	* health.h: NO_REG_XXX
+
+1998-03-12  Rochus  <Rochus@mg>
+
+	* properties.h: P_VISIBLE_GUILD endgueltig definiert
+
+1998-03-10  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: OLD_ARMOUR_CLASS entfernt
+
+1998-03-04  Rochus  <Rochus@mg>
+
+	* properties.h:
+	P_VISIBLE_GUILD, falls diese von P_GUILD abweichen soll.
+
+1998-03-03  Paracelsus  <Paracelsus@mg>
+
+	* health.h: ALCOHOL_DELAY, DRINK_DELAY und FOOD_DELAY geaendert
+
+1998-03-02  Rochus  <Rochus@mg>
+
+	* thing/material.h: *** empty log message ***
+
+1998-03-02  Paracelsus  <Paracelsus@mg>
+
+	* player/description.h: P_AVERAGE_WEIGHT definiert.
+
+1998-02-16  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: P_RESTRICTIONS definiert
+
+1998-02-16  Silvana  <Silvana@mg>
+
+	* new_skills.h: P_MAGIC_RESISTANCE_OFFSET
+
+	* properties.h: P_KEEPER
+
+1998-02-09  Silvana  <Silvana@mg>
+
+	* class.h: Noch mehr Klassen.
+
+1998-02-06  Paracelsus  <Paracelsus@mg>
+
+	* new_skills.h: Neue Property P_DEFAULT_GUILD
+
+	* properties.h: Neue Property P_LAST_USE
+
+	* combat.h: Neue Max-ACs eingetragen.
+
+1998-02-05  Silvana  <Silvana@mg>
+
+	* living/life.h: Prototypes fuer eat_food etc angepasst.
+
+1998-02-03  Wargon  <Wargon@mg>
+
+	* player/base.h: HAUSVERWALTER geaendert
+
+1998-02-02  Silvana  <Silvana@mg>
+
+	* class.h: paar neue Klassen.
+
+	* new_skills.h: MT_PSYCHO, MT_CREATION
+
+1998-01-27  Gundur  <Gundur@mg>
+
+	* living/description.h: P_EXTRA_LOOK fuer livings
+
+1997-12-22  Silvana  <Silvana@mg>
+
+	* thing/description.h: SENSE_xxx (fuer GetDetauil)
+
+	* properties.h: P_SSMELLS, P_SOUNDS, SENSE_DEFAULT
+
+1997-11-17  Yantro  <Yantro@mg>
+
+	* player/potion.h: P_HEALPOTIONS fuer Heilstellen eingebaut.
+
+1997-11-10  Silvana  <Silvana@mg>
+
+	* properties.h: P_LOG_FILE
+
+1997-10-15  Paracelsus  <Paracelsus@mg>
+
+	* player/base.h: Property P_SECOND_MARK
+
+1997-10-14  Rochus  <Rochus@mg>
+
+	* new_skills.h: P_SKILL_ATTRIBUTE_OFFSETS eingebaut
+
+	* living/combat.h:
+	P_SHOW_ATTACK_MSG fuer einschaltbare Angriffsmeldungen IMMER
+
+1997-09-18  Wargon  <Wargon@mg>
+
+	* bank.h: Ein paar Abfrage-Properties
+
+1997-09-02  Rochus  <Rochus@mg>
+
+	* combat.h: P_LAST_COMBAT_TIME definiert.
+
+1997-09-01  Rochus  <Rochus@mg>
+
+	* new_skills.h:
+	P_PREPARED_SPELL und SI_PREPARE_TIME fuer Vorbereitung von Spells
+
+1997-08-29  Wargon  <Wargon@mg>
+
+	* thing/material.h:
+	MAT_FELT, deutsche Bezeichnungen neben die Materialien
+
+1997-08-27  Rochus  <Rochus@mg>
+
+	* thing/material.h: *** empty log message ***
+
+1997-08-26  Paracelsus  <Paracelsus@mg>
+
+	* new_skills.h: P_TMP_MOVE_HOOK definiert.
+
+	* combat.h: DT_TERROR, MAGICAL_DAMAGE_TYPES definiert
+
+	* new_skills.h: SI_MAGIC_TYPE definiert
+
+1997-08-14  Wargon  <Wargon@mg>
+
+	* living/combat.h: P_NO_ATTACK
+
+1997-07-23  Rochus  <Rochus@mg>
+
+	* new_skills.h: ModifySkillAttribute liefert jetzt return-Wert
+
+1997-07-16  Rochus  <Rochus@mg>
+
+	* thing/material.h: Propery fuer Erkennungsfaehigkeit eingefuehrt.
+
+1997-07-15  Rochus  <Rochus@mg>
+
+	* thing/material.h: *** empty log message ***
+
+1997-07-15  Silvana  <Silvana@mg>
+
+	* health.h: Alc-Effekte Umsortiert.
+
+1997-07-14  Rochus  <Rochus@mg>
+
+	* thing/material.h: Materialdatenbank nach /p/daemon verlegt
+
+	* thing.h: material.h included.
+
+	* thing/material.h: New file.
+
+1997-06-13  Hate  <Hate@mg>
+
+	* www.h: *** empty log message ***
+
+	* www.h: removed pagehead and tail
+
+1997-06-10  Boing  <Boing@mg>
+
+	* player/potion.h:
+	Neue Propertie: P_KNOWN_POTIONROOMS. Hier werden die Nummern der Traenke
+	gespeichert, die das Orakel einem verraten hat.
+
+1997-05-22  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: Neue Property P_QUALITY fuer Waffen/Ruestungen
+
+1997-04-18  Silvana  <Silvana@mg>
+
+	* living/life.h: Properties fuer Rassenshells definiert
+
+1997-04-16  Rochus  <Rochus@mg>
+
+	* moving.h: ME_CANT_LEAVE_ENV eingebaut
+
+1997-03-19  Wargon  <Wargon@mg>
+
+	* pager.h: E_ABS fuer Zeilenanzeigen im Prompt
+
+	* player/base.h: P_MORE_FLAGS
+
+1997-03-07  Wargon  <Wargon@mg>
+
+	* living/combat.h: P_LAST_DAMTYPES definiert
+
+1997-02-19  Rochus  <Rochus@mg>
+
+	* new_skills.h: Prototyp fuer QuerySkillAbility
+
+1997-02-12  Wargon  <Wargon@mg>
+
+	* weapon/description.h, thing/commands.h, thing/description.h, thing/language.h, thing/moving.h, thing/properties.h, thing/restrictions.h, room/description.h, player/base.h, player/can.h, player/comm.h, player/description.h, player/filesys.h, player/moneyhandler.h, player/moving.h, player/potion.h, player/quest.h, player/skills.h, player/viewcmd.h, living/attributes.h, living/combat.h, living/life.h, living/put_and_get.h, inpc/boozing.h, inpc/eval.h, inpc/select.h, inpc/walking.h, sent.h, properties.h, room.h, ancient.h, ansi.h, armour.h, attributes.h, bank.h, class.h, combat.h, debug.h, doorroom.h, doors.h, driver_hook.h, erq.h, fishing.h, functionlist.h, guard.h, header.h, health.h, inpc.h, living.h, lpctypes.h, mail.h, moving.h, new_skills.h, news.h, npc.h, pager.h, player.h, rooms.h, routingd.h, sdefines.h, sensitive.h, shells.h, skills.h, snooping.h, terminal.h, thing.h, transport.h, udp.h, udp_mail.h, userinfo.h, util.h, v_compiler.h, weapon.h, wizlist.h, www.h:
+	Header aufgeraeumt
+
+	* language.h: New file.
+
+1997-02-11  Rochus  <Rochus@mg>
+
+	* thing/description.h: Prototype fuer Name()
+
+1997-02-05  Rochus  <Rochus@mg>
+
+	* inpc.h: *** empty log message ***
+
+	* inpc/boozing.h: New file.
+
+1997-01-29  Rochus  <Rochus@mg>
+
+	* inpc/select.h: Weapon/Shield ID fuer beste Waffe/Schild
+
+1996-12-11  Rochus  <Rochus@mg>
+
+	* properties.h: P_NO_STD_DRINKS, siehe Kommentar
+
+1996-10-14  Paracelsus  <Paracelsus@mg>
+
+	* weapon/description.h: New file.
+
+	* weapon.h: Added weapon/description.h
+
+1996-09-23  Wargon  <Wargon@mg>
+
+	* living/combat.h: *** empty log message ***
+
+1996-08-21  Wargon  <Wargon@mg>
+
+	* new_skills.h: SR_SEER
+
+1996-07-05  Hate  <Hate@mg>
+
+	* www.h: /htbin -> /cgi-bin
+
+1996-06-27  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: WT_CHAIN wieder ausgebaut
+
+1996-06-23  Hate  <Hate@mg>
+
+	* mail.h: added /mail/post.h
+
+1996-06-11  Rochus  <Rochus@mg>
+
+	* living/combat.h:
+	P_HANDS_USED_BY eingefuehrt, ueberarbeite Handbenutzung
+
+1996-05-19  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: Bugfix
+
+1996-05-15  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: KEEP_ARMOUR_CLASS fuer Laeden.
+	(Grenzwerte fuer Ruestungen, die nicht weiterverkauft werden)
+
+1996-05-09  Jof  <Jof@mg>
+
+	* player/base.h: P_LAST_QUIT defininiert
+
+1996-05-08  Rochus  <Rochus@mg>
+
+	* combat.h: P_FRIEND zur Markierung von freundlichen NPCs
+
+1996-04-26  Highlander  <Highlander@mg>
+
+	* rooms.h: Now includes <room/exits.h>
+
+	* room/exits.h: New file.
+
+	* properties.h: P_EXITS, P_SPECIAL_EXITS -> <roomm/exits.h>
+
+	* room/description.h: P_HIDE_EXITS -> <room/exits.h>
+
+1996-04-23  Highlander  <Highlander@mg>
+
+	* room/description.h: P_HIDE_EXITS
+
+1996-04-20  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: WT_CHAIN fuer Kettenwaffen
+	PHYSICAL_DAMAGE_TYPES
+
+1996-04-16  Rochus  <Rochus@mg>
+
+	* new_skills.h: SP_RECURSIVE eingebaut.
+
+1996-04-15  Silvana  <Silvana@mg>
+
+	* properties.h: P_ORIG_NAME (es gibt ja kein corpse.h)
+
+1996-04-04  Wargon  <Wargon@mg>
+
+	* player.h: P_LEP und P_LEP_MALUS fuer die LevelPunkte
+
+1996-03-14  Wargon  <Wargon@mg>
+
+	* armour.h: P_DEFEND_FUNC, P_WEAR_FUNC, P_REMOVE_FUNC eingebaut.
+
+	* weapon.h: P_HIT_FUNC, P_WIELD_FUNC, P_UNWIELD_FUNC eingebaut.
+
+1996-03-11  Jof  <Jof@mg>
+
+	* living/combat.h: SetEnemies-Prototyp
+
+1996-03-07  Jof  <Jof@mg>
+
+	* living/combat.h: *** empty log message ***
+
+1996-03-05  Jof  <Jof@mg>
+
+	* player/potion.h: Typo fixed
+	/.
+
+	* player/potion.h: P_BONUS_POTIONS eingebaut
+
+	* player/potion.h: P_VISITED_POTIONROOMS eingebaut
+
+1996-03-04  Silvana  <Silvana@mg>
+
+	* combat.h: P_NO_GLOBAL_ATTACK
+
+1996-02-29  Rochus  <Rochus@mg>
+
+	* health.h: Alkohol-Effekte
+
+1996-02-29  Wargon  <Wargon@mg>
+
+	* new_skills.h: P_GUILD_RATING definiert
+
+1996-02-20  Silvana  <Silvana@mg>
+
+	* combat.h: P_DAMAGED , P_EFFECTIVE_WC, P_EFFECTIVE_AC
+
+1996-02-16  Silvana  <Silvana@mg>
+
+	* new_skills.h:
+	SK_CARRY, SK_SPELL_DEFEND und Magiearten (letzere noch Testversion)
+
+1996-02-01  Rochus  <Rochus@mg>
+
+	* properties.h: P_TPORT_COST_IN/OUT
+
+1996-01-31  Jof  <Jof@mg>
+
+	* living/combat.h: void Defend -> int Defend
+
+1996-01-23  Hate  <Hate@mg>
+
+	* player/description.h: changed VIEWPOINT ytoto REFERNCE_OBJECT
+
+	* player/description.h: Added P_VEWIEWPOINT
+
+1996-01-14  Hate  <Hate@mg>
+
+	* www.h: *** empty log message ***
+
+1996-01-10  Hate  <Hate@mg>
+
+	* player/base.h: P_HOMEPAGE added
+
+1995-12-11  Rochus  <Rochus@mg>
+
+	* living/attributes.h: P_X_ATTR_MOD definiert
+
+1995-12-06  Rochus  <Rochus@mg>
+
+	* living/attributes.h: UpdateAttributes()
+
+	* living/attributes.h: SetRealAttribute
+
+1995-11-24  Silvana  <Silvana@mg>
+
+	* new_skills.h: SI_FRIEND
+
+	* new_skills.h:
+	SK_INFORM_DEFEND, SK_DEFEND_OTHER und SI_SKILLDAMAGE_MSG2
+
+1995-11-23  Silvana  <Silvana@mg>
+
+	* new_skills.h: SI_NOMAGIC, SI_SP_LOW_MSG und SI_TIME_MSG
+
+	* combat.h: DT_HOLY, DT_UNHOLY und ALL_DAMAGE_TYPES
+
+1995-11-22  Jof  <Jof@mg>
+
+	* thing/restrictions.h, thing/properties.h, thing/moving.h, thing/language.h, thing/description.h, thing/commands.h, room/description.h, player/viewcmd.h, player/skills.h, player/quest.h, player/potion.h, player/moving.h, player/moneyhandler.h, player/filesys.h, player/description.h, player/comm.h, player/can.h, player/base.h, living/put_and_get.h, living/life.h, living/description.h, living/combat.h, living/attributes.h, inpc/walking.h, inpc/select.h, inpc/eval.h, wizlist.h, www.h, weapon.h, v_compiler.h, util.h, userinfo.h, udp_mail.h, udp.h, transport.h, terminal.h, thing.h, std_headers.h, snooping.h, skills.h, shells.h, sent.h, sensitive.h, sdefines.h, rooms.h, routingd.h, room.h, properties.h, pager.h, player.h, npc.h, new_skills.h, news.h, moving.h, mail.h, lpctypes.h, living.h, inpc.h, health.h, header.h, guard.h, functionlist.h, erq.h, fishing.h, doors.h, driver_hook.h, doorroom.h, defines.h, debug.h, container.h, daemon.h, combat.h, class.h, bank.h, armour.h, ansi.h:
+	Updated to revision 3.0
+
+	* ancient.h: Updated to rev. 3.0
+
+	* thing/commands.h, thing/language.h, thing/moving.h, thing/properties.h, thing/restrictions.h, room/description.h, player/base.h, player/can.h, player/comm.h, player/description.h, player/filesys.h, player/moneyhandler.h, player/moving.h, player/potion.h, player/quest.h, player/skills.h, player/viewcmd.h, living/attributes.h, living/combat.h, living/life.h, living/put_and_get.h:
+	Fixed RCS header
+
+	* ancient.h, ansi.h, armour.h, bank.h, class.h, combat.h, container.h, daemon.h, debug.h, defines.h, doorroom.h, doors.h, driver_hook.h, erq.h, fishing.h, functionlist.h, guard.h, header.h, health.h, inpc.h, living.h, lpctypes.h, mail.h, moving.h, new_skills.h, news.h, npc.h, pager.h, player.h, properties.h, room.h, rooms.h, routingd.h, sdefines.h, sensitive.h, sent.h, shells.h, skills.h, snooping.h, terminal.h, thing.h, transport.h, udp.h, udp_mail.h, userinfo.h, util.h, weapon.h, wizlist.h:
+	Fixed RCS header (insert one \n *) or inserted missing RCS header
+
+	* attributes.h: Updated to revision 3.0
+
+	* bank.h, defines.h, driver_hook.h, news.h: *** empty log message ***
+
+	* fishing.h, inpc.h, www.h: New file.
+
+1995-11-14  Wargon  <Wargon@mg>
+
+	* living/combat.h: Es heisst STRENGTH und nicht STRENGHT... ;)
+
+1995-11-13  Rochus  <Rochus@mg>
+
+	* sensitive.h: Prototype fuer CheckSensitiveAttack
+
+	* sensitive.h: New file.
+
+1995-11-09  Rochus  <Rochus@mg>
+
+	* thing/moving.h: P_SENSITIVE eingefuehrt
+	Zweck: Registrierung von bestimmten Objekten, die bei Ereignissen,
+	auf die sie empfindlich reagieren, informiert werden sollen.
+
+1995-11-09  Toeter  <Toeter@mg>
+
+	* properties.h: P_GIVEN_OBJECT fuer units (Wargon)
+
+1995-11-08  Rochus  <Rochus@mg>
+
+	* class.h: New file.
+
+	* thing/description.h: Prototypes fuer is_class_member und AddToClass
+
+	* thing/description.h:
+	P_CLASS eingefuehrt, kann als Verallgemeinerung von P_RACE
+	gebraucht werden (z.B. Zombiedrache gehoert sowohl zu
+	Untoten wie auch zu Drachen), aber auch fuer Gegenstaende
+	(z.B. Klasse "Sprengstoffe" oder "Artillerie")
+
+	* player/description.h:
+	P_CLASS war nicht gebraucht und wird jetzt woanders benutzt.
+
+1995-11-06  Rochus  <Rochus@mg>
+
+	* living/combat.h: *** empty log message ***
+
+1995-11-02  Wargon  <Wargon@mg>
+
+	* health.h: MAX_POISON auf 11 gesetzt... ;)
+
+1995-10-19  Jof  <Jof@mg>
+
+	* player.h: strange typo fixed
+
+1995-10-18  Jof  <Jof@mg>
+
+	* armour.h: Nochn typo
+
+	* armour.h: typo fixed
+
+	* living/life.h: corrected prototype for die()
+
+1995-10-05  Wargon  <Wargon@mg>
+
+	* userinfo.h: USER_CREATION_DATE
+
+1995-09-18  Toeter  <Toeter@mg>
+
+	* properties.h: P_RACESTRING eingefuehrt
+
+1995-09-12  Rochus  <Rochus@mg>
+
+	* combat.h: DT_SOUND
+
+1995-09-08  Jof  <Jof@mg>
+
+	* player/base.h, player/can.h: CAN_PRESAY
+
+1995-09-08  Wargon  <Wargon@mg>
+
+	* player/comm.h: P_PERM_STRING fuer Sprachflueche
+
+1995-09-06  Rochus  <Rochus@mg>
+
+	* living/combat.h: Prototypen fuer PresentEnemies() und SelectEnemy()
+
+1995-09-06  Silvana  <Silvana@mg>
+
+	* new_skills.h: P_TMP_ATTACK_MOD
+
+1995-09-01  Silvana  <Silvana@mg>
+
+	* new_skills.h: P_TMP_DIE_HOOK
+
+1995-08-29  Rochus  <Rochus@mg>
+
+	* living/combat.h:
+	P_RESISTANCE_STRENGHTS: Vereinheitlichung und Verbesserung
+	von RESISTANCE/VULNERABILITY
+
+1995-08-28  Jof  <Jof@mg>
+
+	* player/description.h: P_AVERAGE_SIZE eingebaut
+
+1995-08-21  Rochus  <Rochus@mg>
+
+	* living/combat.h: P_PREFERED_ENEMY eingefuehrt.
+
+1995-08-10  Jof  <Jof@mg>
+
+	* properties.h: Inserted keep_on_sell
+
+1995-08-07  Wargon  <Wargon@mg>
+
+	* thing/description.h: Prototypes fuer RemoveId/Adjective
+
+1995-08-01  Rochus  <Rochus@mg>
+
+	* combat.h: DT_WHIP.
+
+1995-07-25  Wargon  <Wargon@mg>
+
+	* player/comm.h: P_DEAF
+
+1995-07-19  Wargon  <Wargon@mg>
+
+	* health.h: MAX_POISON angepasst.
+
+1995-07-12  Jof  <Jof@mg>
+
+	* bank.h: 90% -> 30&
+
+1995-07-10  Rochus  <Rochus@mg>
+
+	* routingd.h: RoutingD nach /p/daemon verlegt.
+
+1995-07-10  Jof  <Jof@mg>
+
+	* bank.h: New file.
+
+1995-07-07  Rochus  <Rochus@mg>
+
+	* new_skills.h: SP_PHYSICAL_ATTACK eingefuegt
+
+1995-07-04  Rochus  <Rochus@mg>
+
+	* routingd.h: New file.
+
+1995-07-03  Rochus  <Rochus@mg>
+
+	* combat.h: DT_RIP
+
+1995-06-19  Jof  <Jof@mg>
+
+	* defines.h: TI wieder raus
+
+	* defines.h: lauter IFDEFs
+	BS_*
+
+1995-06-13  Jof  <Jof@mg>
+
+	* thing/properties.h: *** empty log message ***
+
+1995-06-13  Hate  <Hate@mg>
+
+	* player/comm.h: *** empty log message ***
+
+1995-06-06  Jof  <Jof@mg>
+
+	* thing/properties.h: SETCACHED/QUERYCACHED
+
+	* player.h: P_ACTUAL_NOTIFY_FAIL
+
+1995-05-18  Rochus  <Rochus@mg>
+
+	* guard.h: New file.
+
+1995-05-15  Jof  <Jof@mg>
+
+	* thing/properties.h: added 2 flags
+
+1995-05-10  Rumata  <Rumata@mg>
+
+	* player/base.h: P_CMSG -> P_CLONE_MSG, P_DMSG -> P_DESTRUCT_MSG
+
+1995-05-09  Hate  <Hate@mg>
+
+	* player/base.h: added P_CMSG and P_DMSG
+
+1995-05-09  Jof  <Jof@mg>
+
+	* combat.h, erq.h: *** empty log message ***
+
+1995-05-08  Hate  <Hate@mg>
+
+	* pager.h: added E_CAT for just cat
+
+1995-05-03  Hate  <Hate@mg>
+
+	* pager.h: added FLAG and E_PROMPT
+
+1995-05-03  Jof  <Jof@mg>
+
+	* pager.h: New file.
+
+1995-04-26  Rochus  <Rochus@mg>
+
+	* new_skills.h: SI_CLOSURE zur Optimierung
+
+1995-04-20  Rochus  <Rochus@mg>
+
+	* properties.h:
+	P_LAST_CONTENT_CHANGE: Zeitpunkt der letzten Aenderung des Inhalts.
+
+	* properties.h: P_SIZE
+
+1995-04-10  Rochus  <Rochus@mg>
+
+	* properties.h: P_PARA fuer Parallelwelten
+
+1995-04-07  Rumata  <Rumata@mg>
+
+	* properties.h: P_FW_* properties eingefuegt (2 an der zahl)
+
+1995-03-01  Jof  <Jof@mg>
+
+	* player.h: P_LAST_KILLER
+
+1995-02-28  Jof  <Jof@mg>
+
+	* living/description.h: New file.
+
+	* living/combat.h: QueryPlAttcked oder so ..
+
+1995-02-24  Rochus  <Rochus@mg>
+
+	* combat.h: DT_EXPLOSION und DT_SQUEEZE
+
+1995-02-23  Rochus  <Rochus@mg>
+
+	* living/attributes.h: P_ATTRIBUTES_MODIFIER eingebaut.
+	(Fuer gespeicherte Attribut-Modifikation, die nur
+	ein Objekt rueckgaengig machen kann)
+
+	* new_skills.h: Bug behoben.
+
+	* new_skills.h:
+	Im Argument "spell" beim combat kann jetzt ein Mapping stehen,
+	dafuer Definition von SP_NAME, SP_SHOW_DAMAGE, SP_REDUCE_ARMOUR.
+
+1995-02-20  Rochus  <Rochus@mg>
+
+	* new_skills.h: SI_ENEMY
+
+1995-02-08  Jof  <Jof@mg>
+
+	* player.h: P_IP_NAME
+
+1995-02-08  Rumata  <Rumata@mg>
+
+	* properties.h: ???
+
+1995-02-02  Jof  <Jof@mg>
+
+	* player/base.h: P_READ_NEWS
+
+1995-01-25  Rochus  <Rochus@mg>
+
+	* combat.h: *** empty log message ***
+
+	* combat.h: C_AVG, C_MIN, C_MAX usw. fuer P_COMBATCMDS definiert.
+
+	* properties.h: P_COMBATCMDS eingefuehrt fuer sonderwaffen
+
+1995-01-24  Kirk  <Kirk@mg>
+
+	* living/combat.h: P_ATTACK_BUSY added
+
+1995-01-18  Jof  <Jof@mg>
+
+	* properties.h: clockmsg
+
+1995-01-17  Kirk  <Kirk@mg>
+
+	* properties.h: P_KILL_NAME added
+
+1995-01-13  Jof  <Jof@mg>
+
+	* player.h: _unparsed_args
+
+1995-01-09  Jof  <Jof@mg>
+
+	* player.h: default_notify_fail
+
+	* player.h: new props (HISTMIN/SHOW_ALIAS_PROCESSING)
+
+1994-12-08  Rumata  <Rumata@mg>
+
+	* npc.h: New file.
+
+1994-12-06  Boing  <Boing@mg>
+
+	* properties.h:
+	P_KILLER (neue prop) wird direkt im Todesfall auf das killer-objekt
+	gesetzt.
+
+	* properties.h: Neue Propertie P_MURDER_MSG (siehe /std/corpse)
+
+1994-12-01  Boing  <Boing@mg>
+
+	* properties.h:
+	P_CURSED, sollte eigentlich in armour.h und weapon.h, waere dann aber doppelt definiert
+
+1994-12-01  Hate  <Hate@mg>
+
+	* properties.h: Was weiss ich, was Hate da getrieben hat ... (Boing)
+
+1994-11-30  Jof  <Jof@mg>
+
+	* driver_hook.h, functionlist.h, lpctypes.h, udp.h:
+	*** empty log message ***
+
+	* armour.h, erq.h, new_skills_.h: New file.
+
+1994-11-30  Kirk  <Kirk@mg>
+
+	* player/base.h: P_LAST_LOGIN / P_LAST_LOGOUT
+
+	* living/life.h: num_deads -> deads
+
+	* player/base.h: CAN_FLAGS
+
+1994-11-24  Boing  <Boing@mg>
+
+	* combat.h:
+	Added weapon type WT_MISC, WT_MAGIC is now a valid weapon type.
+
+1994-11-21  Kirk  <Kirk@mg>
+
+	* thing/properties.h: F_MODE_AD and F_MODE_AS added
+
+1994-11-03  Jof  <Jof@mg>
+
+	* udp.h: typo
+
+	* udp.h: Update to intermud 0.7 BETA
+
+	* thing/description.h: *** empty log message ***
+
+1994-10-18  Jof  <Jof@mg>
+
+	* player/base.h: wargons aenderungen
+
+1994-10-17  Kirk  <Kirk@mg>
+
+	* player/can.h: added CAN_ECHO
+
+	* player/can.h: New file.
+
+1994-10-17  Boing  <Boing@mg>
+
+	* player/base.h: P_SECOND eingebaut
+
+1994-10-06  Rochus  <Rochus@mg>
+
+	* player/moneyhandler.h: New file.
+
+1994-10-05  Jof  <Jof@mg>
+
+	* room/description.h: seherhaeuser
+
+1994-09-29  Rochus  <Rochus@mg>
+
+	* new_skills.h: New file.
+
+1994-09-29  Jof  <Jof@mg>
+
+	* thing/description.h: *** empty log message ***
+
+1994-09-26  Kirk  <Kirk@mg>
+
+	* ansi.h: ANSI_INVERS 6m -> 7m
+
+1994-09-23  Hate  <Hate@mg>
+
+	* daemon.h: *** empty log message ***
+
+	* container.h: removed P_WEIGHT & P_TOTAL_WEIGHT
+
+	* living.h: *** empty log message ***
+
+	* thing/description.h, thing/language.h, thing/moving.h, thing/restrictions.h:
+	New file.
+
+	* thing.h: completed with all necessary include files
+
+	* rooms.h: removed Do_not_load_this_file from raise_error()s!
+
+1994-09-20  Boing  <Boing@mg>
+
+	* combat.h: Neuer damage type DT_LIGHTNING
+
+1994-09-16  Jof  <Jof@mg>
+
+	* player/quest.h: Changed prototype for GiveQuest
+
+	* player/quest.h: *** empty log message ***
+
+1994-09-15  Rumata  <Rumata@mg>
+
+	* lpctypes.h: bugfix unbound_lambda = 5
+
+1994-09-14  Rochus  <Rochus@mg>
+
+	* combat.h: WT_MAGIC fuer einheitlichere Behandlung
+
+1994-09-13  Rochus  <Rochus@mg>
+
+	* combat.h: WT_HANDS eingefuegt fuer einheitlichere Behandlung
+
+	* living/attributes.h: Offsets aufgenommen.
+
+1994-09-09  Jof  <Jof@mg>
+
+	* functionlist.h, lpctypes.h: @45
+
+1994-08-30  Jof  <Jof@mg>
+
+	* driver_hook.h, player.h, properties.h: *** empty log message ***
+
+1994-08-24  Jof  <Jof@mg>
+
+	* player/base.h: *** empty log message ***
+
+1994-07-22  Kirk  <Kirk@mg>
+
+	* defines.h: removed FILTER_STRING
+
+1994-07-19  Jof  <Jof@mg>
+
+	* driver_hook.h: *** empty log message ***
+
+1994-07-12  Jof  <Jof@mg>
+
+	* defines.h, properties.h, udp.h: *** empty log message ***
+
+	* ancient.h, skills.h: New file.
+
+1994-07-11  Jof  <Jof@mg>
+
+	* player.h, properties.h: *** empty log message ***
+
+1994-07-10  Kirk  <Kirk@mg>
+
+	* rooms.h: *** empty log message ***
+
+1994-06-30  Hate  <Hate@mg>
+
+	* player.h: updated daemon header
+
+1994-06-28  Kirk  <Kirk@mg>
+
+	* doorroom.h: added defines to use with SetDoorStatus
+
+1994-06-27  Jof  <Jof@mg>
+
+	* properties.h: P_HP_HOOKS
+
+1994-06-24  Jof  <Jof@mg>
+
+	* properties.h: *** empty log message ***
+
+1994-06-13  Jof  <Jof@mg>
+
+	* thing/properties.h: NOSETMETHOD defined
+
+1994-05-24  Rochus  <Rochus@mg>
+
+	* doorroom.h: D_TESTFUNC fuer Tueren hinzugefuegt.
+
+1994-05-24  Kirk  <Kirk@mg>
+
+	* rooms.h: added support for NewDoors
+
+1994-05-18  Jof  <Jof@mg>
+
+	* shells.h: P_SHORT_CWD
+
+1994-05-17  Kirk  <Kirk@mg>
+
+	* udp.h: *** empty log message ***
+
+1994-05-10  Jof  <Jof@mg>
+
+	* udp.h: .#
+
+1994-05-06  Rumata  <Rumata@mg>
+
+	* properties.h: P_FORCE_DEMONST
+
+1994-05-05  Jof  <Jof@mg>
+
+	* thing/properties.h: Removed ExistsProp
+
+1994-05-05  Highlander  <Highlander@mg>
+
+	* properties.h: Propert y P_CORPSE  (fuer Troy)
+
+1994-05-05  Hate  <Hate@mg>
+
+	* transport.h: Integrated #defines from .c
+
+	* transport.h: *** empty log message ***
+
+	* properties.h: TRANSPORT-Props -> transport.h
+
+	* player.h: Removed some obsolete Props
+	include channel.h
+
+1994-05-05  Jof  <Jof@mg>
+
+	* udp_mail.h: New file.
+
+1994-05-04  Jof  <Jof@mg>
+
+	* udp.h: *** empty log message ***
+
+1994-04-28  Jof  <Jof@mg>
+
+	* udp.h: Check for hostname ...
+
+1994-04-20  Jof  <Jof@mg>
+
+	* player/comm.h: INTERMUD
+
+	* udp.h: 0.6
+
+1994-03-29  Jof  <Jof@mg>
+
+	* userinfo.h: Changed all indices by 1; USER_NAME removed
+
+1994-03-24  Hate  <Hate@mg>
+
+	* v_compiler.h: added QueryObjects(); prototype
+
+1994-03-20  Hate  <Hate@mg>
+
+	* daemon.h: New file.
+
+1994-03-17  Jof  <Jof@mg>
+
+	* thing/properties.h: SECURED inserted
+
+1994-03-16  Jof  <Jof@mg>
+
+	* player.h: P_NETDEAD_INFO done
+
+1994-03-16  Rochus  <Rochus@mg>
+
+	* properties.h: Neue Property: P_ENEMY_DEATH_SEQUENCE
+	(mapping mit Messages, die zu bestimmten Zeitpunkten in der
+	Todessequenz des getoeteten Feindes erscheinen sollen)
+
+1994-03-14  Hate  <Hate@mg>
+
+	* rooms.h: added RITEM_PROPS (properties for added items to configure)
+
+1994-03-14  Jof  <Jof@mg>
+
+	* player.h: P_LAST_COMMAND_ENV
+
+1994-03-09  Hate  <Hate@mg>
+
+	* thing/properties.h: *** empty log message ***
+
+	* thing/commands.h, weapon.h: New file.
+
+	* thing.h: added commands.h
+
+	* properties.h: some minor changes for weapon's
+
+1994-03-03  Jof  <Jof@mg>
+
+	* properties.h: P_CLONER :)
+
+1994-03-03  Hate  <Hate@mg>
+
+	* properties.h: Migrated P_NAME from living/description.h
+
+1994-03-02  Rochus  <Rochus@mg>
+
+	* doorroom.h: D_FUNC2 (funktion NACH Durchschreiten der Tuer)
+
+1994-02-23  Rochus  <Rochus@mg>
+
+	* doorroom.h: Prototyp fuer GetExits angefuegt.
+
+1994-02-22  Kirk  <Kirk@mg>
+
+	* doorroom.h: New file.
+
+1994-02-17  Jof  <Jof@mg>
+
+	* functionlist.h, lpctypes.h: *** empty log message ***
+
+	* room.h, v_compiler.h, wizlist.h: New file.
+
+1994-02-16  Highlander  <Highlander@mg>
+
+	* health.h: AMAX_POISON definiert auf 10
+
+1994-02-15  Hate  <Hate@mg>
+
+	* rooms.h: changed RITEM_ #define's to meet new implementation
+
+1994-02-09  Jof  <Jof@mg>
+
+	* player/base.h: defined HAUSVERWALTER
+
+1994-02-08  Hate  <Hate@mg>
+
+	* room/description.h: *** empty log message ***
+
+	* room/description.h: New file.
+
+	* rooms.h:
+	no absolute path's anymore and there is a new room/description.h now
+
+	* shells.h: New file.
+
+1994-01-26  jof  <jof@mg>
+
+	* properties.h: Included SNOOPING.H
+
+	* snooping.h: New file.
+
+1994-01-26  parse  <parse@mg>
+
+	* player/base.h: *** empty log message ***
+
+1994-01-25  jof  <jof@mg>
+
+	* player/base.h: follow_silent
+
+1994-01-20  Jof  <Jof@mg>
+
+	* player/comm.h: CAN_ECHO changed to CANECHO
+
+	* player.h: included player/comm.h
+
+	* player/comm.h: NEW !
+
+1994-01-19  MorgenGrauen (admin)  <mud@mg>
+
+	* thing/properties.h, player/base.h: *** empty log message ***
+
+1994-01-18  MorgenGrauen (admin)  <mud@mg>
+
+	* living/combat.h: New file.
+
+	* player/base.h, player/description.h, container.h, defines.h, living.h, player.h, properties.h, thing.h:
+	*** empty log message ***
+
+1994-01-08  MorgenGrauen (admin)  <mud@mg>
+
+	* header.h, container.h: *** empty log message ***
+
+1994-01-06  MorgenGrauen (admin)  <mud@mg>
+
+	* combat.h, living/put_and_get.h, player/potion.h:
+	*** empty log message ***
+
+	* ansi.h, attributes.h, combat.h, container.h, debug.h, defines.h, doors.h, functionlist.h, header.h, health.h, lpctypes.h, mail.h, moving.h, news.h, properties.h, rooms.h, sdefines.h, sent.h, std_headers.h, terminal.h, thing.h, transport.h, udp.h, userinfo.h, util.h, living/attributes.h, living/life.h, living/put_and_get.h, player.h, living.h, player/base.h, player/description.h, player/filesys.h, player/moving.h, player/potion.h, player/quest.h, player/skills.h, player/viewcmd.h:
+	New file.
+
+1999-05-27  Padreic  <Padreic@mg>
+
+	* daemon.h: includet nun nichts mehr aus /p/daemon/*
+
+1999-05-27  Hate  <Hate@mg>
+
+	* daemon.h: *** empty log message ***
+
+1999-04-26  Rikus  <Rikus@mg>
+
+	* player/base.h: P_SECOND_LIST eingefuegt, Liste der 2ties
+
+1999-04-16  Padreic  <Padreic@mg>
+
+	* combat.h: irgendwer hatte AT_BELT ausgebaut. Nun ists wieder drin.
+
+1999-04-13  Padreic  <Padreic@mg>
+
+	* thing/language.h: P_PLURAL neu definiert
+
+	* language.h: ist jetzt nur noch ein #include <thing/language.h>
+
+1999-04-07  Padreic  <Padreic@mg>
+
+	* class.h: Neue Klasse CL_GHOUL
+
+1999-03-23  Rochus  <Rochus@mg>
+
+	* new_skills.h:
+	SI_PREPARE_MSG, spruchvorbereitung, abbruch und noch beschaeftigt
+
+	* new_skills.h: Typo
+
+	* new_skills.h: SI_NUMBER_ENEMIES und SI_NUMBER_FRIENDS definiert.
+	Wird in sinfo reingeschrieben, damit Verteilungsfunktionen
+	dies beruecksichtigen koennen.
+
+	* new_skills.h: SI_DISTANCE, WIDTH, DEPTH
+
+	* new_skills.h:
+	SI_COLLATERAL_DAMAGE fuer Schadenanteil bei Freunden bei Flaechenspells
+
+	* new_skills.h:
+	SP_GLOBAL_ATTACK zur Kennzeichnung von Flaechenangriffen
+
+1999-03-15  Rochus  <Rochus@mg>
+
+	* properties.h: P_DEATH_SPONSORED_BY
+
+1999-03-15  Rumata  <Rumata@mg>
+
+	* combat.h: ikommando zurueck
+
+	* combat.h: neuer AT_BELT
+
+1999-03-07  Rikus  <Rikus@mg>
+
+	* player/base.h: vis() und invis() um string inform erweitert
+
+1999-03-01  Padreic  <Padreic@mg>
+
+	* moving.h: ME_TOO_HEAVY_FOR_ENV und TOO_MANY_OBJECTS definiert
+
+1999-02-24  Padreic  <Padreic@mg>
+
+	* container.h: P_TOTAL_OBJECTS und P_MAX_OBJECTS eingefuegt.
+
+1999-02-24  Hate  <Hate@mg>
+
+	* container.h: Hate hatte wohl vergessen es wieder einzuchecken
+	letzte Aenderung war am 16 April 1997 (Padreic)
+
+1999-02-17  Padreic  <Padreic@mg>
+
+	* defines.h: BLUE_NAME nochmal ein wenig optimiert
+
+1999-02-10  Rikus  <Rikus@mg>
+
+	* combat.h: WT_WHIP mit zu VALID_WEAPON_TYPE hinzugefuegt
+
+1999-02-10  Boing  <Boing@mg>
+
+	* combat.h: Neuer Waffentyp: WT_WHIP
+
+1999-02-06  Paracelsus  <Paracelsus@mg>
+
+	* properties.h: P_TTY_SHOW definiert
+
+	* living/attributes.h: Typo-Fix
+
+1999-02-05  Paracelsus  <Paracelsus@mg>
+
+	* telnet.h: New file.
+
+	* properties.h: Properties P_TTY_COLS, P_TTY_ROWS, P_TTY_TYPE definiert
+
+1999-02-04  Padreic  <Padreic@mg>
+
+	* defines.h: neues define BLUE_NAME(ob)
+
+1999-02-02  Rikus  <Rikus@mg>
+
+	* living/life.h: P_NO_XP eingefuegt (keine XPs beim Kill vergeben)
+
+1999-02-01  Rikus  <Rikus@mg>
+
+	* properties.h: P_VISUALBELL hinzugefuegtm P_WAITFOR_SILENT entfernt
+
+1999-01-29  Paracelsus  <Paracelsus@mg>
+
+	* defines.h: BS_INDENT_ONCE definiert
+
+1999-01-28  Paracelsus  <Paracelsus@mg>
+
+	* living/attributes.h: Auch noch P_M_HEALTH_MOD definiert
+
+	* living/attributes.h: P_M_ATTR_MOD definiert
+
+1999-01-26  Paracelsus  <Paracelsus@mg>
+
+	* living/combat.h: P_LAST_DAMAGE und P_LAST_DAMTIME definiert
+
+1999-01-25  Rochus  <Rochus@mg>
+
+	* new_skills.h: Bugfix
+
+1999-01-24  Rikus  <Rikus@mg>
+
+	* properties.h: P_WAITFOR_SILENT eingefuegt
+
+	* new_skills.h: defines fuer FindGrpoup() eingefuegt
+
+1999-01-21  Boing  <Boing@mg>
+
+	* properties.h: Neue Property P_NO_PARA_TRANS
+
+1999-01-20  Paracelsus  <Paracelsus@mg>
+
+	* npc.h: DEFAULT_NOINFO und P_PRE_INFO definiert
+
+1999-01-18  Rochus  <Rochus@mg>
+
+	* combat.h: P_ENABLE_IN_ATTACK_OUT
+
+1999-01-14  Rochus  <Rochus@mg>
+
+	* new_skills.h:
+	SP_NO_ATTACK fuer Angriff ohne InsertEnemy und do_damage
+
+	* new_skills.h: SP_NO_DO_DAMAGE
+
+1999-01-08  Rochus  <Rochus@mg>
+
+	* living/team.h: Prototype fuer InformRowChange
+
+1998-12-29  Rochus  <Rochus@mg>
+
+	* living/team.h: Prototype mit forcefrom
+
+1998-12-21  Rochus  <Rochus@mg>
+
+	* living/combat.h: InitAttack/ExitAttack
+
+	* living/team.h: *** empty log message ***
+
+1998-12-18  Rochus  <Rochus@mg>
+
+	* living/team.h: *** empty log message ***
+
+	* living/team.h: Prop fuer Teamfarbgrenzen
+
+1998-12-16  Rochus  <Rochus@mg>
+
+	* living/team.h: *** empty log message ***
+
+1998-12-15  Rochus  <Rochus@mg>
+
+	* living.h: team.h includet.
+
+	* living/team.h: New file.
+
+1998-12-14  Rochus  <Rochus@mg>
+
+	* living/combat.h: Prototype fuer InsertSingleEnemy
+
+1998-12-04  Rumata  <Rumata@mg>
+
+	* rooms.h: +REFRESH_MOVE_HOME
+
+1998-12-03  Rumata  <Rumata@mg>
+
+	* thing/material.h: +IRON_WOOD
+
+1998-11-09  Rikus  <Rikus@mg>
+
+	* properties.h: P_FORCE_MURDER_MSG eingefuehrt
+
+1998-10-28  Rochus  <Rochus@mg>
+
+	* weapon.h: P_MAX_WC, fuer bessere Tests von Gildenbeschraenkungen.
+
+1998-10-28  Rumata  <Rumata@mg>
+
+	* living/put_and_get.h: select_objects -> find_obs
+
+	* moving.h: methoden fuer find_obs in put_and_get definiert
+
+1998-09-13  Paracelsus  <Paracelsus@mg>
+
+	* living/combat.h: Attack2()-Prototyp
+
+1998-09-12  Paracelsus  <Paracelsus@mg>
+
+	* living/attributes.h: P_X_HEALTH_MOD definiert
+
+1998-08-24  Rochus  <Rochus@mg>
+
+	* new_skills.h: SA_CHANGE_OBJECT definiert um den caster zu speichern.
+
+1998-08-23  Paracelsus  <Paracelsus@mg>
+
+	* properties.h: P_NO_TOPLIST
+
+	* new_skills.h: SI_NOMAGIC_MSG
+
+1998-08-21  Rochus  <Rochus@mg>
+
+	* player/base.h: P_DAILY_PLAYTIME fuer Spieldauer pro Tag eingebaut.
+
+1998-08-09  Rikus  <Rikus@mg>
+
+	* properties.h: P_WAITFOR:_REASON eingefuegt
+
+1998-07-22  Silvana  <Silvana@mg>
+
+	* thing/moving.h: P_LAST_MOVE definiert
+
+	* combat.h: P_EQUIP_TIME definiert
+
+1998-07-20  Rikus  <Rikus@mg>
+
+	* defines.h: IS_PARA(ob) als Erkennung fuer Pararaeume eingefuehrt
+
+1998-07-14  Jof  <Jof@mg>
+
+	* defines.h:
+	(Rumata) keine ahnung, was Jof vor 5 Monaten gemacht hat. :-)
+	IS_CLONE und IS_BLUE beschleunigt (auf den stand von simul_efun
+	gebracht.)
+
+1998-07-13  Rumata  <Rumata@mg>
+
+	* npc.h: CLONE_NO_CHECK
+
+1998-07-10  Rumata  <Rumata@mg>
+
+	* properties.h: npc.h
+
+	* npc.h: AddItem fuer npcs vorbereiten.
+
+1998-06-20  Rikus  <Rikus@mg>
+
+	* bank.h: P_STORE_CONSUME und P_MIN_STOCK eingefuegt
+
+1998-04-27  Rumata  <Rumata@mg>
+
+	* living/life.h: +P_ENEMY_DAMAGE
+
+1998-04-11  Silvana  <Silvana@mg>
+
+	* living/life.h: P_NO_REGENERATION
+
+	* doorroom.h: D_RESET_MSG, D_OPEN_WITH_MOVE
+
+	* health.h: NO_REG_XXX
+
+1998-03-12  Rochus  <Rochus@mg>
+
+	* properties.h: P_VISIBLE_GUILD endgueltig definiert
+
+1998-03-10  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: OLD_ARMOUR_CLASS entfernt
+
+1998-03-04  Rochus  <Rochus@mg>
+
+	* properties.h:
+	P_VISIBLE_GUILD, falls diese von P_GUILD abweichen soll.
+
+1998-03-03  Paracelsus  <Paracelsus@mg>
+
+	* health.h: ALCOHOL_DELAY, DRINK_DELAY und FOOD_DELAY geaendert
+
+1998-03-02  Rochus  <Rochus@mg>
+
+	* thing/material.h: *** empty log message ***
+
+1998-03-02  Paracelsus  <Paracelsus@mg>
+
+	* player/description.h: P_AVERAGE_WEIGHT definiert.
+
+1998-02-16  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: P_RESTRICTIONS definiert
+
+1998-02-16  Silvana  <Silvana@mg>
+
+	* new_skills.h: P_MAGIC_RESISTANCE_OFFSET
+
+	* properties.h: P_KEEPER
+
+1998-02-09  Silvana  <Silvana@mg>
+
+	* class.h: Noch mehr Klassen.
+
+1998-02-06  Paracelsus  <Paracelsus@mg>
+
+	* new_skills.h: Neue Property P_DEFAULT_GUILD
+
+	* properties.h: Neue Property P_LAST_USE
+
+	* combat.h: Neue Max-ACs eingetragen.
+
+1998-02-05  Silvana  <Silvana@mg>
+
+	* living/life.h: Prototypes fuer eat_food etc angepasst.
+
+1998-02-03  Wargon  <Wargon@mg>
+
+	* player/base.h: HAUSVERWALTER geaendert
+
+1998-02-02  Silvana  <Silvana@mg>
+
+	* class.h: paar neue Klassen.
+
+	* new_skills.h: MT_PSYCHO, MT_CREATION
+
+1998-01-27  Gundur  <Gundur@mg>
+
+	* living/description.h: P_EXTRA_LOOK fuer livings
+
+1997-12-22  Silvana  <Silvana@mg>
+
+	* thing/description.h: SENSE_xxx (fuer GetDetauil)
+
+	* properties.h: P_SSMELLS, P_SOUNDS, SENSE_DEFAULT
+
+1997-11-17  Yantro  <Yantro@mg>
+
+	* player/potion.h: P_HEALPOTIONS fuer Heilstellen eingebaut.
+
+1997-11-10  Silvana  <Silvana@mg>
+
+	* properties.h: P_LOG_FILE
+
+1997-10-15  Paracelsus  <Paracelsus@mg>
+
+	* player/base.h: Property P_SECOND_MARK
+
+1997-10-14  Rochus  <Rochus@mg>
+
+	* new_skills.h: P_SKILL_ATTRIBUTE_OFFSETS eingebaut
+
+	* living/combat.h:
+	P_SHOW_ATTACK_MSG fuer einschaltbare Angriffsmeldungen IMMER
+
+1997-09-18  Wargon  <Wargon@mg>
+
+	* bank.h: Ein paar Abfrage-Properties
+
+1997-09-02  Rochus  <Rochus@mg>
+
+	* combat.h: P_LAST_COMBAT_TIME definiert.
+
+1997-09-01  Rochus  <Rochus@mg>
+
+	* new_skills.h:
+	P_PREPARED_SPELL und SI_PREPARE_TIME fuer Vorbereitung von Spells
+
+1997-08-29  Wargon  <Wargon@mg>
+
+	* thing/material.h:
+	MAT_FELT, deutsche Bezeichnungen neben die Materialien
+
+1997-08-27  Rochus  <Rochus@mg>
+
+	* thing/material.h: *** empty log message ***
+
+1997-08-26  Paracelsus  <Paracelsus@mg>
+
+	* new_skills.h: P_TMP_MOVE_HOOK definiert.
+
+	* combat.h: DT_TERROR, MAGICAL_DAMAGE_TYPES definiert
+
+	* new_skills.h: SI_MAGIC_TYPE definiert
+
+1997-08-14  Wargon  <Wargon@mg>
+
+	* living/combat.h: P_NO_ATTACK
+
+1997-07-23  Rochus  <Rochus@mg>
+
+	* new_skills.h: ModifySkillAttribute liefert jetzt return-Wert
+
+1997-07-16  Rochus  <Rochus@mg>
+
+	* thing/material.h: Propery fuer Erkennungsfaehigkeit eingefuehrt.
+
+1997-07-15  Rochus  <Rochus@mg>
+
+	* thing/material.h: *** empty log message ***
+
+1997-07-15  Silvana  <Silvana@mg>
+
+	* health.h: Alc-Effekte Umsortiert.
+
+1997-07-14  Rochus  <Rochus@mg>
+
+	* thing/material.h: Materialdatenbank nach /p/daemon verlegt
+
+	* thing.h: material.h included.
+
+	* thing/material.h: New file.
+
+1997-06-13  Hate  <Hate@mg>
+
+	* www.h: *** empty log message ***
+
+	* www.h: removed pagehead and tail
+
+1997-06-10  Boing  <Boing@mg>
+
+	* player/potion.h:
+	Neue Propertie: P_KNOWN_POTIONROOMS. Hier werden die Nummern der Traenke
+	gespeichert, die das Orakel einem verraten hat.
+
+1997-05-22  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: Neue Property P_QUALITY fuer Waffen/Ruestungen
+
+1997-04-18  Silvana  <Silvana@mg>
+
+	* living/life.h: Properties fuer Rassenshells definiert
+
+1997-04-16  Rochus  <Rochus@mg>
+
+	* moving.h: ME_CANT_LEAVE_ENV eingebaut
+
+1997-03-19  Wargon  <Wargon@mg>
+
+	* pager.h: E_ABS fuer Zeilenanzeigen im Prompt
+
+	* player/base.h: P_MORE_FLAGS
+
+1997-03-07  Wargon  <Wargon@mg>
+
+	* living/combat.h: P_LAST_DAMTYPES definiert
+
+1997-02-19  Rochus  <Rochus@mg>
+
+	* new_skills.h: Prototyp fuer QuerySkillAbility
+
+1997-02-12  Wargon  <Wargon@mg>
+
+	* weapon/description.h, thing/commands.h, thing/description.h, thing/language.h, thing/moving.h, thing/properties.h, thing/restrictions.h, room/description.h, player/base.h, player/can.h, player/comm.h, player/description.h, player/filesys.h, player/moneyhandler.h, player/moving.h, player/potion.h, player/quest.h, player/skills.h, player/viewcmd.h, living/attributes.h, living/combat.h, living/life.h, living/put_and_get.h, inpc/boozing.h, inpc/eval.h, inpc/select.h, inpc/walking.h, sent.h, properties.h, room.h, ancient.h, ansi.h, armour.h, attributes.h, bank.h, class.h, combat.h, debug.h, doorroom.h, doors.h, driver_hook.h, erq.h, fishing.h, functionlist.h, guard.h, header.h, health.h, inpc.h, living.h, lpctypes.h, mail.h, moving.h, new_skills.h, news.h, npc.h, pager.h, player.h, rooms.h, routingd.h, sdefines.h, sensitive.h, shells.h, skills.h, snooping.h, terminal.h, thing.h, transport.h, udp.h, udp_mail.h, userinfo.h, util.h, v_compiler.h, weapon.h, wizlist.h, www.h:
+	Header aufgeraeumt
+
+	* language.h: New file.
+
+1997-02-11  Rochus  <Rochus@mg>
+
+	* thing/description.h: Prototype fuer Name()
+
+1997-02-05  Rochus  <Rochus@mg>
+
+	* inpc.h: *** empty log message ***
+
+	* inpc/boozing.h: New file.
+
+1997-01-29  Rochus  <Rochus@mg>
+
+	* inpc/select.h: Weapon/Shield ID fuer beste Waffe/Schild
+
+1996-12-11  Rochus  <Rochus@mg>
+
+	* properties.h: P_NO_STD_DRINKS, siehe Kommentar
+
+1996-10-14  Paracelsus  <Paracelsus@mg>
+
+	* weapon/description.h: New file.
+
+	* weapon.h: Added weapon/description.h
+
+1996-09-23  Wargon  <Wargon@mg>
+
+	* living/combat.h: *** empty log message ***
+
+1996-08-21  Wargon  <Wargon@mg>
+
+	* new_skills.h: SR_SEER
+
+1996-07-05  Hate  <Hate@mg>
+
+	* www.h: /htbin -> /cgi-bin
+
+1996-06-27  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: WT_CHAIN wieder ausgebaut
+
+1996-06-23  Hate  <Hate@mg>
+
+	* mail.h: added /mail/post.h
+
+1996-06-11  Rochus  <Rochus@mg>
+
+	* living/combat.h:
+	P_HANDS_USED_BY eingefuehrt, ueberarbeite Handbenutzung
+
+1996-05-19  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: Bugfix
+
+1996-05-15  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: KEEP_ARMOUR_CLASS fuer Laeden.
+	(Grenzwerte fuer Ruestungen, die nicht weiterverkauft werden)
+
+1996-05-09  Jof  <Jof@mg>
+
+	* player/base.h: P_LAST_QUIT defininiert
+
+1996-05-08  Rochus  <Rochus@mg>
+
+	* combat.h: P_FRIEND zur Markierung von freundlichen NPCs
+
+1996-04-26  Highlander  <Highlander@mg>
+
+	* rooms.h: Now includes <room/exits.h>
+
+	* room/exits.h: New file.
+
+	* properties.h: P_EXITS, P_SPECIAL_EXITS -> <roomm/exits.h>
+
+	* room/description.h: P_HIDE_EXITS -> <room/exits.h>
+
+1996-04-23  Highlander  <Highlander@mg>
+
+	* room/description.h: P_HIDE_EXITS
+
+1996-04-20  Paracelsus  <Paracelsus@mg>
+
+	* combat.h: WT_CHAIN fuer Kettenwaffen
+	PHYSICAL_DAMAGE_TYPES
+
+1996-04-16  Rochus  <Rochus@mg>
+
+	* new_skills.h: SP_RECURSIVE eingebaut.
+
+1996-04-15  Silvana  <Silvana@mg>
+
+	* properties.h: P_ORIG_NAME (es gibt ja kein corpse.h)
+
+1996-04-04  Wargon  <Wargon@mg>
+
+	* player.h: P_LEP und P_LEP_MALUS fuer die LevelPunkte
+
+1996-03-14  Wargon  <Wargon@mg>
+
+	* armour.h: P_DEFEND_FUNC, P_WEAR_FUNC, P_REMOVE_FUNC eingebaut.
+
+	* weapon.h: P_HIT_FUNC, P_WIELD_FUNC, P_UNWIELD_FUNC eingebaut.
+
+1996-03-11  Jof  <Jof@mg>
+
+	* living/combat.h: SetEnemies-Prototyp
+
+1996-03-07  Jof  <Jof@mg>
+
+	* living/combat.h: *** empty log message ***
+
+1996-03-05  Jof  <Jof@mg>
+
+	* player/potion.h: Typo fixed
+	/.
+
+	* player/potion.h: P_BONUS_POTIONS eingebaut
+
+	* player/potion.h: P_VISITED_POTIONROOMS eingebaut
+
+1996-03-04  Silvana  <Silvana@mg>
+
+	* combat.h: P_NO_GLOBAL_ATTACK
+
+1996-02-29  Rochus  <Rochus@mg>
+
+	* health.h: Alkohol-Effekte
+
+1996-02-29  Wargon  <Wargon@mg>
+
+	* new_skills.h: P_GUILD_RATING definiert
+
+1996-02-20  Silvana  <Silvana@mg>
+
+	* combat.h: P_DAMAGED , P_EFFECTIVE_WC, P_EFFECTIVE_AC
+
+1996-02-16  Silvana  <Silvana@mg>
+
+	* new_skills.h:
+	SK_CARRY, SK_SPELL_DEFEND und Magiearten (letzere noch Testversion)
+
+1996-02-01  Rochus  <Rochus@mg>
+
+	* properties.h: P_TPORT_COST_IN/OUT
+
+1996-01-31  Jof  <Jof@mg>
+
+	* living/combat.h: void Defend -> int Defend
+
+1996-01-23  Hate  <Hate@mg>
+
+	* player/description.h: changed VIEWPOINT ytoto REFERNCE_OBJECT
+
+	* player/description.h: Added P_VEWIEWPOINT
+
+1996-01-14  Hate  <Hate@mg>
+
+	* www.h: *** empty log message ***
+
+1996-01-10  Hate  <Hate@mg>
+
+	* player/base.h: P_HOMEPAGE added
+
+1995-12-11  Rochus  <Rochus@mg>
+
+	* living/attributes.h: P_X_ATTR_MOD definiert
+
+1995-12-06  Rochus  <Rochus@mg>
+
+	* living/attributes.h: UpdateAttributes()
+
+	* living/attributes.h: SetRealAttribute
+
+1995-11-24  Silvana  <Silvana@mg>
+
+	* new_skills.h: SI_FRIEND
+
+	* new_skills.h:
+	SK_INFORM_DEFEND, SK_DEFEND_OTHER und SI_SKILLDAMAGE_MSG2
+
+1995-11-23  Silvana  <Silvana@mg>
+
+	* new_skills.h: SI_NOMAGIC, SI_SP_LOW_MSG und SI_TIME_MSG
+
+	* combat.h: DT_HOLY, DT_UNHOLY und ALL_DAMAGE_TYPES
+
+1995-11-22  Jof  <Jof@mg>
+
+	* thing/restrictions.h, thing/properties.h, thing/moving.h, thing/language.h, thing/description.h, thing/commands.h, room/description.h, player/viewcmd.h, player/skills.h, player/quest.h, player/potion.h, player/moving.h, player/moneyhandler.h, player/filesys.h, player/description.h, player/comm.h, player/can.h, player/base.h, living/put_and_get.h, living/life.h, living/description.h, living/combat.h, living/attributes.h, inpc/walking.h, inpc/select.h, inpc/eval.h, wizlist.h, www.h, weapon.h, v_compiler.h, util.h, userinfo.h, udp_mail.h, udp.h, transport.h, terminal.h, thing.h, std_headers.h, snooping.h, skills.h, shells.h, sent.h, sensitive.h, sdefines.h, rooms.h, routingd.h, room.h, properties.h, pager.h, player.h, npc.h, new_skills.h, news.h, moving.h, mail.h, lpctypes.h, living.h, inpc.h, health.h, header.h, guard.h, functionlist.h, erq.h, fishing.h, doors.h, driver_hook.h, doorroom.h, defines.h, debug.h, container.h, daemon.h, combat.h, class.h, bank.h, armour.h, ansi.h:
+	Updated to revision 3.0
+
+	* ancient.h: Updated to rev. 3.0
+
+	* thing/commands.h, thing/language.h, thing/moving.h, thing/properties.h, thing/restrictions.h, room/description.h, player/base.h, player/can.h, player/comm.h, player/description.h, player/filesys.h, player/moneyhandler.h, player/moving.h, player/potion.h, player/quest.h, player/skills.h, player/viewcmd.h, living/attributes.h, living/combat.h, living/life.h, living/put_and_get.h:
+	Fixed RCS header
+
+	* ancient.h, ansi.h, armour.h, bank.h, class.h, combat.h, container.h, daemon.h, debug.h, defines.h, doorroom.h, doors.h, driver_hook.h, erq.h, fishing.h, functionlist.h, guard.h, header.h, health.h, inpc.h, living.h, lpctypes.h, mail.h, moving.h, new_skills.h, news.h, npc.h, pager.h, player.h, properties.h, room.h, rooms.h, routingd.h, sdefines.h, sensitive.h, sent.h, shells.h, skills.h, snooping.h, terminal.h, thing.h, transport.h, udp.h, udp_mail.h, userinfo.h, util.h, weapon.h, wizlist.h:
+	Fixed RCS header (insert one \n *) or inserted missing RCS header
+
+	* attributes.h: Updated to revision 3.0
+
+	* bank.h, defines.h, driver_hook.h, news.h: *** empty log message ***
+
+	* fishing.h, inpc.h, www.h: New file.
+
+1995-11-14  Wargon  <Wargon@mg>
+
+	* living/combat.h: Es heisst STRENGTH und nicht STRENGHT... ;)
+
+1995-11-13  Rochus  <Rochus@mg>
+
+	* sensitive.h: Prototype fuer CheckSensitiveAttack
+
+	* sensitive.h: New file.
+
+1995-11-09  Rochus  <Rochus@mg>
+
+	* thing/moving.h: P_SENSITIVE eingefuehrt
+	Zweck: Registrierung von bestimmten Objekten, die bei Ereignissen,
+	auf die sie empfindlich reagieren, informiert werden sollen.
+
+1995-11-09  Toeter  <Toeter@mg>
+
+	* properties.h: P_GIVEN_OBJECT fuer units (Wargon)
+
+1995-11-08  Rochus  <Rochus@mg>
+
+	* class.h: New file.
+
+	* thing/description.h: Prototypes fuer is_class_member und AddToClass
+
+	* thing/description.h:
+	P_CLASS eingefuehrt, kann als Verallgemeinerung von P_RACE
+	gebraucht werden (z.B. Zombiedrache gehoert sowohl zu
+	Untoten wie auch zu Drachen), aber auch fuer Gegenstaende
+	(z.B. Klasse "Sprengstoffe" oder "Artillerie")
+
+	* player/description.h:
+	P_CLASS war nicht gebraucht und wird jetzt woanders benutzt.
+
+1995-11-06  Rochus  <Rochus@mg>
+
+	* living/combat.h: *** empty log message ***
+
+1995-11-02  Wargon  <Wargon@mg>
+
+	* health.h: MAX_POISON auf 11 gesetzt... ;)
+
+1995-10-19  Jof  <Jof@mg>
+
+	* player.h: strange typo fixed
+
+1995-10-18  Jof  <Jof@mg>
+
+	* armour.h: Nochn typo
+
+	* armour.h: typo fixed
+
+	* living/life.h: corrected prototype for die()
+
+1995-10-05  Wargon  <Wargon@mg>
+
+	* userinfo.h: USER_CREATION_DATE
+
+1995-09-18  Toeter  <Toeter@mg>
+
+	* properties.h: P_RACESTRING eingefuehrt
+
+1995-09-12  Rochus  <Rochus@mg>
+
+	* combat.h: DT_SOUND
+
+1995-09-08  Jof  <Jof@mg>
+
+	* player/base.h, player/can.h: CAN_PRESAY
+
+1995-09-08  Wargon  <Wargon@mg>
+
+	* player/comm.h: P_PERM_STRING fuer Sprachflueche
+
+1995-09-06  Rochus  <Rochus@mg>
+
+	* living/combat.h: Prototypen fuer PresentEnemies() und SelectEnemy()
+
+1995-09-06  Silvana  <Silvana@mg>
+
+	* new_skills.h: P_TMP_ATTACK_MOD
+
+1995-09-01  Silvana  <Silvana@mg>
+
+	* new_skills.h: P_TMP_DIE_HOOK
+
+1995-08-29  Rochus  <Rochus@mg>
+
+	* living/combat.h:
+	P_RESISTANCE_STRENGHTS: Vereinheitlichung und Verbesserung
+	von RESISTANCE/VULNERABILITY
+
+1995-08-28  Jof  <Jof@mg>
+
+	* player/description.h: P_AVERAGE_SIZE eingebaut
+
+1995-08-21  Rochus  <Rochus@mg>
+
+	* living/combat.h: P_PREFERED_ENEMY eingefuehrt.
+
+1995-08-10  Jof  <Jof@mg>
+
+	* properties.h: Inserted keep_on_sell
+
+1995-08-07  Wargon  <Wargon@mg>
+
+	* thing/description.h: Prototypes fuer RemoveId/Adjective
+
+1995-08-01  Rochus  <Rochus@mg>
+
+	* combat.h: DT_WHIP.
+
+1995-07-25  Wargon  <Wargon@mg>
+
+	* player/comm.h: P_DEAF
+
+1995-07-19  Wargon  <Wargon@mg>
+
+	* health.h: MAX_POISON angepasst.
+
+1995-07-12  Jof  <Jof@mg>
+
+	* bank.h: 90% -> 30&
+
+1995-07-10  Rochus  <Rochus@mg>
+
+	* routingd.h: RoutingD nach /p/daemon verlegt.
+
+1995-07-10  Jof  <Jof@mg>
+
+	* bank.h: New file.
+
+1995-07-07  Rochus  <Rochus@mg>
+
+	* new_skills.h: SP_PHYSICAL_ATTACK eingefuegt
+
+1995-07-04  Rochus  <Rochus@mg>
+
+	* routingd.h: New file.
+
+1995-07-03  Rochus  <Rochus@mg>
+
+	* combat.h: DT_RIP
+
+1995-06-19  Jof  <Jof@mg>
+
+	* defines.h: TI wieder raus
+
+	* defines.h: lauter IFDEFs
+	BS_*
+
+1995-06-13  Jof  <Jof@mg>
+
+	* thing/properties.h: *** empty log message ***
+
+1995-06-13  Hate  <Hate@mg>
+
+	* player/comm.h: *** empty log message ***
+
+1995-06-06  Jof  <Jof@mg>
+
+	* thing/properties.h: SETCACHED/QUERYCACHED
+
+	* player.h: P_ACTUAL_NOTIFY_FAIL
+
+1995-05-18  Rochus  <Rochus@mg>
+
+	* guard.h: New file.
+
+1995-05-15  Jof  <Jof@mg>
+
+	* thing/properties.h: added 2 flags
+
+1995-05-10  Rumata  <Rumata@mg>
+
+	* player/base.h: P_CMSG -> P_CLONE_MSG, P_DMSG -> P_DESTRUCT_MSG
+
+1995-05-09  Hate  <Hate@mg>
+
+	* player/base.h: added P_CMSG and P_DMSG
+
+1995-05-09  Jof  <Jof@mg>
+
+	* combat.h, erq.h: *** empty log message ***
+
+1995-05-08  Hate  <Hate@mg>
+
+	* pager.h: added E_CAT for just cat
+
+1995-05-03  Hate  <Hate@mg>
+
+	* pager.h: added FLAG and E_PROMPT
+
+1995-05-03  Jof  <Jof@mg>
+
+	* pager.h: New file.
+
+1995-04-26  Rochus  <Rochus@mg>
+
+	* new_skills.h: SI_CLOSURE zur Optimierung
+
+1995-04-20  Rochus  <Rochus@mg>
+
+	* properties.h:
+	P_LAST_CONTENT_CHANGE: Zeitpunkt der letzten Aenderung des Inhalts.
+
+	* properties.h: P_SIZE
+
+1995-04-10  Rochus  <Rochus@mg>
+
+	* properties.h: P_PARA fuer Parallelwelten
+
+1995-04-07  Rumata  <Rumata@mg>
+
+	* properties.h: P_FW_* properties eingefuegt (2 an der zahl)
+
+1995-03-01  Jof  <Jof@mg>
+
+	* player.h: P_LAST_KILLER
+
+1995-02-28  Jof  <Jof@mg>
+
+	* living/description.h: New file.
+
+	* living/combat.h: QueryPlAttcked oder so ..
+
+1995-02-24  Rochus  <Rochus@mg>
+
+	* combat.h: DT_EXPLOSION und DT_SQUEEZE
+
+1995-02-23  Rochus  <Rochus@mg>
+
+	* living/attributes.h: P_ATTRIBUTES_MODIFIER eingebaut.
+	(Fuer gespeicherte Attribut-Modifikation, die nur
+	ein Objekt rueckgaengig machen kann)
+
+	* new_skills.h: Bug behoben.
+
+	* new_skills.h:
+	Im Argument "spell" beim combat kann jetzt ein Mapping stehen,
+	dafuer Definition von SP_NAME, SP_SHOW_DAMAGE, SP_REDUCE_ARMOUR.
+
+1995-02-20  Rochus  <Rochus@mg>
+
+	* new_skills.h: SI_ENEMY
+
+1995-02-08  Jof  <Jof@mg>
+
+	* player.h: P_IP_NAME
+
+1995-02-08  Rumata  <Rumata@mg>
+
+	* properties.h: ???
+
+1995-02-02  Jof  <Jof@mg>
+
+	* player/base.h: P_READ_NEWS
+
+1995-01-25  Rochus  <Rochus@mg>
+
+	* combat.h: *** empty log message ***
+
+	* combat.h: C_AVG, C_MIN, C_MAX usw. fuer P_COMBATCMDS definiert.
+
+	* properties.h: P_COMBATCMDS eingefuehrt fuer sonderwaffen
+
+1995-01-24  Kirk  <Kirk@mg>
+
+	* living/combat.h: P_ATTACK_BUSY added
+
+1995-01-18  Jof  <Jof@mg>
+
+	* properties.h: clockmsg
+
+1995-01-17  Kirk  <Kirk@mg>
+
+	* properties.h: P_KILL_NAME added
+
+1995-01-13  Jof  <Jof@mg>
+
+	* player.h: _unparsed_args
+
+1995-01-09  Jof  <Jof@mg>
+
+	* player.h: default_notify_fail
+
+	* player.h: new props (HISTMIN/SHOW_ALIAS_PROCESSING)
+
+1994-12-08  Rumata  <Rumata@mg>
+
+	* npc.h: New file.
+
+1994-12-06  Boing  <Boing@mg>
+
+	* properties.h:
+	P_KILLER (neue prop) wird direkt im Todesfall auf das killer-objekt
+	gesetzt.
+
+	* properties.h: Neue Propertie P_MURDER_MSG (siehe /std/corpse)
+
+1994-12-01  Boing  <Boing@mg>
+
+	* properties.h:
+	P_CURSED, sollte eigentlich in armour.h und weapon.h, waere dann aber doppelt definiert
+
+1994-12-01  Hate  <Hate@mg>
+
+	* properties.h: Was weiss ich, was Hate da getrieben hat ... (Boing)
+
+1994-11-30  Jof  <Jof@mg>
+
+	* driver_hook.h, functionlist.h, lpctypes.h, udp.h:
+	*** empty log message ***
+
+	* armour.h, erq.h, new_skills_.h: New file.
+
+1994-11-30  Kirk  <Kirk@mg>
+
+	* player/base.h: P_LAST_LOGIN / P_LAST_LOGOUT
+
+	* living/life.h: num_deads -> deads
+
+	* player/base.h: CAN_FLAGS
+
+1994-11-24  Boing  <Boing@mg>
+
+	* combat.h:
+	Added weapon type WT_MISC, WT_MAGIC is now a valid weapon type.
+
+1994-11-21  Kirk  <Kirk@mg>
+
+	* thing/properties.h: F_MODE_AD and F_MODE_AS added
+
+1994-11-03  Jof  <Jof@mg>
+
+	* udp.h: typo
+
+	* udp.h: Update to intermud 0.7 BETA
+
+	* thing/description.h: *** empty log message ***
+
+1994-10-18  Jof  <Jof@mg>
+
+	* player/base.h: wargons aenderungen
+
+1994-10-17  Kirk  <Kirk@mg>
+
+	* player/can.h: added CAN_ECHO
+
+	* player/can.h: New file.
+
+1994-10-17  Boing  <Boing@mg>
+
+	* player/base.h: P_SECOND eingebaut
+
+1994-10-06  Rochus  <Rochus@mg>
+
+	* player/moneyhandler.h: New file.
+
+1994-10-05  Jof  <Jof@mg>
+
+	* room/description.h: seherhaeuser
+
+1994-09-29  Rochus  <Rochus@mg>
+
+	* new_skills.h: New file.
+
+1994-09-29  Jof  <Jof@mg>
+
+	* thing/description.h: *** empty log message ***
+
+1994-09-26  Kirk  <Kirk@mg>
+
+	* ansi.h: ANSI_INVERS 6m -> 7m
+
+1994-09-23  Hate  <Hate@mg>
+
+	* daemon.h: *** empty log message ***
+
+	* container.h: removed P_WEIGHT & P_TOTAL_WEIGHT
+
+	* living.h: *** empty log message ***
+
+	* thing/description.h, thing/language.h, thing/moving.h, thing/restrictions.h:
+	New file.
+
+	* thing.h: completed with all necessary include files
+
+	* rooms.h: removed Do_not_load_this_file from raise_error()s!
+
+1994-09-20  Boing  <Boing@mg>
+
+	* combat.h: Neuer damage type DT_LIGHTNING
+
+1994-09-16  Jof  <Jof@mg>
+
+	* player/quest.h: Changed prototype for GiveQuest
+
+	* player/quest.h: *** empty log message ***
+
+1994-09-15  Rumata  <Rumata@mg>
+
+	* lpctypes.h: bugfix unbound_lambda = 5
+
+1994-09-14  Rochus  <Rochus@mg>
+
+	* combat.h: WT_MAGIC fuer einheitlichere Behandlung
+
+1994-09-13  Rochus  <Rochus@mg>
+
+	* combat.h: WT_HANDS eingefuegt fuer einheitlichere Behandlung
+
+	* living/attributes.h: Offsets aufgenommen.
+
+1994-09-09  Jof  <Jof@mg>
+
+	* functionlist.h, lpctypes.h: @45
+
+1994-08-30  Jof  <Jof@mg>
+
+	* driver_hook.h, player.h, properties.h: *** empty log message ***
+
+1994-08-24  Jof  <Jof@mg>
+
+	* player/base.h: *** empty log message ***
+
+1994-07-22  Kirk  <Kirk@mg>
+
+	* defines.h: removed FILTER_STRING
+
+1994-07-19  Jof  <Jof@mg>
+
+	* driver_hook.h: *** empty log message ***
+
+1994-07-12  Jof  <Jof@mg>
+
+	* defines.h, properties.h, udp.h: *** empty log message ***
+
+	* ancient.h, skills.h: New file.
+
+1994-07-11  Jof  <Jof@mg>
+
+	* player.h, properties.h: *** empty log message ***
+
+1994-07-10  Kirk  <Kirk@mg>
+
+	* rooms.h: *** empty log message ***
+
+1994-06-30  Hate  <Hate@mg>
+
+	* player.h: updated daemon header
+
+1994-06-28  Kirk  <Kirk@mg>
+
+	* doorroom.h: added defines to use with SetDoorStatus
+
+1994-06-27  Jof  <Jof@mg>
+
+	* properties.h: P_HP_HOOKS
+
+1994-06-24  Jof  <Jof@mg>
+
+	* properties.h: *** empty log message ***
+
+1994-06-13  Jof  <Jof@mg>
+
+	* thing/properties.h: NOSETMETHOD defined
+
+1994-05-24  Rochus  <Rochus@mg>
+
+	* doorroom.h: D_TESTFUNC fuer Tueren hinzugefuegt.
+
+1994-05-24  Kirk  <Kirk@mg>
+
+	* rooms.h: added support for NewDoors
+
+1994-05-18  Jof  <Jof@mg>
+
+	* shells.h: P_SHORT_CWD
+
+1994-05-17  Kirk  <Kirk@mg>
+
+	* udp.h: *** empty log message ***
+
+1994-05-10  Jof  <Jof@mg>
+
+	* udp.h: .#
+
+1994-05-06  Rumata  <Rumata@mg>
+
+	* properties.h: P_FORCE_DEMONST
+
+1994-05-05  Jof  <Jof@mg>
+
+	* thing/properties.h: Removed ExistsProp
+
+1994-05-05  Highlander  <Highlander@mg>
+
+	* properties.h: Propert y P_CORPSE  (fuer Troy)
+
+1994-05-05  Hate  <Hate@mg>
+
+	* transport.h: Integrated #defines from .c
+
+	* transport.h: *** empty log message ***
+
+	* properties.h: TRANSPORT-Props -> transport.h
+
+	* player.h: Removed some obsolete Props
+	include channel.h
+
+1994-05-05  Jof  <Jof@mg>
+
+	* udp_mail.h: New file.
+
+1994-05-04  Jof  <Jof@mg>
+
+	* udp.h: *** empty log message ***
+
+1994-04-28  Jof  <Jof@mg>
+
+	* udp.h: Check for hostname ...
+
+1994-04-20  Jof  <Jof@mg>
+
+	* player/comm.h: INTERMUD
+
+	* udp.h: 0.6
+
+1994-03-29  Jof  <Jof@mg>
+
+	* userinfo.h: Changed all indices by 1; USER_NAME removed
+
+1994-03-24  Hate  <Hate@mg>
+
+	* v_compiler.h: added QueryObjects(); prototype
+
+1994-03-20  Hate  <Hate@mg>
+
+	* daemon.h: New file.
+
+1994-03-17  Jof  <Jof@mg>
+
+	* thing/properties.h: SECURED inserted
+
+1994-03-16  Jof  <Jof@mg>
+
+	* player.h: P_NETDEAD_INFO done
+
+1994-03-16  Rochus  <Rochus@mg>
+
+	* properties.h: Neue Property: P_ENEMY_DEATH_SEQUENCE
+	(mapping mit Messages, die zu bestimmten Zeitpunkten in der
+	Todessequenz des getoeteten Feindes erscheinen sollen)
+
+1994-03-14  Hate  <Hate@mg>
+
+	* rooms.h: added RITEM_PROPS (properties for added items to configure)
+
+1994-03-14  Jof  <Jof@mg>
+
+	* player.h: P_LAST_COMMAND_ENV
+
+1994-03-09  Hate  <Hate@mg>
+
+	* thing/properties.h: *** empty log message ***
+
+	* thing/commands.h, weapon.h: New file.
+
+	* thing.h: added commands.h
+
+	* properties.h: some minor changes for weapon's
+
+1994-03-03  Jof  <Jof@mg>
+
+	* properties.h: P_CLONER :)
+
+1994-03-03  Hate  <Hate@mg>
+
+	* properties.h: Migrated P_NAME from living/description.h
+
+1994-03-02  Rochus  <Rochus@mg>
+
+	* doorroom.h: D_FUNC2 (funktion NACH Durchschreiten der Tuer)
+
+1994-02-23  Rochus  <Rochus@mg>
+
+	* doorroom.h: Prototyp fuer GetExits angefuegt.
+
+1994-02-22  Kirk  <Kirk@mg>
+
+	* doorroom.h: New file.
+
+1994-02-17  Jof  <Jof@mg>
+
+	* functionlist.h, lpctypes.h: *** empty log message ***
+
+	* room.h, v_compiler.h, wizlist.h: New file.
+
+1994-02-16  Highlander  <Highlander@mg>
+
+	* health.h: AMAX_POISON definiert auf 10
+
+1994-02-15  Hate  <Hate@mg>
+
+	* rooms.h: changed RITEM_ #define's to meet new implementation
+
+1994-02-09  Jof  <Jof@mg>
+
+	* player/base.h: defined HAUSVERWALTER
+
+1994-02-08  Hate  <Hate@mg>
+
+	* room/description.h: *** empty log message ***
+
+	* room/description.h: New file.
+
+	* rooms.h:
+	no absolute path's anymore and there is a new room/description.h now
+
+	* shells.h: New file.
+
+1994-01-26  jof  <jof@mg>
+
+	* properties.h: Included SNOOPING.H
+
+	* snooping.h: New file.
+
+1994-01-26  parse  <parse@mg>
+
+	* player/base.h: *** empty log message ***
+
+1994-01-25  jof  <jof@mg>
+
+	* player/base.h: follow_silent
+
+1994-01-20  Jof  <Jof@mg>
+
+	* player/comm.h: CAN_ECHO changed to CANECHO
+
+	* player.h: included player/comm.h
+
+	* player/comm.h: NEW !
+
+1994-01-19  MorgenGrauen (admin)  <mud@mg>
+
+	* thing/properties.h, player/base.h: *** empty log message ***
+
+1994-01-18  MorgenGrauen (admin)  <mud@mg>
+
+	* living/combat.h: New file.
+
+	* player/base.h, player/description.h, container.h, defines.h, living.h, player.h, properties.h, thing.h:
+	*** empty log message ***
+
+1994-01-08  MorgenGrauen (admin)  <mud@mg>
+
+	* header.h, container.h: *** empty log message ***
+
+1994-01-06  MorgenGrauen (admin)  <mud@mg>
+
+	* combat.h, living/put_and_get.h, player/potion.h:
+	*** empty log message ***
+
+	* ansi.h, attributes.h, combat.h, container.h, debug.h, defines.h, doors.h, functionlist.h, header.h, health.h, lpctypes.h, mail.h, moving.h, news.h, properties.h, rooms.h, sdefines.h, sent.h, std_headers.h, terminal.h, thing.h, transport.h, udp.h, userinfo.h, util.h, living/attributes.h, living/life.h, living/put_and_get.h, player.h, living.h, player/base.h, player/description.h, player/filesys.h, player/moving.h, player/potion.h, player/quest.h, player/skills.h, player/viewcmd.h:
+	New file.
+

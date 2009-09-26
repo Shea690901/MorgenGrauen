@@ -1,0 +1,23 @@
+NAME:
+	P_SMELLS			"smell_details"
+
+DEFINIERT IN:
+	/sys/properties.h
+
+BESCHREIBUNG:
+	Diese Property entspricht dem P_DETAILS fuer Standarddetails,
+	nur werden hierin Gerueche gespeichert:
+	Diese Property enthaelt ein Mapping, in der Details im Objekt
+	definiert werden und Beschreibungen, die ausgegeben werden, wenn man
+	sich diese Details anschaut.
+
+BEMERKUNGEN:
+	Man sollte diese Property nicht per Hand veraendern, sondern die
+	Funktionen AddSmells(), RemoveSmells() und GetDetail() nutzen.
+
+SIEHE AUCH:
+	AddSmells(), RemoveSmells(), GetDetail(), /std/thing/description.c,
+	P_DETAILS, P_SOUNDS
+
+----------------------------------------------------------------------------
+Last modified: Wed Jan 14 19:17:06 1998 by Patryn

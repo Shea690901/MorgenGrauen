@@ -1,0 +1,37 @@
+lfun: PresentRows
+-----------------
+
+FORMAT
+------
+
+mixed *PresentRows(object env)
+
+DEFINIERT IN
+------------
+
+/p/daemon/team.c 
+(also in allen Teamobjekten)
+
+BESCHREIBUNG
+------------
+
+Mit dieser Funktion bekommt man die aktuellen Teamreihen des Teams, die
+im Agrument env anwesend sind, zurueckgegeben. Ist env kein Objekt, so wird
+environment(this_player()) als solches angenommen.
+
+Das Team wird in Form eines Arrays zurueckgegeben. 
+
+Dabei sind die einzelnen Reihen selbst wiederum Arrays mit den Spielerobjekten.
+
+Beispiel:
+
+({({[magier:jof],[magier:zook]}),({}),({[magier:humni]}),({}),({}),({})})
+
+... ist ein Team, bei dem Jof und Zook in Reihe 1 und Humni in Reihe 3 
+anwesend sind. Man beachte, dass das erste Argument (also Argument 0) die
+erste Teamreihe ist.
+
+LETZTE AENDERUNG
+----------------
+
+2006-10-11, von Humni

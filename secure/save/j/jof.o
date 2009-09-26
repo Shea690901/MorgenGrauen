@@ -1,0 +1,5 @@
+#0:0
+name "jof"
+password ""
+level 100
+shell "/std/shells/magier"

@@ -1,0 +1,53 @@
+AddPlant()
+
+FUNKTION:
+	varargs int AddPlant(string filename, [string npcId])	
+
+DEFINIERT IN:
+	/p/service/padreic/kraeuter/proom.c
+
+ARGUMENTE:
+	filename
+	  Der Filename des Krauts das hier gefunden werden soll.
+	npcId
+	  Die ID eines NPCs, der das Kraut bewachen soll. Befindet
+	  sich ein NPC mit dieser NPC im Raum, kann das Kraut nicht
+	  gepflueckt werden. Dieses Argument ist Optional!
+
+RUeCKGABEWERT:
+	-1 wenn das Objekt nicht geclont werden konnte
+	>=0 sonst
+
+BESCHREIBUNG:
+	Mit Hilfe dieser Funktion koennen Kraeuter fuer den mudweiten
+	Kraeuterskill recht einfach eingebaut werden. Alles was man
+	noch machen muss, ist den Namen der Pflanze in einem Detail oder
+	der Langbeschreibung zu erwaehnen.
+	Mit dem Befehl "showplant" in /p/service/padreic/kraeuter/planttool
+	kann man sich bequem anzeigen lassen, was es alles an Kraeutern gibt
+	die man nehmen kann.
+
+BEMERKUNGEN:
+	Damit die Kraeuter von den Spielern zum Brauen von Traenken benutzt
+	werden koennen, muss der Raum erst in einem Master eingetragen werden.
+	Derzeit schickt ihr dazu am besten eine kurze Mail an Padreic.
+	Die Kraeuter wurden von der Balance bereits alle im vorhinein
+	abgenommen. Lediglich die Einhaltung der Kategorien ist zu beachten.
+
+BEISPIELE:
+	#include "/p/service/padreic/kraeuter/plant.h" // fuer defines
+	inherit "/p/service/padreic/kraeuter/proom.c"; // fuer AddPlant
+	inherit "/std/room"; // irgendein Raumobjekt inheriten...
+	
+	void create()
+	{
+	  ::create();
+	  SetProp(P_INT_LONG, "Du siehst eine Wiese voller Feldklee.\n");
+	  AddPlant(FELDKLEE);
+	}
+
+SIEHE AUCH:
+	AddItem();
+
+----------------------------------------------------------------------------
+Last modified: Mon Jul 28 18:30:00 2003 by Padreic

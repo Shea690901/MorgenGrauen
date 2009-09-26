@@ -1,0 +1,19 @@
+NAME:
+	P_SB_SPELLS			"sb_spells"                   
+
+DEFINIERT IN:
+	/sys/new_skills.h
+
+BESCHREIBUNG:
+	In dieser Spellbookproperty sind saemtliche Sprueche des Spellbooks
+	vermerkt. Veraendert wird sie durch AddSpell().
+
+BEMERKUNGEN:
+	Man sollte diese Property nicht per Hand veraendern, sondern die
+	Funktion AddSpell() nutzen.
+
+SIEHE AUCH:
+	P_GUILD_SKILLS, AddSpell(), P_NEWSKILLS, /std/spellbooks.c
+
+----------------------------------------------------------------------------
+Last modified: Wed Jan 14 19:17:06 1998 by Patryn

@@ -1,0 +1,32 @@
+
+mschau
+------
+
+ MAGIERKOMMANDO:
+    mschau <schalter>
+
+ ARGUMENTE:
+
+     <schalter>
+        `an' oder `aus'
+
+ BESCHREIBUNG:
+    Manchmal moechte man etwas ausprobieren, was nur Spielern moeglich ist,
+    zum Beispiel beim Testen von Abenteuern o.ae. Dazu dient dieser Befehl,
+    mit dem man die meisten Faehigkeiten eines Magiers deaktivieren kann.
+
+    Nach einem `mschau aus' sieht man keine Dateinamen mehr von Raeumen und
+    Objekten. Die meisten Magierbefehle sind abgeschaltet und man kann auch
+    wieder sterben wie ein normaler Spieler.
+
+    Mit `mschau an' kehrt man wieder in den Magiermodus zurueck.
+
+ BEMERKUNGEN:
+    Auch mit ausgeschaltetem Magiermodus unterliegt man noch den Bedingungen
+    des Magiervertrags!
+
+ SIEHE AUCH:
+    vertrag, schau (an), i (=inventur)
+
+ LETZTE AeNDERUNG:
+    Thu, 24.07.1997, 09:00:00 von Wargon

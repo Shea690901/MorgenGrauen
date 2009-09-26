@@ -1,0 +1,16 @@
+NAME:
+    P_SPECIAL_DETAILS             "special_details"             
+
+DEFINIERT IN:
+    /sys/properties.h
+
+BESCHREIBUNG:
+     Mapping von Details, die beim Anschauen eine Funktion starten.
+
+BEMERKUNGEN:
+     Dies ist eine "echte" Property. Die Daten werden bei der Abfrage in einer
+     Querymethode dynamisch aus P_DETAILS extrahiert. Dementsprechend
+     funktioniert es auch nicht, hier eine Query- oder Setmethode von aussen
+     drauf zu legen.
+
+02.04.2008, Zesstra

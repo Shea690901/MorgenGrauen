@@ -1,0 +1,16 @@
+NAME:
+	P_FOOD				"food"
+
+DEFINIERT IN:
+	/sys/living/life.h
+
+BESCHREIBUNG:
+	Numerischer Wert fuer den Saettigungsgrad eines Lebewesens.
+	Der maximale Wert steht in P_MAX_FOOD.
+
+SIEHE AUCH:
+	P_MAX_FOOD, P_FOOD_DELAY, eat_food,
+	P_DRINK, P_ALCOHOL
+
+----------------------------------------------------------------------------
+Last modified: Tue Dec 18 12:16:10 2001 by Patryn

@@ -1,0 +1,8 @@
+NAME:
+    P_DOOR_INFOS                  "door_infos"                  
+
+DEFINIERT IN:
+    /sys/doorroom.h
+
+BESCHREIBUNG:
+     Hat was mit den Tueren zu tun -> Muss Rochus mal dokumentieren

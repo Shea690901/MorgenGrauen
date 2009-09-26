@@ -1,0 +1,94 @@
+P_SENSITIVE
+NAME:
+     P_SENSITIVE                   "sensitive"
+
+DEFINIERT IN:
+     /sys/thing/moving.h
+
+BESCHREIBUNG:
+     Mit dieser Property kann man Objekte ueber bestimmte Vorkommnisse
+     benachrichtigen lassen oder ihnen eine Eigenschaft zuordnen.
+     Die Struktur ist:
+
+     ({<sensprops1>,<sensprops2>,...})
+     wobei sensprops folgende Struktur hat:
+     ({list_key, key, treshold, <options> ...})
+     mit:
+     list_key = 1. SENSITIVE_INVENTORY
+		   passive Eigenschaft (Empfindlichkeit auf aktive Objekte
+					im Inventory)
+		2. SENSITIVE_ATTACK
+		   passive Eigenschaft (Empfindlichkeit gegen aeussere
+					Einfluesse bzw. Angriffe)
+		3. SENSITIVE_INVENTORY_TRIGGER
+		   aktive Eigenschaft (Ausstrahlung auf andere Objekte)
+     key      = eine Schadensart (DT_FIRE, DT_WATER, ...)
+     treshold = 1. der Schadenswert, ab dem das Objekt benachrichtigt werden
+		2. -"-, mit dem ein Objekt andere beeinflusst
+			(bei SENSITIVE_INVENTORY_TRIGGER)
+
+     Wenn die Parameter fuer einen SENSITIVE_ATTACK-Eintrag durch einen
+     Angriff [fuer einen SENSITIVE_INVENTORY-Eintrag durch ein neu in das
+     selbe environment() hineinbewegtes SENSITIVE_INVENTORY_TRIGGER-Objekt]
+     erfuellt sind wird im sensitiven Objekt:
+     trigger_sensitive_inv(object whodid, string key, int tresholdval,
+			   mixed options, mixed sens_options);
+     [trigger_sensitive_attack(object enemy, string key, int damage,
+			       mixed spell, mixed options);]
+     aufgerufen.
+     Diese Funktionen muessen selbst ueberschrieben bzw. geschrieben
+     (trigger_sensitive_attack) werden.
+
+BEMERKUNGEN:
+     1. P_SENSITIVE-Objekte kosten Rechenzeit bei jedem Angriff oder jedem
+        move() - daher bitte vorsichtig verwenden
+     2. Ist P_SENSITIVE nicht per default gesetzt (in der create()),
+        sondern wird es situationsabhaengig gesetzt, muss man das
+        environment() jeweils selbst ueber seine neue Empfindlichkeit
+        benachrichtigen:
+        RemoveSensitiveObject, InsertSensitiveObject.
+
+BEISPIEL:
+     Ein Eiszapfen, der bei Feuerangriffen oder bei heissen Gegenstaenden im
+     gemeinsamen Environment zerschmelzen soll:
+
+     void create() {
+      SetProp(P_SENSITIVE,({({SENSITIVE_ATTACK,DT_FIRE,100}),
+			    ({SENSITIVE_INVENTORY,DT_FIRE,100})}));
+      ... }
+
+     varargs void trigger_sensitive_attack() {
+      remove();
+     }
+
+     varargs void trigger_sensitive_inv() {
+      call_out("remove",0);	// verzoegert, wegen move()
+     }
+
+     varargs int remove(int silent) {
+      if(!silent) {
+	object ob;
+	ob=this_object();
+	while(environment(ob)) ob=environment(ob);
+	tell_room(ob,Name()+" zerschmilzt.\n");
+      }
+      return ::remove();
+     }
+
+     - wird eine Fackel mit
+       SetProp(P_SENSITIVE,({({SENSITIVE_INVENTORY_TRIGGER,DT_FIRE,250})}))
+       in das gleiche environment() wie dieser Zapfen bewegt wird, loest
+       diese im Zapfen trigger_sensitive_inv() aus
+     - wird ein Angriff mit DT_FIRE und initialem Schaden > 100 auf das
+       environment() veruebt, loest dies im Zapfen trigger_sensitive_attack
+       aus
+
+SIEHE AUCH:
+     /sys/sensitive.h
+     InsertSensitiveObject, RemoveSensitiveObject
+     insert_sensitive_inv_trigger, insert_sensitive_inv
+     P_SENSITIVE_ATTACK, P_SENSITIVE_INVENTORY,
+     P_SENSITIVE_INVENTORY_TRIGGER
+     CheckSensitiveAttack
+
+25.Apr.2001, Gloinson@MG

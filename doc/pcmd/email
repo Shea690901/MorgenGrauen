@@ -1,0 +1,24 @@
+
+email
+-----
+
+ KOMMANDO:
+    email [<adresse>]
+
+ ARGUMENTE:
+
+     <adresse> (optional)
+        Die neue Adresse
+
+ BESCHREIBUNG:
+    Ohne Argumente gibt `email' die aktuelle EMail-Adresse aus. Mit Argument
+    wird sie auf die neue Adresse gesetzt. Ist das Argument 'keine', so wird
+    die Adresse geloescht.
+
+ SIEHE AUCH:
+    Einstellungen:        emailanzeige
+    Persoenliche Details: email, url, icq, messenger, ort
+    Sonstiges:            finger, wer, kwer
+
+ LETZTE AeNDERUNG:
+    Sun, 05.07.1998, 17:00:00 von Rikus

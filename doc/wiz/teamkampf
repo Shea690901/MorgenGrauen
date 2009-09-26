@@ -1,0 +1,33 @@
+Teamkampf im MorgenGrauen
+-------------------------
+
+*Diese Seite ist als provisorisch zu verstehen*
+
+Zum Teamkampf im MG gehoeren zwei Objekte: Das Lebewesen, das im Team ist,
+sowie das "Teamobjekt". Ersteres erbt seine Funktionalitaet aus 
+
+/std/living/team.c
+
+das Teamobjekt ist ein clone von
+
+/p/daemon/team.c
+
+Dazu gibt es in diesem Verzeichnis noch den Teammaster.
+
+Die folgenden Funktionen und Properties liefern Informationen ueber den 
+Teamkampf:
+
+in /std/living/team.c - also im Teammitglied abrufbar:
+
+* Propertie P_TEAM - liefert das Teamobjekt
+* varargs int PresentPosition(mixed pmap) - gibt die Teamreihe des
+  Spielers zurueck, hier kann auch ein Mapping eingesetzt werden, dass
+  dann anstelle der derzeitig im Team befindlichen Leute genutzt wird.
+  (Leer lassen, dann tut es das, was man erwartet).
+
+im Teamobjekt:
+
+* PresentRows(raum) - alle im Raum befindlichen Reihen
+* Members() - alle Teammitglieder (auch nicht anwesende)
+
+Letzte Aenderung: 2005-08-29, Humni

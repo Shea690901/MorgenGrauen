@@ -1,0 +1,577 @@
+// MorgenGrauen MUDlib
+//
+// transport.c -- Basisklasse fuer Schiffe und aehnliche Transporter
+//
+// $Id: transport.c,v 3.6 2002/08/28 10:11:58 Rikus Exp Tilly $
+
+inherit "std/thing/moving";
+inherit "std/room";
+
+#include <properties.h>
+#include <moving.h>
+#include <defines.h>
+#include <language.h>
+#include <transport.h>
+
+/* transport.c
+ * 
+ * Ueberarbeitete und 
+ * erweiterte Version : Tilly@MorgenGrauen, 10.01.02
+ * Basierend auf      : transport.c@SilberLand (Woody@SilberLand), 05.12.99
+ * Basierend auf      : Hates und Rumatas generisches Transport Objekt
+ *                      MorgenGrauen 15.02.93
+ *
+ * Dokumentation in /doc/std/transport
+ *                  /doc/beispiele/transporter/
+ *                  /doc/wiz/transporter
+ */
+     
+/*
+ ********************* Variablen *********************
+ */
+
+mixed *route;    /* Liste der Haltepunkte. */
+int rpos;        /* Momentane Position in obiger Liste. */
+string roomCode; /* Code des aktuellen Raumes (oder 0). */
+
+/*
+ **************** forward declarations ****************
+ */
+
+static void connect(string room, string code);
+static varargs void disconnect(int change, int change_time);
+
+/*
+ ********** Management der builtin-properties **********
+ */
+
+string _query_short()
+{ 
+  if (roomCode)
+  {
+    return Query(P_SHORT); 
+  }
+  return 0; 
+}
+
+string _query_transparent()
+{ 
+  if (roomCode)
+  {
+    return Query(P_TRANSPARENT);
+  }
+  return 0; 
+}
+
+mixed *_set_route(mixed *r)
+{ 
+  return route = r; 
+}
+
+mixed *_query_route()
+{ 
+  return route[0..]; 
+}
+
+/*
+ **************** Zugriffsfunktionen ***************
+ */
+
+public void Halt()
+{
+  while (remove_call_out( "changeHp" )>-1);
+  while (remove_call_out( "disconnect" )>-1);
+}
+
+public varargs void Start(int pos)
+{
+  Halt();
+  rpos = (pos >= sizeof(route))?-1:pos-1;
+  call_out("changeHp",0);
+}
+
+public void SetTravelCmds()
+{
+  if (pointerp(QueryProp(P_LEAVECMDS)))
+  {
+    AddCmd(QueryProp(P_LEAVECMDS),"GoOutside");
+  }
+  if (pointerp(QueryProp(P_ENTERCMDS)))
+  {
+    AddCmd(QueryProp(P_ENTERCMDS),"GoInside");
+  }
+  if (pointerp(QueryProp(P_TRAVEL_CMDS)))
+  {
+    AddCmd(QueryProp(P_TRAVEL_CMDS),"GoInAndOutside");
+  }
+}
+
+public mixed HasRoute(mixed dest)
+{
+  int i,s,z;
+  string str;
+  
+  s = sizeof(route);
+
+  for (i = rpos;i <= rpos+s-1;i++)
+    if (route[i%s][0] == HP_ROOM)
+    {
+      if (member(route[i%s][5],dest) != -1)
+      {
+        str = find_object(route[i%s][1])->QueryProp(P_HARBOUR)[0];
+        return ({ route[i%s][1], str });
+      }
+    }
+  return 0;
+}
+
+public void AddRoute(string room, int stay, int next, string code, mixed dest, 
+                string deststr)
+{
+  object ob;
+  int i;
+  if (!pointerp(dest))
+  {
+    if (stringp(dest))
+    {
+      dest = ({ dest });
+    }
+    else
+    {
+      dest = map_array(filter_array(efun::explode(code," "),lambda( ({'x}),
+                      ({ #'==, 'x, ({#'capitalize, 'x}) }) ) ),#'lower_case);
+    }
+  }
+  route += ({ ({ HP_ROOM, room, stay, next, code, dest, deststr }) });
+  
+  if(!QueryProp(P_NO_TRAVELING))
+  {
+    TRAVELD->AddHarbour(file_name(this_object()),room);
+  }
+}
+    
+public void AddMsg(string msg, int next)
+{
+  route += ({ ({ HP_MSG, msg, next }) });
+}
+
+public void AddFun(string fun, int next)
+{
+  route += ({ ({ HP_FUN, fun, next }) });
+}
+
+public string QueryArrived()
+{
+  return roomCode;
+}
+
+public mixed* QueryPosition()
+{
+  return ({ route[rpos][1], route[(rpos+1) < sizeof(route)?(rpos+1):0][1] });
+}
+
+public object* QueryPassengers()
+{
+  object *livings;
+  object ob;
+
+  livings = ({});
+  
+  for (ob = first_inventory(this_object()); ob; ob = next_inventory(ob))
+    if (living(ob))
+    {
+      livings += ({ ob });
+    }
+  return livings;
+}
+
+public varargs string *QueryHarbours(int textflag)
+{
+  int i;
+  string *ret, *s, h, *h2;
+
+  ret = ({});
+
+  if (textflag)
+  {
+    for (i = 0; i < sizeof(route);i++)
+      if (route[i][0] == HP_ROOM)
+      {
+        s = route[i][1]->QueryProp(P_HARBOUR) || "unbekannt";
+        
+        if (pointerp(s) && sizeof(s))
+        {
+          s -= ({ s[0] });
+          
+          h2 = efun::explode(s[0]," ");
+
+          if (pointerp(h2) && sizeof(h2) == 2)
+          {
+            h = capitalize(h2[0])+" "+capitalize(h2[1]);
+          }
+          else
+          {           
+            h  = capitalize(s[0]);
+          }
+        }
+        ret += ({ h });
+      }
+  }
+  else
+  {
+    for (i = sizeof(route) - 1;i >= 0;i--)
+      if (route[i][0] == HP_ROOM)
+      {
+        ret += ({route[i][1]});
+      }
+  }
+  return ret;
+}
+
+public void RemoveRoute()
+{
+  Halt();
+  route = ({ });
+  rpos  =   0;
+
+  TRAVELD->RemoveShip(this_object());
+}
+
+public varargs int Enter(object who)
+{
+  string *emsg;
+
+  if (!objectp(who))
+  {
+    who = this_player();
+  }
+  if (environment(who) == this_object())
+  {
+    tell_object(who,"Da bist Du doch bereits, schon vergessen?\n");
+    return 1;
+  }
+  if (!QueryArrived())
+  {
+    return 0;
+  }
+  if (QueryProp(P_MAX_PASSENGERS) && 
+     (sizeof(QueryPassengers()) >= QueryProp(P_MAX_PASSENGERS)))
+  {
+    mixed *efail;
+    
+    efail = QueryProp(P_ENTERFAIL);
+    
+    if (pointerp(efail))
+    {
+      if (sizeof(efail) == 2)
+      {
+        tell_room(this_object(),who->Name(WER,2)+" "+process_string(efail[1])+
+                                                   ".\n",({who}));
+        tell_object(who,process_string(efail[0])+".\n");
+      }
+      else
+      {
+        tell_object(who,process_string(efail[0])+".\n");
+      }
+    }
+    else if (stringp(efail))
+    {
+      tell_object(who,process_string(efail)+".\n");
+    }
+    else if (closurep(efail)) 
+    {
+      funcall(efail);
+    }
+    return 1;
+  }
+  
+  if (emsg = QueryProp(P_ENTERMSG))
+  {
+    if (pointerp(emsg) && sizeof(emsg) == 2)
+    {
+      return who->move(this_object(),M_GO,"",process_string(emsg[0]),
+                                             process_string(emsg[1]));
+    }
+  }
+  tell_object(who,"Du betrittst "+this_object()->name(WEN,1)+".\n");
+  tell_room(this_object(),who->Name()+" kommt herein.\n");
+  tell_room(environment(this_object()),who->Name()+" betritt "
+                         +this_object()->name(WEN,1)+".\n");
+  return who->move(this_object(),M_GO|M_SILENT);
+}
+
+public varargs int Leave(object who)
+{
+  string *lmsg;
+
+  if (!objectp(who))
+  {
+    who = this_player();
+  }
+  if (environment(who) != this_object())
+  {
+    if (QueryArrived())
+    {
+      tell_object(who,"Dafuer muesstest Du erstmal dort sein.\n");
+      return 1;
+    }
+    return 0;
+  }
+  if (!QueryArrived())
+  {
+    mixed *lfail;
+    
+    lfail = QueryProp(P_LEAVEFAIL);
+    
+    if (lfail)
+    {
+      if (pointerp(lfail) && sizeof(lfail))
+      {
+        if (sizeof(lfail) == 2)
+        {
+          tell_room(this_object(),who->Name(WER,2)+" "+process_string(
+                    lfail[1])+".\n",({who}));
+          tell_object(who,process_string(lfail[0])+".\n");
+          return 1;
+        }
+        tell_object(who,process_string(lfail[0])+".\n");
+        return 1;
+      }
+      else if (stringp(lfail))
+      {
+        tell_object(who,process_string(lfail)+".\n");
+        return 1;
+      }
+      else if (closurep(lfail)) 
+      {
+        funcall(lfail);
+        return 1;
+      }
+    }
+  }
+
+  if (lmsg = QueryProp(P_LEAVEMSG))
+  {
+    if (pointerp(lmsg) && sizeof(lmsg) == 2)
+    {
+      return who->move(environment(),M_GO,"",process_string(lmsg[0]),
+                                             process_string(lmsg[1]));
+      if (environment(who) != this_object())
+      {
+        if (who->QueryProp(P_TRAVEL_INFO))
+        {
+          who->SetProp(P_TRAVEL_INFO,0);
+        }
+      }
+    }
+  }
+  tell_object(who,"Du verlaesst "+this_object()->name(WEN,1)+".\n");
+  tell_room(this_object(),who->Name()+" verlaesst "+this_object()->name(WEN,1)+".\n",({who}));
+  tell_room(environment(this_object()),who->Name()+" kommt herein.\n");
+  if(who->QueryProp(P_TRAVEL_INFO))
+  {
+    who->SetProp(P_TRAVEL_INFO,0);
+  }
+  return who->move(environment(),M_GO|M_SILENT);
+}
+
+/*
+ ****************** Internal Functions ******************
+ */
+
+static int GoInside(string str)
+{
+  _notify_fail("Was moechtest Du denn genau?\n");
+  
+  if (!str) return 0;
+  
+  if (member_array(str,QueryProp(P_IDS)) != -1) return Enter(),1;
+}
+
+static int GoOutside(string str)
+{
+  _notify_fail("Was moechtest Du denn genau?\n");
+
+  if (!str) return 0;
+  
+  if (member_array(str,QueryProp(P_IDS)) != -1) return Leave(),1;
+}
+
+static int GoInAndOutside(string str)
+{
+  string to;
+
+  _notify_fail("Was moechtest Du denn genau?\n");
+  
+  if (!str) return 0;
+  
+  if ((sscanf(str,"auf %s",to) == 1 || sscanf(str,"in %s",to) == 1) && id(to))
+  {
+    return Enter(),1;
+  }
+  if ((sscanf(str,"von %s",to) == 1 || sscanf(str,"aus %s",to) == 1) && id(to))
+  {
+    return Leave(),1;
+  }
+}
+
+public void create()
+{
+  ::create();
+
+  route = ({});
+
+  SetProp(P_LEAVEFAIL,"Das ist momentan viel zu gefaehrlich");
+  SetProp(P_ENTERFAIL,"Dort ist kein Platz mehr fuer Dich");
+  SetProp(P_TRANSPARENT,1);
+
+  AddId("Transporter");
+  
+  call_out("SetTravelCmds",1);
+}
+
+public int remove()
+{
+  destruct(this_object());
+  return 1;
+}
+
+void changeHp()
+{
+  if (++rpos == sizeof(route))
+  {
+    rpos = 0;
+  }
+  if (route[rpos][0] == HP_MSG)
+  {
+    tell_room(this_object(),route[rpos][1]);
+    call_out("changeHp",route[rpos][2]);
+  }
+  else if (route[rpos][0] == HP_FUN)
+  {
+    call_out("changeHp",route[rpos][2]);
+    call_other(this_object(),route[rpos][1]);
+  }
+  else 
+  {
+    connect(route[rpos][1],route[rpos][4]);
+    call_out("disconnect",route[rpos][2],1,route[rpos][3]);
+  }
+}
+
+static void connect(string room, string code)
+{
+  mixed *arrivemsg, *t;
+  object *trav, ob;
+  string *trs, *msgs;
+  int i;
+
+  if (roomCode)
+  {
+    disconnect();
+  }
+  
+  roomCode = code?code:"";
+
+  if (catch(move(room,M_SILENT|M_NOCHECK)))
+  {
+    roomCode = 0;
+    return;
+  }
+
+  arrivemsg = QueryProp(P_ARRIVEMSG);
+
+  if (pointerp(arrivemsg))
+  {
+    tell_room(this_object(),process_string(arrivemsg[0]));
+    tell_room(room,process_string(arrivemsg[1]));
+  }
+
+  trav = filter_array(all_inventory(this_object()),#'living);
+
+  for (i = sizeof(trav) - 1; i >= 0; i--)
+    if (pointerp(t = trav[i]->QueryProp(P_TRAVEL_INFO)))
+    {
+      if (t[0] == this_object())
+      {
+        if (t[2] == room)
+        { 
+          if (trav[i]->InFight())
+          {
+            tell_object(trav[i],break_string("Du solltest Deinen Kampf schnell "
+             "beenden, denn eigentlich wolltest Du hier aussteigen.",78));
+          }
+          else
+          {
+            Leave(trav[i]);
+          }
+          if (environment(trav[i]) != this_object())
+          {
+            trav[i]->SetProp(P_TRAVEL_INFO,0);
+          }
+        }
+      }
+    }
+
+  trav = filter_array(all_inventory(find_object(room)),#'living) - trav;
+
+  for (i = sizeof(trav) - 1;i >= 0; i--)
+    if (pointerp(t = trav[i]->QueryProp(P_TRAVEL_INFO)))
+    {
+      if (t[0] == environment(trav[i]) && t[1] == this_object())
+      {
+        if (trav[i]->InFight())
+        {
+          tell_object(find_player(trav[i]),break_string(
+           "Du solltest Deinen Kampf schnell beenden, denn eigentlich "
+           "wolltest Du mit "+this_object()->name(WEM,1)+" reisen.",78));
+        }
+        else
+        {
+          Enter(trav[i]);
+        } 
+        if (environment(trav[i]) == this_object()) 
+        {
+          t[0] = this_object();
+          trav[i]->SetProp(P_TRAVEL_INFO,t);
+        }
+      }
+    }
+}
+
+static varargs void disconnect(int change, int change_time)
+{
+  object room;
+  mixed *departmsg;
+
+  departmsg = QueryProp(P_DEPARTMSG);
+
+  if ((room = environment()) && pointerp(departmsg))
+  {
+    tell_room(this_object(),process_string(departmsg[0]));
+    tell_room(room,process_string(departmsg[1]));
+  }
+
+  roomCode = 0;
+
+  if (change)
+  {
+    call_out("changeHp",change_time);
+  }
+}
+
+int clean_up(int arg)
+{
+  return 1;
+}
+
+void __restart(string funname)
+{
+  if (!funname || funname == "" || (funname != "changeHp" && 
+                                    funname != "disconnect"))
+  {
+    return;
+  }
+  while(remove_call_out(funname) != -1);
+  call_out(funname,funname == "changeHp"?15:5);
+}

@@ -1,0 +1,106 @@
+
+ignoriere
+---------
+
+ KOMMANDO:
+    ignoriere <kommando> | <spieler> | <spieler>.<kommando>
+    ignoriere <spieler>@<mud> | <spieler>@ | @<mud>
+    ignoriere
+
+ ARGUMENTE:
+
+     <kommando>
+        Das zu ignorierende Kommando
+     <spieler>
+        Name des zu ignorierenden Spielers
+     <mud>
+        Name eines MUDs
+
+ BESCHREIBUNG:
+    Wenn Dir jemand maechtig auf die Nerven geht oder Dir einige Kommandos
+    nicht in den Kram passen, kannst Du Dich mit diesem Kommando vor den
+    Auswirkungen schuetzen.
+
+    Folgende Moeglichkeiten bestehen:
+
+     `ignoriere <kommando>'
+        Alle Meldungen, die <kommando> erzeugt, werden unterdrueckt. Es wird
+        jedoch auf die genaue Schreibweise geachtet; wenn man also niemals
+        geweckt werden will, muss man sowohl `wecke' als auch `weck'
+        ignorieren!
+
+     `ignoriere <spieler>'
+        Saemtliche Meldungen, die der Spieler <spieler> erzeugt, werden
+        unterdrueckt. Dies ist eine sehr drastische Massnahme!
+
+     `ignoriere <spieler>.<kommando>'
+        Eine Kombination der obigen Moeglichkeiten: Das Kommando <kommando>
+        wird nur dann ignoriert, wenn es vom Spieler <spieler> kommt. Andere
+        Meldungen von <spieler> werden jedoch weiterhin akzeptiert.
+
+      
+     `ignoriere <spieler>.<ebene>'
+        Das Kommando kann auch eine Ebene sein. So kann man die Aeusserungen
+        eines Spielers auf einer bestimmten Ebene ignorieren, ohne ihn
+        gleich komplett zu ignorieren. 
+        Ein Beispiel waere 'ignoriere tilly.allgemein'. Damit bekommt man nur 
+        die Aeusserungen auf der Ebene <Allgemein> nicht mit, alle anderen 
+        schon.
+
+     `ignoriere <spieler>@<mud>'
+        Alle Mitteilungen des Spielers <spieler> aus dem Mud <mud> werden
+        abgeblockt.
+
+     `ignoriere <spieler>@'
+        Die Mitteilungen von allen Spielern namens <spieler> in anderen Muds
+        werden abgeblockt. Dies ist eine sehr drastische Massnahme, die man
+        sich gut ueberlegen sollte. Schliesslich koennen sich hinter dem
+        gleichen Namen in unterschiedlichen Muds auch unterschiedliche Leute
+        verbergen!
+
+     `ignoriere @<mud>'
+        Es werden saemtliche Mitteilungen aus dem Mud <mud> ignoriert. Auch
+        dies ist eine recht drastische Massnahme!
+
+     `ignoriere'
+        Die Liste der ignorierten Kommandos und Spieler wird angezeigt.
+
+    Will man einen Eintrag wieder entfernen, muss man einfach noch einmal das
+    entsprechende `ignoriere'-Kommando eingeben.
+
+    Neben Kommunikationskommandos von Spieler zu Spieler lassen sich auch noch
+    folgende Dinge abwehren:
+
+     Nervige Meldungen aus der Arena
+
+         * arena
+         * arena.seherwettbewerb
+
+     Spendieren in der Kneipe
+
+         * spendiere
+         * spendiere.getraenke
+         * spendiere.alkohol
+         * spendiere.essen
+
+     Verschiedenes
+
+         * teleport
+         * teleport.spielername
+           Verteidiger eines Zauberers koennen so verhindern, dass
+           sie bei einem Teleport des Zauberer mitgerissen werden.
+         * finde
+         * finde.spielername
+           Hiermit wird verhindert, dass fremde Spieler den eigenen
+           Aufenthaltsort ermitteln koennen (noch nicht vollstaendig
+           implementiert).
+	 * shout
+	   Hiermit werden Meldungen aus den Regionen unterdrueckt, wie
+	   die Ankunft der Hydra oder das Loesen bestimmter Quests.
+
+ SIEHE AUCH:
+    sage, frage, antworte, fluestere, teile (mit), gespraech, rufe, ebenen,
+    weg, kobold
+
+ LETZTE AENDERUNG:
+    Mon, 02.02.2004, 22:07:20 von Nonne

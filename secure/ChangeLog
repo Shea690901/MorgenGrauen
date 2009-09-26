@@ -1,0 +1,4501 @@
+2006-09-17  Muadib  <Muadib@mg>
+
+	* mailer.c: changed bounce address
+	made systemalias check recursive with boundary check
+
+2006-09-16  Vanion  <Vanion@mg>
+
+	* master.c: Rotationsgrenze der Errorlogs auf 50kB gesenkt.
+	PS: Ark meint, sein Log is besonders spannend.
+
+2006-09-16  Vanion  <Vanion@mg>
+
+	* master.c: Rotationsgrenze der Errorlogs auf 50kB gesenkt.
+	PS: Ark meint, sein Log is besonders spannend.
+
+2006-09-15  Vanion  <Vanion@mg>
+
+	* master.c, master.h: Rotieren der Logfiles fuer log_error() eingebaut.
+
+2006-09-11  Muadib  <Muadib@mg>
+
+	* spare_simul_efun.c: also correct version
+	mea magna culpa
+
+	* simul_efun.c: correct version
+	mea culpa
+
+	* spare_simul_efun.c:
+	updated spare_simul_efun to be equal to simul_efun once again
+
+	* simul_efun.c: changed garbage_collection
+
+2006-05-25  Humni  <Humni@mg>
+
+	* login.c:
+	Nochmal geaendert: Frage vor Rassenwahl gestellt und die Sequenz gibt nun noch Hinweise aus.
+	(Sowohl zu Delfen wie auch zu HC).
+
+	* login.c:
+	Noch eine Frage beim Login hinzugefuegt wegen Hardcore (Hast Du schon einmal in einem MUD gespielt?)
+
+2006-05-02  Zook  <Zook@mg>
+
+	* lepmaster.c:
+	In REQ_TEXT2 den "noch"-Teil ersetzt. "noch noch einige" liest sich
+	doof.
+
+2006-04-20  Zook  <Zook@mg>
+
+	* questmaster.c:
+	*hust* Bugfix bei SetActive (bei optionalen Quests wurde die
+	Summe der optionalen Quests nicht richtig berechnet) sowie eine
+	Funktion RecalculateQP() zum Neuberechnen der Questpunkte
+	eingefuegt.
+
+2006-04-12  Rumata  <Rumata@mg>
+
+	* login.c: Mehrere Proxies zulassen.
+	Falsche Proxies ignorieren.
+
+2006-02-25  Rumata  <Rumata@mg>
+
+	* merlin.c: noch was vergessen :-)
+
+	* merlin.c: Merlin neu eingekleidet.
+	(iaW bessere Beschreibung und Details)
+
+2006-02-22  Zook  <Zook@mg>
+
+	* lepmaster.c: Neue Seheranforderungen eingefuegt; hier eine neue
+	Funktion eingefuegt, welche die Anforderungen prueft und
+	ggf. zusammenstellt, was der Spieler noch benoetigt.
+
+	* lepmaster.h:
+	Neue Seheranforderungen eingebaut; hier die Anforderungen
+	als #define eingefuegt.
+
+	* merlin.c: Merlin uebernimmt nun auch die Seherwerdung, wenn man ihn
+	per teile-mit darum bittet. Kleine Sequenz eingebaut.
+
+2006-02-05  Rumata  <Rumata@mg>
+
+	* login.c: realip wurde nicht immer an die shell durchgereicht
+
+2006-01-28  Rumata  <Rumata@mg>
+
+	* master/misc.c: realip bei renew mitnehmen
+
+2006-01-26  Muadib  <Muadib@mg>
+
+	* login.c: little security fix :)
+
+2006-01-25  Muadib  <Muadib@mg>
+
+	* simul_efun.c, login.c: realip
+
+2006-01-05  Zook  <Zook@mg>
+
+	* udp/www.finger.c:
+	Auch bei Angabe eines Messengers wird wie bei ICQ der
+	Inhalt nicht angezeigt.
+
+2006-01-04  Zook  <Zook@mg>
+
+	* udp/www.finger.c: Die ICQ-Nummer wird nun auch nicht mehr auf der
+	Homepage angezeigt (Schutz vor ICQ-Nummer-Sammlern und
+	sonstigen Krimskrams).
+
+2005-08-24  Humni  <Humni@mg>
+
+	* login.c:
+	Wieder 25 Teilnehmer von derselben IP erlaubt (schulen o.ae. brauchen das)
+
+2005-08-05  Muadib  <Muadib@mg>
+
+	* login.c: linefeed rein
+
+	* login.c: bestaetigung fuer hc
+
+2005-07-13  Rikus  <Rikus@mg>
+
+	* spare_simul_efun.c: Kopie der simul_efun.c
+
+2005-07-06  Rikus  <Rikus@mg>
+
+	* simul_efun.c: SEfun m_width() eingebaut
+
+2005-04-18  Muadib  <Muadib@mg>
+
+	* login.c: hardcore
+
+2005-03-09  Zook  <Zook@mg>
+
+	* simul_efun.c: send_imp bei mit #if geklammert. Thx an Gloinson.
+
+	* master/network.c:
+	Fehlender #if-Klammern bei ausgeschaltetem UDP eingefuegt. Thx an
+	Gloinson.
+
+2005-01-04  Humni  <Humni@mg>
+
+	* login.c: *** empty log message ***
+
+	* login.c: Msg fuer kleine Spieler eingebaut. (Ciceronen)
+
+2004-12-18  Vanion  <Vanion@mg>
+
+	* udp/who.c: Port 4711 im 'who morgengrauen' aufgenommen.
+
+2004-11-28  Vanion  <Vanion@mg>
+
+	* inetd.c:
+	Rekursive Funktion explode_package in eine iterative umgewandelt. Es buggt sonst bei grossen Paketen.
+
+	* udp/www.news.c: Fehler beim Linkparsen gefixt.
+
+2004-10-10  Vanion  <Vanion@mg>
+
+	* master.c: Fix in prepare_destruct(), Danke an Ogo.
+
+2004-09-21  Vanion  <Vanion@mg>
+
+	* master.c: Schreibrechte von /doc/balance auf EM+ geaendert.
+
+2004-08-09  Vanion  <Vanion@mg>
+
+	* master/misc.c:
+	Beim Erzeugen eines Wizzard-Castles wird automatisch auch P_START_HOME gesetzt.
+
+2004-06-29  Vanion  <Vanion@mg>
+
+	* login.c:
+	Bugfix bei /etc/NOLOGIN (Per FiRZG rausfliegen sorgt fuer Verwirrung).
+
+2004-06-29  Muadib  <Muadib@mg>
+
+	* login.c: nologin etwas erweitert
+
+2004-06-28  Vanion  <Vanion@mg>
+
+	* news.c: Gruppenbesitzer haben Zugriff auf Admin-Informationen
+
+2004-04-13  Hate  <Hate@mg>
+
+	* config.h: fixed ip addresses
+
+2004-04-13  Rikus  <Rikus@mg>
+
+	* udp/who.c: MG-Ip angepasst
+
+2004-04-10  Vanion  <Vanion@mg>
+
+	* udp_mail.c: Logging fuer illegale Aufrufe von deliver_mail()
+
+	* mailer.c:
+	IP des MG hat sich geaendert (Footer). Logging fuer illegale Aufrufe von deliver_mail()
+
+	* wahlmaschine.c: RCS aufraeumen
+
+	* udp/xchannel.c: New file.
+
+2004-04-08  Muadib  <Muadib@mg>
+
+	* udp/query.c: email angepasst
+
+2004-04-08  Muadib  <Muadib@mg>
+
+	* udp/query.c: email angepasst
+
+2004-04-07  Vanion  <Vanion@mg>
+
+	* explorationmaster.c: 1. April is vorbei :)
+
+	* master/network.c: Finger-Daemon nach /p/daemon verschoben.
+
+	* master/misc.c: DoWield()-Umstellung
+
+2004-04-08  Muadib  <Muadib@mg>
+
+	* udp/query.c: email angepasst
+
+2004-04-07  Vanion  <Vanion@mg>
+
+	* explorationmaster.c: 1. April is vorbei :)
+
+	* master/network.c: Finger-Daemon nach /p/daemon verschoben.
+
+	* master/misc.c: DoWield()-Umstellung
+
+2004-04-08  Muadib  <Muadib@mg>
+
+	* udp/query.c: email angepasst
+
+2004-04-07  Vanion  <Vanion@mg>
+
+	* explorationmaster.c: 1. April is vorbei :)
+
+	* master/network.c: Finger-Daemon nach /p/daemon verschoben.
+
+	* master/misc.c: DoWield()-Umstellung
+
+2004-04-08  Muadib  <Muadib@mg>
+
+	* udp/query.c: email angepasst
+
+2004-04-07  Vanion  <Vanion@mg>
+
+	* explorationmaster.c: 1. April is vorbei :)
+
+	* master/network.c: Finger-Daemon nach /p/daemon verschoben.
+
+	* master/misc.c: DoWield()-Umstellung
+
+2004-04-08  Muadib  <Muadib@mg>
+
+	* udp/query.c: email angepasst
+
+2004-04-07  Vanion  <Vanion@mg>
+
+	* explorationmaster.c: 1. April is vorbei :)
+
+	* master/network.c: Finger-Daemon nach /p/daemon verschoben.
+
+	* master/misc.c: DoWield()-Umstellung
+
+2004-03-29  Muadib  <Muadib@mg>
+
+	* explorationmaster.c:
+	zeitweiliger patch bis der dicke das script durchhat->REMOVE
+
+2004-03-28  Vanion  <Vanion@mg>
+
+	* merlin.c: Ein paar Leerzeichen entsorgt.
+
+2004-03-25  Vanion  <Vanion@mg>
+
+	* master.c:
+	Wenn im Fehlerfall kein TI existiert,, TP aber schon, wird dessen UID angegeben. Besonders bei call_outs() sollte das fuer weniger <Unbekannt> in Fehlermeldungen sorgen. Danke an Ogo fuer die Idee.
+
+2004-03-15  Vanion  <Vanion@mg>
+
+	* spare_simul_efun.c: Anpassung an simul_efun Version 3.70
+
+	* simul_efun.c:
+	replace_personal() kennt nun auch @WE*U (unbestimmter Artikel)
+
+2004-03-14  Vanion  <Vanion@mg>
+
+	* simul_efun.c: replace_personal() eingebaut.
+
+	* spare_simul_efun.c: Simul_efun Version 3.68 als spare uebernommen.
+
+2004-03-14  Rikus  <Rikus@mg>
+
+	* simul_efun.c:
+	Format von wizlist() aufgeraeumt. Wizlist() hat gleich einen neuen Parameter bekommen, damit man sie nach (fast) beliebiger Spalte sortieren kann.
+
+2004-03-14  Vanion  <Vanion@mg>
+
+	* spare_simul_efun.c:
+	Backup gemacht. Irgendwie is hier das RCS nicht sonderlich gut gepflegt worden.
+
+2004-02-03  Vanion  <Vanion@mg>
+
+	* simul_efun.c: shout() ignorierbar gemacht.
+
+2004-01-08  Rikus  <Rikus@mg>
+
+	* scoremaster.c: Abfragechecks debuggt
+
+2004-01-07  Rikus  <Rikus@mg>
+
+	* lepmaster.c: Spielerlevel 30 als Seheranforderung
+
+2004-01-05  Vanion  <Vanion@mg>
+
+	* master.c:
+	/p/service darf jeder Magier lesen (is eh grossteils im Release)
+
+2003-12-10  Zook  <Zook@mg>
+
+	* master/guild.c: New file.
+
+	* master/userinfo.c: Handling der Gildenmagier eingefuegt.
+
+	* master.c: Zusaetzlich wird /secure/master/guild.c inheritet.
+
+	* master.h: Prototypen fuer Gildenmagier-Verwaltung eingefuegt.
+
+	* login.c:
+	Standardwert fuer guilds bei neuangelegten Spielern eingefuegt.
+
+	* simul_efun.c: __updmaster um secure/master/guild.c ergaenzt.
+
+2003-10-16  Rikus  <Rikus@mg>
+
+	* combat.c: WT_STAFF als zueckbar eingetragen
+
+2003-09-25  Zook  <Zook@mg>
+
+	* questmaster.c: Kosmetische Aenderung beim Dumpen von MiniQuests.
+
+2003-09-09  Vanion  <Vanion@mg>
+
+	* login.c: Menschen stehen beim Neulogin immer oben in der Liste ...
+
+2003-09-01  Vanion  <Vanion@mg>
+
+	* questmaster.h: Bugfix beim loggen.
+
+2003-08-25  Rikus  <Rikus@mg>
+
+	* master.c: file_size in valid_read mehr rechte geben
+
+2003-08-21  Rikus  <Rikus@mg>
+
+	* login.c: temporaerer Renew wieder raus
+
+2003-08-19  Rikus  <Rikus@mg>
+
+	* questmaster.c: Miniquests nach jeder Aenderung dumpen
+
+2003-08-13  Rikus  <Rikus@mg>
+
+	* pubmaster.c, questmaster.c, sinmaster.c, skillmaster.c, awmaster.c:
+	Sicherheitsluecken gechecked
+
+	* login.c: temporaeres Renew von Wiedereinloggenden
+
+	* gildenmaster.c: interne Propertie in Variable geaendert
+
+2003-08-12  Rikus  <Rikus@mg>
+
+	* merlin.c: auf vorhandene Gilden bei notify_player_change getestet
+
+2003-08-08  Vanion  <Vanion@mg>
+
+	* master.c: Auch EM-Preload-File wird beruecksichtigt.
+	access_rights() im valid_write() fuer /log/ macht keinen Sinn.
+
+2003-08-06  Vanion  <Vanion@mg>
+
+	* master/misc.c:
+	Typofix (OudateProjectCache() -> OutdateProjectCache())
+
+	* master.h: Typofix
+
+2003-07-30  Rikus  <Rikus@mg>
+
+	* login.c: write ind time_out() in tell_object gewandelt
+
+2003-07-25  Rikus  <Rikus@mg>
+
+	* simul_efun.c:
+	process_string hat returntype string, so also auch string returnen...
+
+2003-07-23  Muadib  <Muadib@mg>
+
+	* login.c: late_players
+
+	* master/userinfo.c: ja ich bin doof und stinke
+	static eingefuegt
+
+	* master/userinfo.c, master.h: late_players
+
+2003-07-13  Vanion  <Vanion@mg>
+
+	* login.c: Wenn /etc/NOLOGIN existiert, kann man sich nicht einloggen.
+	Geshredderte Savefiles sind wirklich nix schoenes.
+
+2003-06-07  Vanion  <Vanion@mg>
+
+	* master.c:
+	Schattenwelt und Seher sind jetzt echte Regionen und haben keinen Sonderstatus mehr.
+
+2003-05-11  Vanion  <Vanion@mg>
+
+	* master/network.c: Bugfix in mailread()
+
+2003-05-06  Vanion  <Vanion@mg>
+
+	* udp/man.c: UDP-Anfrage fuer "rman"
+
+2003-05-04  Vanion  <Vanion@mg>
+
+	* master.c:
+	In Funktion inaugurate_master() driverhook H_INCLUDE_DIRS wird direkt gesetzt.
+	Veraltete Funktion define_include_dirs entfernt.
+	In Funktion query_player_level die Anfragen zu "inspect memory", "traceprefix" eingefuehrt. Anfrage auf "error message" entfernt. runtime_error() prueft jetzt direkt auf IS_LEARNER().
+	Funktion get_ed_buffer_save_file_name() beschleunigt..
+
+2003-04-18  Vanion  <Vanion@mg>
+
+	* udp/www.finger.c: Interpretation der URL sicherer gemacht.
+
+2003-04-08  Rikus  <Rikus@mg>
+
+	* scoremaster.h: Logfilegroesse begrenzt
+
+	* potionmaster.c: unnoetige Logfiles entfernt
+
+	* master.c: Schreibrechte fuer /log/syslog begrenzt
+
+	* udp/reply.c: debuggt und eingedeutscht
+
+2003-04-05  Humni  <Humni@mg>
+
+	* udp/tell.c:
+	Invismagier werden mit tell nicht mehr gefunden. Tip von Ogo.
+
+2003-03-18  Zook  <Zook@mg>
+
+	* simul_efun.c: Bug beim Kopieren leerer Files gefixt.
+
+2003-03-04  Rikus  <Rikus@mg>
+
+	* simul_efun.c: localcmd() und get_dir_ext() obsolet
+
+	* master/misc.c: show_dir() obsolet
+
+	* lepmaster.c: neue Berechnung der Seheranforderungen
+
+	* lepmaster.h: Defines fuer Berechnung der Seheranforderungen
+
+	* merlin.c:
+	Seheranforderungen ueberarbeitet und Code nach lepmaster verlegt
+
+2003-03-03  Zook  <Zook@mg>
+
+	* master/network.c: Bugfix.
+
+2003-03-01  Vanion  <Vanion@mg>
+
+	* udp_mail.c: DEBUG-Defines standardisiert.
+
+2003-02-28  Vanion  <Vanion@mg>
+
+	* udp/www.finger.c: HTML-Tags werden nun gefiltert.
+
+2003-02-20  Rikus  <Rikus@mg>
+
+	* udp/channel.c, udp/external.c, udp/finger.c, udp/htmlwho.c, udp/locate.c, udp/mail.c, udp/man.c, udp/ping.c, udp/query.c, udp/reply.c, udp/tell.c, udp/who.c, udp/www.c, udp/www.crypt.c, udp/www.finger.c, udp/www.intermud.c, udp/www.news.c, udp/www.walk.c, udp/www.who.c:
+	New file.
+
+2003-02-19  Rikus  <Rikus@mg>
+
+	* master/userinfo.c: Rechteabfrage bei update_wiz_level() debuggt
+
+	* master/domain.c: Rechteabfrage bei add_domain_master() debuggt
+
+2003-02-17  Rikus  <Rikus@mg>
+
+	* simul_efun.c: neue sefun copy_file()
+
+2003-02-15  Zook  <Zook@mg>
+
+	* udp/finger.c: New file.
+
+2003-01-30  Humni  <Humni@mg>
+
+	* gildenmaster.c: New file.
+
+2003-01-26  Vanion  <Vanion@mg>
+
+	* master.c:
+	valid_write() leicht ueberarbeitet. Danke an Mandragon fuer den Patch.
+
+	* master/domain.c: Abfragen in add/remove_domain_master() umgestellt.
+	Allgemein etwas aufgeraeumt.
+
+2003-01-09  Humni  <Humni@mg>
+
+	* master/domain.c:
+	erzmagier ist keine eigentliche Domain. Danke an Mandragon fuer die Erlaeuterung und den Bugfix.
+
+2002-12-17  Rikus  <Rikus@mg>
+
+	* simul_efun.c:
+	break_string() geht nun auch bei indents laenger als gewuenschte Ausgabebreite
+
+	* simul_efun.c: break_string gefixed (wirkte sich nur in LD aus)
+
+	* explorationmaster.c:
+	Verwaltung und Auswertung der Bonus-FPs implementiert
+
+	* exploration.h: CHANGE_BONUS definiert fuer Bonus-FPs (zB. Parawelt)
+
+2002-10-16  Rikus  <Rikus@mg>
+
+	* explorationmaster.c:
+	Regionsmagier koennen nun auch FPs in Files abfragen, die nicht direkt
+	in Magierverzeichnissen stehen
+
+	* master.c: log_error() stark vereinfacht, logs gehen nach /log/error/
+
+2002-08-29  Rikus  <Rikus@mg>
+
+	* exploration.h: Test auf NEED_PROTOTYPES
+
+2002-08-28  Rikus  <Rikus@mg>
+
+	* impfetch.c, lep.c: New file.
+
+	* combat.c, explorationmaster.c, inetd.c, merlin.c, news.c, potionmaster.c, simul_efun.c, master/misc.c:
+	auf strong_types umgestellt
+
+2002-08-28  Rikus  <Rikus@mg>
+
+	* impfetch.c, lep.c: New file.
+
+	* combat.c, explorationmaster.c, inetd.c, merlin.c, news.c, potionmaster.c, simul_efun.c, master/misc.c:
+	auf strong_types umgestellt
+
+2002-08-04  Tiamak  <Tiamak@mg>
+
+	* mailer.c: Unfertig.
+
+2002-05-28  Tiamak  <Tiamak@mg>
+
+	* master/userinfo.c, master/misc.c: Lag ausgebaut.
+
+2002-05-26  Tiamak  <Tiamak@mg>
+
+	* merlin.c: Beim Magiervertrag reicht die ID nicht
+	mehr aus, um als "unterschrieben" zu gelten.
+
+2002-05-25  Tiamak  <Tiamak@mg>
+
+	* master/misc.c: SiteBanish() aufgebohrt, damit auch Nicht-EMs
+	kurzfristig Sites sperren koennen gegen Trolle.
+
+2002-05-21  Muadib  <Muadib@mg>
+
+	* bbmaster.c: updateplayers im scan_bb_opfer
+
+2002-05-16  Tiamak  <Tiamak@mg>
+
+	* master.c: Pseudo-Magier "alle", "room" und "polizei" werden
+	bei creator_file() nicht mehr wie echte Magier behandelt.
+
+2002-05-14  Tiamak  <Tiamak@mg>
+
+	* news.c:
+	Auch [W] dürfen nur noch Rubriken ändern/löschen etc., an denen
+	sie Lese-, Schreib- und Löschrechte haben.
+
+	Danke an Vanion für den Hinweis.
+
+2002-04-22  Rikus  <Rikus@mg>
+
+	* explorationmaster.c, scoremaster.c, lepmaster.c:
+	query_prevent_shadow eingebaut
+
+2002-04-11  Rikus  <Rikus@mg>
+
+	* merlin.c: FP-Vergleich von <= auf < gefixed
+
+2002-02-04  Rikus  <Rikus@mg>
+
+	* explorationmaster.c: Logfile FPS_FOUND wird nun geschrieben
+
+	* exploration.h: Logfile FPS_FOUND definiert
+
+2002-01-29  Tiamak  <Tiamak@mg>
+
+	* simul_efun.c:
+	Einen potentiell neue Logins im Worst-Case-Szenario verhindernden
+	Bug entfernt.
+
+	* simul_efun.c: match_living() nochmal erweitert.
+
+	* simul_efun.c:
+	match_living() wertet jetzt auch den zweiten Parameter (players_only) aus.
+	Erstaunlich, wie lange sowas funktionieren kann, ohne aufzufallen. ;^)
+	Ausserdem gibt es einen neuen dritten Parameter, um einen Namen gezielt
+	auszuschliessen (fuer /std/player/comm.c).
+
+2002-01-28  Tiamak  <Tiamak@mg>
+
+	* simul_efun.c: Neue sefun getuuid().
+
+2002-01-07  Rikus  <Rikus@mg>
+
+	* potionmaster.c: Orakelroutinen in potionmaster verlagert
+
+2001-11-20  Tiamak  <Tiamak@mg>
+
+	* master.c: Debugmeldungen bei Testies im heart_beat() korrigiert.
+
+2001-09-16  Hate  <Hate@mg>
+
+	* master.c: GMD -> FhG
+
+2001-08-30  Rikus  <Rikus@mg>
+
+	* exploration.h: Logfile eprooms.dump -> EPROOMS.dump
+
+	* explorationmaster.c: Test auf nochmaliges Auffinden eine FPs
+
+2001-07-03  Tiamak  <Tiamak@mg>
+
+	* simul_efun.c: Neue Efuns iso2ascii() und CountUp().
+
+2001-05-23  Rikus  <Rikus@mg>
+
+	* lepmaster.c:
+	Funktion fuer Stupse=f(XPs) auf Exponentialfkt. geaendert
+
+2001-04-08  Tiamak  <Tiamak@mg>
+
+	* simul_efun.c: Logfile verschoben.
+
+2001-03-09  Tiamak  <Tiamak@mg>
+
+	* bbmaster.c: Logfiles rotieren nicht mehr so schnell.
+
+2001-03-07  Rikus  <Rikus@mg>
+
+	* lepmaster.c: QueryLEP() und QueryForschung() befinden sich nun hier
+
+	* lepmaster.h: New file.
+
+	* explorationmaster.c: ein paar Optimierungen...
+
+	* exploration.h: nur etwas kommentiert
+
+	* scoremaster.h: EK_GIVENLOG definiert
+
+	* scoremaster.c:
+	EK-Bitstrings per userinfo lesen und schreiben, Killstupse werden nun gecached
+
+2001-02-24  Tiamak  <Tiamak@mg>
+
+	* login.c: Schutzmassnahmen gegen DoS-Attacken noch
+	etwas erweitert.
+
+2001-02-23  Tiamak  <Tiamak@mg>
+
+	* master/misc.c: eMail-Adresse "mud@mud.uni-muenster.de" aktualisiert.
+
+2001-02-21  Tiamak  <Tiamak@mg>
+
+	* login.c:
+	Es funktionieren nur noch bis zu 5 gleichzeitige Loginversuche
+	von einer IP aus.
+
+2001-02-20  Rikus  <Rikus@mg>
+
+	* master/userinfo.c:
+	Routinen zum Lesen und Schreiben von EKs und Miniquests implementiert
+
+	* login.c: EKs und Miniquests initialisieren
+
+2001-02-12  Zook  <Zook@mg>
+
+	* questmaster.c: Bugfix in GiveMiniQuest(), SetPlayerMiniQuest()
+
+2001-02-02  Tiamak  <Tiamak@mg>
+
+	* simul_efun.c: call_out() hat einen ordentlichen
+	Ueberlaufschutz bekommen.
+
+2001-02-02  Zook  <Zook@mg>
+
+	* questmaster.c: Der Questmaster verwaltet nun auch die MiniQuests.
+
+	* questmaster.h: Defines fuer die MiniQuests eingefuegt.
+
+2001-01-30  Tiamak  <Tiamak@mg>
+
+	* master.c: runtime_error() langweilig gemacht.
+
+2001-01-29  Rikus  <Rikus@mg>
+
+	* lepmaster.c: New file.
+
+2001-01-22  Zook  <Zook@mg>
+
+	* wizlevels.h: Kommentar zu *_SECURITY angepasst, da secure_level() nun
+	ne Efun ist. (Bzw. schon laenge ne Efun ist. ;))
+
+2001-01-21  Tiamak  <Tiamak@mg>
+
+	* simul_efun.c: Check auf zu viele call_out()s beschleunigt.
+
+	* master.c: Textfiles in /d/polar/files.chaos/* koennen nun
+	auch wieder von Magiern < L21 gelesen werden *huestel*
+
+2001-01-15  Tiamak  <Tiamak@mg>
+
+	* master.c: secure-Verzeichnisse,
+	dreiteilige UID fuer p.service.name.
+
+	* master/misc.c, simul_efun.c: secure-Verzeichnisse.
+
+2001-01-12  Tiamak  <Tiamak@mg>
+
+	* master.c: Allgemeines Verzeichnis /pub.
+
+	* simul_efun.c: call_out() ist nomask.
+
+2001-01-01  Rikus  <Rikus@mg>
+
+	* master/userinfo.c: in find_userinfo() ein ;"" vergessen gehabt...
+
+2000-12-23  Rikus  <Rikus@mg>
+
+	* master/userinfo.c:
+	EPs sind nun Teil des securesavefiles, update_ep() und query_ep()
+	eingebaut
+
+	* login.c: Der String ep gehoert nunmit ins securesavefile
+
+	* exploration.h: P_EP und P_EP_NUM gibt es nicht mehr
+
+	* explorationmaster.c:
+	QueryLEP() und vieles andere hierher verlagert, EPs auslesen und schreiben via master.c
+
+2000-12-21  Zook  <Zook@mg>
+
+	* questmaster.c: Verschiedene Aenderungen:
+
+	1. Die Einordnung in eine Gruppe kann nun erzwungen werden.
+	   Daher kommt die Funktion QueryGroupedKeys() hinzu, welche
+	   die Quests nach Gruppen sortiert.
+	2. Zu jeder Quest kann ein Magier angegeben werden, der fuer
+	   die "Wartung" der Quest zustaendig ist.
+	3. Es gibt nun auch
+	     QueryOptQP - APs der optionalen Quests
+	     QueryTotalQP - APs der Pflichtquests und optionalen Quests.
+
+	* questmaster.h: Hab doch nix geaendert ;)
+
+2000-12-09  Tiamak  <Tiamak@mg>
+
+	* simul_efun.c: break_string() hatte Probleme,
+	wenn im indent-String Zeichen vorkamen, die von
+	regreplace() als Steuerzeichen interpretiert werden
+	wie z.B: '&'.
+
+2000-11-19  Zook  <Zook@mg>
+
+	* questmaster.c: QueryGroupedKeys() eingefuegt.
+
+2000-10-16  Tiamak  <Tiamak@mg>
+
+	* simul_efun.c: Das letzte File in der P_LAST_CONTENT_CHANGE-
+	Cache-Bug-Ausbau-Orgie ;-)
+
+2000-10-15  Tiamak  <Tiamak@mg>
+
+	* master/userinfo.c: /d/<region>/alle hat Magierlevel 25.
+
+	* master.c:
+	Alte Uebergangsloesungen endlich entfernt *Padreic angrins*,
+	etwas aufgeraeumt, <Magiername> Leserechte in
+	/log/<Magiername> gegeben.
+
+2000-10-03  Tiamak  <Tiamak@mg>
+
+	* master/network.c:
+	mails_last_hour hat in Spielersavefiles nichts zu suchen
+	-> static gemacht.
+
+2000-09-25  Wim  <Wim@mg>
+
+	* scoremaster.c:
+	MoveScore: Neue Funktion. SetScore: Erweitert, s.d. auch numerische Eingabe zulaessig
+
+2000-08-25  Wim  <Wim@mg>
+
+	* scoremaster.c:
+	SetScore erweitert, so dass auch Miniquests geaendert werden koennen
+
+2000-08-17  Paracelsus  <Paracelsus@mg>
+
+	* sinmaster.c: Dump()-Funktion hinzugefuegt.
+
+	* sinmaster.c: Logging und Auto-Eintraege ( Zweiti->Ersti ) eingebaut
+
+2000-08-15  Paracelsus  <Paracelsus@mg>
+
+	* sinmaster.c: Was so ein kleines SPACE doch ausmacht ...
+
+	* sinmaster.c: New file.
+
+2000-08-05  Tiamak  <Tiamak@mg>
+
+	* merlin.c: "Jemand macht xxx zum Magier" ist zwar lustig, aber
+	nicht wirklich sinnvoll im SPONSOR-Log ;-)
+
+	* master/userinfo.c:
+	Die PW-Checks sollten natuerlich nur NEUE Passwoerter
+	betreffen - das macht sonst den PW-Wechsel etwas schwierig,
+	wenn man das alte PW nicht eingeben darf, weil es zu simpel
+	war ... *huestel*
+
+2000-08-04  Tiamak  <Tiamak@mg>
+
+	* master/userinfo.c: Kosmetik.
+
+	* login.c: Strengere PW-Checks eingebaut.
+
+	* master/userinfo.c: Neue Funktion good_password() fuer PW-Checks von
+	login.c und bei "passwd".
+
+2000-08-04  Rikus  <Rikus@mg>
+
+	* explorationmaster.c:
+	LF_LOG wird jetzt per log_file mit 100k Umbruch geschrieben
+
+	* exploration.h: LF_LOG auf log_file umgeaendert
+
+2000-07-27  Tiamak  <Tiamak@mg>
+
+	* login.c: Neue Spieler haben jetzt mehr Zeit fuer die
+	Rassenauswahl.
+
+2000-07-21  Tiamak  <Tiamak@mg>
+
+	* login.c: Typo behoben.
+
+	* config.h: NAME_QUESTION rausgeworfen (war zu unflexibel fuer das
+	neue login.c)
+
+2000-07-20  Tiamak  <Tiamak@mg>
+
+	* login.c: Passwoerter duerfen als erstes Zeichen kein '!' mehr
+	enthalten, neue Charaktere kann man nur noch nach
+	Eingabe von "neu" erschaffen.
+
+	* master/misc.c: Kosmetische (*huestel*) Verschiebung von ein paar
+	Zeilen in IsDeputy().
+
+2000-07-11  Hate  <Hate@mg>
+
+	* master/misc.c: Email Adresse korrgiert.
+
+2000-07-07  Tiamak  <Tiamak@mg>
+
+	* master/userinfo.c: Die Aenderung an query_wiz_level() ist bis auf
+	weiteres erstmal wieder raus.
+
+2000-07-06  Tiamak  <Tiamak@mg>
+
+	* master/userinfo.c: query_wiz_level() funktioniert bei Nicht-Spielern
+	jetzt auch mit Objekten und nicht nur mit Strings.
+
+2000-07-04  Rikus  <Rikus@mg>
+
+	* explorationmaster.c:
+	Bei FP-Listen nur noch Loggen ins File, keine Meldung an alle EMs
+
+2000-05-31  Tiamak  <Tiamak@mg>
+
+	* questmaster.c:
+	Antworten auf Questmails gehen direkt an den Questmagier und
+	nicht mehr an mud@mg.mud.de. Jetzt auch dann, wenn die Antworten
+	nicht im Mud sondern mit einem externen Client geschrieben wurden.
+
+2000-04-10  Tiamak  <Tiamak@mg>
+
+	* explorationmaster.c: Scrollende Meldung geaendert.
+
+	* exploration.h: Grenzwerte geaendert.
+
+	* simul_efun.c:
+	Die ganzen Mappings mit Zuordnungstabellen IP->Stadt o.ae.
+	sind dank des Whois-Daemon nicht mehr noetig.
+
+2000-04-04  Tiamak  <Tiamak@mg>
+
+	* login.c:
+	Okay Wim - wenn Dir jetzt noch was am Format der Logfiles nicht passt,
+	aender es selbst ;^)
+
+2000-04-02  Tiamak  <Tiamak@mg>
+
+	* login.c:
+	Auf Wims besonderen Wunsch hin die Logfiles neu formatiert. ;-)
+
+2000-03-31  Tiamak  <Tiamak@mg>
+
+	* login.c: /log/ENTER rotiert erst ab 200k.
+
+2000-03-26  Tiamak  <Tiamak@mg>
+
+	* master.c: Bei Bugs im heart_beat() von NPCs die neue Funktion
+	make_immortal() aufrufen. Nomen est omen. ]:->
+
+	* login.c: Komlett ueberarbeitet und aufgeraeumt; keine Gaeste-Schwemme
+	mehr; nach einer ungueltigen Eingabe kann man sich im
+	zweiten Versuch trotzdem noch erfolgreich einloggen, ohne dass
+	die Verbindung erst gekappt wird etc.
+
+2000-03-21  Hate  <Hate@mg>
+
+	* master.c: url location corrected
+
+2000-03-06  Paracelsus  <Paracelsus@mg>
+
+	* explorationmaster.c: In QueryAverage() ein ||1 eingebaut
+
+2000-03-02  Tiamak  <Tiamak@mg>
+
+	* master/misc.c: __query_variable() sicherer gemacht.
+
+2000-02-27  Padreic  <Padreic@mg>
+
+	* simul_efun.c: set_light() efun eingefuehrt
+
+2000-02-11  Tiamak  <Tiamak@mg>
+
+	* master/misc.c:
+	Tod den unsinnigen Eintraegen in /log/PLAYERDEST beim Update ;-)
+
+2000-01-20  Tiamak  <Tiamak@mg>
+
+	* master.h: Prototypen fuer master/network.c aktualisiert.
+
+	* master/network.c: Den Mail-Teil aufgeraeumt und schneller gemacht.
+	Eingehende externe Mails funktionieren jetzt richtig; danke an Hate fuer den
+	"externen" Teil auf Linux-Seite.
+
+2000-01-19  Tiamak  <Tiamak@mg>
+
+	* master/userinfo.c: Die UID "polizei" hat Magierlevel 21.
+
+2000-01-18  Tiamak  <Tiamak@mg>
+
+	* mailer.c: Erste grobe Entruempelung.
+
+	* master.c:
+	Learner duerfen auch das Inhaltsverzeichnis von /log/report sehen. ;-)
+
+2000-01-17  Tiamak  <Tiamak@mg>
+
+	* master.c:
+	Magier duerfen eigene abgespeicherte Artikel auch wieder loeschen.
+
+2000-01-15  Tiamak  <Tiamak@mg>
+
+	* mailer.c: New file.
+
+2000-01-11  Tiamak  <Tiamak@mg>
+
+	* login.c:
+	Und wieder einer aus der Rubrik "Logfiles, die die Welt nicht
+	braucht": schon schoen so ein Logfile, das ausschliesslich
+	aus der zigfachen Wiederholung der Zeile "illegal patch of login"
+	besteht. ;-)
+
+	* master/network.c:
+	FtpAccess() nochmal aufgeraeumt. Jetzt sind wirklich keine
+	Relikte von NaseFTP mehr drin. ;-)
+
+2000-01-09  Tiamak  <Tiamak@mg>
+
+	* questmaster.c:
+	SendMail() beruecksichtigt nun Weiterleitungsauftraege.
+
+	* master/userinfo.c:
+	Fuer Stellen ala Wurzels Frankenstein gibt es jetzt eine
+	'Ausnahmegenehmigung' fuer set_player_object().
+
+1999-12-20  Tiamak  <Tiamak@mg>
+
+	* master/misc.c: Funktionen fuer SiteBanish 'on the fly' eingebaut.
+
+	* login.c: Abfrage auf QuerySBanished() eingebaut.
+
+	* bbmaster.c: Funktionalitaet vom ftpd auf den bbmaster uebertragen.
+
+1999-12-19  Tiamak  <Tiamak@mg>
+
+	* master/network.c:
+	FtpAccess(): Umweg ueber /secure/ftpd.c herausgenommen.
+
+1999-12-18  Paracelsus  <Paracelsus@mg>
+
+	* login.c: Sitebanish fuer 212.81
+
+1999-12-15  Tiamak  <Tiamak@mg>
+
+	* master.c: Schreibrechte fuer 'normale' Magier unter /open auf
+	tmp/ und incoming/ beschraenkt.
+
+1999-12-15  Nachtwind  <Nachtwind@mg>
+
+	* merlin.c:
+	Sonderbehandlung bei der Magierwerdung fuer Charaktere von vor Ende 95 ausgebaut.
+
+1999-12-13  Tiamak  <Tiamak@mg>
+
+	* master/userinfo.c:
+	set_player_object() sicherer gemacht *Anatol angrins*.
+
+1999-12-10  Tiamak  <Tiamak@mg>
+
+	* master/network.c, ftpd.c: Auf neuen FTP-Server umgestellt.
+
+1999-12-06  Rikus  <Rikus@mg>
+
+	* potionmaster.c: secure() auf process_call und ARCH_SECURITY erweitert
+
+	* scoremaster.c: QueryNPCbyObject analog zu QueryNPCbyNumber eingebaut
+
+1999-12-06  Tiamak  <Tiamak@mg>
+
+	* simul_efun.c:
+	___updmaster() updated jetzt auch die Files in /secure/master.
+
+	* master.c: UID "p:" auf "p." umgestellt.
+
+	* news.c, master/userinfo.c: UID von "p:" auf "p." umgestellt.
+
+1999-12-03  Tiamak  <Tiamak@mg>
+
+	* questmaster.c:
+	Neue Funktion QueryQuestPoints(string name) um die Abfrage zu
+	beschleunigen. Zum Berechnen der Property P_QP braucht man nicht
+	die grossen Arrays mit allen Informationen ...
+
+1999-12-03  Padreic  <Padreic@mg>
+
+	* master.c: auf uid 'erzmagier' haben nur EMs schreibrechte
+
+1999-12-02  Tiamak  <Tiamak@mg>
+
+	* master.c: Learner koennen auch fremde Repfiles lesen.
+
+1999-11-30  Tiamak  <Tiamak@mg>
+
+	* master/misc.c: Meldungen bei renew landen auf 'Entwicklung' - es sei
+	denn, sie stammen von Merlin.
+
+	* master.c: Fehlermeldungen auf -Debug und -Entwicklung verteilt.
+
+	* master.h: Define fuer Fehlermeldung auf Kanal 'Entwicklung'.
+
+1999-11-27  Tiamak  <Tiamak@mg>
+
+	* simul_efun.c: shout() mit zusaetzlichem Parameter versehen.
+
+1999-11-26  Tiamak  <Tiamak@mg>
+
+	* merlin.c: MBanishList() eingebaut.
+
+1999-11-25  Tiamak  <Tiamak@mg>
+
+	* master.c:
+	Deputies haben ein gemeinsames Verzeichnis /d/erzmagier/polizei.
+
+	* simul_efun.c: Snoopen durch Deputies nach /log/ARCH/SNOOP verlegt.
+
+1999-11-24  Tiamak  <Tiamak@mg>
+
+	* simul_efun.c: Deputies duerfen auch hoehere Magier snoopen.
+
+	* master.c: Leserechte fuer Deputies erweitert.
+
+	* master/misc.c: Liste mit Leserechten fuer Deputies eingebaut.
+
+	* master/userinfo.c: /log/USERDELETE auf log_file() umgestellt.
+
+1999-11-21  Tiamak  <Tiamak@mg>
+
+	* master/misc.c: TBanishName() und BanishName() duerfen jetzt auch von
+	Deputies ausgefuehrt werden.
+
+	* merlin.c: MBanishInsert() und MBanishDelete() darf jetzt auch von
+	Deputies ausgefuehrt werden.
+
+	* master/misc.c: Deputies duerfen in "polizei" schreiben und lesen.
+
+	* news.c:
+	AddAllowed() und RemoveAllowed() auch fuer R O O T freigegeben.
+
+1999-11-20  Tiamak  <Tiamak@mg>
+
+	* master.c: Vland auf neue UIDs umgestellt.
+
+1999-11-19  Tiamak  <Tiamak@mg>
+
+	* master.c: In valid_write() ein entscheidendes '=' ergaenzt.
+
+1999-11-16  Tiamak  <Tiamak@mg>
+
+	* news.c: Okay, secure_euid() war dann doch zu sicher ;-)
+
+	* news.c: Einige secure_level() bzw. secure_euid() eingefuegt.
+
+1999-11-14  Tiamak  <Tiamak@mg>
+
+	* master.c: Driver-Hook fuer move_object() nochmal optimiert.
+
+	* master/misc.c:
+	Gebanishte Namen koennen auch wieder freigegeben werden.
+
+	* master/misc.c: BanishName kennt jetzt die Option force.
+
+	* master.h: BanishName() hat nen neuen Parameter (force)
+
+1999-11-09  Tiamak  <Tiamak@mg>
+
+	* master/misc.c: TBanishName() auf Typ int umgestellt.
+
+	* merlin.c: Dass Learner mbanishen koennen, war nicht ganz im Sinne des
+	Erfinders ;-)
+
+	* master.c: ReloadDeputyFile() eingefuegt beim Laden des Masters.
+
+	* master/misc.c: - IsDeputy() nimmt jetzt auch Objekte als Argument
+	- BanishName() gibt eine Erfolgsmeldung zurueck
+
+	* wizlevels.h: IS_DEPUTY() eingefuegt.
+
+	* simul_efun.c:
+	destruct() nimmt nun auch wie dokumentiert einen Filenamen als Argument an.
+
+1999-11-06  Tiamak  <Tiamak@mg>
+
+	* merlin.c: Pinnwand aus Merlin in Absprache mit Cymonk entfernt.
+
+1999-11-05  Tiamak  <Tiamak@mg>
+
+	* merlin.c: Levelabfrage beim Befoerdern korrigiert (>= statt >)
+
+	* master.c:
+	Noch eine kleine Optimierung im Driver-Hook fuer move_object() [wg. add_action-Bug]
+
+1999-11-04  Tiamak  <Tiamak@mg>
+
+	* master.c: Just another security hole ...
+
+	* master.c: 'Fehler: "add_action from object that was not present."'
+	gibt's nicht mehr. Per Definition.
+
+	* master/misc.c, simul_efun.c: Sicherheitsluecke gestopft
+
+1999-11-03  Tiamak  <Tiamak@mg>
+
+	* merlin.c: Selber befoerdern is' nicht mehr.
+
+1999-11-03  Padreic  <Padreic@mg>
+
+	* master.c: grosse uid-umstellung und restrukturierung von
+	valid_read und valid_write. Inzwischen fehlen nur noch
+	die Regionen vland, schattenwelt und seher
+
+rcs2log -R -r -d>1999-11-02
+1999-10-21  Rochus  <Rochus@mg>
+
+	* login.c: ux-01.bg.bib.de gesperrt.
+
+1999-09-30  Paracelsus  <Paracelsus@mg>
+
+	* pubmaster.c: Bugfix
+
+1999-09-29  Paracelsus  <Paracelsus@mg>
+
+	* pubmaster.c: Einige Defines nach pub.h ausgelagert.
+
+1999-09-04  Wim  <Wim@mg>
+
+	* merlin.c: QueryPronoun() eingebaut
+
+1999-09-03  Padreic  <Padreic@mg>
+
+	* master/userinfo.c: GUILD.* hat ab jetzt Magierlevel 30
+
+	* master.h: in DEBUG_MSG das define REAL_UID eingebaut
+
+1999-08-25  Boing  <Boing@mg>
+
+	* bbmaster.c:
+	Da muss irgendjemand mit meinem Namen rumgepfriemelt haben, denn ich
+	hab am 29. Juni bestimmt nix am bbmaster gemacht.
+
+1999-08-24  Rumata  <Rumata@mg>
+
+	* ftpd.c: nix neues im westen :-/
+
+1999-08-23  Paracelsus  <Paracelsus@mg>
+
+	* pubmaster.c: Keine Ahnung, warum der ausgecheckt war.
+
+1999-08-23  Hate  <Hate@mg>
+
+	* login.c: removed login restrictions
+
+1999-08-20  Rikus  <Rikus@mg>
+
+	* merlin.c:
+	Merlin muss _finger_ nicht mehr ueber neue Magier benachrichtigen, er merkt es nun an der Aenderungszeit des Files SPONSOR
+
+1999-07-20  Padreic  <Padreic@mg>
+
+	* login.c: Sitebanish fuer "62.158.109" eingetragen
+
+1999-07-10  Rumata  <Rumata@mg>
+
+	* ftpd.c: impfetch
+
+1999-07-10  Padreic  <Padreic@mg>
+
+	* master/userinfo.c: Magierlevel 25 fuer alle d.* uids eingetragen
+
+1999-07-08  Wim  <Wim@mg>
+
+	* master/domain.c:
+	Erneute Aenderung in get_domain_homes, Abpruefung auf wizlevel >= 21
+
+1999-07-05  Wim  <Wim@mg>
+
+	* master/domain.c: add_domain_master: Fix fuer update_wiz_level
+	get_domain_homes: Verzeichnisausgabe er folgtfolgt auch fuer Mags
+	mit Lv < Domainmember
+
+1999-07-02  Rumata  <Rumata@mg>
+
+	* misc/filesys/filesys.c: tippfehler
+
+	* misc/filesys/asynchron.c, misc/filesys/filesys.c, misc/filesys/make.c, misc/filesys/manual.c, misc/filesys/primitives.c, misc/filesys/telnetneg.c:
+	New file.
+
+	* ftpimp.c: filesys aus sicherheitsgruenden nach secure gemoved
+
+1999-06-30  Rumata  <Rumata@mg>
+
+	* ftpimp.c, ftpd.c: New file.
+
+	* master/network.c: anbindung an ftpd
+
+	* master.c: rename_object fuer ftpd erlauben.
+
+1999-06-29  Padreic  <Padreic@mg>
+
+	* simul_efun.c:
+	IS_ARCH beschraenkung bei debug_info und object_info ausgebaut.
+
+1999-06-23  Padreic  <Padreic@mg>
+
+	* master/userinfo.c: uid "room" hat ab nun magierlevel 21.
+
+	* master.c: /room/ hat ab jetzt keine BACKBONEID mehr sondern eine
+	eigene room-uid.
+
+1999-06-19  Padreic  <Padreic@mg>
+
+	* master.c: eingefuegt das files mit regionseuid selbstverstaendlich
+	in der ganzen region lesen duerfen.
+
+1999-06-17  Padreic  <Padreic@mg>
+
+	* master.c: defines zur logfile wartung umgestellt.
+
+1999-06-16  Padreic  <Padreic@mg>
+
+	* master/userinfo.c: Die Objekte in /p/ haben nun Magierlevel 21
+	Funktion query_wiz_level() geaendert.
+
+	* news.c: Funktion allowed() eingefuehrt, die ab nun lese-, schreib-,
+	loesch-, verwaltungs- und keepname Rechte verwaltet.
+
+	* master.c: kl. aenderung an der logfile verwaltung
+
+1999-06-12  Rikus  <Rikus@mg>
+
+	* inetd.c:
+	bei nicht eindeutigem Mudnamen kommt nun eine Liste der passenden
+
+1999-06-08  Rochus  <Rochus@mg>
+
+	* master.c: Projektmitarbeiter konnten in ihrem Verzeichnis
+	nicht lesesn wenn sie keine EMs waren...
+
+1999-06-08  Padreic  <Padreic@mg>
+
+	* master.c: kleine ueberarbeitungen von valid_read()
+
+1999-05-30  Padreic  <Padreic@mg>
+
+	* master.h: show_dir ist aus sicherheitsgruenden inzwischen static.
+
+	* master/userinfo.c:
+	kurzzeitig logfile eingebaut, um Patryn zu ueberfuehren.
+
+	* master/misc.c: show_dir() aus Sicherheitsgruenden static gemacht.
+
+	* master.c: valid_read() und valid_write() ueberarbeitet.
+
+1999-05-29  Rikus  <Rikus@mg>
+
+	* scoremaster.h: Dumpfile in SCORES.dump umbenannt
+
+	* exploration.h:
+	einige defines aus dem *.c uebernommen und dumpfile in eprooms.dump umbenannt
+
+	* explorationmaster.c: einige defines ins headerfile verlagert
+
+	* potionmaster.c: Dumpfile in TRAENKE.dump umbenannt
+
+	* explorationmaster.c: Loggen von _zu schnell_ gefundenen FPs
+
+1999-05-27  Hate  <Hate@mg>
+
+	* master.c: Location corrected.
+
+1999-05-27  Padreic  <Padreic@mg>
+
+	* awmaster.c:
+	Security-hole geschlossen durch entfernen eines zauberer-includes
+
+1999-05-25  Padreic  <Padreic@mg>
+
+	* simul_efun.c:
+	in secure_euid() noch ein getuid() durch ein geteuid() ausgetauscht
+
+	* simul_efun.c: neu simul_efun secure_euid()
+
+	* master/domain.c: Neue sicherheitsabfrage in add_domain_master().
+
+1999-05-21  Highlander  <Highlander@mg>
+
+	* master/network.c: Wer weiss, was HL damals dran aenderte... (Rikus)
+
+1999-05-15  MorgenGrauen (admin)  <mud@mg>
+
+	* master.c: HTTP location changed to www.mg.mud.de
+
+1999-05-05  Marcus  <Marcus@mg>
+
+	* config.h: mudhost/ftpid/udpserv ip auf MUDHOST geaendert.
+
+1999-05-04  Rumata  <Rumata@mg>
+
+	* questmaster.c: QueryQuest* liefern jetzt kopien.
+
+	* simul_efun.c: +deepcopy_array
+
+1999-04-18  Padreic  <Padreic@mg>
+
+	* login.c: new_logon gedebuggt...
+
+1999-04-14  Paracelsus  <Paracelsus@mg>
+
+	* master/misc.c: Bugfix an TBanishName()
+
+1999-04-12  Padreic  <Padreic@mg>
+
+	* simul_efun.c:
+	neue simul_efun object_info, ausserdem kleine korrektur an
+	debug_info(2, ..)
+
+	* merlin.c: noch ein break_string und ich klein
+
+	* merlin.c: Er kennt nun auch Fernwest, ausserdem spricht er einen nun
+	persoenlich mit Namen an bei Nachfragen :).
+
+1999-04-08  Hate  <Hate@mg>
+
+	* master/misc.c:
+	QueryBanished changed to QueryTBanished for TBanishName()
+
+1999-04-07  Rumata  <Rumata@mg>
+
+	* master.c: sys ist nicht mehr von innheralb des muds zu schreiben
+
+	* master.c: ... unbekannte aenderungen ...
+	uid vergabe von objekten, die root waren sicherer gemacht
+	room ist fuer laerner lesbar
+	**
+
+1999-04-06  Padreic  <Padreic@mg>
+
+	* simul_efun.c:
+	deep_present(ob, ob) laeuft nicht mehr ueber deep_inventory()
+	sondern mit: while (ob2=environment(ob2)) if (ob2==ob) return what;
+
+1999-03-30  Paracelsus  <Paracelsus@mg>
+
+	* merlin.c: Funktion Name() analog zu /std/thing/description.c
+
+1999-03-25  Paracelsus  <Paracelsus@mg>
+
+	* simul_efun.c: Bugfix in stretch() (Woody)
+
+1999-03-24  Paracelsus  <Paracelsus@mg>
+
+	* master/misc.c: Aenderung in renew_player_object()
+
+	* login.c: Umstellung von telnetnegs.c auf mini_telnetnegs.c
+
+	* mini_telnetneg.c: New file.
+
+1999-03-23  Rochus  <Rochus@mg>
+
+	* master/domain.c:
+	ARCH_SECURITY durch 0 ersetzt, damit das mud wenigstens rebootet
+	(welcher depp benutzt im master eine simul_efun??????????)
+
+1999-03-21  Rikus  <Rikus@mg>
+
+	* scoremaster.c: gleiches auch noch fuer AddMiniQuests()
+
+	* scoremaster.c:
+	Neueintraege belegen nun zuerst die Bits, welche in free_num vorgegeben sind
+
+1999-03-16  Rikus  <Rikus@mg>
+
+	* master/misc.c:
+	hm, ich vergass es am 11.12. einzuchecken, fragt mich nicht mehr danach :)
+
+	* master/domain.c:
+	Rueckgabe der Regionszugehoerigkeit nur fuer Magier>=Domainmemberlevel
+
+1999-03-05  Paracelsus  <Paracelsus@mg>
+
+	* simul_efun.c:
+	Optimierung an break_string() und input_to() (Ringor, Woody)
+
+1999-03-05  Rikus  <Rikus@mg>
+
+	* merlin.c:
+	bei Magierwerdung dem Finger mitteilen, dass er Sponsorliste aendern muss
+
+1999-03-03  Rikus  <Rikus@mg>
+
+	* scoremaster.c:
+	kein automatisches Eintragen von NPCS aus /polayers mehr
+
+1999-02-28  Paracelsus  <Paracelsus@mg>
+
+	* login.c: SendTelopts() bereits direkt beim Login
+
+1999-02-22  Rikus  <Rikus@mg>
+
+	* explorationmaster.c:
+	nomask GiveExplorationPointObject(string key, object ob)
+	eingebaut
+
+1999-02-18  Paracelsus  <Paracelsus@mg>
+
+	* master.c: valid_read() : Zugriff auf /open
+
+1999-02-18  Rikus  <Rikus@mg>
+
+	* simul_efun.c:
+	in move_object() Test nach dem move auf vorhandenes Object vor der Weiterbehandlung
+
+1999-02-11  Paracelsus  <Paracelsus@mg>
+
+	* awmaster.c:
+	Zusaetzliches Flag fuer Ruestungen die Resistenzen setzen.
+
+1999-02-10  Padreic  <Padreic@mg>
+
+	* news.c:
+	einige process_call() abfragen eingefuegt insbesondere in dump_group()
+
+1999-02-09  Rochus  <Rochus@mg>
+
+	* master.c: Argumente in runtime_error pruefen.
+
+1999-02-09  Catweazle  <Catweazle@mg>
+
+	* master.c: Den richtigen telnet-DriverHook eingetragen
+
+1999-02-08  Rikus  <Rikus@mg>
+
+	* merlin.c: notify_player_change() stark vereinfach und optimiert
+
+1999-02-08  Marcus  <Marcus@mg>
+
+	* login.c:
+	natuerlich sollten man das telnet_neg() wehnehmen, damit das von filesys/telnetneg.c verwendet werde  kann
+
+1999-02-06  Paracelsus  <Paracelsus@mg>
+
+	* simul_efun.c: input_to() als simul_efun, fuer Prompt-Erkennung
+
+	* login.c: telnetneg.c wird inherited
+	einige Login-Sperren entfernt
+
+1999-02-04  Padreic  <Padreic@mg>
+
+	* login.c:
+	seperates loggen von missglueckten einloggversuchen von erzmagiern
+
+	* news.c:
+	Wenn schon kein static bei GetGroup dann wenigstens ARCH_SECURITY :)
+
+1999-02-03  Rikus  <Rikus@mg>
+
+	* news.c:
+	static bei GetGroup(string name) entfernt (newstool funzte nicht mehr)
+
+	* login.c: hatte 1 Debugausgabe vegessen auszubauen
+
+	* simul_efun.c: ind_saved_player() -> __create_player_dummy()
+
+1999-02-02  Rikus  <Rikus@mg>
+
+	* scoremaster.h: P_NO_SCORE eingefuegt (keine Vergabe von Killstupsen)
+
+1999-02-01  Rikus  <Rikus@mg>
+
+	* news.c: 2 Bugs entfernt (= statt == und einen Wortdreher)
+
+1999-01-30  Rikus  <Rikus@mg>
+
+	* scoremaster.c: Bits von Netztoten werden nun auch umgesetzt
+
+	* login.c: Rueckgabe des Playerobjects statt 1 bei Erfolg
+
+	* simul_efun.c: find_saved_player() setzt nun auch netdead
+
+1999-01-29  Rikus  <Rikus@mg>
+
+	* login.c:
+	komplett erweitert, um Spieler, die offline sind, mit der efun find_saved_player(string name) einzuladen
+
+	* simul_efun.c:
+	find_saved_player(string name) eingebaut, damit kann man Spieler reinladen, die offline sind
+
+1999-01-29  Paracelsus  <Paracelsus@mg>
+
+	* spare_simul_efun.c: an simul_efun.c angepasst
+
+	* simul_efun.c: break_string ueberarbeitet (Ringor)
+
+1999-01-28  Padreic  <Padreic@mg>
+
+	* news.c: static in GetGroup eingefuegt.
+
+1998-12-10  Rikus  <Rikus@mg>
+
+	* room_locator.c: ARCH-SECURITY eingebaut
+
+1998-12-06  Rikus  <Rikus@mg>
+
+	* scoremaster.c: Query_to_change erweitert
+
+1998-12-05  Rikus  <Rikus@mg>
+
+	* scoremaster.c:
+	to_change eingefuehrt, Automatishes Setzen und Loeschen von Kills bei angegebenen Spilern
+
+1998-11-27  Rikus  <Rikus@mg>
+
+	* master/misc.c: Auslesen der history wird auf SNOOP gezeigt
+
+1998-11-24  Rumata  <Rumata@mg>
+
+	* master.c: learner koennen jetzt ihr eigenes logfile lesen
+
+1998-11-09  Rikus  <Rikus@mg>
+
+	* scoremaster.c: alle Aktionen werden in SACORELOGFILE geloggt
+
+	* scoremaster.h: SCORELOGFILE defined
+
+1998-08-19  Boing  <Boing@mg>
+
+	* merlin.c: Bei weibichlichen Sehern ruft Merlin jetzt Seherin
+
+1998-08-18  Rikus  <Rikus@mg>
+
+	* news.c: ARCH_SECURITY eingebaut
+
+1998-08-16  Rikus  <Rikus@mg>
+
+	* master.c:
+	valid_rwrite() geaendert, dass Schreiben auf alle/common per access_rights von -1 verboten werden kann
+
+1998-08-14  Paracelsus  <Paracelsus@mg>
+
+	* login.c: IP gesperrt
+
+1998-08-13  Rikus  <Rikus@mg>
+
+	* merlin.c: notify_player_change gecatched
+
+1998-08-12  Rikus  <Rikus@mg>
+
+	* merlin.c: Seher-FAQ wird bei der Seherwerdung automatisch vergeben
+
+1998-08-05  Rumata  <Rumata@mg>
+
+	* bbmaster.c: kein leerzeichen nach dem namen ist besser :-)
+
+1998-08-03  Rikus  <Rikus@mg>
+
+	* login.c: Marburg als Einloggort wieder erlaubt
+
+1998-07-31  Highlander  <Highlander@mg>
+
+	* simul_efun.c: P_SNOOPFLAGS && -> &
+
+	* simul_efun.c: Wrong place for ) fixed
+
+1998-07-29  Rumata  <Rumata@mg>
+
+	* bbmaster.c: New file.
+
+1998-07-29  Kirk  <Kirk@mg>
+
+	* login.c: (Rumata) war seit Jul 4 ausgechecked
+	__reload_explore
+
+1998-07-29  Rumata  <Rumata@mg>
+
+	* master/misc.c: __reload_explore
+
+1998-07-28  Jof  <Jof@mg>
+
+	* master/network.c: *** empty log message ***
+
+1998-07-27  Jof  <Jof@mg>
+
+	* master/network.c: *** empty log message ***
+
+	* master/network.c: Fixde multipe mail bug ...
+
+	* config.h, master.c: max mails/h
+
+	* master/network.c: Max. size of mail limited to 50k
+	max nr of mails/hour
+
+1998-07-23  Paracelsus  <Paracelsus@mg>
+
+	* master.c:
+	Auskommentiert: set_driver_hook(H_CREATE_SUPER,       "create"); in inaugurate_master()
+
+1998-07-23  Rikus  <Rikus@mg>
+
+	* master/network.c:
+	FtpAcess ist nun fuer Magier mit Spielpause verboten
+
+1998-07-21  Marcus  <Marcus@mg>
+
+	* master.c: H_CREATE_SUPER driver hook fehltem, auf "create" gesetzt
+
+1998-07-16  Rikus  <Rikus@mg>
+
+	* explorationmaster.c:
+	ShowEPObjects() gibt fuer Magier<Lord keine ID-Nummern der FPs mehr aus
+
+1998-07-14  Rumata  <Rumata@mg>
+
+	* master.c: /mail nur noch fuer ROOT lesbar
+	einigen wildwuchs entfernt
+
+	* master.c: lesbarkeit fuer /news/* ROOT only./
+
+1998-07-08  Rumata  <Rumata@mg>
+
+	* master.c: fallback, dass logfiles fuer alle schreibbar sind
+	will man das wirklich?
+	anddere moeglichkeit : statt break; return access_rgihts(...)
+
+1998-06-30  Rumata  <Rumata@mg>
+
+	* spare_simul_efun.c:
+	spare_simul_efun mal wieder auf den neuesten stand gebracht
+
+1998-06-25  Rumata  <Rumata@mg>
+
+	* master.c: schreibrechter fuer /log/<magier> konfigurierbar
+	/log/report/<magier>.rep fer den magier
+
+1998-06-24  Jof  <Jof@mg>
+
+	* master/network.c: doReadMail geaednert
+
+1998-05-24  Rikus  <Rikus@mg>
+
+	* explorationmaster.c: ShowEPObjets() debuggt und erweitert
+
+1998-05-24  Rumata  <Rumata@mg>
+
+	* explorationmaster.c: Rumata vergass Einchecken...
+
+1998-05-14  Jof  <Jof@mg>
+
+	* config.h: Neue IP
+
+1998-05-11  Jof  <Jof@mg>
+
+	* master/network.c: Anpassungen fuer neues sendmail.cf
+
+1998-05-09  Hate  <Hate@mg>
+
+	* master/network.c: ???
+
+1998-05-06  Jof  <Jof@mg>
+
+	* simul_efun.c: --SOMMERZEIT
+
+1998-04-20  Highlander  <Highlander@mg>
+
+	* simul_efun.c:
+	debug_info from ARCH_SECURITY to IS_ARCH changed so upd -f/a work again
+
+1998-04-19  Jof  <Jof@mg>
+
+	* simul_efun.c, master/misc.c: *** empty log message ***
+
+1998-04-08  Rumata  <Rumata@mg>
+
+	* simul_efun.c: support fuer sommerzeit
+
+1998-03-25  Rumata  <Rumata@mg>
+
+	* master/domain.c: ARCH_SECURITY fuer add/remove_domain_master
+
+1998-03-23  Rochus  <Rochus@mg>
+
+	* master/userinfo.c:
+	Bei Selbstloeschungen wird jetzt auch die IP-Nummer mitgeloggt.
+
+1998-03-22  Rikus  <Rikus@mg>
+
+	* scoremaster.c:
+	SetScoreBit() und ClearScoreBit(), um Erstkills in Spielern zu setzen/loeschen
+
+	* explorationmaster.c:
+	Routinen zum Loeschen und Setzen bestimmter EPs, Ep-Infos eines Spielers
+	Sicherheit erhoeht
+
+	* potionmaster.c: Routinen fuer PTool implementiert
+
+1998-03-16  Rumata  <Rumata@mg>
+
+	* simul_efun.c: defaultbreite bei break_string von 0 auf 78 gesetzt. :)
+
+1998-03-15  Rikus  <Rikus@mg>
+
+	* potionmaster.c:
+	Potionmaster geaendert, dass beim Deaktivieren und Aktivieren der ZTs die Gruppenzuordnung erhalten bleibt
+
+1998-03-15  Boing  <Boing@mg>
+
+	* potionmaster.c: gute Fraghe
+
+1998-03-10  Paracelsus  <Paracelsus@mg>
+
+	* pubmaster.c: Bugfix
+
+	* awmaster.c: NotifyACChange disabled
+
+1998-03-10  Kirk  <Kirk@mg>
+
+	* merlin.c: Krik hatte vergessen einzuchecken (Rochus)
+	(Krik=Kirk)
+
+1998-03-09  Rumata  <Rumata@mg>
+
+	* master/userinfo.c: ach nee, wozu auch
+
+	* master/userinfo.c:
+	set_player_object nur noch fuer ROOTobjekte erlaubt
+
+1998-03-08  Paracelsus  <Paracelsus@mg>
+
+	* master.c:
+	/d/erzmagier als Verzeichnis fuer lesegeschuetzte verzeichnisse implementiert
+
+	* master/domain.c: /d/erzmagier zaehlt nicht als normale domain
+
+1998-03-03  Paracelsus  <Paracelsus@mg>
+
+	* pubmaster.c: Pubmaster ueberarbeitet, neue Formel.
+
+1998-02-22  Jof  <Jof@mg>
+
+	* master/misc.c: Bug im renew_player_object repariert,
+	der zu einer Verdoppelung von Auto-
+	loadern fuehrte, sofern diese
+	in Containern steckten ...
+
+1998-02-15  Paracelsus  <Paracelsus@mg>
+
+	* pubmaster.c: New file.
+
+1998-02-13  Rumata  <Rumata@mg>
+
+	* simul_efun.c: count_bits improved by factor 6!
+	,
+
+1998-02-12  Rumata  <Rumata@mg>
+
+	* master/userinfo.c: Userlevel von ROOT auf 100 gesetzt.
+
+1998-02-09  Paracelsus  <Paracelsus@mg>
+
+	* awmaster.c: Bugfix
+
+1998-02-09  Rikus  <Rikus@mg>
+
+	* scoremaster.c:
+	neu Funktion NewNPC(string key,int score) zum Eintragen bisher noch
+	nicht angemeldeter NPCs
+
+1998-02-06  Paracelsus  <Paracelsus@mg>
+
+	* awmaster.c: New file.
+
+1998-02-02  Jof  <Jof@mg>
+
+	* master.c: *** empty log message ***
+
+1998-01-22  Rumata  <Rumata@mg>
+
+	* simul_efun.c:
+	secure_level erkennt jetzt jede art von selbstzerstoerern.
+
+	* simul_efun.c: destruct verschoenert
+
+1998-01-20  Rumata  <Rumata@mg>
+
+	* simul_efun.c: Made exec more secure.
+	Wrapped process_string into a catch to handle eval cost too high
+	properly.
+
+1998-01-19  Rumata  <Rumata@mg>
+
+	* simul_efun.c: exec etwas sicherer gemacht.
+
+1998-01-15  Rumata  <Rumata@mg>
+
+	* simul_efun.c: IS_* durch *_SECURITY ersetzt
+	secure_level() als efun eingebaut (nomask!)
+
+1998-01-13  Rikus  <Rikus@mg>
+
+	* explorationmaster.c:
+	Bug in ShowEPObjects() entfernt, der dazu fuehrte, dass immer alle
+	FPs einer Region bei einer Anfrage nach denen eines einyelnen
+	Mitrarbeiters kamen
+
+1998-01-09  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: cleanup
+
+1998-01-08  Rumata  <Rumata@mg>
+
+	* simul_efun.c: process_string sicherer gemacht
+
+1998-01-08  Wargon  <Wargon@mg>
+
+	* explorationmaster.c (QueryExplore):
+	leicht geaendertes Verhalten fuer GiveEP()
+
+	* exploration.h: Prototype fuer GiveEP()
+
+1998-01-07  Rumata  <Rumata@mg>
+
+	* wizlevels.h: Fontend fuer Padreics Sicherheitsloch.
+
+1997-12-25  Highlander  <Highlander@mg>
+
+	* master/misc.c: ???
+	,
+
+1997-12-22  Silvana  <Silvana@mg>
+
+	* exploration.h: EP_SMELL, SEP_SOUND (Ich hasse deiesen Editor)!!!
+
+1997-11-26  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: Sicherheitsfix
+
+1997-10-28  Hate  <Hate@mg>
+
+	* simul_efun.c: check for valid living name
+
+1997-10-27  Jof  <Jof@mg>
+
+	* master.c: x
+
+1997-09-26  Highlander  <Highlander@mg>
+
+	* master.h: Prototypes deputy support
+
+1997-09-26  Hate  <Hate@mg>
+
+	* master.h: Nicht mehr bekannte Aenderugnng :>
+
+1997-08-29  Yantro  <Yantro@mg>
+
+	* explorationmaster.c:
+	ShowEPObjects() wieder fuer RMs zugelassen und log eingebaut.
+
+1997-07-23  Hate  <Hate@mg>
+
+	* master/misc.c: flag for external call changed.
+
+1997-07-22  Hate  <Hate@mg>
+
+	* master/misc.c: added external flag for ls
+
+1997-07-21  Hate  <Hate@mg>
+
+	* master/misc.c: changed show_dir() to point to /std/shells/filesys
+
+1997-07-02  Boing  <Boing@mg>
+
+	* potionmaster.c:
+	Neue Funktion 'GetListByNumber(int nr)'. Gibt zu einer Zaubertranknummer
+	die zugehoerige Liste aus.
+
+1997-06-29  Hate  <Hate@mg>
+
+	* master/network.c: added debug output.
+
+	* master/misc.c: dir format for ftp is more compatible
+
+1997-06-16  Wargon  <Wargon@mg>
+
+	* scoremaster.c: Etwas aufgeraeumt
+
+1997-06-10  Wargon  <Wargon@mg>
+
+	* config.h: NETDEAD_CHECK_TIME verkuerzt
+
+	* simul_efun.c: *** empty log message ***
+
+1997-05-16  Wargon  <Wargon@mg>
+
+	* master/misc.c (show_dir): valid_read() eingebaut.
+
+1997-04-22  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: DOMAIN_INFOs wieder raus...
+
+1997-04-15  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: getMatch(): EP_TYPES vergessen...
+	GiveExplorationPoint(): catch() fuer gehackte Savefiles
+
+1997-04-01  Boing  <Boing@mg>
+
+	* questmaster.c:
+	Reitermeldung bei Questloeusngsmail entfernt, das macht der mailer jetzt
+	selbst.
+
+1997-03-07  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: Info-Array durch EP_TYPES ersetzt.
+
+	* exploration.h: Neue FP-Typen definiert:
+	- EP_RDET fuer ReadDetails (waren vorher bei Details mit drin)
+	- EP_PUB  fuer Getraenke/Speisen in Kneipen (vorher per EP_MISC)
+	EP_TYPES fuer die Infos definiert
+
+	* scoremaster.h: Update auf Revision 3.0
+
+	* scoremaster.h: New file.
+
+1997-03-04  Rochus  <Rochus@mg>
+
+	* scoremaster.c: Testfunktion auch fuer Strings
+
+	* scoremaster.c: New file.
+
+1997-02-05  Jof  <Jof@mg>
+
+	* master.c: Header aufgeraeumt
+
+1997-02-05  Wargon  <Wargon@mg>
+
+	* master/domain.c, master/misc.c, master/network.c, master/userinfo.c, simul_efun.c:
+	Header aufgeraeumt
+
+1997-02-05  Kirk  <Kirk@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1997-02-05  Hate  <Hate@mg>
+
+	* questmaster.c: Header aufgeraeumt
+
+1997-02-05  Wargon  <Wargon@mg>
+
+	* questmaster.h, guestmaster.c, exploration.h, explorationmaster.c:
+	Header aufgeraeumt
+
+1996-12-10  Wargon  <Wargon@mg>
+
+	* master/userinfo.c:
+	delete_player(): Seher und Magier werden automatisch gebanisht.
+
+	* master/misc.c:
+	BanishName() fuer das autobanishen von Sehern/Magiern angepasst.
+
+1996-11-25  Rochus  <Rochus@mg>
+
+	* master/misc.c:
+	__query_variable ab ARCH, damit es keinen zweiten derartigen Vorfall gibt.
+
+1996-09-18  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1996-09-18  Wargon  <Wargon@mg>
+
+	* npcmaster.c, explorationmaster.c:
+	Globale Variablen private gemacht...
+
+1996-09-11  Kirk  <Kirk@mg>
+
+	* login.c: Typo bei fehlgeschlagenen Loginversuchen gefixed
+
+1996-09-02  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: FPs lassen sich auch in VCs vergeben.
+
+1996-06-26  Highlander  <Highlander@mg>
+
+	* login.c: Bugfix fuer invis login (P_INVIS->P_AGE statt 1)
+
+1996-06-12  Wargon  <Wargon@mg>
+
+	* login.c: Unsichtbar einloggen fuer EMs
+
+1996-06-03  Highlander  <Highlander@mg>
+
+	* login.c:
+	Bugfix fuer login after linkdead, wenn email oder so fgrade eingegeben
+	wurde. Courtesy of Mupfel.
+
+1996-05-23  Wargon  <Wargon@mg>
+
+	* potionmaster.c:
+	Die Liste wird in /secure/ARCH anstatt in /etc gespeichert.
+
+1996-05-21  Jof  <Jof@mg>
+
+	* merlin.c: FP fuer Magier-/Seherwerdung etwas genauer...
+
+1996-05-16  Hate  <Hate@mg>
+
+	* master.h: new channel system (changes)
+
+1996-05-13  Jof  <Jof@mg>
+
+	* login.c: *** empty log message ***
+
+1996-05-07  Jof  <Jof@mg>
+
+	* simul_efun.c: Don't know what Jof did!
+
+1996-05-06  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1996-04-28  Jof  <Jof@mg>
+
+	* master/userinfo.c: Removed unneccessary if
+
+1996-04-28  Wargon  <Wargon@mg>
+
+	* master/userinfo.c: *** empty log message ***
+
+1996-04-10  Jof  <Jof@mg>
+
+	* npcmaster.c:
+	Dump-Funktion eingebaut, damit man auch was zu lesen hat :)
+	,
+
+1996-04-10  Wargon  <Wargon@mg>
+
+	* npcmaster.c: QueryNPC(): int * -> mixed
+
+1996-04-04  Wargon  <Wargon@mg>
+
+	* npcmaster.c:
+	QueryNPCbyNumber() gibt jetzt wirklich Nummer und Score zurueck...
+
+1996-03-23  Jof  <Jof@mg>
+
+	* config.h: IP geaendert
+
+1996-03-15  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: Regionsmagier konnten zu viele FP sehen...
+
+1996-03-06  Jof  <Jof@mg>
+
+	* npcmaster.c: QueryNPCbyNumber eingebaut, Typos gefixed
+
+	* npcmaster.c, npcmaster.h: New file.
+
+1996-03-06  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: QueryExplorationPoints() benutzt count_bits()
+
+1996-03-01  Wargon  <Wargon@mg>
+
+	* explorationmaster.c:
+	Die Abfrage auf this_interactive() hatte in QueryExplore()
+	nichts verloren...
+
+1996-02-13  Wargon  <Wargon@mg>
+
+	* explorationmaster.c:
+	Tolle Idee, die Statistik von clean_up() aus zu generiereren...
+	Jetzt wirds von reset() aus gemacht.
+
+1996-02-02  Wargon  <Wargon@mg>
+
+	* explorationmaster.c:
+	Es wird noch die Existenz des Statistikgenerators geprueft.
+
+1996-02-01  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: clean_up() startet die Statistik.
+
+	* exploration.h: SAVEFILE -> EPSAVEFILE
+	#defines fuer die Statistik rein.
+
+1996-01-05  Jof  <Jof@mg>
+
+	* merlin.c: QGROUP_3 auch hier entfernt
+
+1996-01-02  Boing  <Boing@mg>
+
+	* questmaster.c: 3 -> sizeof(QGROUPS) in QueryReadyForWiz()
+
+1996-01-01  Jof  <Jof@mg>
+
+	* questmaster.c, questmaster.h:
+	Vierte questgruppe entfernt, einige Schoenheitskorrekturen.
+
+1995-12-21  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: Set/QueryAverage() fuer die Statistik
+
+	* exploration.h: RCS-Header rein, MIN_EP fuer die Statistik
+
+1995-12-12  Jof  <Jof@mg>
+
+	* login.c: *** empty log message ***
+
+1995-12-07  Jof  <Jof@mg>
+
+	* login.c: Minor fix at remoteip
+
+1995-11-29  Wargon  <Wargon@mg>
+
+	* master/misc.c: && statt || im TBanishName()...
+
+	* master/misc.c:
+	TBanishName() kann auch vom Betroffenen selbst benutzt werden.
+
+1995-11-22  Jof  <Jof@mg>
+
+	* master/domain.c, master/misc.c, master/network.c, potionmaster.c, questmaster.c, questmaster.h, room_locator.c, simul_efun.c, skillmaster.c, udp_mail.c, wizlevels.h, combat.c, config.h, exploration.h, explorationmaster.c, guestmaster.c, inetd.c, login.c, master.c, master.h, merlin.c, news.c:
+	Updated to rev 3.0
+
+1995-11-16  Wargon  <Wargon@mg>
+
+	* merlin.c:
+	Merlin kennt Gilden und seine Rufen triggert nicht mehr bei jedem Mist. ;)
+
+	* explorationmaster.c: DOMAIN_INFO enabled
+
+	* master/misc.c: Zeitweises sperren von Spielern eingebaut.
+
+	* login.c: Behandlung zeitweise gesperrter Spieler eingebaut.
+
+1995-10-06  Wargon  <Wargon@mg>
+
+	* exploration.h: Diverse #defines
+
+	* explorationmaster.c: New file.
+
+1995-10-05  Jof  <Jof@mg>
+
+	* login.c: creation_date tut jetzt
+
+1995-09-27  Jof  <Jof@mg>
+
+	* login.c: *** empty log message ***
+
+1995-09-21  Catweazle  <Catweazle@mg>
+
+	* merlin.c: little bugfixing
+
+1995-09-20  Jof  <Jof@mg>
+
+	* master.c: *** empty log message ***
+
+1995-09-20  Catweazle  <Catweazle@mg>
+
+	* merlin.c: Merlin postet jetzt realnames in der zeitung
+
+1995-09-20  Rochus  <Rochus@mg>
+
+	* exploration.h: New file.
+
+1995-09-19  Kirk  <Kirk@mg>
+
+	* simul_efun.c:
+	The object that causes call_out overflow will be destructed.
+
+	* simul_efun.c: *** empty log message ***
+
+1995-09-19  Catweazle  <Catweazle@mg>
+
+	* merlin.c: Zweities koennen nicht mehr Magier werden
+
+1995-09-19  Jof  <Jof@mg>
+
+	* merlin.c: *** empty log message ***
+
+1995-08-28  Jof  <Jof@mg>
+
+	* login.c: quit on no passwd
+
+1995-08-23  Kirk  <Kirk@mg>
+
+	* login.c: ???
+
+1995-08-14  Boing  <Boing@mg>
+
+	* questmaster.c:
+	Der Questmaster verschickt beim Loesen einer Quest jetzt eine mail.
+
+1995-06-26  Jof  <Jof@mg>
+
+	* master.c: mofify_command ...
+
+1995-06-16  MorgenGrauen (admin)  <mud@mg>
+
+	* questmaster.c:
+	new computation in QueryDontneed() takes player's P_NEEDED_QP into account
+
+1995-06-06  Jof  <Jof@mg>
+
+	* simul_efun.c: _notify_fail
+
+	* simul_efun.c: *** empty log message ***
+
+1995-05-31  Catweazle  <Catweazle@mg>
+
+	* merlin.c: Spieler mit PK koennen nicht mehr Magier werden
+
+1995-05-30  Kirk  <Kirk@mg>
+
+	* login.c:
+	added loginname() to prevent parallel login with the same name
+
+1995-05-29  Jof  <Jof@mg>
+
+	* simul_efun.c: country ueberarbeitet
+
+1995-05-23  Kirk  <Kirk@mg>
+
+	* simul_efun.c: swap() overloaded
+
+1995-05-22  Kirk  <Kirk@mg>
+
+	* merlin.c: Using QueryDontneed()
+
+	* questmaster.c: 1196 -> QP_MIN (defined in questmaster.h)
+
+	* questmaster.h: Added QP_MIN == 1196
+
+	* questmaster.c:
+	Added QueryDontneed() for dynamic calculation of not needed quests
+
+	* questmaster.h: QDONTNEED removed
+
+1995-05-19  Jof  <Jof@mg>
+
+	* guestmaster.c: New file.
+
+	* simul_efun.c: ip-Maps expandet
+
+	* master/network.c: *** empty log message ***
+
+1995-05-17  Kirk  <Kirk@mg>
+
+	* questmaster.c: little protection in Channel()
+
+1995-05-15  Jof  <Jof@mg>
+
+	* simul_efun.c: made shutdown more secure
+
+	* simul_efun.c: speed up break_string
+
+	* simul_efun.c: *** empty log message ***
+
+	* master/userinfo.c: Fixed some problems in passwd-change
+
+1995-05-08  Jof  <Jof@mg>
+
+	* master.c: *** empty log message ***
+
+1995-05-05  Jof  <Jof@mg>
+
+	* master.c: *** empty log message ***
+
+1995-04-21  Jof  <Jof@mg>
+
+	* simul_efun.c: Slow don cleaning
+
+1995-04-21  Rochus  <Rochus@mg>
+
+	* simul_efun.c: P_CONTENT_CHANGE eingebaut
+
+1995-04-21  Jof  <Jof@mg>
+
+	* master.c: Debugging mail
+
+1995-04-20  Rumata  <Rumata@mg>
+
+	* merlin.c: kleine bug in 'wandern' behoben.
+
+1995-04-19  Kirk  <Kirk@mg>
+
+	* questmaster.h: QDONTNEED changed
+
+1995-04-18  Kirk  <Kirk@mg>
+
+	* news.c: added dump_group()
+
+1995-04-13  Jof  <Jof@mg>
+
+	* login.c: check if passwd==name
+
+1995-04-12  Jof  <Jof@mg>
+
+	* merlin.c: Removed Logging of questions ...
+
+1995-04-10  Jof  <Jof@mg>
+
+	* master.c: removed some 'catch'es from runtime_error
+
+	* master.h: No more messages to MGZ
+
+1995-04-06  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1995-03-31  Jof  <Jof@mg>
+
+	* config.h: onm103 -> mg
+
+1995-03-30  Kirk  <Kirk@mg>
+
+	* login.c, questmaster.h: *** empty log message ***
+
+1995-03-30  Jof  <Jof@mg>
+
+	* inetd.c: santana -> mg
+
+	* master.c: Bugfixed.
+
+	* simul_efun.c: Locations ...
+
+1995-03-27  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1995-03-23  Jof  <Jof@mg>
+
+	* config.h: changed santana to onm103
+
+1995-03-20  Kirk  <Kirk@mg>
+
+	* questmaster.c: ignore optional quests in QueryReadyForWiz()
+
+1995-03-06  Jof  <Jof@mg>
+
+	* merlin.c: = ??? =
+
+	* master.c: ???
+
+	* simul_efun.c: query_ip_number
+
+	* master/userinfo.c: Bugfixing
+
+	* master/misc.c: IP-Names bei renew_player_object uebernehmen
+
+1995-03-02  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1995-02-28  Jof  <Jof@mg>
+
+	* master/network.c: IPNAME-Fixes
+
+	* config.h: UDPSERV-Stuff
+
+	* room_locator.c: New file.
+
+	* simul_efun.c: minor bugfixes
+
+	* news.c: Oehm
+
+	* master.c: Timeouts for IPNAME-Cache
+
+1995-02-20  Jof  <Jof@mg>
+
+	* simul_efun.c: No logging of clean_sim any more
+
+	* master.c: Bugs removed
+
+	* master/userinfo.c:
+	Fixed Bug which prevented Cache from being used in many cases
+
+	* master/network.c: NaseFTPD-Changes
+
+1995-02-16  Jof  <Jof@mg>
+
+	* master/network.c: fix for long mails
+
+1995-02-15  Jof  <Jof@mg>
+
+	* merlin.c: PostMagier repariert
+
+1995-02-08  Jof  <Jof@mg>
+
+	* news.c: *** empty log message ***
+
+1995-02-06  Jof  <Jof@mg>
+
+	* master.c: naseftpsupport -> network.c
+
+	* master/network.c: Naseftp-Support aus master.c, Ftp-Support weg
+
+1995-02-01  Jof  <Jof@mg>
+
+	* news.c: Changes for HTTP
+
+	* news.c: *** empty log message ***
+
+	* master/userinfo.c: check for : in find_userinfo
+
+1995-01-23  Jof  <Jof@mg>
+
+	* merlin.c:
+	Postings fuer Statusaenderungen (Spieler -> Seher, Seher -> Magier)
+
+1995-01-17  Jof  <Jof@mg>
+
+	* master/misc.c: *** empty log message ***
+
+1995-01-16  Jof  <Jof@mg>
+
+	* merlin.c: *** empty log message ***
+
+1995-01-10  Jof  <Jof@mg>
+
+	* merlin.c: notify_player_change-Bug
+
+1995-01-09  Kirk  <Kirk@mg>
+
+	* merlin.c: *** empty log message ***
+
+1995-01-04  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1995-01-03  Jof  <Jof@mg>
+
+	* simul_efun.c: destruct ...
+
+	* merlin.c: *** empty log message ***
+
+1995-01-03  Kirk  <Kirk@mg>
+
+	* merlin.c: *** empty log message ***
+
+	* master.c: /secure/save_inactive now read-protected
+
+1994-12-29  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1994-12-23  Highlander  <Highlander@mg>
+
+	* login.c: Erinnerung an PK-Verbot fuer neue logins
+
+1994-12-23  Jof  <Jof@mg>
+
+	* master.h, config.h, inetd.c, master.c, simul_efun.c, master/misc.c, master/network.c:
+	*** empty log message ***
+
+	* login.c: regexp for banish
+
+1994-12-17  Kirk  <Kirk@mg>
+
+	* questmaster.h: *** empty log message ***
+
+1994-12-08  Jof  <Jof@mg>
+
+	* master/misc.c: Dont give object names to players when renewing
+
+1994-12-01  Jof  <Jof@mg>
+
+	* merlin.c: done
+
+1994-11-30  Jof  <Jof@mg>
+
+	* login.c: *** empty log message ***
+
+1994-11-30  Kirk  <Kirk@mg>
+
+	* master/userinfo.c: secure-savefile expiring
+
+	* merlin.c: *** empty log message ***
+
+1994-11-30  Jof  <Jof@mg>
+
+	* master.c, master/domain.c, master/misc.c, master/network.c, master/userinfo.c:
+	*** empty log message ***
+
+1994-11-24  Jof  <Jof@mg>
+
+	* simul_efun.c: einchecken, 'bug' in destruct behoben ;-) (Rumata)
+
+1994-11-21  Kirk  <Kirk@mg>
+
+	* questmaster.c: using P_NEEDED_QP
+
+1994-11-14  Jof  <Jof@mg>
+
+	* master.c: *** empty log message ***
+
+	* config.h: /
+
+	* master.c: *** empty log message ***
+
+1994-11-08  Jof  <Jof@mg>
+
+	* login.c: *** empty log message ***
+
+1994-11-07  Jof  <Jof@mg>
+
+	* simul_efun.c, master.c: *** empty log message ***
+
+1994-11-04  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1994-11-03  Jof  <Jof@mg>
+
+	* inetd.c: Updated to intermud 0.7 beta
+
+1994-10-26  Kirk  <Kirk@mg>
+
+	* merlin.c: /room/gilde -> /gilden/abenteurer
+
+1994-10-24  Kirk  <Kirk@mg>
+
+	* master.c: added remove()
+
+1994-10-24  Jof  <Jof@mg>
+
+	* master.c: *** empty log message ***
+
+1994-10-07  Jof  <Jof@mg>
+
+	* master.c, master/userinfo.c: *** empty log message ***
+
+1994-10-07  Kirk  <Kirk@mg>
+
+	* merlin.c: using XP_NEEDED_FOR_WIZ
+
+	* questmaster.h: added new #define XP_NEEDED_FOR_WIZ
+
+1994-10-07  Jof  <Jof@mg>
+
+	* master.h: functionlist inherited
+
+1994-09-26  Kirk  <Kirk@mg>
+
+	* master/domain.c, master/network.c, master/userinfo.c:
+	fixed userinfo indices
+
+	* questmaster.h, master.h: *** empty log message ***
+
+1994-09-24  Kirk  <Kirk@mg>
+
+	* master/misc.c: index bug in advance_wizlevel()
+
+	* master/userinfo.c, master.h: removed static from get_full_userinfo()
+
+1994-09-23  Jof  <Jof@mg>
+
+	* master/domain.c, master/misc.c, master/network.c, master/userinfo.c, master.h, master.c:
+	New file.
+
+1994-09-16  Jof  <Jof@mg>
+
+	* questmaster.c: *** empty log message ***
+
+1994-09-12  Jof  <Jof@mg>
+
+	* simul_efun.c, login.c, config.h: *** empty log message ***
+
+	* simul_efun.c: ueberarbeitung
+
+	* wizlevels.h, news.c, simul_efun.c: *** empty log message ***
+
+	* userinfo.c: New file.
+
+1994-09-09  Jof  <Jof@mg>
+
+	* simul_efun.c: @41- patches
+
+1994-09-06  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1994-08-25  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1994-08-23  Kirk  <Kirk@mg>
+
+	* questmaster.c: ignore deactivated quests in QueryReadyForWiz()
+
+1994-08-12  Jof  <Jof@mg>
+
+	* merlin.c: log
+
+1994-08-11  Jof  <Jof@mg>
+
+	* merlin.c: *** empty log message ***
+
+1994-08-10  Jof  <Jof@mg>
+
+	* merlin.c, news.c, simul_efun.c: *** empty log message ***
+
+1994-08-09  Jof  <Jof@mg>
+
+	* potionmaster.c: *** empty log message ***
+
+1994-08-05  Jof  <Jof@mg>
+
+	* login.c: *** empty log message ***
+
+1994-08-05  Hate  <Hate@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1994-07-22  Jof  <Jof@mg>
+
+	* merlin.c: *** empty log message ***
+
+1994-07-20  Kirk  <Kirk@mg>
+
+	* questmaster.c: fixed max_QP bug in AddQuest
+
+1994-07-16  Hate  <Hate@mg>
+
+	* simul_efun.c: bugfix in write()
+
+1994-07-15  Hate  <Hate@mg>
+
+	* simul_efun.c: added printf() as simul_efun
+
+	* simul_efun.c:
+	added special message handling functions tell_object, say, write
+
+1994-07-12  Kirk  <Kirk@mg>
+
+	* merlin.c:
+	Merlin no longer informs players about invis wiz leaving the game
+
+1994-06-29  Jof  <Jof@mg>
+
+	* login.c, merlin.c, news.c, simul_efun.c, wizlevels.h:
+	*** empty log message ***
+
+	* udp_mail.c: New file.
+
+1994-06-29  Rumata  <Rumata@mg>
+
+	* questmaster.h: added QGROUPS
+
+1994-06-27  Jof  <Jof@mg>
+
+	* news.c: *** empty log message ***
+
+1994-06-22  Jof  <Jof@mg>
+
+	* login.c: *** empty log message ***
+
+1994-06-22  Hate  <Hate@mg>
+
+	* login.c: bugfix: magier.c was accepted as race!!!
+
+1994-06-20  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1994-06-17  Jof  <Jof@mg>
+
+	* merlin.c, simul_efun.c: *** empty log message ***
+
+1994-06-15  Kirk  <Kirk@mg>
+
+	* merlin.c: clean up inventory on reset
+
+1994-06-14  Kirk  <Kirk@mg>
+
+	* merlin.c: bugfix
+
+	* merlin.c: added questgroup information
+
+	* questmaster.c: added questgroup handling in QueryReadyForWiz
+
+	* questmaster.h: added defines for questgroups
+
+1994-06-11  Kirk  <Kirk@mg>
+
+	* questmaster.c: Fixed bug in activate/deactivate logging
+
+1994-05-31  Jof  <Jof@mg>
+
+	* config.h: *** empty log message ***
+
+1994-05-16  Kirk  <Kirk@mg>
+
+	* questmaster.h: changed location of logfile to /log
+
+	* questmaster.c: fixed bug in SetActive()
+
+1994-05-11  Jof  <Jof@mg>
+
+	* news.c: expire changed
+
+1994-05-04  Jof  <Jof@mg>
+
+	* inetd.c, simul_efun.c: ???
+
+1994-05-04  Kirk  <Kirk@mg>
+
+	* questmaster.c: ???
+
+1994-05-04  Rumata  <Rumata@mg>
+
+	* merlin.c: ???
+
+1994-05-03  Jof  <Jof@mg>
+
+	* config.h: PROJECTDIR defined
+
+1994-05-02  Jof  <Jof@mg>
+
+	* login.c: TIMEOUT wieder raus
+
+1994-04-28  Jof  <Jof@mg>
+
+	* login.c: Minor security-fixes
+
+1994-04-20  Jof  <Jof@mg>
+
+	* inetd.c: *** empty log message ***
+
+1994-04-19  Kirk  <Kirk@mg>
+
+	* questmaster.c: storage of questlist changed from alist to mapping
+	QueryAllQuests() migrated into QueryAllKeys()
+
+1994-04-10  Kirk  <Kirk@mg>
+
+	* potionmaster.c: removed superfluous error-message
+
+1994-04-06  Kirk  <Kirk@mg>
+
+	* questmaster.c: replaced QueryQP() by QueryProp(P_QP)
+
+1994-03-28  Jof  <Jof@mg>
+
+	* inetd.c: *** empty log message ***
+
+	* BANISH: New file.
+
+	* simul_efun.c: query_closure_object()
+
+1994-03-18  Jof  <Jof@mg>
+
+	* wahlmaschine.c: *** empty log message ***
+
+	* inetd.c, simul_efun.c: ELDER_LVL
+
+	* config.h, wizlevels.h: New file.
+
+1994-03-12  Jof  <Jof@mg>
+
+	* simul_efun.c: Added Call-Out-Stopper
+
+1994-03-08  Jof  <Jof@mg>
+
+	* login.c: *** empty log message ***
+
+1994-03-04  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1994-03-03  Jof  <Jof@mg>
+
+	* news.c: Changed cleanup-Time
+
+1994-03-01  Kirk  <Kirk@mg>
+
+	* questmaster.c, questmaster.h: added logging
+
+1994-02-28  Kirk  <Kirk@mg>
+
+	* questmaster.h, questmaster.c: New file.
+
+1994-02-23  Jof  <Jof@mg>
+
+	* wahlmaschine.c: Erst ab Level 10 ...
+
+	* wahlmaschine.c: Wahl erst ab Level 5
+
+1994-02-21  Jof  <Jof@mg>
+
+	* simul_efun.c: removed P_NAME again from match_living()
+
+1994-02-17  Jof  <Jof@mg>
+
+	* simul_efun.c: fix in snoop
+
+	* simul_efun.c: wiz_list et al
+
+1994-02-15  Jof  <Jof@mg>
+
+	* simul_efun.c: TI in snoop replaced by PO
+
+1994-02-11  Jof  <Jof@mg>
+
+	* login.c: Keine Grossbuchstaben mehr im loginnamen. (Rumata)
+
+1994-02-08  Rumata  <Rumata@mg>
+
+	* simul_efun.c: Handling von P_NAME erweitert.
+
+1994-02-08  Hate  <Hate@mg>
+
+	* simul_efun.c:
+	changed general #include "/sys/properties.h" to the special #include's
+	needed for the master object (this is due to the absolute path needed here)
+	now, the properties.h file doensn't contain any absolute path's anymore
+
+1994-02-03  Jof  <Jof@mg>
+
+	* simul_efun.c: Added COTTBUS to subnetlist
+
+	* login.c, merlin.c: *** empty log message ***
+
+	* combat.c, inetd.c, login.c, merlin.c, news.c, potionmaster.c, sendtest.c, shutdown.c, simul_efun.c, skillmaster.c, spare_simul_efun.c, updater.c, wahlmaschine.c:
+	New file.
+
+1999-06-12  Rikus  <Rikus@mg>
+
+	* inetd.c:
+	bei nicht eindeutigem Mudnamen kommt nun eine Liste der passenden
+
+1999-06-08  Rochus  <Rochus@mg>
+
+	* master.c: Projektmitarbeiter konnten in ihrem Verzeichnis
+	nicht lesesn wenn sie keine EMs waren...
+
+1999-06-08  Padreic  <Padreic@mg>
+
+	* master.c: kleine ueberarbeitungen von valid_read()
+
+1999-05-30  Padreic  <Padreic@mg>
+
+	* master.h: show_dir ist aus sicherheitsgruenden inzwischen static.
+
+	* master/userinfo.c:
+	kurzzeitig logfile eingebaut, um Patryn zu ueberfuehren.
+
+	* master/misc.c: show_dir() aus Sicherheitsgruenden static gemacht.
+
+	* master.c: valid_read() und valid_write() ueberarbeitet.
+
+1999-05-29  Rikus  <Rikus@mg>
+
+	* scoremaster.h: Dumpfile in SCORES.dump umbenannt
+
+	* exploration.h:
+	einige defines aus dem *.c uebernommen und dumpfile in eprooms.dump umbenannt
+
+	* explorationmaster.c: einige defines ins headerfile verlagert
+
+	* potionmaster.c: Dumpfile in TRAENKE.dump umbenannt
+
+	* explorationmaster.c: Loggen von _zu schnell_ gefundenen FPs
+
+1999-05-27  Hate  <Hate@mg>
+
+	* master.c: Location corrected.
+
+1999-05-27  Padreic  <Padreic@mg>
+
+	* awmaster.c:
+	Security-hole geschlossen durch entfernen eines zauberer-includes
+
+1999-05-25  Padreic  <Padreic@mg>
+
+	* simul_efun.c:
+	in secure_euid() noch ein getuid() durch ein geteuid() ausgetauscht
+
+	* simul_efun.c: neu simul_efun secure_euid()
+
+	* master/domain.c: Neue sicherheitsabfrage in add_domain_master().
+
+1999-05-21  Highlander  <Highlander@mg>
+
+	* master/network.c: Wer weiss, was HL damals dran aenderte... (Rikus)
+
+1999-05-15  MorgenGrauen (admin)  <mud@mg>
+
+	* master.c: HTTP location changed to www.mg.mud.de
+
+1999-05-05  Marcus  <Marcus@mg>
+
+	* config.h: mudhost/ftpid/udpserv ip auf MUDHOST geaendert.
+
+1999-05-04  Rumata  <Rumata@mg>
+
+	* questmaster.c: QueryQuest* liefern jetzt kopien.
+
+	* simul_efun.c: +deepcopy_array
+
+1999-04-18  Padreic  <Padreic@mg>
+
+	* login.c: new_logon gedebuggt...
+
+1999-04-14  Paracelsus  <Paracelsus@mg>
+
+	* master/misc.c: Bugfix an TBanishName()
+
+1999-04-12  Padreic  <Padreic@mg>
+
+	* simul_efun.c:
+	neue simul_efun object_info, ausserdem kleine korrektur an
+	debug_info(2, ..)
+
+	* merlin.c: noch ein break_string und ich klein
+
+	* merlin.c: Er kennt nun auch Fernwest, ausserdem spricht er einen nun
+	persoenlich mit Namen an bei Nachfragen :).
+
+1999-04-08  Hate  <Hate@mg>
+
+	* master/misc.c:
+	QueryBanished changed to QueryTBanished for TBanishName()
+
+1999-04-07  Rumata  <Rumata@mg>
+
+	* master.c: sys ist nicht mehr von innheralb des muds zu schreiben
+
+	* master.c: ... unbekannte aenderungen ...
+	uid vergabe von objekten, die root waren sicherer gemacht
+	room ist fuer laerner lesbar
+	**
+
+1999-04-06  Padreic  <Padreic@mg>
+
+	* simul_efun.c:
+	deep_present(ob, ob) laeuft nicht mehr ueber deep_inventory()
+	sondern mit: while (ob2=environment(ob2)) if (ob2==ob) return what;
+
+1999-03-30  Paracelsus  <Paracelsus@mg>
+
+	* merlin.c: Funktion Name() analog zu /std/thing/description.c
+
+1999-03-25  Paracelsus  <Paracelsus@mg>
+
+	* simul_efun.c: Bugfix in stretch() (Woody)
+
+1999-03-24  Paracelsus  <Paracelsus@mg>
+
+	* master/misc.c: Aenderung in renew_player_object()
+
+	* login.c: Umstellung von telnetnegs.c auf mini_telnetnegs.c
+
+	* mini_telnetneg.c: New file.
+
+1999-03-23  Rochus  <Rochus@mg>
+
+	* master/domain.c:
+	ARCH_SECURITY durch 0 ersetzt, damit das mud wenigstens rebootet
+	(welcher depp benutzt im master eine simul_efun??????????)
+
+1999-03-21  Rikus  <Rikus@mg>
+
+	* scoremaster.c: gleiches auch noch fuer AddMiniQuests()
+
+	* scoremaster.c:
+	Neueintraege belegen nun zuerst die Bits, welche in free_num vorgegeben sind
+
+1999-03-16  Rikus  <Rikus@mg>
+
+	* master/misc.c:
+	hm, ich vergass es am 11.12. einzuchecken, fragt mich nicht mehr danach :)
+
+	* master/domain.c:
+	Rueckgabe der Regionszugehoerigkeit nur fuer Magier>=Domainmemberlevel
+
+1999-03-05  Paracelsus  <Paracelsus@mg>
+
+	* simul_efun.c:
+	Optimierung an break_string() und input_to() (Ringor, Woody)
+
+1999-03-05  Rikus  <Rikus@mg>
+
+	* merlin.c:
+	bei Magierwerdung dem Finger mitteilen, dass er Sponsorliste aendern muss
+
+1999-03-03  Rikus  <Rikus@mg>
+
+	* scoremaster.c:
+	kein automatisches Eintragen von NPCS aus /polayers mehr
+
+1999-02-28  Paracelsus  <Paracelsus@mg>
+
+	* login.c: SendTelopts() bereits direkt beim Login
+
+1999-02-22  Rikus  <Rikus@mg>
+
+	* explorationmaster.c:
+	nomask GiveExplorationPointObject(string key, object ob)
+	eingebaut
+
+1999-02-18  Paracelsus  <Paracelsus@mg>
+
+	* master.c: valid_read() : Zugriff auf /open
+
+1999-02-18  Rikus  <Rikus@mg>
+
+	* simul_efun.c:
+	in move_object() Test nach dem move auf vorhandenes Object vor der Weiterbehandlung
+
+1999-02-11  Paracelsus  <Paracelsus@mg>
+
+	* awmaster.c:
+	Zusaetzliches Flag fuer Ruestungen die Resistenzen setzen.
+
+1999-02-10  Padreic  <Padreic@mg>
+
+	* news.c:
+	einige process_call() abfragen eingefuegt insbesondere in dump_group()
+
+1999-02-09  Rochus  <Rochus@mg>
+
+	* master.c: Argumente in runtime_error pruefen.
+
+1999-02-09  Catweazle  <Catweazle@mg>
+
+	* master.c: Den richtigen telnet-DriverHook eingetragen
+
+1999-02-08  Rikus  <Rikus@mg>
+
+	* merlin.c: notify_player_change() stark vereinfach und optimiert
+
+1999-02-08  Marcus  <Marcus@mg>
+
+	* login.c:
+	natuerlich sollten man das telnet_neg() wehnehmen, damit das von filesys/telnetneg.c verwendet werde  kann
+
+1999-02-06  Paracelsus  <Paracelsus@mg>
+
+	* simul_efun.c: input_to() als simul_efun, fuer Prompt-Erkennung
+
+	* login.c: telnetneg.c wird inherited
+	einige Login-Sperren entfernt
+
+1999-02-04  Padreic  <Padreic@mg>
+
+	* login.c:
+	seperates loggen von missglueckten einloggversuchen von erzmagiern
+
+	* news.c:
+	Wenn schon kein static bei GetGroup dann wenigstens ARCH_SECURITY :)
+
+1999-02-03  Rikus  <Rikus@mg>
+
+	* news.c:
+	static bei GetGroup(string name) entfernt (newstool funzte nicht mehr)
+
+	* login.c: hatte 1 Debugausgabe vegessen auszubauen
+
+	* simul_efun.c: ind_saved_player() -> __create_player_dummy()
+
+1999-02-02  Rikus  <Rikus@mg>
+
+	* scoremaster.h: P_NO_SCORE eingefuegt (keine Vergabe von Killstupsen)
+
+1999-02-01  Rikus  <Rikus@mg>
+
+	* news.c: 2 Bugs entfernt (= statt == und einen Wortdreher)
+
+1999-01-30  Rikus  <Rikus@mg>
+
+	* scoremaster.c: Bits von Netztoten werden nun auch umgesetzt
+
+	* login.c: Rueckgabe des Playerobjects statt 1 bei Erfolg
+
+	* simul_efun.c: find_saved_player() setzt nun auch netdead
+
+1999-01-29  Rikus  <Rikus@mg>
+
+	* login.c:
+	komplett erweitert, um Spieler, die offline sind, mit der efun find_saved_player(string name) einzuladen
+
+	* simul_efun.c:
+	find_saved_player(string name) eingebaut, damit kann man Spieler reinladen, die offline sind
+
+1999-01-29  Paracelsus  <Paracelsus@mg>
+
+	* spare_simul_efun.c: an simul_efun.c angepasst
+
+	* simul_efun.c: break_string ueberarbeitet (Ringor)
+
+1999-01-28  Padreic  <Padreic@mg>
+
+	* news.c: static in GetGroup eingefuegt.
+
+1998-12-10  Rikus  <Rikus@mg>
+
+	* room_locator.c: ARCH-SECURITY eingebaut
+
+1998-12-06  Rikus  <Rikus@mg>
+
+	* scoremaster.c: Query_to_change erweitert
+
+1998-12-05  Rikus  <Rikus@mg>
+
+	* scoremaster.c:
+	to_change eingefuehrt, Automatishes Setzen und Loeschen von Kills bei angegebenen Spilern
+
+1998-11-27  Rikus  <Rikus@mg>
+
+	* master/misc.c: Auslesen der history wird auf SNOOP gezeigt
+
+1998-11-24  Rumata  <Rumata@mg>
+
+	* master.c: learner koennen jetzt ihr eigenes logfile lesen
+
+1998-11-09  Rikus  <Rikus@mg>
+
+	* scoremaster.c: alle Aktionen werden in SACORELOGFILE geloggt
+
+	* scoremaster.h: SCORELOGFILE defined
+
+1998-08-19  Boing  <Boing@mg>
+
+	* merlin.c: Bei weibichlichen Sehern ruft Merlin jetzt Seherin
+
+1998-08-18  Rikus  <Rikus@mg>
+
+	* news.c: ARCH_SECURITY eingebaut
+
+1998-08-16  Rikus  <Rikus@mg>
+
+	* master.c:
+	valid_rwrite() geaendert, dass Schreiben auf alle/common per access_rights von -1 verboten werden kann
+
+1998-08-14  Paracelsus  <Paracelsus@mg>
+
+	* login.c: IP gesperrt
+
+1998-08-13  Rikus  <Rikus@mg>
+
+	* merlin.c: notify_player_change gecatched
+
+1998-08-12  Rikus  <Rikus@mg>
+
+	* merlin.c: Seher-FAQ wird bei der Seherwerdung automatisch vergeben
+
+1998-08-05  Rumata  <Rumata@mg>
+
+	* bbmaster.c: kein leerzeichen nach dem namen ist besser :-)
+
+1998-08-03  Rikus  <Rikus@mg>
+
+	* login.c: Marburg als Einloggort wieder erlaubt
+
+1998-07-31  Highlander  <Highlander@mg>
+
+	* simul_efun.c: P_SNOOPFLAGS && -> &
+
+	* simul_efun.c: Wrong place for ) fixed
+
+1998-07-29  Rumata  <Rumata@mg>
+
+	* bbmaster.c: New file.
+
+1998-07-29  Kirk  <Kirk@mg>
+
+	* login.c: (Rumata) war seit Jul 4 ausgechecked
+	__reload_explore
+
+1998-07-29  Rumata  <Rumata@mg>
+
+	* master/misc.c: __reload_explore
+
+1998-07-28  Jof  <Jof@mg>
+
+	* master/network.c: *** empty log message ***
+
+1998-07-27  Jof  <Jof@mg>
+
+	* master/network.c: *** empty log message ***
+
+	* master/network.c: Fixde multipe mail bug ...
+
+	* config.h, master.c: max mails/h
+
+	* master/network.c: Max. size of mail limited to 50k
+	max nr of mails/hour
+
+1998-07-23  Paracelsus  <Paracelsus@mg>
+
+	* master.c:
+	Auskommentiert: set_driver_hook(H_CREATE_SUPER,       "create"); in inaugurate_master()
+
+1998-07-23  Rikus  <Rikus@mg>
+
+	* master/network.c:
+	FtpAcess ist nun fuer Magier mit Spielpause verboten
+
+1998-07-21  Marcus  <Marcus@mg>
+
+	* master.c: H_CREATE_SUPER driver hook fehltem, auf "create" gesetzt
+
+1998-07-16  Rikus  <Rikus@mg>
+
+	* explorationmaster.c:
+	ShowEPObjects() gibt fuer Magier<Lord keine ID-Nummern der FPs mehr aus
+
+1998-07-14  Rumata  <Rumata@mg>
+
+	* master.c: /mail nur noch fuer ROOT lesbar
+	einigen wildwuchs entfernt
+
+	* master.c: lesbarkeit fuer /news/* ROOT only./
+
+1998-07-08  Rumata  <Rumata@mg>
+
+	* master.c: fallback, dass logfiles fuer alle schreibbar sind
+	will man das wirklich?
+	anddere moeglichkeit : statt break; return access_rgihts(...)
+
+1998-06-30  Rumata  <Rumata@mg>
+
+	* spare_simul_efun.c:
+	spare_simul_efun mal wieder auf den neuesten stand gebracht
+
+1998-06-25  Rumata  <Rumata@mg>
+
+	* master.c: schreibrechter fuer /log/<magier> konfigurierbar
+	/log/report/<magier>.rep fer den magier
+
+1998-06-24  Jof  <Jof@mg>
+
+	* master/network.c: doReadMail geaednert
+
+1998-05-24  Rikus  <Rikus@mg>
+
+	* explorationmaster.c: ShowEPObjets() debuggt und erweitert
+
+1998-05-24  Rumata  <Rumata@mg>
+
+	* explorationmaster.c: Rumata vergass Einchecken...
+
+1998-05-14  Jof  <Jof@mg>
+
+	* config.h: Neue IP
+
+1998-05-11  Jof  <Jof@mg>
+
+	* master/network.c: Anpassungen fuer neues sendmail.cf
+
+1998-05-09  Hate  <Hate@mg>
+
+	* master/network.c: ???
+
+1998-05-06  Jof  <Jof@mg>
+
+	* simul_efun.c: --SOMMERZEIT
+
+1998-04-20  Highlander  <Highlander@mg>
+
+	* simul_efun.c:
+	debug_info from ARCH_SECURITY to IS_ARCH changed so upd -f/a work again
+
+1998-04-19  Jof  <Jof@mg>
+
+	* simul_efun.c, master/misc.c: *** empty log message ***
+
+1998-04-08  Rumata  <Rumata@mg>
+
+	* simul_efun.c: support fuer sommerzeit
+
+1998-03-25  Rumata  <Rumata@mg>
+
+	* master/domain.c: ARCH_SECURITY fuer add/remove_domain_master
+
+1998-03-23  Rochus  <Rochus@mg>
+
+	* master/userinfo.c:
+	Bei Selbstloeschungen wird jetzt auch die IP-Nummer mitgeloggt.
+
+1998-03-22  Rikus  <Rikus@mg>
+
+	* scoremaster.c:
+	SetScoreBit() und ClearScoreBit(), um Erstkills in Spielern zu setzen/loeschen
+
+	* explorationmaster.c:
+	Routinen zum Loeschen und Setzen bestimmter EPs, Ep-Infos eines Spielers
+	Sicherheit erhoeht
+
+	* potionmaster.c: Routinen fuer PTool implementiert
+
+1998-03-16  Rumata  <Rumata@mg>
+
+	* simul_efun.c: defaultbreite bei break_string von 0 auf 78 gesetzt. :)
+
+1998-03-15  Rikus  <Rikus@mg>
+
+	* potionmaster.c:
+	Potionmaster geaendert, dass beim Deaktivieren und Aktivieren der ZTs die Gruppenzuordnung erhalten bleibt
+
+1998-03-15  Boing  <Boing@mg>
+
+	* potionmaster.c: gute Fraghe
+
+1998-03-10  Paracelsus  <Paracelsus@mg>
+
+	* pubmaster.c: Bugfix
+
+	* awmaster.c: NotifyACChange disabled
+
+1998-03-10  Kirk  <Kirk@mg>
+
+	* merlin.c: Krik hatte vergessen einzuchecken (Rochus)
+	(Krik=Kirk)
+
+1998-03-09  Rumata  <Rumata@mg>
+
+	* master/userinfo.c: ach nee, wozu auch
+
+	* master/userinfo.c:
+	set_player_object nur noch fuer ROOTobjekte erlaubt
+
+1998-03-08  Paracelsus  <Paracelsus@mg>
+
+	* master.c:
+	/d/erzmagier als Verzeichnis fuer lesegeschuetzte verzeichnisse implementiert
+
+	* master/domain.c: /d/erzmagier zaehlt nicht als normale domain
+
+1998-03-03  Paracelsus  <Paracelsus@mg>
+
+	* pubmaster.c: Pubmaster ueberarbeitet, neue Formel.
+
+1998-02-22  Jof  <Jof@mg>
+
+	* master/misc.c: Bug im renew_player_object repariert,
+	der zu einer Verdoppelung von Auto-
+	loadern fuehrte, sofern diese
+	in Containern steckten ...
+
+1998-02-15  Paracelsus  <Paracelsus@mg>
+
+	* pubmaster.c: New file.
+
+1998-02-13  Rumata  <Rumata@mg>
+
+	* simul_efun.c: count_bits improved by factor 6!
+	,
+
+1998-02-12  Rumata  <Rumata@mg>
+
+	* master/userinfo.c: Userlevel von ROOT auf 100 gesetzt.
+
+1998-02-09  Paracelsus  <Paracelsus@mg>
+
+	* awmaster.c: Bugfix
+
+1998-02-09  Rikus  <Rikus@mg>
+
+	* scoremaster.c:
+	neu Funktion NewNPC(string key,int score) zum Eintragen bisher noch
+	nicht angemeldeter NPCs
+
+1998-02-06  Paracelsus  <Paracelsus@mg>
+
+	* awmaster.c: New file.
+
+1998-02-02  Jof  <Jof@mg>
+
+	* master.c: *** empty log message ***
+
+1998-01-22  Rumata  <Rumata@mg>
+
+	* simul_efun.c:
+	secure_level erkennt jetzt jede art von selbstzerstoerern.
+
+	* simul_efun.c: destruct verschoenert
+
+1998-01-20  Rumata  <Rumata@mg>
+
+	* simul_efun.c: Made exec more secure.
+	Wrapped process_string into a catch to handle eval cost too high
+	properly.
+
+1998-01-19  Rumata  <Rumata@mg>
+
+	* simul_efun.c: exec etwas sicherer gemacht.
+
+1998-01-15  Rumata  <Rumata@mg>
+
+	* simul_efun.c: IS_* durch *_SECURITY ersetzt
+	secure_level() als efun eingebaut (nomask!)
+
+1998-01-13  Rikus  <Rikus@mg>
+
+	* explorationmaster.c:
+	Bug in ShowEPObjects() entfernt, der dazu fuehrte, dass immer alle
+	FPs einer Region bei einer Anfrage nach denen eines einyelnen
+	Mitrarbeiters kamen
+
+1998-01-09  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: cleanup
+
+1998-01-08  Rumata  <Rumata@mg>
+
+	* simul_efun.c: process_string sicherer gemacht
+
+1998-01-08  Wargon  <Wargon@mg>
+
+	* explorationmaster.c (QueryExplore):
+	leicht geaendertes Verhalten fuer GiveEP()
+
+	* exploration.h: Prototype fuer GiveEP()
+
+1998-01-07  Rumata  <Rumata@mg>
+
+	* wizlevels.h: Fontend fuer Padreics Sicherheitsloch.
+
+1997-12-25  Highlander  <Highlander@mg>
+
+	* master/misc.c: ???
+	,
+
+1997-12-22  Silvana  <Silvana@mg>
+
+	* exploration.h: EP_SMELL, SEP_SOUND (Ich hasse deiesen Editor)!!!
+
+1997-11-26  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: Sicherheitsfix
+
+1997-10-28  Hate  <Hate@mg>
+
+	* simul_efun.c: check for valid living name
+
+1997-10-27  Jof  <Jof@mg>
+
+	* master.c: x
+
+1997-09-26  Highlander  <Highlander@mg>
+
+	* master.h: Prototypes deputy support
+
+1997-09-26  Hate  <Hate@mg>
+
+	* master.h: Nicht mehr bekannte Aenderugnng :>
+
+1997-08-29  Yantro  <Yantro@mg>
+
+	* explorationmaster.c:
+	ShowEPObjects() wieder fuer RMs zugelassen und log eingebaut.
+
+1997-07-23  Hate  <Hate@mg>
+
+	* master/misc.c: flag for external call changed.
+
+1997-07-22  Hate  <Hate@mg>
+
+	* master/misc.c: added external flag for ls
+
+1997-07-21  Hate  <Hate@mg>
+
+	* master/misc.c: changed show_dir() to point to /std/shells/filesys
+
+1997-07-02  Boing  <Boing@mg>
+
+	* potionmaster.c:
+	Neue Funktion 'GetListByNumber(int nr)'. Gibt zu einer Zaubertranknummer
+	die zugehoerige Liste aus.
+
+1997-06-29  Hate  <Hate@mg>
+
+	* master/network.c: added debug output.
+
+	* master/misc.c: dir format for ftp is more compatible
+
+1997-06-16  Wargon  <Wargon@mg>
+
+	* scoremaster.c: Etwas aufgeraeumt
+
+1997-06-10  Wargon  <Wargon@mg>
+
+	* config.h: NETDEAD_CHECK_TIME verkuerzt
+
+	* simul_efun.c: *** empty log message ***
+
+1997-05-16  Wargon  <Wargon@mg>
+
+	* master/misc.c (show_dir): valid_read() eingebaut.
+
+1997-04-22  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: DOMAIN_INFOs wieder raus...
+
+1997-04-15  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: getMatch(): EP_TYPES vergessen...
+	GiveExplorationPoint(): catch() fuer gehackte Savefiles
+
+1997-04-01  Boing  <Boing@mg>
+
+	* questmaster.c:
+	Reitermeldung bei Questloeusngsmail entfernt, das macht der mailer jetzt
+	selbst.
+
+1997-03-07  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: Info-Array durch EP_TYPES ersetzt.
+
+	* exploration.h: Neue FP-Typen definiert:
+	- EP_RDET fuer ReadDetails (waren vorher bei Details mit drin)
+	- EP_PUB  fuer Getraenke/Speisen in Kneipen (vorher per EP_MISC)
+	EP_TYPES fuer die Infos definiert
+
+	* scoremaster.h: Update auf Revision 3.0
+
+	* scoremaster.h: New file.
+
+1997-03-04  Rochus  <Rochus@mg>
+
+	* scoremaster.c: Testfunktion auch fuer Strings
+
+	* scoremaster.c: New file.
+
+1997-02-05  Jof  <Jof@mg>
+
+	* master.c: Header aufgeraeumt
+
+1997-02-05  Wargon  <Wargon@mg>
+
+	* master/domain.c, master/misc.c, master/network.c, master/userinfo.c, simul_efun.c:
+	Header aufgeraeumt
+
+1997-02-05  Kirk  <Kirk@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1997-02-05  Hate  <Hate@mg>
+
+	* questmaster.c: Header aufgeraeumt
+
+1997-02-05  Wargon  <Wargon@mg>
+
+	* questmaster.h, guestmaster.c, exploration.h, explorationmaster.c:
+	Header aufgeraeumt
+
+1996-12-10  Wargon  <Wargon@mg>
+
+	* master/userinfo.c:
+	delete_player(): Seher und Magier werden automatisch gebanisht.
+
+	* master/misc.c:
+	BanishName() fuer das autobanishen von Sehern/Magiern angepasst.
+
+1996-11-25  Rochus  <Rochus@mg>
+
+	* master/misc.c:
+	__query_variable ab ARCH, damit es keinen zweiten derartigen Vorfall gibt.
+
+1996-09-18  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1996-09-18  Wargon  <Wargon@mg>
+
+	* npcmaster.c, explorationmaster.c:
+	Globale Variablen private gemacht...
+
+1996-09-11  Kirk  <Kirk@mg>
+
+	* login.c: Typo bei fehlgeschlagenen Loginversuchen gefixed
+
+1996-09-02  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: FPs lassen sich auch in VCs vergeben.
+
+1996-06-26  Highlander  <Highlander@mg>
+
+	* login.c: Bugfix fuer invis login (P_INVIS->P_AGE statt 1)
+
+1996-06-12  Wargon  <Wargon@mg>
+
+	* login.c: Unsichtbar einloggen fuer EMs
+
+1996-06-03  Highlander  <Highlander@mg>
+
+	* login.c:
+	Bugfix fuer login after linkdead, wenn email oder so fgrade eingegeben
+	wurde. Courtesy of Mupfel.
+
+1996-05-23  Wargon  <Wargon@mg>
+
+	* potionmaster.c:
+	Die Liste wird in /secure/ARCH anstatt in /etc gespeichert.
+
+1996-05-21  Jof  <Jof@mg>
+
+	* merlin.c: FP fuer Magier-/Seherwerdung etwas genauer...
+
+1996-05-16  Hate  <Hate@mg>
+
+	* master.h: new channel system (changes)
+
+1996-05-13  Jof  <Jof@mg>
+
+	* login.c: *** empty log message ***
+
+1996-05-07  Jof  <Jof@mg>
+
+	* simul_efun.c: Don't know what Jof did!
+
+1996-05-06  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1996-04-28  Jof  <Jof@mg>
+
+	* master/userinfo.c: Removed unneccessary if
+
+1996-04-28  Wargon  <Wargon@mg>
+
+	* master/userinfo.c: *** empty log message ***
+
+1996-04-10  Jof  <Jof@mg>
+
+	* npcmaster.c:
+	Dump-Funktion eingebaut, damit man auch was zu lesen hat :)
+	,
+
+1996-04-10  Wargon  <Wargon@mg>
+
+	* npcmaster.c: QueryNPC(): int * -> mixed
+
+1996-04-04  Wargon  <Wargon@mg>
+
+	* npcmaster.c:
+	QueryNPCbyNumber() gibt jetzt wirklich Nummer und Score zurueck...
+
+1996-03-23  Jof  <Jof@mg>
+
+	* config.h: IP geaendert
+
+1996-03-15  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: Regionsmagier konnten zu viele FP sehen...
+
+1996-03-06  Jof  <Jof@mg>
+
+	* npcmaster.c: QueryNPCbyNumber eingebaut, Typos gefixed
+
+	* npcmaster.c, npcmaster.h: New file.
+
+1996-03-06  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: QueryExplorationPoints() benutzt count_bits()
+
+1996-03-01  Wargon  <Wargon@mg>
+
+	* explorationmaster.c:
+	Die Abfrage auf this_interactive() hatte in QueryExplore()
+	nichts verloren...
+
+1996-02-13  Wargon  <Wargon@mg>
+
+	* explorationmaster.c:
+	Tolle Idee, die Statistik von clean_up() aus zu generiereren...
+	Jetzt wirds von reset() aus gemacht.
+
+1996-02-02  Wargon  <Wargon@mg>
+
+	* explorationmaster.c:
+	Es wird noch die Existenz des Statistikgenerators geprueft.
+
+1996-02-01  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: clean_up() startet die Statistik.
+
+	* exploration.h: SAVEFILE -> EPSAVEFILE
+	#defines fuer die Statistik rein.
+
+1996-01-05  Jof  <Jof@mg>
+
+	* merlin.c: QGROUP_3 auch hier entfernt
+
+1996-01-02  Boing  <Boing@mg>
+
+	* questmaster.c: 3 -> sizeof(QGROUPS) in QueryReadyForWiz()
+
+1996-01-01  Jof  <Jof@mg>
+
+	* questmaster.c, questmaster.h:
+	Vierte questgruppe entfernt, einige Schoenheitskorrekturen.
+
+1995-12-21  Wargon  <Wargon@mg>
+
+	* explorationmaster.c: Set/QueryAverage() fuer die Statistik
+
+	* exploration.h: RCS-Header rein, MIN_EP fuer die Statistik
+
+1995-12-12  Jof  <Jof@mg>
+
+	* login.c: *** empty log message ***
+
+1995-12-07  Jof  <Jof@mg>
+
+	* login.c: Minor fix at remoteip
+
+1995-11-29  Wargon  <Wargon@mg>
+
+	* master/misc.c: && statt || im TBanishName()...
+
+	* master/misc.c:
+	TBanishName() kann auch vom Betroffenen selbst benutzt werden.
+
+1995-11-22  Jof  <Jof@mg>
+
+	* master/domain.c, master/misc.c, master/network.c, potionmaster.c, questmaster.c, questmaster.h, room_locator.c, simul_efun.c, skillmaster.c, udp_mail.c, wizlevels.h, combat.c, config.h, exploration.h, explorationmaster.c, guestmaster.c, inetd.c, login.c, master.c, master.h, merlin.c, news.c:
+	Updated to rev 3.0
+
+1995-11-16  Wargon  <Wargon@mg>
+
+	* merlin.c:
+	Merlin kennt Gilden und seine Rufen triggert nicht mehr bei jedem Mist. ;)
+
+	* explorationmaster.c: DOMAIN_INFO enabled
+
+	* master/misc.c: Zeitweises sperren von Spielern eingebaut.
+
+	* login.c: Behandlung zeitweise gesperrter Spieler eingebaut.
+
+1995-10-06  Wargon  <Wargon@mg>
+
+	* exploration.h: Diverse #defines
+
+	* explorationmaster.c: New file.
+
+1995-10-05  Jof  <Jof@mg>
+
+	* login.c: creation_date tut jetzt
+
+1995-09-27  Jof  <Jof@mg>
+
+	* login.c: *** empty log message ***
+
+1995-09-21  Catweazle  <Catweazle@mg>
+
+	* merlin.c: little bugfixing
+
+1995-09-20  Jof  <Jof@mg>
+
+	* master.c: *** empty log message ***
+
+1995-09-20  Catweazle  <Catweazle@mg>
+
+	* merlin.c: Merlin postet jetzt realnames in der zeitung
+
+1995-09-20  Rochus  <Rochus@mg>
+
+	* exploration.h: New file.
+
+1995-09-19  Kirk  <Kirk@mg>
+
+	* simul_efun.c:
+	The object that causes call_out overflow will be destructed.
+
+	* simul_efun.c: *** empty log message ***
+
+1995-09-19  Catweazle  <Catweazle@mg>
+
+	* merlin.c: Zweities koennen nicht mehr Magier werden
+
+1995-09-19  Jof  <Jof@mg>
+
+	* merlin.c: *** empty log message ***
+
+1995-08-28  Jof  <Jof@mg>
+
+	* login.c: quit on no passwd
+
+1995-08-23  Kirk  <Kirk@mg>
+
+	* login.c: ???
+
+1995-08-14  Boing  <Boing@mg>
+
+	* questmaster.c:
+	Der Questmaster verschickt beim Loesen einer Quest jetzt eine mail.
+
+1995-06-26  Jof  <Jof@mg>
+
+	* master.c: mofify_command ...
+
+1995-06-16  MorgenGrauen (admin)  <mud@mg>
+
+	* questmaster.c:
+	new computation in QueryDontneed() takes player's P_NEEDED_QP into account
+
+1995-06-06  Jof  <Jof@mg>
+
+	* simul_efun.c: _notify_fail
+
+	* simul_efun.c: *** empty log message ***
+
+1995-05-31  Catweazle  <Catweazle@mg>
+
+	* merlin.c: Spieler mit PK koennen nicht mehr Magier werden
+
+1995-05-30  Kirk  <Kirk@mg>
+
+	* login.c:
+	added loginname() to prevent parallel login with the same name
+
+1995-05-29  Jof  <Jof@mg>
+
+	* simul_efun.c: country ueberarbeitet
+
+1995-05-23  Kirk  <Kirk@mg>
+
+	* simul_efun.c: swap() overloaded
+
+1995-05-22  Kirk  <Kirk@mg>
+
+	* merlin.c: Using QueryDontneed()
+
+	* questmaster.c: 1196 -> QP_MIN (defined in questmaster.h)
+
+	* questmaster.h: Added QP_MIN == 1196
+
+	* questmaster.c:
+	Added QueryDontneed() for dynamic calculation of not needed quests
+
+	* questmaster.h: QDONTNEED removed
+
+1995-05-19  Jof  <Jof@mg>
+
+	* guestmaster.c: New file.
+
+	* simul_efun.c: ip-Maps expandet
+
+	* master/network.c: *** empty log message ***
+
+1995-05-17  Kirk  <Kirk@mg>
+
+	* questmaster.c: little protection in Channel()
+
+1995-05-15  Jof  <Jof@mg>
+
+	* simul_efun.c: made shutdown more secure
+
+	* simul_efun.c: speed up break_string
+
+	* simul_efun.c: *** empty log message ***
+
+	* master/userinfo.c: Fixed some problems in passwd-change
+
+1995-05-08  Jof  <Jof@mg>
+
+	* master.c: *** empty log message ***
+
+1995-05-05  Jof  <Jof@mg>
+
+	* master.c: *** empty log message ***
+
+1995-04-21  Jof  <Jof@mg>
+
+	* simul_efun.c: Slow don cleaning
+
+1995-04-21  Rochus  <Rochus@mg>
+
+	* simul_efun.c: P_CONTENT_CHANGE eingebaut
+
+1995-04-21  Jof  <Jof@mg>
+
+	* master.c: Debugging mail
+
+1995-04-20  Rumata  <Rumata@mg>
+
+	* merlin.c: kleine bug in 'wandern' behoben.
+
+1995-04-19  Kirk  <Kirk@mg>
+
+	* questmaster.h: QDONTNEED changed
+
+1995-04-18  Kirk  <Kirk@mg>
+
+	* news.c: added dump_group()
+
+1995-04-13  Jof  <Jof@mg>
+
+	* login.c: check if passwd==name
+
+1995-04-12  Jof  <Jof@mg>
+
+	* merlin.c: Removed Logging of questions ...
+
+1995-04-10  Jof  <Jof@mg>
+
+	* master.c: removed some 'catch'es from runtime_error
+
+	* master.h: No more messages to MGZ
+
+1995-04-06  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1995-03-31  Jof  <Jof@mg>
+
+	* config.h: onm103 -> mg
+
+1995-03-30  Kirk  <Kirk@mg>
+
+	* login.c, questmaster.h: *** empty log message ***
+
+1995-03-30  Jof  <Jof@mg>
+
+	* inetd.c: santana -> mg
+
+	* master.c: Bugfixed.
+
+	* simul_efun.c: Locations ...
+
+1995-03-27  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1995-03-23  Jof  <Jof@mg>
+
+	* config.h: changed santana to onm103
+
+1995-03-20  Kirk  <Kirk@mg>
+
+	* questmaster.c: ignore optional quests in QueryReadyForWiz()
+
+1995-03-06  Jof  <Jof@mg>
+
+	* merlin.c: = ??? =
+
+	* master.c: ???
+
+	* simul_efun.c: query_ip_number
+
+	* master/userinfo.c: Bugfixing
+
+	* master/misc.c: IP-Names bei renew_player_object uebernehmen
+
+1995-03-02  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1995-02-28  Jof  <Jof@mg>
+
+	* master/network.c: IPNAME-Fixes
+
+	* config.h: UDPSERV-Stuff
+
+	* room_locator.c: New file.
+
+	* simul_efun.c: minor bugfixes
+
+	* news.c: Oehm
+
+	* master.c: Timeouts for IPNAME-Cache
+
+1995-02-20  Jof  <Jof@mg>
+
+	* simul_efun.c: No logging of clean_sim any more
+
+	* master.c: Bugs removed
+
+	* master/userinfo.c:
+	Fixed Bug which prevented Cache from being used in many cases
+
+	* master/network.c: NaseFTPD-Changes
+
+1995-02-16  Jof  <Jof@mg>
+
+	* master/network.c: fix for long mails
+
+1995-02-15  Jof  <Jof@mg>
+
+	* merlin.c: PostMagier repariert
+
+1995-02-08  Jof  <Jof@mg>
+
+	* news.c: *** empty log message ***
+
+1995-02-06  Jof  <Jof@mg>
+
+	* master.c: naseftpsupport -> network.c
+
+	* master/network.c: Naseftp-Support aus master.c, Ftp-Support weg
+
+1995-02-01  Jof  <Jof@mg>
+
+	* news.c: Changes for HTTP
+
+	* news.c: *** empty log message ***
+
+	* master/userinfo.c: check for : in find_userinfo
+
+1995-01-23  Jof  <Jof@mg>
+
+	* merlin.c:
+	Postings fuer Statusaenderungen (Spieler -> Seher, Seher -> Magier)
+
+1995-01-17  Jof  <Jof@mg>
+
+	* master/misc.c: *** empty log message ***
+
+1995-01-16  Jof  <Jof@mg>
+
+	* merlin.c: *** empty log message ***
+
+1995-01-10  Jof  <Jof@mg>
+
+	* merlin.c: notify_player_change-Bug
+
+1995-01-09  Kirk  <Kirk@mg>
+
+	* merlin.c: *** empty log message ***
+
+1995-01-04  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1995-01-03  Jof  <Jof@mg>
+
+	* simul_efun.c: destruct ...
+
+	* merlin.c: *** empty log message ***
+
+1995-01-03  Kirk  <Kirk@mg>
+
+	* merlin.c: *** empty log message ***
+
+	* master.c: /secure/save_inactive now read-protected
+
+1994-12-29  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1994-12-23  Highlander  <Highlander@mg>
+
+	* login.c: Erinnerung an PK-Verbot fuer neue logins
+
+1994-12-23  Jof  <Jof@mg>
+
+	* master.h, config.h, inetd.c, master.c, simul_efun.c, master/misc.c, master/network.c:
+	*** empty log message ***
+
+	* login.c: regexp for banish
+
+1994-12-17  Kirk  <Kirk@mg>
+
+	* questmaster.h: *** empty log message ***
+
+1994-12-08  Jof  <Jof@mg>
+
+	* master/misc.c: Dont give object names to players when renewing
+
+1994-12-01  Jof  <Jof@mg>
+
+	* merlin.c: done
+
+1994-11-30  Jof  <Jof@mg>
+
+	* login.c: *** empty log message ***
+
+1994-11-30  Kirk  <Kirk@mg>
+
+	* master/userinfo.c: secure-savefile expiring
+
+	* merlin.c: *** empty log message ***
+
+1994-11-30  Jof  <Jof@mg>
+
+	* master.c, master/domain.c, master/misc.c, master/network.c, master/userinfo.c:
+	*** empty log message ***
+
+1994-11-24  Jof  <Jof@mg>
+
+	* simul_efun.c: einchecken, 'bug' in destruct behoben ;-) (Rumata)
+
+1994-11-21  Kirk  <Kirk@mg>
+
+	* questmaster.c: using P_NEEDED_QP
+
+1994-11-14  Jof  <Jof@mg>
+
+	* master.c: *** empty log message ***
+
+	* config.h: /
+
+	* master.c: *** empty log message ***
+
+1994-11-08  Jof  <Jof@mg>
+
+	* login.c: *** empty log message ***
+
+1994-11-07  Jof  <Jof@mg>
+
+	* simul_efun.c, master.c: *** empty log message ***
+
+1994-11-04  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1994-11-03  Jof  <Jof@mg>
+
+	* inetd.c: Updated to intermud 0.7 beta
+
+1994-10-26  Kirk  <Kirk@mg>
+
+	* merlin.c: /room/gilde -> /gilden/abenteurer
+
+1994-10-24  Kirk  <Kirk@mg>
+
+	* master.c: added remove()
+
+1994-10-24  Jof  <Jof@mg>
+
+	* master.c: *** empty log message ***
+
+1994-10-07  Jof  <Jof@mg>
+
+	* master.c, master/userinfo.c: *** empty log message ***
+
+1994-10-07  Kirk  <Kirk@mg>
+
+	* merlin.c: using XP_NEEDED_FOR_WIZ
+
+	* questmaster.h: added new #define XP_NEEDED_FOR_WIZ
+
+1994-10-07  Jof  <Jof@mg>
+
+	* master.h: functionlist inherited
+
+1994-09-26  Kirk  <Kirk@mg>
+
+	* master/domain.c, master/network.c, master/userinfo.c:
+	fixed userinfo indices
+
+	* questmaster.h, master.h: *** empty log message ***
+
+1994-09-24  Kirk  <Kirk@mg>
+
+	* master/misc.c: index bug in advance_wizlevel()
+
+	* master/userinfo.c, master.h: removed static from get_full_userinfo()
+
+1994-09-23  Jof  <Jof@mg>
+
+	* master/domain.c, master/misc.c, master/network.c, master/userinfo.c, master.h, master.c:
+	New file.
+
+1994-09-16  Jof  <Jof@mg>
+
+	* questmaster.c: *** empty log message ***
+
+1994-09-12  Jof  <Jof@mg>
+
+	* simul_efun.c, login.c, config.h: *** empty log message ***
+
+	* simul_efun.c: ueberarbeitung
+
+	* wizlevels.h, news.c, simul_efun.c: *** empty log message ***
+
+	* userinfo.c: New file.
+
+1994-09-09  Jof  <Jof@mg>
+
+	* simul_efun.c: @41- patches
+
+1994-09-06  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1994-08-25  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1994-08-23  Kirk  <Kirk@mg>
+
+	* questmaster.c: ignore deactivated quests in QueryReadyForWiz()
+
+1994-08-12  Jof  <Jof@mg>
+
+	* merlin.c: log
+
+1994-08-11  Jof  <Jof@mg>
+
+	* merlin.c: *** empty log message ***
+
+1994-08-10  Jof  <Jof@mg>
+
+	* merlin.c, news.c, simul_efun.c: *** empty log message ***
+
+1994-08-09  Jof  <Jof@mg>
+
+	* potionmaster.c: *** empty log message ***
+
+1994-08-05  Jof  <Jof@mg>
+
+	* login.c: *** empty log message ***
+
+1994-08-05  Hate  <Hate@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1994-07-22  Jof  <Jof@mg>
+
+	* merlin.c: *** empty log message ***
+
+1994-07-20  Kirk  <Kirk@mg>
+
+	* questmaster.c: fixed max_QP bug in AddQuest
+
+1994-07-16  Hate  <Hate@mg>
+
+	* simul_efun.c: bugfix in write()
+
+1994-07-15  Hate  <Hate@mg>
+
+	* simul_efun.c: added printf() as simul_efun
+
+	* simul_efun.c:
+	added special message handling functions tell_object, say, write
+
+1994-07-12  Kirk  <Kirk@mg>
+
+	* merlin.c:
+	Merlin no longer informs players about invis wiz leaving the game
+
+1994-06-29  Jof  <Jof@mg>
+
+	* login.c, merlin.c, news.c, simul_efun.c, wizlevels.h:
+	*** empty log message ***
+
+	* udp_mail.c: New file.
+
+1994-06-29  Rumata  <Rumata@mg>
+
+	* questmaster.h: added QGROUPS
+
+1994-06-27  Jof  <Jof@mg>
+
+	* news.c: *** empty log message ***
+
+1994-06-22  Jof  <Jof@mg>
+
+	* login.c: *** empty log message ***
+
+1994-06-22  Hate  <Hate@mg>
+
+	* login.c: bugfix: magier.c was accepted as race!!!
+
+1994-06-20  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1994-06-17  Jof  <Jof@mg>
+
+	* merlin.c, simul_efun.c: *** empty log message ***
+
+1994-06-15  Kirk  <Kirk@mg>
+
+	* merlin.c: clean up inventory on reset
+
+1994-06-14  Kirk  <Kirk@mg>
+
+	* merlin.c: bugfix
+
+	* merlin.c: added questgroup information
+
+	* questmaster.c: added questgroup handling in QueryReadyForWiz
+
+	* questmaster.h: added defines for questgroups
+
+1994-06-11  Kirk  <Kirk@mg>
+
+	* questmaster.c: Fixed bug in activate/deactivate logging
+
+1994-05-31  Jof  <Jof@mg>
+
+	* config.h: *** empty log message ***
+
+1994-05-16  Kirk  <Kirk@mg>
+
+	* questmaster.h: changed location of logfile to /log
+
+	* questmaster.c: fixed bug in SetActive()
+
+1994-05-11  Jof  <Jof@mg>
+
+	* news.c: expire changed
+
+1994-05-04  Jof  <Jof@mg>
+
+	* inetd.c, simul_efun.c: ???
+
+1994-05-04  Kirk  <Kirk@mg>
+
+	* questmaster.c: ???
+
+1994-05-04  Rumata  <Rumata@mg>
+
+	* merlin.c: ???
+
+1994-05-03  Jof  <Jof@mg>
+
+	* config.h: PROJECTDIR defined
+
+1994-05-02  Jof  <Jof@mg>
+
+	* login.c: TIMEOUT wieder raus
+
+1994-04-28  Jof  <Jof@mg>
+
+	* login.c: Minor security-fixes
+
+1994-04-20  Jof  <Jof@mg>
+
+	* inetd.c: *** empty log message ***
+
+1994-04-19  Kirk  <Kirk@mg>
+
+	* questmaster.c: storage of questlist changed from alist to mapping
+	QueryAllQuests() migrated into QueryAllKeys()
+
+1994-04-10  Kirk  <Kirk@mg>
+
+	* potionmaster.c: removed superfluous error-message
+
+1994-04-06  Kirk  <Kirk@mg>
+
+	* questmaster.c: replaced QueryQP() by QueryProp(P_QP)
+
+1994-03-28  Jof  <Jof@mg>
+
+	* inetd.c: *** empty log message ***
+
+	* BANISH: New file.
+
+	* simul_efun.c: query_closure_object()
+
+1994-03-18  Jof  <Jof@mg>
+
+	* wahlmaschine.c: *** empty log message ***
+
+	* inetd.c, simul_efun.c: ELDER_LVL
+
+	* config.h, wizlevels.h: New file.
+
+1994-03-12  Jof  <Jof@mg>
+
+	* simul_efun.c: Added Call-Out-Stopper
+
+1994-03-08  Jof  <Jof@mg>
+
+	* login.c: *** empty log message ***
+
+1994-03-04  Jof  <Jof@mg>
+
+	* simul_efun.c: *** empty log message ***
+
+1994-03-03  Jof  <Jof@mg>
+
+	* news.c: Changed cleanup-Time
+
+1994-03-01  Kirk  <Kirk@mg>
+
+	* questmaster.c, questmaster.h: added logging
+
+1994-02-28  Kirk  <Kirk@mg>
+
+	* questmaster.h, questmaster.c: New file.
+
+1994-02-23  Jof  <Jof@mg>
+
+	* wahlmaschine.c: Erst ab Level 10 ...
+
+	* wahlmaschine.c: Wahl erst ab Level 5
+
+1994-02-21  Jof  <Jof@mg>
+
+	* simul_efun.c: removed P_NAME again from match_living()
+
+1994-02-17  Jof  <Jof@mg>
+
+	* simul_efun.c: fix in snoop
+
+	* simul_efun.c: wiz_list et al
+
+1994-02-15  Jof  <Jof@mg>
+
+	* simul_efun.c: TI in snoop replaced by PO
+
+1994-02-11  Jof  <Jof@mg>
+
+	* login.c: Keine Grossbuchstaben mehr im loginnamen. (Rumata)
+
+1994-02-08  Rumata  <Rumata@mg>
+
+	* simul_efun.c: Handling von P_NAME erweitert.
+
+1994-02-08  Hate  <Hate@mg>
+
+	* simul_efun.c:
+	changed general #include "/sys/properties.h" to the special #include's
+	needed for the master object (this is due to the absolute path needed here)
+	now, the properties.h file doensn't contain any absolute path's anymore
+
+1994-02-03  Jof  <Jof@mg>
+
+	* simul_efun.c: Added COTTBUS to subnetlist
+
+	* login.c, merlin.c: *** empty log message ***
+
+	* combat.c, inetd.c, login.c, merlin.c, news.c, potionmaster.c, sendtest.c, shutdown.c, simul_efun.c, skillmaster.c, spare_simul_efun.c, updater.c, wahlmaschine.c:
+	New file.
+

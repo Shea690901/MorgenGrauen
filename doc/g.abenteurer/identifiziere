@@ -1,0 +1,28 @@
+
+identifiziere
+-------------
+
+ ZAUBERSPRUCH:
+    identifiziere <ziel>
+
+ ARGUMENTE:
+
+     <ziel>
+        Das zu identifizierende Objekt (kann auch ein Lebwesen sein)
+
+ FUNKTION:
+    Mit diesem Zauberspruch koennen eventuell vorhandene versteckte
+    Informationen in einem Objekt entdeckt werden. Es ist allerdings nicht
+    gesagt, dass ein Objekt wirklich versteckte Informationen enthaelt.
+
+    Der Spruch kostet 10 Magiepunkte und ist ab Stufe 8 erhaeltlich.
+
+ SIEHE AUCH:
+    abenteurer, gilden,
+    licht, schaetz, pfeil, ausweichen, kampfschrei, feuerball, schnell
+
+    *Ist man Mitglied einer anderen Gilde, so muss man fuer die Hilfen zu den
+    Spruechen `hilfe gilde abenteurer <name>' benutzen!*
+
+ LETZTE AeNDERUNG:
+    Thu, 24.07.1997, 09:00:00 von Wargon

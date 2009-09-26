@@ -1,0 +1,58 @@
+NAME:
+    P_TIMED_ATTR_MOD         "timed_attr_mod"
+
+DEFINIERT IN:
+    /sys/living/attributes.h
+
+BESCHREIBUNG:
+    In dieser Property werden Attribut-Modifikatoren gespeichert, die
+    nicht ueber laengere Zeit wirksam sein sollen.
+    Die Wirksamkeit der Modifikatoren kann an Zeit und Objekte
+    gebunden werden.
+
+    Intern werden die Modifikatoren in einer Datenstruktur der Form
+
+	({
+	   ({ Ablaufzeiten }),
+	   ([ Key : Ablaufobjekt ]),
+	   ([ Key : ([ Mapping mit den Modifikatoren ]);
+	     Ablaufzeit ; Ablaufobjekt ; Nachrichtenempfaenger
+	   ])
+	})
+
+    gespeichert. Die Ablaufzeiten sind hierbei die Zeit in Sekunden seit
+    dem 1. Jan 1970, 0.0:0 GMT, die Ablaufobjekte sind die Objekte an deren
+    Existenz die Attributveraenderungen gebunden sind und die
+    Nachrichtenempfaenger sind diejenigen Objekte oder Files, welche im 
+    Falle einer abgelaufenen Attributveraenderung durch den Aufruf von
+    "NotifyTimedAttrModExpired" benachrichtigt werden.
+    Der Funktion NotifyTimedAttrModExpired wird als Argument der key
+    der abgelaufenen Attributveraenderung uebergeben.
+
+    Das Setzen folg hingegen erfolg ueber die Funktionen
+    SetTimedAttrModifier und DeleteTimedAttrModifier.
+
+    Die Daten zu einem Key koennen ueber QueryTimedAttrModifier abgefragt
+    werden.
+    Das Abfragen mittels QueryProp liefert eine Kopie der gueltigen
+    Datenstruktur, eine Abfrage mittels Query liefert eine leere
+    Datenstruktur.
+
+    Die Bedingungen fuer die ueber P_TIMED_ATTR_MOD gesetzten
+    Attributveraenderungen werden im Heartbeat in der Funktion
+    attribute_hb ueberprueft. Eine verminderte Funktionalitaet im
+    Falle von Magiern ist somit kein Fehlerfall.
+
+BEMERKUNGEN:
+    Keine echte Property. Die Methode _query_timed_attr_mod() in 
+    /std/living/attributes.c stellt die Daten zusammen.
+
+SIEHE AUCH:
+	QueryAttribute(), QueryRealAttribute(), QueryAttributeOffset(),
+	SetAttribute(), SetRealAttribute(), UpdateAttributes(),
+	SetTimedAttrModifier(), QueryTimedAttrModifier(),
+	DeleteTimedAttrModifier(),
+	P_ATTRIBUTES, P_ATTRIBUTES_OFFSETS, P_ATTRIBUTES_MODIFIER,
+	P_X_ATTR_MOD, P_M_ATTR_MOD, /std/living/attributes.c
+----------------------------------------------------------------------------
+Last modified: Tue Jul 27 20:00:20 2004 by Muadib

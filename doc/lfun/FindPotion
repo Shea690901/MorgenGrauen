@@ -1,0 +1,45 @@
+FindPotion()
+
+FUNKTION:
+     varargs int FindPotion(string s);
+
+DEFINIERT IN:
+     /std/player/potion.c
+
+ARGUMENTE:
+     s
+          Der Text, der beim erfolgreichen Finden des ZTs ausgegeben werden
+          soll. Ist s nicht angegeben, wird eine Defaultmeldung verwendet.
+
+BESCHREIBUNG:
+     Diese Funktion vergibt dem Spieler den ZT, welcher fuer das aufrufende
+     Object im Potionmaster eingetragen sein muss, falls er ihn bekommen
+     darf (Er koennte ihn ja schon haben oder noch nicht durch das Orakel
+     erfahren haben oder...).
+
+RUeCKGABEWERT:
+     0 bei Nichtvergabe, 1 bei erfolgreicher Vergabe.
+
+BEMERKUNGEN:
+     keine
+
+BEISPIELE:
+     /* specialdetail papiere */
+
+     papiere()
+     {
+        if (this_player()->FindPotion("Beim Rumwuehlen in den Papieren "+
+          "entdeckst Du einen kleinen Zaubertrank, den Du sofort trinkst.\n"))
+           return "";  
+                 /* Es muss ein String zurueckgegeben werden, da sonst */
+                 /* das special detail zu spinnen anfaengt. */
+        else
+           return "Die Papiere sind alle unbeschriftet.\n";
+     }
+
+
+SIEHE AUCH:
+     /std/player/potion.c, zaubertraenke
+
+----------------------------------------------------------------------------
+Last modified: Mon Aug 16 12:14:00 1999 by Rikus

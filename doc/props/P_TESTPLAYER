@@ -1,0 +1,13 @@
+NAME:
+    P_TESTPLAYER                  "testplayer"                  
+
+DEFINIERT IN:
+    /sys/player/base.h
+
+BESCHREIBUNG:
+     Gesetzt, wenn der Spieler ein Testspieler ist. Bei Testspielern duerfen
+     Skills geaendert werden, sie duerfen gezappt werden und - ihre
+     eigentliche Aufgabe - nicht angeschlossene Gebiete testen.
+
+     Anmerkung: P_TESTPLAYER kann nur per SetProp() gesetzt werden und das
+                auch nur ein Mal! Geloescht werden kann das Flag nur von EM+.

@@ -1,0 +1,27 @@
+*===========================================================================*
+|  Das Projektbrett gibt Dir eine Uebersicht ueber alle Projekte im         |
+|  Morgengrauen, fuer die noch Mitarbeiter gesucht werden. Folgende Befehle |
+|  werden von ihm zur Zeit unterstuetzt:                                    |
+|                                                                           |
+|  projekthilfe                   -  Diese Hilfe                            |
+|  projektliste [filter]          -  Gibt eine Uebersicht ueber alle        |
+|                                    Projekte (mit bestimmten               |
+|                                    Eigenschaften)                         |
+|  projektdetail(s) <nummer>      -  Zeigt Detailinformationen zum Projekt  |
+|                                    mit der Nummer [nummer] an             |
+|                                                                           |
+|    Filterargumente koennen sein:                                          |%s
+|      magier <magiername>  Projekte von Magier magiername                  |
+|      mudlib               Projekte in der Mudlib                          |
+|      region               Projekte in Regionen                            |
+|      gilde                Gildenprojekte                                  |
+|      details              Beschreiber gesucht                             |
+|      debug                Debugger gesucht                                |
+|      neu                  Projekte, die nicht an alten anknuepfen         |
+|      ueberarbeiten        Etwas ueberarbeiten                             |
+|      neueintrag           Projekte, die in den letzten 2 Wochen           |
+|                           eingetragen wurden                              |
+|      klein/mittel/gross   Alle Projekte in der entsprechenden Groesse     |
+|      nicht                Naechstes Argument wird invertiert              |
+*===========================================================================*
+

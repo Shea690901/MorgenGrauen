@@ -1,0 +1,37 @@
+QuerySkill()
+
+FUNKTION:
+    public varargs mapping QuerySkill(string skill, string gilde)
+
+DEFINIERT IN:
+    /std/living/skills.c
+	
+ARGUMENTE:
+    <skill> STRING
+            Name des abzufragenden Skill
+    <gilde> STRING
+            Name der Gilde, unter der der Skill gesucht werden soll
+	
+BESCHREIBUNG:
+    Diese Funktion liefert das Skillmappings des Skills <skills> im Lebewesen
+    zuruck.
+    Solange diese Manpage dies nicht beschreibt, schaut euch bitte
+    /sys/new_skills.h sowie die Manpage 'gildendoku' an, welche Keys in diesem
+    Mappings vorkommen koennen.
+    Falls <gilde> nicht angebeben wird, wird der Skill in der Gilde P_GUILD
+    des Lebewesens gesucht.
+    Sollte <gilde> nicht angebenen sein und der Skill nicht unter der in
+    P_GUILD angegebenen Gilde bekannt sein, wird geguckt, ob er
+    gildenunabhaengig gelernt wurde.
+
+RUECKGABEWERT:
+    Ein Mapping mit Skillinfos.
+    Sollte kein Skill mit dem Namen <skill> gefunden werden, wird 0
+    zurueckgeliefert.
+
+SIEHE AUCH:
+    /sys/new_skills.h, /std/living/skills.c
+    ModfiySkill(), QuerySkillAbility()
+
+-----------------------------------------------------------------------------
+02.09.2008, Zesstra

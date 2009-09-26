@@ -1,0 +1,23 @@
+DeAssocMember()
+
+FUNKTION:
+	int DeAssocMember(object npc)
+
+DEFINIERT IN:
+	/std/living/team.c
+
+ARGUMENTE:
+	Der NPC, der nicht mehr zugeordnet sein soll.
+        
+BESCHREIBUNG:
+	Hebt die Zuordnung eines NPCs zu einem Spieler auf.
+
+RUECKGABEWERT:
+	1, falls Aufhebung erfolgreich, sonst 0.
+
+BEMERKUNGEN:
+	Kann nur von Gilden, Spellbooks, vom Objekt selber
+	und vom zugeordneten NPC aufgerufen werden.
+
+SIEHE AUCH:
+	teams

@@ -1,0 +1,111 @@
+2005-08-24  Rumata  <Rumata@mg>
+
+	* tools/lupe.c: zweiter anlauf
+
+	* tools/lupe.c: str==0 durchreichen
+
+2005-07-27  Rumata  <Rumata@mg>
+
+	* mpa.c: Gaeste sollen weder Loeschen noch Verlegen koennen.
+	(vorschlag von Gloinson)
+
+2005-05-28  Muadib  <Muadib@mg>
+
+	* sehertormaster.c:
+	umgestellt auf reine delegation nach /d/seher/portale/sehertormaster. Kann nach Reboot spaetestens weg
+
+2005-04-25  Muadib  <Muadib@mg>
+
+	* werliste.c: kwer-ergaenzung fuer hardcore
+
+	* topliste.c: hardcoretopliste mit reingenommen
+
+2004-08-14  Vanion  <Vanion@mg>
+
+	* tools/MGtool/prof.h, tools/MGtool/tool.doc, tools/MGtool/tool.h, tools/MGtool/toollib.h:
+	New file.
+
+2004-07-19  Rikus  <Rikus@mg>
+
+	* vertrag.c: Test auf this_player() in unterschreibe()
+
+2004-06-22  Rikus  <Rikus@mg>
+
+	* misc/lolli.c: P_SHORT von Clones gefixed
+
+2004-06-16  Vanion  <Vanion@mg>
+
+	* tools/MGtool.c: Nu mag das Xtool sogar Morgoths Raeume :)
+
+2004-06-12  Vanion  <Vanion@mg>
+
+	* fackel.c: Lichttyp auf LT_TORCH gesetzt.'
+
+2004-04-13  Zook  <Zook@mg>
+
+	* tools/lupe.c: Keine Ahnung, was ich da geandert habe und warum...
+
+2004-04-10  Vanion  <Vanion@mg>
+
+	* tools/newstool.c: Formatierung des ginfo ueberarbeitet.
+
+	* shut.c: Armageddon ignorierbar gemacht.
+
+	* tools/projekttool.c: New file.
+
+2004-04-09  Hate  <Hate@mg>
+
+	* tools/lisp/parser.c: *** empty log message ***
+
+2004-04-09  Hate  <Hate@mg>
+
+	* tools/lisp/parser.c: *** empty log message ***
+
+2004-04-08  Rikus  <Rikus@mg>
+
+	* doormaster.c: prototype fuer oeffnen
+
+2004-04-09  Hate  <Hate@mg>
+
+	* tools/lisp/parser.c: *** empty log message ***
+
+2004-04-08  Rikus  <Rikus@mg>
+
+	* doormaster.c: prototype fuer oeffnen
+
+2004-04-09  Hate  <Hate@mg>
+
+	* tools/lisp/parser.c: *** empty log message ***
+
+2004-04-08  Rikus  <Rikus@mg>
+
+	* doormaster.c: prototype fuer oeffnen
+
+2004-04-09  Hate  <Hate@mg>
+
+	* tools/lisp/parser.c: *** empty log message ***
+
+2004-04-08  Rikus  <Rikus@mg>
+
+	* doormaster.c: prototype fuer oeffnen
+
+2004-04-09  Hate  <Hate@mg>
+
+	* tools/lisp/parser.c: *** empty log message ***
+
+2004-04-08  Rikus  <Rikus@mg>
+
+	* doormaster.c: prototype fuer oeffnen
+
+2004-04-09  Hate  <Hate@mg>
+
+	* tools/lisp/parser.c: *** empty log message ***
+
+2004-04-08  Rikus  <Rikus@mg>
+
+	* doormaster.c: prototype fuer oeffnen
+
+2004-04-09  Hate  <Hate@mg>
+
+	* tools/lisp/parser.c: *** empty log message ***
+

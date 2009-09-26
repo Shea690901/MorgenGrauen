@@ -1,0 +1,46 @@
+
+detail
+------
+
+KOMMANDO:
+    detail <text>
+    detail <objekt>:<text>
+   
+ARGUMENTE:
+
+     <text>
+        Eine Mitteilung
+     <objekt>
+        Ein Objekt, das neben Dir liegt oder in Deinem Inventar ist
+
+BESCHREIBUNG:
+     Es soll tatsaechlich immer noch passieren, das der ein oder 
+     andere gewissenhafte Forscher, einen Raum oder ein Objekt, etc
+     untersucht und dabei so gruendlich vorgeht, das ihm doch wirklich
+     ein Detail ins Auge springt, welches NICHT beschrieben ist.
+
+     Die Zeiten, das Magier mit so einer offenkundigen Vergesslichkeit 
+     und Nachlaessigkeit ungeschoren davonkommen, sind aber entgueltig 
+     vorbei! Denn DIR ist ein Instrument in die Hand gelegt, mit dem Du
+     diese Magier 'erinnern' kannst.
+
+     <detail text> setzt eine Meldung ueber ein fehlendes Detail in 
+     das entsprechende Log-File des zustaendigen Magiers.
+
+     Bei <text> sollte es sich um einen kurzen, knappen Hinweis handeln,
+     der es dem Magier ermoeglicht, das fehlende Detail einfach zu
+     lokalisieren.
+
+     Fehlt ein Detail an einem Objekt oder Npc, ist diese explizit mit
+     anzugeben, die korrekte Syntax hier lautet dann 'detail objekt:text'.
+
+BEMERKUNG:
+    Statt 'detail' kann auch die kuerzere, auf dem englischen 'missing
+    detail' beruhende Abkuerzung, 'md' verwendet werden.
+
+SIEHE AUCH:
+    typo, idee, fehler
+
+LETZTE AeNDERUNG:
+    Mo, Jan 28.01.02 2002, 23:14:10h von Tilly
+

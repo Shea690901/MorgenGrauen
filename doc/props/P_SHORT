@@ -1,0 +1,34 @@
+P_SHORT
+NAME:
+     P_SHORT				"short"
+
+DEFINIERT IN:
+     /sys/thing/description.h
+
+BESCHREIBUNG:
+     Diese Property enthaelt die Kurzbeschreibung des Objektes als String 
+     oder Closure (diese muss einen String zurueckgeben).
+
+     ACHTUNG: Die Kurzbeschreibung sollte dabei weder mit einem
+	      Satzzeichen noch mit einem "\n" abgeschlossen sein
+	      (dies wird von den zustaendigen Funktionen erledigt).
+
+     Setzt man diese Property auf 0, so ist das Objekt unsichtbar.
+
+     Diese Property bestimmt die Ansicht des Objektes von aussen. Fuer die
+     Innen(kurz)ansicht von Raeumen muss man P_INT_LONG benutzen.
+
+BEMERKUNGEN:
+     - short() ("schau") filtert P_SHORT durch process_string()
+       -> daher sind Closures moeglich
+
+BEISPIELE:
+     // eine Axt sieht natuerlich so aus:
+     SetProp(P_SHORT, "Eine Axt");
+
+SIEHE AUCH:
+     Aehnliches:	P_LONG, short()
+     Sonstiges:		P_INT_SHORT, process_string()
+
+----------------------------------------------------------------------------
+Last modified: Thu May 31 15:34:05 2001 by Patryn

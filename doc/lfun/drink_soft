@@ -1,0 +1,48 @@
+FUNKTION:
+    public varargs int drink_soft(int strength, int testonly, string mytext)
+
+DEFINIERT IN:
+    /std/living/life.c
+
+ARGUMENTE:
+    soft: Wird zu dem augenblicklichen Saettigungsgrad (P_DRINK) addiert.
+    testonly: Ist das Flag gesetzt, wird dem Spieler kein DRINK zugefuehrt.
+              Darf nur zum Testen der Heilstelle verwendet werden und muss
+              im normalen Betrieb auf '0' stehen!
+    mytext: Wer selber einen Text bei Misserfolg ausgeben lassen moechte,
+            darf sich hier was nettes ausdenken.
+
+BESCHREIBUNG:
+    Es wird geprueft, ob dem Spieler der angebene Wert "soft" auf seine
+    aktuelle P_DRINK addiert werden kann oder nicht. Ist dies moeglich,
+    wird es gemacht.
+
+RUECKGABEWERT:
+     0, wenn soft + P_DRINK > P_MAX_DRINK.
+    >0, wenn Erfolg.
+
+BEMERKUNG:
+    drink_soft() ist in sofern nuetzlich, als dass dabei die Abfrage von
+    P_DRINK und P_MAX_DRINK des Spielers weggelassen werden kann. Nervige
+    Zahlenspielereien entfallen somit.
+
+    Achtung: Es ist hierbei wichtig, in der Fkt eine Abfrage auf
+    -------  !this_player()->drink_soft(soft) zu machen, da sonst P_DRINK
+             P_MAX_DRINK u.U. ueberschreiten kann!
+
+    Bei Heilstellen sollte eine evtl. Heilung des Spielers mit der eigens
+    dafuer eingerichteten Funktion check_and_update_timed_key realisiert
+    werden.
+
+BEISPIEL:
+    s. Bsp. zu eat_food
+
+SIEHE AUCH:
+----------
+     heilung, drink_alcohol, eat_food, heal_self, restore_spell_points,
+     reduce_hit_points, check_and_update_timed_key, buffer_hp, buffer_sp,
+     enttanken, defuel_drink, defuel_food, reduce_food, reduce_drink,
+     reduce_alcohol, P_DRINK, P_FOOD, P_ALCOHOL, P_LAST_XP, food
+
+----------------------------------------------------------------------------
+Last modified: Mit Aug 13 02:02:02 2003 by Gabylon

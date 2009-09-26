@@ -1,0 +1,44 @@
+P_NO_ATTACK
+
+NAME:
+     P_NO_ATTACK "no_attack"
+
+DEFINIERT IN:
+     <living/combat.h>
+
+BESCHREIBUNG:
+     Wenn ein NPC nicht angreifbar sein soll (weil er zum Beispiel in einer
+     Gilde oder einer Quest Informationen vermittelt oder aehnlichen), sollte
+     man diese Property auf einen Wert ungleich Null setzen. Sie wird immer
+     abgefragt, wenn ermittelt wird, ob ein Lebewesen prinzipiell angreifbar
+     ist. D.h. auch, dass nach Abfragen von P_NO_ATTACK _nicht_ immer ein
+     Kampf gestartet wird und dass man dabei _nicht_ im Kampf sein muss!
+
+     Gibt man hier einen String an (mit einem Satzzeichen und "\n" abge-
+     schlossen), wird dieser bei direkten Angriffen ausgegeben. Bei anderen
+     Datentypen wird eine Defaultmeldung ausgegeben. Die Defaultmeldung
+     lautet: "<Name> laesst sich nicht angreifen!\n"
+
+     Mit direkten Angriffen sind 'toete <name>' und Angriffszauber gemeint
+     (bzw. alles, was living/life::Kill(), spellbook::TryAttackSpell(),
+     spellbook::TryDefaultAttackSpell() und spellbook::FindEnemyVictim()
+     aufruft).
+
+ACHTUNG:
+     1. Wenn man hier eine Query-Methode benutzt, sollte man wissen man tut
+        und/oder genau und gruendlich testen! Wenn die Query-Methode fehlerhaft
+        ist, haut der NPC auf den Spieler ein, der sich nicht wehrt.
+        Insbesondere sollte man drauf achten, dass TP auf Durchlaufen dieser
+        Funktion _nicht_ immer der Spieler/Gegner ist!
+     2. Diese Property wird im Kampf sehr haeufig gerufen, mehrfach pro
+        Spell/Schlag/Angriff eines Lebewesens. (Nicht nur einmal pro
+        Heartbeat, wie man vielleicht annehmen koennte.) Bitte benutzt hier
+        nur dann eine Query-Methode, wenn es unbedingt noetig ist. Solltet ihr
+        nicht ohne auskommen, darf die Query-Methode zumindest nicht allzuviel
+        Zeit (Ticks) verbrauchen.
+        
+SIEHE AUCH:
+     magier.fundstuecke: "P_NO_ATTACK: Query-Methode richtig formulieren"
+
+LETZTE AENDERUNG:
+     21.04.2007, Zesstra

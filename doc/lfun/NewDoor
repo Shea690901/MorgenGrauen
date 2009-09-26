@@ -1,0 +1,195 @@
+NewDoor()
+
+FUNKTION:
+     varargs int NewDoor(mixed cmds, string dest, mixed ids, mixed *props);
+
+DEFINIERT IN:
+     /std/room/doors.c
+
+ARGUMENTE:
+     cmds
+          String oder Array von Strings mit den Befehlen, mit denen man
+          durch die Tuer geht (in der Regel Richtungen wie "norden").
+     dest
+          Pfad des Zielraumes. Damit das richtig funktioniert, bitte
+	  OHNE .c am Ende, sonst wird eine zweiseitige Tuer (wie sie
+	  ueblich ist) nicht als solche erkannt, sprich, man kann sie
+	  von der einen Seite oeffnen und von der anderen ist sie immer
+	  noch zu...
+     ids
+          String oder Array von Strings mit den Bezeichnern der Tuer. Kann
+          auch 0 sein; in diesem Fall laesst sich die Tuer nur als "tuer"
+          ansprechen.
+     props
+          Die Eigenschaften der Tuer.
+
+BESCHREIBUNG:
+     Es wird eine neue Tuer geschaffen. Die Tuer laesst sich, wenn sie
+     geoeffnet ist, mit den in cmds angegebenen Befehlen durchschreiten. Man
+     gelangt dann in den Raum dest.
+
+     Die Kommandos werden bei geoeffneter Tuer in die Liste der sichtbaren
+     Ausgaenge eingefuegt.
+
+     In props lassen sich Aussehen und Eigenschaften der Tuer festlegen. In
+     <doorroom.h> sind dazu folgende Eigenschaften definiert:
+     D_FLAGS
+          DOOR_OPEN
+               Die Tuer ist beim Erzeugen geoeffnet.
+
+          DOOR_CLOSED
+               Die Tuer ist beim Erzeugen geschlossen.
+
+          DOOR_NEEDKEY
+               Man benoetigt einen Schluessel zum Oeffnen der Tuer.
+
+          DOOR_CLOSEKEY
+               Man benoetigt einen Schluessel zum Schliessen der Tuer.
+
+          DOOR_RESET_CL
+               Die Tuer schliesst sich beim Reset.
+
+          DOOR_RESET_OP
+               Die Tuer oeffnet sich beim Reset.
+
+     D_LONG
+          Die Langbeschreibung der Tuer.
+
+          Default: "Eine Tuer.\n"
+
+     D_SHORT
+          Die Kurzbeschreibung der Tuer. Ein "%s" wird durch "geoeffnet"
+          bzw. "geschlossen" ersetzt.
+
+          Es werden die Kurzbeschreibungen aller im Raum vorhandenen Tueren
+          aneinandergehaengt (es wird jeweils ein Leerzeichen eingeschoben),
+          das Ganze mit break_string() umgebrochen und an P_INT_LONG
+          angehaengt.
+
+          Default: "Eine %se Tuer."
+
+     D_NAME
+          Der Name der Tuer. Dieser Name wird beim Oeffnen und Schliessen
+          der Tuer sowie bei Fehlermeldungen ausgegeben. Man kann wie bei
+          P_NAME einen String oder ein Array von Strings angeben.
+
+          Default: "Tuer"
+
+     D_GENDER
+          Das Geschlecht der Tuer.
+
+          Default: FEMALE
+
+     D_MSGS
+          String oder Array von drei Strings. Diese Strings werden beim
+          Durchschreiten der Tuer an move() als dir bzw. dir, textout und
+          textin uebergeben.
+
+     D_FUNC
+          String mit dem Namen einer Funktion, die im Startraum vor dem
+          Durchschreiten der Tuer aufgerufen werden soll. Diese Funktion
+          kann das Durchschreiten jedoch nicht verhindern!
+
+     D_FUNC2
+          String mit dem Namen einer Funktion, die im Zielraum nach dem
+          Durchschreiten der Tuer aufgerufen werden soll.
+
+     D_TESTFUNC
+          Falls auf den Namen einer Funktion gesetzt, wird diese Funktion
+          vor dem Durchschreiten im Startraum aufgerufen. Wenn sie einen
+          Wert != 0 zurueckliefert, wird die Tuer NICHT durchschritten. 
+          
+RUeCKGABEWERT:
+     1, wenn die Tuer ordungsgemaess eingebaut werden konnte, sonst 0.
+
+BEMERKUNGEN:
+     Zwei Tuerseiten gelten als verschiedene Seiten einer Tuer, wenn als
+     Ziel in Raum A Raum B und in Raum B Raum A angegeben ist. Der Zustand
+     wird abgefragt, wenn die Tuer geoeffnet/geschlossen wird, P_INT_LONG
+     oder P_EXITS abgefragt wird und beim Reset.
+
+     Es sind auch Tueren moeglich, die nur auf einer Seite existieren, oder
+     auch solche, die auf beiden Seiten verschieden aussehen oder gar auf
+     einer Seite nur mit einem Schluessel zu oeffnen sind, auf der anderen
+     jedoch kein Schluessel noetig ist.
+
+     Wer aus irgendeinem Grund den Zustand einer Tuer selber abfragen oder
+     veraendern will, kann dafuer in /obj/doormaster die Funktionen
+     QueryDoorStatus(ziel) bzw. SetDoorStatus(ziel,status) aufrufen.
+
+BEISPIELE:
+
+  ** Dies ist eine gewoehnliche Tuer ohne Besonderheiten und ohne
+     Extra-Beschreibung:
+
+     NewDoor("sueden","/players/rochus/room/test1");
+
+  ** Ein Portal:
+
+     NewDoor("norden","/players/rochus/room/test2","portal",
+            ({ D_NAME,"Portal",
+               D_GENDER,NEUTER,
+               D_SHORT,"Im Norden siehst Du ein %ses Portal. ",
+               D_LONG,"Das Portal ist einfach nur gigantisch.\n"
+             }) );
+
+  ** Wenn man zum Teufel will... Tueren mit Bewegungsmeldung:
+
+     NewDoor("teufel","/room/devil", ({ D_MSGS,"zum Teufel" });
+
+     NewDoor("norden","/room/see2",
+      ({ D_MSGS, ({"nach Norden","schwimmt","kommt hereingeschwommen"}) }));
+
+  ** Eine Tuer mit D_TESTFUNC:
+
+     NewDoor("osten","/mein/zielraum",
+            ({ D_TESTFUNC,"blocker_da" }) );
+
+     Die Funktion blocker_da:
+
+     int blocker_da()      // KEINE static-Funktion! Sie wird sonst NICHT
+     {                     // aufgerufen und ausgewertet!
+       if ( present("mein_fieses_mo\nster",this_object()) )
+        {
+         write("Das fiese Monster stellt sich Dir in den Weg.\n");
+         return 1;
+        }
+       return 0;           // optional
+     }
+
+  ** Nun noch eine Tuer mit einigen Extras:
+
+     NewDoor("nordwesten","/rooms/kammer"),({"tuer","holztuer"}),
+            ({
+              D_FLAGS, DOOR_CLOSED|DOOR_RESET_CL,
+              D_MSGS,({"nach Nordwesten","geht",
+                       "kommt durch eine Tuer herein"}),
+              D_SHORT, "Im Nordwesten siehst Du eine %se Holztuer.",
+              D_LONG,  "Sie trennt den Laden vom dahinterliegenden Raum.\n",
+              D_FUNC,  "view",
+              D_FUNC2, "look_up"
+            }) );
+
+     Im Startraum:
+
+     void view()
+     {
+       write("Der Angestellte wirft Dir einen missbilligenden Blick zu, "
+             "laesst Dich aber passieren.\n");
+     }
+
+     Im Zielraum:
+
+     void look_up()
+     {
+       write("Ein alter Mann schaut kurz zu Dir auf und vertieft sich dann "
+             "wieder in seine Akten.\n");
+     }
+
+
+SIEHE AUCH:
+     QueryDoorKey(), QueryDoorStatus(), SetDoorStatus(), /std/room/doors.c,
+     /obj/doormaster.c
+
+----------------------------------------------------------------------------
+Last modified: 08-03-2005 by Gabylon

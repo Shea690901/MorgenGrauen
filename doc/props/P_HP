@@ -1,0 +1,17 @@
+NAME:
+    P_HP                          "hp"
+
+DEFINIERT IN:
+    /sys/living/life.h
+
+BESCHREIBUNG:
+     Anzahl der Lebenspunkte des Wesens.
+
+SIEHE AUCH:
+     Props:		P_MAX_HP
+     Veraenderung:	reduce_hit_points(), restore_hit_points()
+			do_damage(L), Defend(L)
+			buffer_sp()
+     Ueberwachung:	AddHpHook(L)
+
+21.April 2006 Gloinson

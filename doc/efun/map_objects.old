@@ -1,0 +1,9 @@
+SYNOPSIS:
+	object *map_objects(object *arr, string fun, mixed extra)
+
+DESCRIPTION:
+	Similar to map(), but calls arr[n]->fun(extra). The
+	returned value replaces the object in returned array.
+
+SEE ALSO:
+	map(E), filter(E), filter_objects(E)

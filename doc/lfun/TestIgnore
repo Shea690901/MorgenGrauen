@@ -1,0 +1,27 @@
+TestIgnore()
+
+FUNKTION:
+     public int TestIgnore(string *arg)
+
+DEFINIERT IN:
+     /std/player/comm.c
+
+ARGUMENTE:
+     arg
+         Liste von Strings, bei denen getetet werden soll, ob der Spieler
+         sie auf seiner Ignoriere-Liste hat.
+
+RUeCKGABEWERT:
+     Anzahl der Uebereinstimmungen von arg und der Ignoriere-Liste des
+     Spielers.
+
+BEISPIEL:
+
+     if (!(this_player()->TestIgnore(({"andy"}))))
+         write("Andy teilt Dir mit: Hallo!\n");
+
+SIEHE AUCH:
+     /std/player/comm.c
+
+----------------------------------------------------------------------------
+Last modified: Sat Jul 10 23:10:00 1999 by Paracelsus

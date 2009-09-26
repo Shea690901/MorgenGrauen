@@ -1,0 +1,14 @@
+NAME:
+    P_IGNORE                      "ignore"                      
+
+DEFINIERT IN:
+    /sys/player/base.h
+
+BESCHREIBUNG:
+    Array mit Spielern, Kommandos, Aktionen u.ae. die ignoriert werden.
+
+SIEHE AUCH:
+    TestIgnore, /std/player/comm.c
+
+----------------------------------------------------------------------------
+Last modified: Thu Jun 27 12:38:44 2000 by Tilly

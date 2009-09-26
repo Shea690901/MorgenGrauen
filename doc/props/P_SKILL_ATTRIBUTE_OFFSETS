@@ -1,0 +1,25 @@
+NAME:
+    P_SKILL_ATTRIBUTE_OFFSETS       "skill_attr_offsets"                        
+
+DEFINIERT IN:
+    /sys/new_skills.h
+
+BESCHREIBUNG:
+
+    Der Wert der Property ist ein Mapping: ([Attributname: Wert])
+    In dieser Property stehen permanente Abweichungen der Skillattribute
+    vom Standardwert 100.
+
+    Zu den Moeglichen Attributwerten, siehe P_SKILL_ATTRIBUTES.
+
+    Die Werte duerfen zwischen 10 und 1000 liegen.
+
+BEMERKUNG:
+    Diese Property sollte AUF GAR KEINEN FALL in einem Spieler gesetzt
+    werden, ohne Ruecksprachen mit allerhoechsten Stellen!
+
+SIEHE AUCH:
+    P_SKILL_ATTRIBUTES, ModifySkillAttribute(), QuerySkillAttribute()
+
+-------------------------------------------------------------------------
+Letzte Aenderung: 25.5.2001 von Nonne@mg.mud.de

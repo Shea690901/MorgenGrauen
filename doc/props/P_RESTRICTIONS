@@ -1,0 +1,56 @@
+NAME:
+    P_RESTRICTIONS                                "restrictions"
+
+DEFINIERT IN:
+    /sys/combat.h
+
+BESCHREIBUNG:
+    Enthaelt ein mapping mit den zu pruefenden Einschraenkungen.
+
+    In dieser Property lassen sich Restriktionen setzen, die vor dem 
+    Zuecken einer Waffe / Anziehen einer Ruestung oder Kleidung geprueft 
+    werden und dies gegebenfalls verhindern, ohne gleich auf eine evtl. 
+    vorhandene WieldFunc / WearFunc zuzugreifen.
+
+    Die Auswertung erfolgt ueber eine Anfrage an /std/restriction_checker.c
+    
+    Folgende Einschraenkungen koennen geprueft werden:
+
+    * Mindestwerte bei allen Attributen und Properties Level, QP, XP
+    * Bestimmte Rassen koennen ausgeschlossen werden bzw. erlaubt werden
+    
+      (SR_EXCLUDE_RACE ist ein Array von ausgeschlossenen Rassen,
+       SR_INCLUDE_RACE eines mit eingeschlossenen), SR_RACE kann ein Mapping 
+      sein, dass Rassen ein eigenes Restriction-mapping zuordnet. "*" steht 
+      fuer alle anderen Rassen.
+
+    * P_GUILD_LEVEL
+    * SR_SEER (IS_SEER)
+    * P_ALCOHOL
+    * P_DRINK
+    * P_FOOD
+    * SR_BAD / SR_GOOD (P_ALIGN)
+    * SR_MIN_SIZE / SR_MAX_SIZE (P_SIZE)
+    * SR_FREE_HANDS (in Waffen analog zu P_NR_HANDS)
+
+BEMERKUNGEN:
+    Diese Property eignet sich hervorragend dafuer, einige Grundbedingungen
+    fuer das Nutzen der Waffe / Ruestung / Kleidung zu stellen ohne gleich 
+    eine Wield- oder WearFunc setzen und auswerten zu muessen.
+
+    Denkbar waere der Einsatz bei hochwertigen Waffen / Ruestungen / Kleidung,
+    z.B. aus der Para-Welt oder solchen, die sich nah am Limit der geltenden 
+    Grenzwerte fuer P_WC / P_AC bewegen oder sogar (nach Genehmigung durch 
+    die Balance) darueber.
+
+BEISPIEL:
+    SetProp(P_RESTRICTIONS,([P_LEVEL:25])); oder 
+                           ([SR_EXCLUDE_RACE:({"Mensch"})])); oder
+                           ([SR_GOOD:500]));
+SIEHE AUCH:
+    WieldFunc, WearFunc, RemoveFunc, UnwieldFunc,
+    P_WIELD_FUNC, P_WEAR_FUNC, P_REMOVE_FUNC, P_UNWIELD_FUNC
+    /std/armour/wear.c, /std/weapon/combat.c, clothing, armours, weapon
+
+LETZTE AeNDERUNG:
+15.02.2009, Zesstra

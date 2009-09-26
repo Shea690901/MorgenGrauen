@@ -1,0 +1,16 @@
+NAME:
+	P_DRINK				"drink"
+
+DEFINIERT IN:
+	/sys/living/life.h
+
+BESCHREIBUNG:
+	Numerischer Wert fuer den Saettigungsgrad eines Lebewesens mit
+	Getraenken. Der maximale Wert steht in P_MAX_DRINK.
+
+SIEHE AUCH:
+	P_MAX_DRINK, P_DRINK_DELAY, drink_soft,
+	P_FOOD, P_ALCOHOL
+
+----------------------------------------------------------------------------
+Last modified: Tue Dec 18 12:16:10 2001 by Patryn

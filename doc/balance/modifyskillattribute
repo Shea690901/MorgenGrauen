@@ -1,0 +1,47 @@
+ModifySkillAttribute() aendert ein Attribut eines Spielers oder Npc.
+
+Man unterscheidet hier zwischen 3 moeglichen Aenderungen:
+
+  SA_FROM_PLAYER: Der Spieler selbst hat das Attribut geaendert.
+  SA_FROM_FRIEND: Ein Freund aendert das Attribut.
+  SA_FROM_ENEMY:  Ein Feind aendert das Attribut.
+
+In ModifySkillAttribute() gibt es mehrer Variablen:
+
+    <caster>   Objekt, das die Modifikation vornimmt
+
+    <atrname>  Name des zu veraendernden Attributes
+
+               Geaendert werden koennen folgende:
+
+     - SA_QUALITY....: Allgemeine Qualitaet, wirkt sich auf alle
+                       anderen Skillattribute aus
+     - SA_DAMAGE.....: Schaden, wirkt z.B. automatisch auf
+                       Schadensstaerke
+     - SA_SPEED......: Geschwindigkeit, wirkt z.B. automatisch auf
+                       Kampfgeschwindigkeit
+     - SA_DURATION...: Dauer, wirkt z.B. automatisch beim Setzen aller
+                       anderen Skillattribute auf Dauer der Wirksamkeit
+     - SA_EXTENSION..: Ausdehnung, wirkt z.B automatisch auf
+                       Finden entfernter Gegner in Teams
+     - SA_RANGE......: Reichweite, wirkt z.B automatisch auf
+                       Erreichen entfernter Gegner in Teams
+     - SA_ENEMY_SAVE.: Rettungsmoeglichkeit des Gegners, wirkt z.B.
+                       automatisch bei Abwehrwahrscheinlichkeit.
+
+    <value>    Neuer Wert des Attributes, muss zwischen 10-1000 liegen.
+               Da sich die Werte multiplizieren, wird hier bei
+               > 1000 gekappt.
+
+    <duration> Dauer der Veraenderung in Sekunden
+
+    <fun>      Funktion, die bei der Abfrage des Attributes
+               ausgefuehrt werden soll
+
+Gesetzt wird <value> nur dann, wenn er noch nicht gesetzt wurde oder
+das Level (P_LEVEL) des setzenden Objekts groesser ist. Im letzten
+Fall wird der bestehende Eintrag ueberschrieben.
+
+Insbesondere bei SA_SPEED ist drauf zu achten, das fuer Gilden, die
+ueber eigene Beschleunigungsmoeglichkeiten verfuegen, eine extra
+Abfrage eingebaut wird!

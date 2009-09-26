@@ -1,0 +1,35 @@
+HasMiniQuest()
+
+FUNKTION:
+        int HasMiniQuest(mixed pl, mixed name)
+
+DEFINIERT IN:
+        /secure/questmaster
+
+ARGUMENTE:
+	pl
+	  Name des Spielers oder das Spielerobjekt
+	name
+	  Filename des Objekts oder das Objekt selbst, welche die 
+          Quest im Spieler eintragen darf.
+
+RUeCKGABEWERT:
+         1 : Der Spieler hat die MiniQuest
+         0 : Der Spieler hat die MiniQuest noch nicht.
+        -3 : Unbefugter Zugriff
+
+BESCHREIBUNG:
+	Mit dieser Funktion kann getestet werden, ob ein Spieler eine 
+	MiniQuest bereits geloest hat. Dabei ist entweder der Filename des 
+	Objektes anzugeben, das die Quest im Spieler eintragen darf oder
+        das Objekt selbst.
+        
+BEISPIEL:
+	if(!QM->HasMiniQuest(getuid(this_player()), this_object()))
+	  write("Du bist noch nicht reif genug.\n");
+
+SIEHE AUCH:
+        /secure/questmaster.h, /secure/questmaster.c
+
+----------------------------------------------------------------------------
+Zuletzt geaendert: Mit, 31. Jan 2001, 11:35:42 von Zook.

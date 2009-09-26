@@ -1,0 +1,22 @@
+P_ENEMY_DAMAGE
+
+NAME:
+     P_ENEMY_DAMAGE "enemy_damage"
+
+DEFINIERT IN:
+     <life.h>
+
+BESCHREIBUNG:
+     In dieser Property ist vermerkt, welches Wesen diesem Wesen wieviel
+     Schaden zugefuegt hat.
+
+     Die Property enthaelt ein Mapping, das den Angreiferobjekten den
+     errechten Schaden zuordnet. Der von einem unterwegs verschiedenen
+     Angreifer errechte Schaden laesst sich also nur dann ermitteln, wenn
+     dieser ein Spieler war; da deren Objekt beim Tod nicht zerstoert wird.
+
+BEMERKUNGEN:
+     Diese Property laesst sich nur abfragen!
+
+----------------------------------------------------------------------------
+Last modified: Mon Apr 27 13:19:05 MET DST 1998 by Rumata

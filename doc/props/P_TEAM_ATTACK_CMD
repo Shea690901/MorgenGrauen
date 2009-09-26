@@ -1,0 +1,8 @@
+NAME:
+	P_TEAM_ATTACK_CMD              "team_attack_cmd"
+
+DEFINIERT IN:
+	/sys/living/team.h
+
+BESCHREIBUNG:
+	Angriffsbefehl des Spielers, nicht setzbar.

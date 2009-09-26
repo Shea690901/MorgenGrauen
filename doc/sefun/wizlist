@@ -1,0 +1,67 @@
+SYNOPSIS:
+        varargs void wizlist(string name, int sortkey ) 	
+
+DESCRIPTION:
+        
+        wizlist() liefert eine Liste mit verschiedenen Verbrauchsdaten 
+	zu Magiern. Die Liste ist dabei folgendermassen aufgebaut:
+
+	1. WL_NAME
+	   Gesammelt werden die Daten pro Magier. Durch die Umstellung der
+	   Schreibrechte vor einigen Jahren gilt aber jede EUID als eigener
+	   Magier. Das heisst, Objekte unter /d/polar/vanion/eispalast
+	   werden nicht unter "vanion" sondern unter "d.polar.vanion"
+	   abgerechnet.
+
+	2. WL_COMMANDS
+	   Anzahl der diesem Objekt zugeordneten commands.
+
+	3. WL_COMMANDS * 100 / total_cmd 
+	   Prozentualer Anteil an den gesamt verbrauchten commands.
+
+        4. Rang 
+	   Der Rang in der Liste. 
+
+	5. WL_EVAL_COST (links in der eckigen Klammer)
+	   Anzahl der verbrauchten eval ticks.
+
+	6. WL_HEART_BEATS (rechts in der eckigen Klammer)
+	   Anzahl der ausgeloesten heart beats.
+	
+	7. WL_EXTRA
+
+        8. WL_ARRAY_TOTAL
+
+PARAMETERS: 
+        Wird name angegeben, wird erzwungen, dass die erwaehnte EUID mit
+	in der Liste dargestellt wird. Wird name nicht angegeben, wird es
+	automatisch auf this_player()->query_real_name() gesetzt.
+
+        Wird als name "ALL" angegeben, wird die vollstaendige Liste aus-
+	gegeben.
+
+	Durch Angabe von sortkey kann die Liste nach einer der Spalten 
+	sortiert werden. Gueltige Werte sind die in /sys/wizlist.h ange-
+	gebenen Defines.
+	
+EXAMPLE: 
+       > xeval wizlist("vanion", WL_HEART_BEATS)
+
+       Erzwingt Vanions Eintrag in der Liste und sortiert die Liste anhand
+       der durch die EUIDs ausgefuehrten heart beats.
+
+       > xeval wizlist("ALL", WL_EVAL_COST)
+
+       Zeigt die komplette Liste nach eval ticks-Verbauch sortiert an.
+
+BUGS: 
+       Nach WL_NAME kann nicht sortiert werden. (Abwaertskompatibilitaet)
+
+       Der Driver berechnet eval costs nicht richtig. Daher gibt es hier
+       bisweilen negative Eintraege.
+
+SEE ALSO:
+      add_worth(E), wizlist_info(E)
+
+LAST UPDATED:
+      Last modified: Sun Mar  7 19:28:05 2004 by Vanion

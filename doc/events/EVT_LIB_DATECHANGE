@@ -1,0 +1,27 @@
+EVENT: 
+   EVT_LIB_DATECHANGE
+
+DEFINIERT IN:
+   /sys/events.h
+
+GETRIGGERT VON:
+   /obj/uhr.c
+
+BESCHREIBUNG:
+   Dieser Event tritt auf, wenn sich das Datum aendert. Also immer um 00:00.
+
+EVENT-DATEN:
+   Die Daten werden als Mapping uebergeben:
+   ([ E_DAY:    (int), 1 - 31
+      E_MONTH:   (int), 1 - 12
+      E_YEAR:    (int), 0 - ..
+    ])
+
+BEMERKUNGEN:
+
+SIEHE AUCH:
+   events, RegisterEvent(), UnregisterEvent(), TriggerEvent(), eventd
+   EVT_LIB_CLOCK
+-----------------------------------------------------------------------------
+20.08.2007, Zesstra
+

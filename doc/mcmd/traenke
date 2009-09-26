@@ -1,0 +1,24 @@
+
+traenke
+-------
+
+ MAGIERKOMMANDO:
+    traenke
+
+ ARGUMENTE:
+    keine
+
+ BESCHREIBUNG:
+    Mit diesem Kommando kann man bestimmen, ob man ueberall, wo ein
+    Zaubertrank versteckt ist, auch einen Trank finden kann.
+
+    Ansonsten findet man nur die Traenke, die man in seiner Liste stehen hat.
+
+    Der Befehl wirkt als Umschalter: Kann man Traenke finden, so wird das
+    Verhalten nun ausgeschaltet, und umgekehrt.
+
+ SIEHE AUCH:
+    attribute, zaubertraenke
+
+ LETZTE AeNDERUNG:
+    Thu, 24.07.1997, 09:00:00 von Wargon

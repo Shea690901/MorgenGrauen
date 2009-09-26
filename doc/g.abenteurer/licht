@@ -1,0 +1,25 @@
+
+licht
+-----
+
+ ZAUBERSPRUCH:
+    licht
+
+ ARGUMENTE:
+    keine
+
+ FUNKTION:
+    Der Zauberspruch erzeugt eine leuchtende Kugel, die ja nach Stufe mehr
+    oder weniger lang bestehen bleibt.
+
+    Der Spruch kostet 5 Magiepunkte und ist ab Stufe 4 erhaeltlich.
+
+ SIEHE AUCH:
+    abenteurer, gilden,
+    identifiziere, schaetz, pfeil, ausweichen, kampfschrei, feuerball, schnell
+
+    *Ist man Mitglied einer anderen Gilde, so muss man fuer die Hilfen zu den
+    Spruechen `hilfe gilde abenteurer <name>' benutzen!*
+
+ LETZTE AeNDERUNG:
+    Thu, 24.07.1997, 09:00:00 von Wargon

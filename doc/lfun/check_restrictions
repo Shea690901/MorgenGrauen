@@ -1,0 +1,86 @@
+Die Methode
+  string check_restrictions(object pl, mapping restr)
+wird in /std/restriction_checker.c definiert. Sie wird verwendet, um
+Restriktionen (zum Beispiel fuer das Casten eines Spells) zu pruefen.
+
+Ihr wird dabei ein Spielerobjekt sowie ein Mapping mit den jeweiligen
+Restriktionen uebergeben. Die moeglichen Keys des Mappings sind die
+folgenden. Sie werden zum Grossteil in /sys/restriction_checker.h definiert.
+
+Zu beachten ist, dass ein mit einem Tarnhelm verkleideter Spieler
+grundsaetzlich nicht durch die Pruefungen durchkommt.
+
+
+SM_RACE
+  Hier kann pro Rasse ein Mapping mit besonderen (nur) fuer diese Rasse
+  geltenden Einschraenkungen vorgenommen werden. Als Keys sind die
+  in dieser Manpage beschriebenen Keys erlaubt, wobei SM_RACE nicht
+  rekursiv ausgewertet wird.
+P_LEVEL
+  Beinhaltet die Mindeststufe, die der Spieler besitzen muss, um die
+  restriktivierte Aktion auszufuehren.
+P_GUILD_LEVEL
+  Beinhaltet das Gildenlevel, das der Spieler mindestens erreicht haben
+  muss, um die restriktivierte Aktion auszufuehren.
+SR_SEER
+  Ist gesetzt, wenn der Spieler Seher sein muss. Dieses Flag wird nur
+  bei Interactives ausgewertet. NSCs muessen (natuerlich) kein Seher
+  sein.
+P_XP
+  Beinhaltet die Mindestmenge an Erfahrungspunkten, die ein Spieler
+  besitzen muss, um die Aktion auszufuehren.
+P_QP
+  Beinhaltet die Mindestmenge an Abenteuerpunkten, die der Spieler
+  haben muss.
+P_ALCOHOL
+  Beinhaltet die Menge an Alkohol, unter der der Alkoholspiegel des
+  Spielers liegen muss, um die Aktion noch ausfuehren zu koennen.
+P_DRINK
+  Beinhaltet die Menge an Fluessigkeit, unter der der Fluessigkeitsspiegel
+  des Spielers liegen muss, um die Aktion noch ausfuehren zu koennen.
+P_FOOD
+  Beinhaltet die Menge an Nahrung, unter der der Nahrungsspiegel des
+  Spielers liegen muss, um die Aktion noch ausfuehren zu koennen.
+P_DEAF
+  Ist gesetzt, falls der Spieler nicht taub sein darf.
+P_BLIND
+  Ist gesetzt, falls der Spieler nicht blind sein darf.
+  Achtung: das ist nicht gleichbedeutend mit dem Umstand, dass er evtl.
+  nichts mehr sehen kann. Auch andere Gruende (zum Beispiel Dunkelheit)
+  koennen bewirken, dass ein Spieler nichts mehr sieht.
+A_INT
+A_DEX
+A_CON
+A_STR
+  Geben die jeweilige Mindesthoehe eines Attributs an, um eine Aktion
+  ausfuehren zu koennen.
+SR_BAD
+SR_GOOD
+  Gibt an, wie boese bzw. wie gut ein Charakter maximal sein darf, um eine
+  Aktion ausfuehren zu koennen.
+SR_MIN_SIZE
+SR_MAX_SIZE
+  Gibt die minimale, bzw. die maximale Groesse an, die ein Charakter maximal
+  haben darf, um eine Aktion ausfuehren zu koennen.
+SR_FREE_HANDS
+  Gibt an, wieviele freie Haende ein Charakter fuer diese Aktion besitzen
+  muss.
+SR_EXCLUDE_RACE
+  Mitglieder aller in dieser Liste aufgefuehrten Rassen koennen diese
+  Aktion nicht ausfuehren.
+SR_INCLUDE_RACE
+  Mitglieder aller NICHT in dieser Liste aufgefuehrten Rassen koennen diese
+  Aktion nicht ausfuehren.
+SR_EXCLUDE_GUILD
+SR_INCLUDE_GUILD
+  Diese beiden Keys verhalten sich wie SR_*_RACE, nur dass hier Gilden
+  genannt werden.
+SR_FUN
+  Hier kann eine Methode als String, eine Closure oder ein Array mit den
+  Eintraegen von Methode und definierender Klasse eingetragen werden, um
+  eine eigene zusaetzliche Restriktionsmethode anzugeben.
+  Das kann nuetzlich sein, um andere Restriktionen zu pruefen,
+  zum Beispiel das Bestanden haben von Miniquests.
+
+
+

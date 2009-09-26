@@ -1,0 +1,8 @@
+NAME:
+	P_TEAM_LEADER                  "team_leader"
+
+DEFINIERT IN:
+	/sys/living/team.h
+
+BESCHREIBUNG:
+	Teamobjekt, falls Spieler Anfuehrer eines Teams ist.

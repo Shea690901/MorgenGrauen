@@ -1,0 +1,35 @@
+NAME:
+    P_DISABLE_ATTACK              "disable_attack"              
+
+DEFINIERT IN:
+    /sys/properties.h
+
+BESCHREIBUNG:
+    Das Lebewesen kann nicht angreifen. Beim Setzen der Property ist es
+    wichtig SetProp() zu benutzen und die Anzahl der Kampfrunden anzugeben,
+    die das Lebewesen paralysiert sein soll.
+
+    Ein negativer Wert ist nicht gueltig. Bei mehr als 30 Kampfrunden wird
+    die Paralyse auf 30 Kampfrunden gekappt.
+
+    Ein Gegner kann nach einer Paralyse erst wieder nach der doppelten
+    Zeit paralysiert werden. Die SetProp-Methode gibt dann den Wert
+    DISABLE_TOO_EARLY zurueck, der in combat.h definiert wird. Fuer Details
+    hierzu siehe P_NEXT_DISABLE_ATTACK.
+
+    Einen Gegner der nie paralysiert werden koennen soll, kann man einfach
+    per 
+
+    Set(P_DISABLE_ATTACK, function int () {return 0;}, F_SET_METHOD);
+
+    erstellen, da bei diesem der Wert von P_DISABLE_ATTACK nicht mehr mit
+    einem normalen SetProp()-Aufruf geaendert werden kann.
+
+BEISPIELE:
+    // Gegner 3 Runden lang paralysieren, ohne Ruecksicht auf fruehere P.
+    SetProp(P_DISABLE_ATTACK, 3); 
+
+SIEHE AUCH: P_NEXT_DISABLE_ATTACK
+
+---------------------------------------------------------------------------
+17.03.2008, Zesstra

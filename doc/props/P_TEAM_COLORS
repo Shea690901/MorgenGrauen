@@ -1,0 +1,10 @@
+NAME:
+	P_TEAM_COLORS                  "team_colors"
+
+DEFINIERT IN:
+	/sys/living/team.h
+
+BESCHREIBUNG:
+	Grenzwerte fuer farbige Anzeige im Teaminfo.
+	Array mit 4 Werten ({ lp_rot, lp_gelb, sp_rot, sp_gelb })
+

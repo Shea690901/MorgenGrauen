@@ -1,0 +1,41 @@
+RemoveSmells()
+
+FUNKTION:
+	void RemoveSmells(mixed*keys);
+
+DEFINIERT IN:
+	/std/thing/description.c
+
+ARGUMENTE:
+	keys
+	  String oder Array von Strings mit den zu entfernenden Details.
+
+BESCHREIBUNG:
+	Diese Funktion entspricht dem RemoveDetail() fuer Standarddetails,
+	nur koennen hiermit Gerueche entfernt werden:
+	Entfernt die in <keys> angegebenen Details aus der Liste der
+	vorhandenen Details. Uebergibt man fuer <keys> eine 0, so werden
+	saemtliche Details entfernt!
+
+RUeCKGABEWERT:
+	keiner
+
+BEISPIEL:
+	Zuerst erzeugen wir ein kleines Detail, mit dem wir am Rauch riechen
+	koennen. Das Feuer brennt langsam ab und das Detail wird wieder
+	entfernt:
+	  void abgebrannt();
+	  ...
+	  AddSmells("rauch",* H U S T *\n");
+	  call_out(#'abgebrannt,100);
+	  ...
+	  void abgebrannt()
+	  { RemoveSmells("rauch");
+	  }
+
+SIEHE AUCH:
+	AddSmells(), P_SMELLS, RemoveDetail(), RemoveReadDetail(),
+	RemoveSounds(), GetDetail()
+
+----------------------------------------------------------------------------
+Last modified: Wed Jan 14 19:59:11 1998 by Patryn

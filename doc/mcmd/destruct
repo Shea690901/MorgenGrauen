@@ -1,0 +1,36 @@
+
+destruct
+--------
+
+ MAGIERKOMMANDO:
+    destruct <objekt>
+    Destruct <objekt>
+
+ ARGUMENTE:
+
+     <objekt>   ID eines Objektes
+
+ BESCHREIBUNG:
+    Wenn es ein Objekt in der Umgebung (Inventory, Raum) gibt, das auf
+    <objekt> anspricht, wird dieses Objekt zerstoert.
+
+    In der ersten Version wird in dem Objekt remove() aufgerufen, um es zu
+    zerstoeren. Falls dies nicht zur Zerstoerung des Objektes fuehrt (weil das
+    Objekt gar kein remove() definiert oder die remove()-Funktion das
+    Zerstoeren verhindert), bleibt das Objekt erhalten.
+
+    In der zweiten Version wird das Objekt direkt per destruct() zerstoert.
+    remove() wird *nicht* aufgerufen.
+
+ BEMERKUNGEN:
+    Spieler duerfen niemals zerstoert werden!
+
+    Man sollte immer erst `destruct' probieren, wenn man ein Objekt zerstoeren
+    will, da einige Objekte in remove() noch Aufraeumarbeiten durchfuehren.
+
+ SIEHE AUCH:
+    load, clone, upd, setdmsg,
+    remove(L), destruct(E)
+
+ LETZTE AENDERUNG:
+    Mit, 02.10.2002, 02:00:00 von Mandragon

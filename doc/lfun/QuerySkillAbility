@@ -1,0 +1,30 @@
+QuerySkillAbility()
+
+FUNKTION:
+    public varargs int QuerySkillAbility(string skill, string gilde)
+
+DEFINIERT IN:
+    /std/living/skills.c
+	
+ARGUMENTE:
+    <skill> STRING
+            Name des abzufragenden Skill
+	  <gilde> STRING
+            Gilde, unter der der Skill gesucht werden soll
+
+BESCHREIBUNG:
+    Diese Funktion liefert einen Wert zurueck, der aussagt, wie gut das
+    Lebewesen den Skill <skill> kann (Key SI_SKILLABILITY im Skillmapping).
+    Dieser Wert liegt gewoehnlich zwischen 0 (Skill unbekannt) und 10000
+    (Skill perfektioiert).
+
+RUECKGABEWERT:
+    Ein Integerwert. Gewoehnlich zwischen 0 und 10000.
+    0 falls das Lebenwesen den Skill nicht kann/hat.
+
+SIEHE AUCH:
+    /sys/new_skills.h, /std/living/skills.c
+    ModfiySkill(), QuerySkill()
+
+-----------------------------------------------------------------------------
+02.09.2008, Zesstra

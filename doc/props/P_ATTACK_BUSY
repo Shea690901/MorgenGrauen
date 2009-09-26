@@ -1,0 +1,22 @@
+NAME:
+    P_ATTACK_BUSY                 "attack_busy"                 
+
+DEFINIERT IN:
+    /sys/living/combat.h
+
+BESCHREIBUNG:
+     Ueber diese Property wird festgestellt, ob ein Spieler noch 
+     Spezialwaffen (zB Flammenkugel) einsetzen kann.
+
+     Folgendermassen bestimmt sich der Wert pro Runde:
+
+     - bei Spielern: 100
+
+     - bei Sehern: 200 + QueryProp(P_LEVEL)
+
+     - bei beiden wird noch QuerySkillAttribute(SA_SPEED) addiert.
+
+     Das Maximum liegt bei 500.
+     Die Anzahl der moeglichen Aktionen pro Runde betraegt Wert/100.
+
+     Zaubersprueche zaehlen im Normalfall auch als eine Aktion.

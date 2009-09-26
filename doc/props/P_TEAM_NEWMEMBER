@@ -1,0 +1,8 @@
+NAME:
+	P_TEAM_NEWMEMBER               "potential_team_member"
+
+DEFINIERT IN:
+	/sys/living/team.h
+
+BESCHREIBUNG:
+	Spieler moechte ins Team von diesem Objekt aufgenommen werden.

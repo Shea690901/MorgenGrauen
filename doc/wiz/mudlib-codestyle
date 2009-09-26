@@ -1,0 +1,13 @@
+Wollt ihr Code in der allgemeinen, oeffentlichen Mudlib anschliessen, bitte
+beachtet die folgenden Hinweise zum Codestyle (nicht erschoepfend):
+
+* Einrueckungen per Leerzeichen, nicht Tabs
+* Einrueckung von 2 Leerzeichen pro Ebene
+* keine lambdas
+* Bei inline-closures die function-Syntax statt der (: :)-Syntax verwenden.
+* else, else if in eine eigene Zeile
+* { am Beginn von Bloecken muss nicht in eine eigene Zeile, darf aber.
+* Nach ifs, Loops & Co: umfasst der davon kontrollierte Code mehr als eine
+  physische Zeile Code, bitte einen Block mit { } formulieren.
+* keine return fun(), 0;
+

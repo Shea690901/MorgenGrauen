@@ -1,0 +1,31 @@
+QyeryArmourByType()
+
+FUNKTION:
+	mixed QueryArmourByType(string type)
+
+DEFINIERT IN:
+	/std/living/combat.c
+	
+ARGUMENTE:
+	type
+		Typ der Ruestung, auf die getestet werden soll.
+
+BESCHREIBUNG:
+	Abfrage, ob das Lebewesen eine Ruestung des angegebenen
+	Typs anhat.
+
+RUECKGABEWERT:
+	Die Ruestung, falls das Lebewesen eine Ruestung des
+	angegebenen Typs traegt. Im Normalfall ist der Rueckgabewert
+	vom Typ object, falls <type> AT_MISC ist jedoch vom Typ object *
+	und falls <type> 0 ist vom Typ Mapping.
+
+BEMERKUNG:
+	Ist <type> AT_MISC, so wird auf jeden Fall ein
+	Array zurueckgegeben, welches auch leer sein kann.
+	Wenn kein Typ angegeben wird, wird ein Mapping zurueckgegeben, in
+	dem zu jedem Typ die entsprechende Ruestung steht, falls vorhanden.
+	Der Eintrag AT_MISC des Mappings ist ein Array.
+
+SIEHE AUCH:
+	/std/living/combat.c, P_ARMOUR_TYPE, P_ARMOURS

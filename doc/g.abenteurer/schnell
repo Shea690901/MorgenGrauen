@@ -1,0 +1,28 @@
+
+schnell
+-------
+
+ ZAUBERSPRUCH:
+    schnell
+
+ ARGUMENTE:
+    keine
+
+ FUNKTION:
+    Der wohl maechtigste Spruch fuer maechtige Spieler.
+
+    Beschleunigt einen Spieler fuer eine gewisse Zeit. Die Zeitdauer haengt
+    dabei von der Geschicklichkeit des Spielers ab. Solange man beschleunigt
+    ist, bekommt man im Kampf einen Bonusschlag pro Runde.
+
+    Der Spruch kostet 100 Magiepunkte und ist ab Stufe 17 erhaeltlich.
+
+ SIEHE AUCH:
+    abenteurer, gilden,
+    licht, identifiziere, schaetz, pfeil, ausweichen, kampfschrei, feuerball
+
+    *Ist man Mitglied einer anderen Gilde, so muss man fuer die Hilfen zu den
+    Spruechen `hilfe gilde abenteurer <name>' benutzen!*
+
+ LETZTE AeNDERUNG:
+    Thu, 24.07.1997, 09:00:00 von Wargon

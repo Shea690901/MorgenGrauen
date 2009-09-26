@@ -1,0 +1,19 @@
+NAME:
+	P_GUILD_SKILLS			"guild_skills"                
+
+DEFINIERT IN:
+	/sys/new_skills.h
+
+BESCHREIBUNG:
+	Diese Gildenproperty enthaelt ein Mapping mit allen Skills und
+	Spells der Gilde.
+
+BEMERKUNGEN:
+	Man sollte diese Property sollte nicht per Hand veraendern, sondern
+	die Funktionen AddSkill() bzw. AddSpell() nutzen.
+
+SIEHE AUCH:
+	P_SB_SPELLS, AddSkill(), AddSpell(), P_NEWSKILLS, /std/spellbooks.c
+
+----------------------------------------------------------------------------
+Last modified: Wed Jan 14 19:17:06 1998 by Patryn

@@ -1,0 +1,17 @@
+NAME:
+    P_LEVEL                       "level"                       
+
+DEFINIERT IN:
+    /sys/properties.h
+
+BESCHREIBUNG:
+
+     Spieler-Level (!= Magierlevel)
+
+     In Fluechen (CL_DISEASE) drueckt P_LEVEL die 'Staerke' des 
+     Fluches aus. Je nachdem wie hoch oder niedrig der Level ge-
+     setzt wird, muss z.B. ein Kleriker mehr oder weniger oft
+     kurieren, um eine Heilung zu bewirken.
+
+SIEHE AUCH:
+     P_GUILD_LEVEL

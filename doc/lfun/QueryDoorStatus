@@ -1,0 +1,26 @@
+QueryDoorStatus()
+
+FUNKTION:
+     int QueryDoorStatus(string dest);
+
+DEFINIERT IN:
+     /obj/doormaster.c
+
+ARGUMENTE:
+     dest
+          Zielraum der Tuer.
+
+BESCHREIBUNG:
+     Es wird der Zustand der Tuer, die von diesem Raum nach dest fuehrt,
+     ermittelt.
+
+RUeCKGABEWERT:
+     Der Zustand der Tuer oder 0 (dies entspricht jedoch einer geschlossenen
+     Tuer).
+
+SIEHE AUCH:
+     SetDoorStatus(), NewDoor(), QueryAllDoors(), /obj/doormaster.c,
+     /std/room/doors.c
+
+----------------------------------------------------------------------------
+Last modified: Wed May 8 10:22:22 1996 by Wargon

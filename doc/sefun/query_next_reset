@@ -1,0 +1,23 @@
+simul_efun::query_next_reset(E)
+FUNKTION:
+     varargs int query_next_reset(object ob)
+
+ARGUMENTE:
+     ob - das interessierende Objekt
+
+BESCHREIBUNG:
+     Mit dieser efun ist es moeglich, den Zeitpunkt des naechsten Resets des
+     Objektes ob zu ermitteln.
+     In der Regel erfolgt der Reset dann im nach dem Faelligkeitszeitpunkt
+     folgenden Backend-Zyklus statt, d.h. momentan in den nachfolgenden 2s.
+     Allerdings kann dies auch mal nen Zyklus laenger dauern (4s), wenn der
+     Driver viel zu tun hat.
+     Ist ob nicht vorhanden, wird this_object() verwendet.
+     Diese sefun ist object_info()-Abfragen vorzuziehen, da die Parameter und
+     Rueckgabewerte von object_info() bei verschiedenen Gamedriverversionen
+     variieren koennen.
+
+SIEHE AUCH:
+     call_out(E), object_info(E), reset(L), set_next_reset(E
+
+13.10.2007 Zesstra

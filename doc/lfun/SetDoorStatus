@@ -1,0 +1,27 @@
+SetDoorStatus()
+
+FUNKTION:
+     void SetDoorStatus(string dest, int status);
+
+DEFINIERT IN:
+     /obj/doormaster.c
+
+ARGUMENTE:
+     dest
+          Zielraum der Tuer.
+     status
+          Der neue Zustand der Tuer.
+
+BESCHREIBUNG:
+     Der Zustand der Tuer, die von diesem Raum nach dest fuehrt, wird auf
+     status geaendert.
+
+RUeCKGABEWERT:
+     keiner
+
+SIEHE AUCH:
+     QueryDoorStatus(), QueryAllDoors(), NewDoor(), /obj/doormaster.c,
+     /std/room/doors.c
+
+----------------------------------------------------------------------------
+Last modified: Wed May 8 10:25:03 1996 by Wargon

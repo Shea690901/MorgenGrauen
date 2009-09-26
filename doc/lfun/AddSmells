@@ -1,0 +1,64 @@
+AddSmells()
+
+FUNKTION:
+	void AddSmells(mixed*keys,mixed desc);
+
+DEFINIERT IN:
+	/std/thing/description.c
+
+ARGUMENTE:
+	keys
+	  String oder Array von Strings mit den Namen der Details.
+	desc
+	  String, Mapping oder Closure zur Beschreibung der Details.
+
+BESCHREIBUNG:
+	Diese Funktion entspricht dem AddDetail() fuer Standarddetails, nur
+	koennen hiermit Gerueche realisiert werden:
+	Die Beschreibung der Details <keys> wird gesetzt. Wie die Details
+	bei der Untersuchung aussehen, haengt im wesentlichen vom Typ der
+	Beschreibung <desc> ab:
+	  <desc> ist ein String.
+	    Beim Untersuchen wird dieser String zurueckgegeben.
+	  <desc> ist ein Mapping.
+	    Das Mapping muss folgenden Aufbau haben:
+
+	      ([0:"Defaulttext","rasse1":"r1text",...]).
+
+	    Falls fuer die Rasse des das Detail untersuchenden Spielers ein
+	    Eintrag im Mapping existiert, wird der entsprechende Text
+	    zurueckgegeben, ansonsten der Defaulttext. Auf diese Weise sind
+	    rassenabhaengige Details moeglich. Siehe auch die Beispiele.
+	  <desc> ist eine Closure.
+	    In diesem Fall wird die Closure ausgefuehrt und das Ergebnis
+	    zurueckgegeben. Die Closure bekommt dabei den Namen des Details
+	    als Parameter uebergeben.
+	Fuer Details koennen Forscherpunkte eingetragen werden.
+	Gegenueber den Standarddetails zum Untersuchen bieten Gerueche die
+	erweiterte Moeglichkeit, allgemein einem Objekt zugeordnet zu
+	werden. Hierzu wird als <key> SENSE_DEFAULT uebergeben.
+
+RUeCKGABEWERT:
+	keiner
+
+BEISPIELE:
+	Ein kleines Beispiel fuer rassenabhaengige Gerueche mit Closures:
+	  string strafe(string key);
+	  ...
+	  AddSmells(SENSE_DEFAULT,
+	 "Der Geruch von Knoblauch ist ueberwaeltigend!\n");
+	  AddSmells(({"knoblauch","geruch"}),
+	 ([0       :"Puhh, das stinkt!\n",
+	            "vampir":#'strafe]));
+	  ...
+	  string strafe(string key)
+	  { this_player()->reduce_hit_points(100);
+	    return"Das war nicht so guenstig!\n";
+	  }
+
+SIEHE AUCH:
+	RemoveSmells(), P_SMELLS, AddDetail(), AddReadDetail(),
+	AddSounds(), GetDetail(), break_string()
+
+----------------------------------------------------------------------------
+Last modified: Wed Jan 14 19:17:06 1998 by Patryn

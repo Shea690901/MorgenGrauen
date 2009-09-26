@@ -1,0 +1,35 @@
+NAME:
+    P_HARBOUR                                  "harbour_name"                   
+
+DEFINIERT IN:
+    /sys/transport.h
+
+BESCHREIBUNG:
+    String-Array mit eindeutiger Bezeichnung des 'Hafens'
+
+BEMERKUNGEN:
+    Ist in einem Hafen diese Propertie nicht gesetzt, so bekommt der 
+    Spieler keinerlei Hinweis darauf, wohin ihn ein bestimmter Trans-
+    porter befoerdert. 
+    Stattdessen erhaelt er die Bezeichnung 'unbekannt'.
+
+    Um die Reisemeldung an den Spieler korrekt ausgeben zu koennen,
+    ist der Aufbau wie folgt:
+
+    ({ "zur Sonneninsel","sonneninsel" }) oder 
+    ({ "nach Titiwu","titiwu" })
+
+    Damit bekommt der Spieler bei einer Abfrage seiner Reiseroute
+    eine Ausgabe wie 'Du reist mit dem Floss nach Titiwu' oder
+                     'Du reist mit dem Wal zur Sonneninsel'.
+
+    Zu achten ist lediglich darauf, das er erste Eintrag IMMER die 
+    obige Form behaelt, also das Ziel auch grossgeschrieben wird.
+    
+SIEHE AUCH:
+    P_NO_TRAVELING, P_TRAVEL_INFO, reise
+    /d/inseln/schiffe/HowTo
+
+LETZTER AENDERUNG:
+    Don, 24.01.2002, 10:15:07h von Tilly
+    

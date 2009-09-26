@@ -1,0 +1,8 @@
+NAME:
+	P_TEAM                         "team"
+
+DEFINIERT IN:
+	/sys/living/team.h
+
+BESCHREIBUNG:
+	Teamobjekt, falls Spieler in einem Team ist.

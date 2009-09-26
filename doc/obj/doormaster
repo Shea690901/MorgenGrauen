@@ -1,0 +1,34 @@
+Das Objekt "/obj/doormaster.c"
+
+/obj/doormaster.c dient als zentrale Verwaltungsstelle fuer die Tueren im
+MorgenGrauen. In der Regel kommt man mit diesem Objekt nicht in Beruehrung,
+das die Kommunikation ueber /std/room/doors.c laeuft.
+
+Makros
+
+In <doorroom.h> sind folgende Werte fuer den Zustand einer Tuer definiert:
+
+DOOR_STATUS_LOCKED
+     Die Tuer ist abgeschlossen.
+
+DOOR_STATUS_CLOSED
+     Die Tuer ist zu.
+
+DOOR_STATUS_OPEN
+     Die Tuer ist offen.
+
+Funktionen
+
+Folgende Funktionen stehen zur Manipulation von Tueeren bereit:
+
+NewDoor()
+     Tuer einbauen. Nicht hier aufrufen, sondern in /std/room/doors.c!!!
+QueryDoorStatus()
+     Status einer Tuer abfragen.
+SetDoorStatus()
+     Status einer Tuer setzen.
+QueryAllDoors()
+     ALLE Tueren des MorgenGrauen ermitteln.
+
+----------------------------------------------------------------------------
+Last modified: Wed May 8 10:00:04 1996 by Wargon

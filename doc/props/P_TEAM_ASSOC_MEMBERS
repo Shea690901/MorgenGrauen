@@ -1,0 +1,13 @@
+NAME:
+	P_TEAM_ASSOC_MEMBERS           "team_assoc_members"
+
+DEFINIERT IN:
+	/sys/living/team.h
+
+BESCHREIBUNG:
+	Array mit den zugeordneten NPCs des Spielers bzw.
+	der Spieler, dem dieser NPC zugeordnet ist.
+	Zugeordnete NPCs sind automatisch im Team des Spielers.
+	Der Zugriff auf diese Property sollte ueber AssocMember()
+	bzw. DeAssocMember() erfolgen.
+

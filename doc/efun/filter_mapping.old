@@ -1,0 +1,24 @@
+SYNOPSIS:
+	mapping filter_mapping(mapping, string func, object ob, ...)
+	mapping filter_mapping(mapping, closure cl, ...)
+
+DESCRIPTION:
+	ob->func() is called resp. cl applied to every element in the
+	mapping, with first argument the key of the
+	element, and then the extra args that were given to
+	filter_mapping. If the function returns true, the element is
+	added to the result mapping. ob can also be a file_name of an
+	object. If the second arg is a string and the third is not an
+	object, this_object() will be used as default.
+
+SEE ALSO:
+        Filtering:	filter_array(E), filter_object(E), filter_mapping(E)
+        Mapping:	map_array(E), map_objects(E), map_mapping(E)
+	Iterating:	walk_mapping(E)
+        Related:	sort_array(E), unique_array(E)
+			member(E), mapping_contains(E)
+
+26. Nov 2004 Gloin(son)
+
+SEE ALSO:
+	map_array(E), walk_mapping(E), member(E), mapping_contains(E)

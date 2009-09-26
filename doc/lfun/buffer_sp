@@ -1,0 +1,34 @@
+FUNKTION:
+    int buffer_sp( int val, int rate );
+
+DEFINIERT IN:
+    /std/living/life.c
+
+ARGUMENTE:
+    val:  Gesamte Heilung.
+    rate: KP-Rate.
+        
+BESCHREIBUNG:
+    Erhoeht die KP eines Spielers automatisch insgesamt um den Wert "val".
+    Pro heart_beat() wird ihm dabei der Wert "rate" zugefuehrt.
+
+RUECKGABEWERTE:
+    Der getankte Wert pro heart_beat().
+
+BEMERKUNG:
+    Sollte von jeder tragbaren Heilung genutzt werden, welche den Spieler
+    darauf schlieﬂen lassen kann, auf natuerlichem und nichtmagischem Weg
+    (Essen, Trinken) geheilt worden zu sein.
+
+BEISPIEL:
+    s. Bsp. zu "buffer_hp"
+
+SIEHE AUCH:
+----------
+     heilung, drink_alcohol, drink_soft, heal_self, restore_spell_points,
+     reduce_hit_points, check_and_update_timed_key, buffer_hp, eat_food,
+     enttanken, defuel_drink, defuel_food, reduce_food, reduce_drink,
+     reduce_alcohol, P_DRINK, P_FOOD, P_ALCOHOL, P_LAST_XP, food
+
+----------------------------------------------------------------------------
+Last modified: Mit Aug 13 02:02:02 2003 by Gabylon
