@@ -23,7 +23,7 @@ LPC:        15:15: 1:Fragen zur Programmierung und LPC
 Debug:      20:60: 1:Debug und Fehlermeldungen:		/p/daemon/debug
 Entwicklung: 20:60:1:Fehler rund um Eigenentwicklungen: /p/daemon/debug
 Warnungen:   20:60:1:Laufzeit-Warnungen:		/p/daemon/debug
-Snoop:      60:-1: 1:Wer snoopt denn hier?:		/secure/simul_efun
+Snoop:      60:-1: 1:Wer snoopt denn hier?:		/secure/simul_efun/simul_efun
 FTP:        60:-1: 1:Wer macht denn FTP?:		/secure/bbmaster
 #
 # Intermud channels
@@ -40,7 +40,6 @@ D-adm:      60:60: 3:Deutschsprachige Administration:	/secure/udp/channel
 #
 # special
 #
-N:           0: 0: 0:RPO Newsticker:			/p/daemon/udp/news
 Wissenschaft:0: 0: 0:Wissenschaftliche Dispute
 Kultur:	     0: 0: 0:Kulturelle Ereignisse und Erguesse
 Sport:	     0: 0: 0:Sport und Spiel

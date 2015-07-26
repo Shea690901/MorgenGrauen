@@ -2,9 +2,10 @@
 //
 // def_workroom.c -- standard workroom for new wizards
 //
-// $Id: def_workroom.c 2925 2006-09-23 09:48:07Z root $
+// $Id: def_workroom.c 7423 2010-02-07 22:56:38Z Zesstra $
 
-#pragma strong_types
+#pragma strong_types,save_types,rtt_checks
+#pragma pedantic, range_check
 
 inherit "std/room";
 

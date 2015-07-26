@@ -11,18 +11,20 @@ Dinge ans Herz gelegt:
 
 
 o  #pragma strong_types soll in allen Files verwendet werden,
+   ab Driver-Version LD_3.5.x ggf. auch ueber save_types und rtt_checks
+   nachdenken. 
 
-o  der Code soll keine Zeilen mit mehr als 78 Zeichen enthalten,
+o  Der Code soll keine Zeilen mit mehr als 78 Zeichen enthalten.
 
-o  der Code soll sauber eingerueckt und sorgfaeltig formatiert sein, aber
-   bitte ohne Tabulatoren,
+o  Der Code soll sauber eingerueckt und sorgfaeltig formatiert sein, aber
+   bitte ohne Tabulatoren.
 
 o  Verwende keine Lambda-Closures! Was auch immer Du vorhast: Es geht
    ohne. Es sei ausdruecklich auf die Moeglichkeit von inline-Closures
    verwiesen, wenn Du unbedingt vermeiden willst, eine separate Funktion
    zu schreiben.
 
-o  kommentiere Deinen Code, insbesondere dort, wo komplexere Objekt-
+o  Kommentiere Deinen Code! Insbesondere dort, wo komplexere Objekt-
    Interaktionen stattfinden, oder wo implizit besondere Eigenschaften
    (z.B. der Mudlib, oder mathematische "Features") genutzt werden, die im
    Code nicht auf den ersten Blick ersichtlich oder durchschaubar sind.
@@ -30,9 +32,9 @@ o  kommentiere Deinen Code, insbesondere dort, wo komplexere Objekt-
    musstest, kommentiere sie." ;-) Rechne immer damit, dass jemand, der
    Deinen Code liest, keine Ahnung hat, was Du da eigentlich tust. :-)
 
-o  wirf bitte nach Abschluss der Arbeiten Platzhalter-Code raus (z.B. leere
+o  Wirf bitte nach Abschluss der Arbeiten Platzhalter-Code raus (z.B. leere
    AddDetail()-Anweisungen) und entferne nicht fuer das Gebiet benoetigte
-   Dateien aus den Verzeichnissen
+   Dateien aus den Verzeichnissen.
 
 o  Speicherung von Daten in secure-Verzeichnissen soll bitte nur sehr
    sparsam erfolgen und nur in Abstimmung mit dem RM.

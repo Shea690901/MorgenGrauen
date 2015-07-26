@@ -6,8 +6,8 @@
  *                     SilberLand MUDlib
  */
 
-#pragma strong_types
-#pragma combine_strings
+#pragma strong_types,save_types
+#pragma no_clone,no_shadow
 
 #define NEED_PROTOTYPES
 
@@ -30,7 +30,6 @@ void create()
     harbours = ([]);
     return;
   }
-  restore_object((TRAVELD_SAVEFILE));
 }
                                                                                               
 public void AddHarbour(string ship, string harbour)

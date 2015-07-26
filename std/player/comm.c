@@ -2,7 +2,7 @@
 //
 // player/comm.c-- basic player communiction commands
 //
-// $Id: comm.c 7256 2009-08-10 19:21:04Z Zesstra $
+// $Id: comm.c 7469 2010-02-20 17:41:40Z Zesstra $
 
 #pragma strong_types
 #pragma save_types
@@ -283,10 +283,13 @@ protected varargs int _recv(object ob, string message, int flag, string indent)
 	flag);
     else
       add_to_tell_history(getuid(ob), 1, 0, message, indent, flag);
+  return 1;
 }
 
+// <sender> sollte ein Objekt sein. In seltenen Faellen (z.B.
+// Fehlerbehandlung) ist es jedoch auch mal ein String.
 varargs int Message(string msg, int flag, string indent,
-                    string cname, object sender)
+                    string cname, mixed sender)
 {
   object ti;
   string verb, reply, *ignore, tin;
@@ -856,6 +859,7 @@ static int _converse_more(mixed str, int silent)
           QueryProp(P_PRESAY):"")+name())||"");
   if(str != "") _communicate(str, silent);
   input_to("_converse_more", INPUT_PROMPT, "]", silent);
+  return 1;
 }
 
 private int is_learner(object o) { return IS_LEARNER(o); }

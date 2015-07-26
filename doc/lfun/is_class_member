@@ -16,6 +16,7 @@ BESCHREIBUNG:
        1. Die Rasse des Objektes (bei Lebewesen),
        2. die IDs des Objektes und
        3. die explizit angegebenen Klassen des Objektes.
+       4. einigen impliziten Klassen, die sich aus den Klassen in 3 ergeben.
 
      Die moeglichen Klassen sind in /sys/class.h definiert. Momentan stehen
      folgende Klassen zur Verfuegung:
@@ -81,9 +82,9 @@ BESCHREIBUNG:
      CL_MAMMAL
           Saeugetiere.
      CL_MAMMAL_LAND
-          Landsaeugetiere, im Unterschied zu
+          Landsaeugetiere
      CL_MAMMAL_WATER
-          Meeressaeugern.
+          Meeressaeuger.
      CL_ORC
           Ein Ork.
      CL_PLANT
@@ -110,8 +111,37 @@ BESCHREIBUNG:
           Ein untotes Lebewesen.
      CL_WALKING
           Dieses Wesen bewegt sich gehend.
+     CL_VAMPIRE
+          Ein Vampir. Er faellt automatisch in die Klasse CL_UNDEAD.
      CL_ZOMBIE
           Ein Zombie. Er faellt automatisch in die Klasse CL_UNDEAD.
+
+     Implizite Klassen:
+     Bei einigen Klassen wird im AddClass() automatisch eine oder mehrere
+     weiterer Klassen hinzugefuegt und im RemoveClass() die entsprechenden
+     impliziten Klassen auch automatisch entfernt.
+     Wuenscht man diese impliziten Klassen nicht, muss man nach dem AddClass()
+     diese mittels eines entsprechenden RemoveClass() entfernen.
+     Die impliziten Klassen einer Klasse lassen sich mit Hilfe der Funktion
+     QueryImplicitClasses() in CLASSDB herausfinden:
+       CLASSDB->QueryImplicitClasses(...)
+     Momentan sind dies:
+     CL_ZOMBIE:       CL_UNDEAD
+     CL_SKELETON:     CL_UNDEAD
+     CL_GHOUL:        CL_UNDEAD
+     CL_VAMPIRE:      CL_UNDEAD
+     CL_HOBGOBLIN:    CL_GOBLIN
+     CL_MAMMAL_LAND:  CL_MAMMAL, CL_ANIMAL
+     CL_MAMMAL_WATER: CL_MAMMAL, CL_ANIMAL
+     CL_SNAKE:        CL_REPTILE
+     CL_ARACHNID:     CL_ANIMAL
+     CL_BIRD:         CL_ANIMAL
+     CL_FISH:         CL_ANIMAL
+     CL_FROG:         CL_ANIMAL
+     CL_INSECT:       CL_ANIMAL
+     CL_MAMMAL:       CL_ANIMAL
+     CL_REPTILE:      CL_ANIMAL
+     CL_SNAKE:        CL_ANIMAL
 
 RUeCKGABEWERT:
      1, wenn das Objekt in eine der angegebenen Klassen faellt, ansonsten 0.
@@ -121,4 +151,5 @@ SIEHE AUCH:
      P_CLASS
 
 ----------------------------------------------------------------------------
-Last modified: Mon Jul 10 15:48:25 2000 by Silvana
+19.11.2009, Zesstra
+

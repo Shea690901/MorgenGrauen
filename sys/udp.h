@@ -2,7 +2,7 @@
 //
 // udp.h -- Definitionen fuers udp
 //
-// $Id: udp.h 7282 2009-09-02 09:02:55Z Zesstra $
+// $Id: udp.h 7410 2010-02-06 10:14:23Z Zesstra $
 
 #ifndef _UDP_H
 #define _UDP_H
@@ -13,11 +13,13 @@
 
 #define INETD		"/secure/inetd"
 #define UDP_CMD_DIR	"/secure/udp/"
-#if (__HOST_NAME__==MUDHOST)
-#define HOST_FILE	"/etc/INETD_HOSTS"
+
+#if !defined(__TESTMUD__) && MUDNAME=="MorgenGrauen"
+#  define HOST_FILE	"/etc/INETD_HOSTS"
 #else
-#define HOST_FILE       "/etc/INETD_HOSTS.TESTMUD"
+#  define HOST_FILE "/etc/INETD_HOSTS.TESTMUD"
 #endif
+
 #define INETD_LOG_FILE	"INETD"
 
 #define REPLY_TIME_OUT	12
@@ -27,7 +29,7 @@
 #if (__HOST_NAME__==MUDHOST)
 #define LOCAL_NAME  MUDNAME
 #else
-#define LOCAL_NAME  "MG-Test:"+__HOST_NAME__
+#define LOCAL_NAME  "MG-Test-"+__HOST_NAME__
 #endif
 
 /* #define LOCAL_UDP_PORT	SECURITY->do_debug("udp_port");  // CD */

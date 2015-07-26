@@ -2,7 +2,7 @@
 //
 // admin.c
 //
-// $Id: admin.c 6371 2007-07-17 22:46:50Z Zesstra $
+// $Id: admin.c 7407 2010-02-06 00:24:48Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma range_check
@@ -15,6 +15,8 @@
 #include <magier.h>
 #include <player.h>
 
+inherit "/std/util/cidr";
+
 mixed *_query_localcmds()
 {
   return ({({"udpq","_udpq",0,LEARNER_LVL}),
@@ -22,7 +24,7 @@ mixed *_query_localcmds()
            ({"addmaster","_addmaster",0,GOD_LVL}),
            ({"removemaster","_removemaster",0,GOD_LVL}),
            ({"addguildmaster", "_addguildmaster", 0, GOD_LVL}),
-	   ({"removeguildmaster", "_removeguildmaster", 0, GOD_LVL}), 
+           ({"removeguildmaster", "_removeguildmaster", 0, GOD_LVL}),
            ({"suender","sinners",0,WIZARD_LVL}),
            ({"banish","banish", 0, WIZARD_LVL}),
            ({"mbanish","mbanish", 0, WIZARD_LVL}),
@@ -350,21 +352,10 @@ static int tbanish( string str )
   return 1;
 }
 
-
-private string _adresse( string *ip )
-{
-    int i;
-
-    i = sizeof(ip);
-
-    return sprintf( "%3s.%3s.%3s.%3s", ip[0], ip[1],
-                    i > 2 ? ip[2] : "*", i > 3 ? ip[3] : "*" );
-}
-
 static int sbanish( string str )
 {
-    string ip, *p;
-    int days, i;
+    string ip;
+    int days;
     mapping sites;
 
     // Mindestens L26 fuer diesen Befehl
@@ -380,14 +371,16 @@ static int sbanish( string str )
         ip = "      Adresse      |  gesperrt bis                 |  gesperrt "
             + "durch\n========================================================"
             + "==============\n";
-        p = sort_array( m_indices(sites), #'</*'*/ );
 
-        for ( i = sizeof(p); i--; )
-            ip += sprintf( "  %s  |  %s  |  %s\n",
-                           _adresse( explode( p[i], "\\." ) - ({""}) ),
-                           sites[p[i]] > 0 ? dtime(sites[p[i]]) :
-                           "St. Nimmerleinstag", capitalize(sites[p[i], 1]) );
+        int *keys = sort_array( m_indices(sites), #'</*'*/ );
 
+        foreach(int key : keys) {
+            ip += sprintf( "  %:15-s  |  %:27-s  |  %-s\n",
+                           IPv4_int2addr(key),
+                           sites[key] > 0 ? dtime(sites[key]) :
+                           "St. Nimmerleinstag", 
+                           capitalize(sites[key, 1]) );
+        }
         write( ip + "\n" );
         return 1;
     }
@@ -400,48 +393,34 @@ static int sbanish( string str )
     if ( !ip || !strlen(ip) )
         return 0;
 
-    p = explode( ip, "." ) - ({""});
-
-    _notify_fail( "Ungueltiges Adress-Format!\n" );
-
-    if ( (i = sizeof(p)) < 2 || i > 4
-         || sizeof(regexp( p, "[^0-9]" ) - ({"*"})) )
-        return 0;
-
-    for ( ; i--; )
-        if ( (int) p[i] < 0 || (int) p[i] > 255 )
-            return 0;
-        else if ( p[i] == "*" )
-            p[i..] = ({});
-
-    if ( sizeof(p) < 2 )
-        return 0;
-
-    ip = implode( p, "." );
+//    _notify_fail( "Ungueltiges Adress-Format!\n" );
 
     if ( !days ){
-        if ( (i = (int)MASTER->SiteBanish(ip, 0)) == 1 )
+        int res=(int)MASTER->SiteBanish(ip, 0);
+        if ( res == 1 )
              printf( "Die Adresse '%s' ist jetzt nicht mehr gesperrt.\n",
-                     _adresse(p) );
-        else if ( i == 0 )
+                     ip );
+        else if ( res == 0 )
              printf( "Die Adresse '%s' war gar nicht gesperrt!\n",
-                     _adresse(p) );
+                     ip );
         else
             printf( "Du darfst nur eigene Sperrungen wieder aufheben!\n" );
     }
     else {
+        int res;
         if ( days != 1 && !IS_DEPUTY(secure_euid()) )
             write( "Du darfst Adressen nur fuer einen Tag sperren!\n" );
-        else if ( (i = (int)MASTER->SiteBanish(ip, days)) == 1 )
+        else if ( (res = (int)MASTER->SiteBanish(ip, days)) == 1 )
              printf( "Die Adresse '%s' ist jetzt fuer %s gesperrt.\n",
-                     _adresse(p), (days > 1 ? sprintf( "%d Tage", days ) :
+                     ip, (days > 1 ? sprintf( "%d Tage", days ) :
                       (days > 0 ? "einen Tag" : "immer")) );
-        else if ( i == -1 )
-            write( "Du darfst " + (LORD_SECURITY ? "maximal Class C-Subnetze"
-                                   : "nur einzelne IPs") + " sperren!\n" );
-        else if ( i == -2 )
+        else if ( res == -1 )
+            write( "Du darfst " + (LORD_SECURITY ? "255 IP-Adressen"
+                                   : "nur einzelne IP-Adressen") + " sperren!\n" );
+        else if ( res == -2 )
             write( "Du hast schon genug Adressen gesperrt!\n" );
     }
 
     return 1;
 }
+

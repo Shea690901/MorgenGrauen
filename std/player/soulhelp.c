@@ -2,7 +2,9 @@
 //
 // player/soulhelp.c -- Hilfe zu den Soulkommandos
 //
-// $Id: soulhelp.c 6892 2008-08-05 22:29:13Z Zesstra $
+// $Id: soulhelp.c 7423 2010-02-07 22:56:38Z Zesstra $
+
+#pragma strong_types,save_types
 
 #include <wizlevels.h>
 #ifdef WECKE

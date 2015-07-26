@@ -1,15 +1,14 @@
 
-#pragma strict_types
+#pragma strict_types,save_types
+#pragma no_clone,no_shadow
+
 #include <daemon.h>
 #include <logging.h>
 
 static int d_start, d_end, e_start, e_end;
 
 protected void create()
-{
-    if ( clonep(this_object()) )
-        return;
-    
+{    
     d_end = d_start = e_end = e_start = file_size(__DEBUG_LOG__);
 }
 
@@ -61,7 +60,7 @@ int check( string ch, object pl, string cmd, string txt )
                     else {
                         log = regreplace( read_bytes( __DEBUG_LOG__, start,
                                                       (end-start>10000)?10000:
-						      end - start ),
+						      end - start ) || "\nFehler beim Einlesen des Debuglogs: Kein Backtrace verfuegbar!\n",
                                           "(Misplaced|current_object|"
                                           "Connection|Host)[^\n]*\n",
                                           "", 1 );

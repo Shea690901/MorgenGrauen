@@ -9,13 +9,9 @@
 */
 /* Changelog:
 */
-#pragma strong_types
-#pragma save_types
-#pragma no_clone
-#pragma no_inherit
-#pragma no_shadow
-#pragma pedantic
-#pragma range_check
+#pragma strong_types,save_types
+#pragma no_clone,no_inherit,no_shadow
+#pragma pedantic,range_check
 
 #include <defines.h>
 

@@ -1,3 +1,6 @@
+#pragma strong_types, save_types
+#pragma no_clone, no_shadow
+
 #include "/p/daemon/ch.h"
 #include "/p/daemon/uptime_master.h"
 

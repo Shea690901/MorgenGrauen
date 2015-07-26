@@ -2,7 +2,7 @@
 // 
 // player/guide.c -- newbie guide handling 
 //
-// $Id: guide.c 6669 2008-01-04 19:38:52Z Zesstra $
+// $Id: guide.c 7391 2010-01-25 22:52:51Z Zesstra $
 
 #pragma strict_types
 #pragma save_types
@@ -10,6 +10,7 @@
 #pragma no_clone
 #pragma pedantic
 
+#include <config.h>
 #define NEED_PROTOTYPES
 #include <player/user_filter.h> // fuer is_active_guide()
 #include <properties.h>
@@ -153,8 +154,8 @@ void NewbieIntroMsg()
 	if (namen && sizeof(namen)>0)
 	{
 		restext="\nEs gibt einige nette Spieler, die bereit sind, Dich "
-				"auf Deinen ersten Schritten im MorgenGrauen "
-				"zu begleiten. \n\nDerzeit "
+				"auf Deinen ersten Schritten im "MUDNAME
+				" zu begleiten. \n\nDerzeit "
 				+IstSindMsg(namen)+" eingeloggt. Du kannst "
 				"einen oder eine von Ihnen ansprechen, "
 				"indem Du z.B. einfach \n"

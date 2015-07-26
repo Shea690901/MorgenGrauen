@@ -99,7 +99,7 @@ static string list_data(mapping dat) {
   qs=Fragen();sz=sizeof(qs);text="";
   for (i=0;i<sz;i++) {
     key=qs[i][Q_KEY];
-    str=qs[i][Q_TEXT]+" "+capitalize(dat[key]);
+    str=qs[i][Q_TEXT]+" "+capitalize(stringp(dat[key])?dat[key]:"(unbekannt)");
     if (mappingp(x=qs[i][Q_CHOICES]) && stringp(x[dat[key]]))
       str+=(" ("+x[dat[key]]+")");
     text+=break_string(str+"\n",78,"    ")[2..];

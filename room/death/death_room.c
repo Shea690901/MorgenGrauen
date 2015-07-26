@@ -2,7 +2,7 @@
 //
 // death_room.c -- Der Todesraum
 //
-// $Id: death_room.c 7303 2009-09-18 21:43:59Z Zesstra $
+// $Id: death_room.c 7314 2009-09-28 13:28:14Z Zesstra $
 
 
 #pragma strict_types
@@ -387,71 +387,71 @@ void add_player( object pl )
     kart = 0;
     kgen = MALE;
 
-    for ( i = 1; pre = previous_object(i); i++ ){
+    foreach(pre : caller_stack(1)) { 
         if ( !objectp(pre) || pre == pl )
             continue;
-        
+
         fn = object_name(pre);
-        
+
         if ( fn[0..12] == "/secure/login" && !kill_liv ){
             escaped = 1;
             break;
         }
-    
+
         if ( fn[0..7] == "/secure/" && fn[0..13] != "/secure/merlin" )
             continue;
-    
+
         if ( fn[0..21] == "/room/death/death_mark" )
             continue;
-    
+
         if ( living(pre) ){
             kill_liv = pre; // Killer
             break;
         }
-        
+
         kill_ob = pre; // killendes Objekt
     }
-    
+
     if ( objectp( pre = ((object) pl->QueryProp(P_KILLER)) ) ){
         dseq = (mixed) pre->QueryProp(P_ENEMY_DEATH_SEQUENCE);
-        
+
         if( !(killer_name = (mixed) pre->QueryProp(P_KILL_NAME)) ){
             killer_name = (mixed) pre->QueryProp(P_NAME);
             kart = (int) pre->QueryProp(P_ARTICLE);
             kgen = (int) pre->QueryProp(P_GENDER);
         }
-        
-        killer_msg = (mixed)pre->QueryProp(P_KILL_MSG);
+
+        killer_msg = (mixed)pre->QueryProp(P_KILL_MSG);  
     }
-    
+
     if ( !killer_name && kill_liv && function_exists( "QueryProp", kill_liv ) ){
         dseq = (mixed) kill_liv->QueryProp(P_ENEMY_DEATH_SEQUENCE);
-        
+
         if( !(killer_name = (mixed) kill_liv->QueryProp(P_KILL_NAME)) ){
             killer_name = (mixed) kill_liv->QueryProp(P_NAME);
             kart = (int) kill_liv->QueryProp(P_ARTICLE);
             kgen = (int) kill_liv->QueryProp(P_GENDER);
         }
-        
+
         killer_msg = (mixed) kill_liv->QueryProp(P_KILL_MSG);
         pre = kill_liv;
     }
-    
+
     if ( !killer_name && kill_ob && function_exists( "QueryProp", kill_ob ) ){
         dseq = (mixed) kill_ob->QueryProp(P_ENEMY_DEATH_SEQUENCE);
-        
+
         if( !(killer_name = (mixed) kill_ob->QueryProp(P_KILL_NAME)) ){
             killer_name = (mixed) kill_ob->QueryProp(P_NAME);
             kart = (int) kill_ob->QueryProp(P_ARTICLE);
             kgen = (int) kill_ob->QueryProp(P_GENDER);
         }
-        
+
         killer_msg = (mixed) kill_ob->QueryProp(P_KILL_MSG);
         pre = kill_ob;
-    }
-    
+   }
+
     act_seq = 0;
-    
+
     if ( mappingp(dseq) )
         act_seq = get_sequence( "/room/death/sequences/lars" );
     else if ( pointerp(dseq) )  // ganze Todessequenz...
@@ -469,10 +469,10 @@ void add_player( object pl )
                         16:"NUN GEHOERST DU FUER IMMER MIR!\n",
                         18:"HAHHHAHAHAAAAAAAAAAHAAAAAAAAA!\n",
                         20:"TOD schlaegt Dir mit seiner Sense den Kopf ab.\n"])}),0});
-    }    
+    }
     if ( !act_seq )
         act_seq = get_sequence();
-    
+
     if ( !mappingp(dseq) )
         dseq = 0;
 
@@ -485,7 +485,7 @@ void add_player( object pl )
     else
         players[i][5] = pre;
 
-    if ( !kill_ob || !environment(kill_ob) ) {
+
         if ( escaped ){
             killer_name = "";
             killer_msg = upperstring(getuid(pl)) + " VERSUCHTE, MIR ZU "
@@ -493,8 +493,7 @@ void add_player( object pl )
                 ((int) pl->QueryProp(P_GENDER) != 2 ? "IHM" : "IHR") +
                 " ...";
         }
-        else{
-            if ( !killer_name ){
+        else if ( !killer_name ) {
                 if ( (string) pl->QueryProp(P_KILLER) == "gift" ){
                     killer_name = "Vergiftung";
                     kgen = FEMALE;
@@ -505,9 +504,8 @@ void add_player( object pl )
                     kgen = NEUTER;
                     kart = 0;
                 }
-            }
         }
-        
+
         if ( !pointerp(killer_msg) )
             killer_msg = ({ killer_msg, 0, 0 });
         else if ( sizeof(killer_msg) < 3 )
@@ -534,13 +532,13 @@ void add_player( object pl )
         }
         else 
           magiertestie=0;
-        if  ((magiertestie||IS_LEARNER(pl))&&pl->QueryProp(P_WANTS_TO_LEARN)) 
+        if  (magiertestie || IS_LEARNING(pl))
             kanal = "TdT";
         else
             kanal = "Tod";
-        
+
         CHMASTER->join( kanal, this_object() );
-        
+
         if ( (!stringp(killer_name) || killer_name != "") &&
              (sizeof(killer_msg) < 4 || !killer_msg[3]) ){
             if ( killer_msg[2] == PLURAL )
@@ -552,7 +550,7 @@ void add_player( object pl )
                                 fn + " hat gerade " +
                                 capitalize(getuid(pl)) + " umgebracht." );
         }
-        
+
         i = (int) pl->QueryProp(P_DEADS);
         if ( i && (getuid(pl) == "key" || i%100 == 0 || i%250 == 0) ){
             SetProp( P_NAME, "Tod" );
@@ -567,12 +565,12 @@ void add_player( object pl )
                                 break_string( funcall(killer_msg[0]), 78,
                                               "["+kanal+":] " )[0..<2],
                                 MSG_EMPTY );
-                return;
+                return; 
             }
             else {
                 if ( (killer_msg[1] < MSG_SAY) || (killer_msg[1] > MSG_GEMOTE) )
                     killer_msg[1] = MSG_SAY;
-                
+
                 SetProp( P_NAME, killer_name );
                 SetProp( P_ARTICLE, kart );
                 SetProp( P_GENDER, kgen );
@@ -596,14 +594,12 @@ void add_player( object pl )
             SetProp( P_ARTICLE, 0 );
             SetProp( P_GENDER, MALE );
         }
-        
+
         if (pl->query_hc_play()>1){
             SetProp( P_NAME, "Tod" );
             CHMASTER->send( kanal, this_object(),"NUN GEHOERST DU FUER EWIG MIR!" );
             SetProp( P_NAME, "Lars" );
         }
-        
-    }
 }
 
 public int

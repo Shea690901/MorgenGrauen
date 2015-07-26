@@ -2,12 +2,15 @@
 //
 // master/misc.c -- Diverses: (T)Banish, Projektverwaltung, Levelaufstieg, ...
 //
-// $Id: misc.c 7288 2009-09-16 22:09:57Z Zesstra $
+// $Id: misc.c 7407 2010-02-06 00:24:48Z Zesstra $
 
 #pragma strict_types
 
 #include "/secure/master.h"
 #include "/mail/post.h"
+
+// Fuer CIDR-Notatio im sbanish
+#include "/secure/master/cidr.c"
 
 static mixed *banished;
 static mapping tbanished, sbanished;
@@ -59,7 +62,7 @@ mixed QueryTBanished(string str) {
           (i == -1 ? "St. Nimmerleinstag" :
            funcall(symbol_function('dtime/*'*/),i)[0..16]));
 
-  // Ansonsten: die Zeit ist abgelaufen, Spieler darf wieder...
+// Ansonsten: die Zeit ist abgelaufen, Spieler darf wieder...
   efun::m_delete(tbanished, str);
   UpdateTBanish();
   return 0;
@@ -91,14 +94,16 @@ void ReloadBanishFile(){
     }
 
     if ( !mappingp(sbanished) ){
-        sbanished = ([]);
+        sbanished = m_allocate(3, 2);
 
         s = efun::explode( read_file("/secure/SITEBANISH") || "", "\n" );
         s -= ({""});
 
-        for ( i = sizeof(s); i--; ){
+        for ( i = sizeof(s); i--; ) {
+            int int_ip;
             sscanf( s[i], "%s:%d:%s", s1, t, s2 );
-            sbanished += ([ s1 : t; s2 ]);
+            int_ip = IPv4_addr2int(s1);
+            m_add(sbanished, int_ip, t, s2);
         }
     }
 }
@@ -183,14 +188,15 @@ void UpdateTBanish()
 void UpdateSBanish()
 {
     int i;
-    string *names;
+    mapping lines = m_allocate(sizeof(sbanished),0);
 
-    for ( i = sizeof(names = sort_array(m_indices(sbanished), #'</*'*/)); i--; )
-        names[i] = sprintf( "%s:%d:%s", names[i], sbanished[names[i],0],
-                            sbanished[names[i],1] );
+    foreach(int ip, int tstamp, string user : sbanished) {
+      m_add(lines, sprintf("%s:%d:%s",
+                           IPv4_int2addr(ip), tstamp, user));
+    }
 
-    rm( "/secure/SITEBANISH" );
-    write_file( "/secure/SITEBANISH", implode( names, "\n" ) );
+    write_file( "/secure/SITEBANISH", 
+        implode( sort_array (m_indices(lines), #'<), "\n" ), 1);
 }
 
 int TBanishName(string name, int days)
@@ -230,38 +236,48 @@ int TBanishName(string name, int days)
 
 mixed QuerySBanished( string ip )
 {
-    int i;
-    string *adr;
-
-    if ( !ip || !stringp(ip) || !mappingp(sbanished) || !sizeof(sbanished) )
-        return 0;
-
-    adr = m_indices(sbanished);
-
-    for ( i = sizeof(adr); i--; )
-        if ( sbanished[adr[i]] > 0 && sbanished[adr[i]] < time() )
-            efun::m_delete( sbanished, adr[i] );
-
-    UpdateSBanish();
-
-    if ( !sizeof(sbanished) )
-        return 0;
-
-    if ( sizeof(regexp( ({ ip + "." }),
-                        "^(" + implode( m_indices(sbanished), "|" ) + ")" )) )
-        return "\nSorry, von Deiner Adresse kamen ein paar Idioten, die "
+    int save_me, site;
+    string banished_meldung =
+      "\nSorry, von Deiner Adresse kamen ein paar Idioten, die "
             "ausschliesslich\nAerger machen wollten. Deshalb haben wir "
             "die Moeglichkeit,\neinfach neue Charaktere "
             "anzulegen, kurzzeitig fuer diese Adresse gesperrt.\n\n"
             "Falls Du bei uns spielen moechtest, schicke bitte eine Email "
             "an\n\n                         mud@mg.mud.de\n\n"
-            "mit der Bitte, einen Charakter fuer Dich anzulegen.\n";
+            "mit der Bitte, einen Charakter fuer Dich anzulegen.\n" ;
+
+    if ( !ip || !stringp(ip) || !mappingp(sbanished) || !sizeof(sbanished) )
+        return 0;
+
+    foreach(site, int tstamp: sbanished) {
+        if ( tstamp > 0 && tstamp < time() ) {
+            efun::m_delete( sbanished, site );
+            save_me=1;
+        }
+    }
+    if (save_me)
+        UpdateSBanish();
+
+    if ( !sizeof(sbanished) )
+        return 0;
+
+    site = IPv4_addr2int(ip);
+    if (!site)
+        return 0;
+    // direkt drin?
+    if (member(sbanished, site))
+        return banished_meldung;
+    // oder Netz dieser IP gesperrt?
+    foreach(int locked_site : sbanished) {
+        if ((locked_site & site) == locked_site)
+            return banished_meldung;
+    }
 
     return 0;
 }
 
 
-static int _sbanished_by( string key, string name )
+private int _sbanished_by( int key, string name )
 {
     return sbanished[key, 1] == name;
 }
@@ -292,20 +308,21 @@ mixed SiteBanish( string ip, int days )
         return 0;
     }
 
-    if ( !days ){
-        tmp = regreplace( ip, "\\.", "\\\\.", 1 ) + "\\.";
+    if ( !days ) {
+        int int_ip = IPv4_addr2int(ip);
 
-        if( member(sbanished, tmp) ){
+        if( member(sbanished, int_ip) ){
             // Fremde Sitebanishs duerfen nur Deputies loeschen.
-            if ( sbanished[tmp, 1] != euid && !IsDeputy(euid) )
+            if ( sbanished[int_ip, 1] != euid && !IsDeputy(euid) )
                 return -1;
 
             funcall(symbol_function('log_file/*'*/), "ARCH/SBANISH",
                     sprintf( "%s: %s hebt die Sperrung der Adresse %s von %s "
-                             + "auf.\n", ctime(time()), capitalize(euid), ip,
-                             capitalize(sbanished[tmp, 1]) ) );
+                             + "auf.\n", 
+                             ctime(time()), capitalize(euid), ip,
+                             capitalize(sbanished[int_ip, 1]) ) );
 
-            efun::m_delete( sbanished, tmp );
+            efun::m_delete( sbanished, int_ip );
         }
         else
             return 0;
@@ -316,44 +333,38 @@ mixed SiteBanish( string ip, int days )
             return -1;
 
         // Nur Deputies duerfen mehr als 10 Sperrungen vornehmen.
-        if ( sizeof(filter_indices(sbanished, #'_sbanished_by/*'*/, euid)) >= 10
+        if ( sizeof(filter_indices(sbanished, #'_sbanished_by, euid)) >= 10
              && !IsDeputy(euid) )
             return -2;
 
-        s = efun::explode( ip, "." ) - ({""});
+        int int_ip = IPv4_addr2int(ip);
 
-        if ( sizeof(s) < 2 || sizeof(s) > 4 ){
-            write( "Ungueltiges Adress-Format!\n" );
+        if(!int_ip) {
+            write( "Ungueltige Adresse!\n" );
             return 0;
         }
 
         // L26 duerfen exakt eine IP sperren, RMs ganze Class C-Subnetze
         // und Deputies auch Class B-Subnetze.
-        if ( sizeof(s) < 4 && level < LORD_LVL
-             || sizeof(s) < 3 && !IsDeputy(euid) )
+        int nsize=IPv4_net_size(ip);
+        if ( nsize > 1 && level < LORD_LVL
+             || nsize > 255 && !IsDeputy(euid) )
             return -1;
 
-        for ( t = sizeof(s); t--; )
-            if ( (int) s[t] > 255 || (int) s[t] < 0 ){
-                write( "Ungueltiges Adress-Format!\n" );
-                return 0;
-            }
-
-        ip = implode( s, "\\." ) + "\\.";
-
         if ( !mappingp(sbanished) )
-            sbanished = ([]);
+            sbanished = m_allocate(1, 2);
 
         if ( days < 0 )
             t = -1;
         else
             t = (time() / 86400) * 86400 + days * 86400;
+        
+        m_add(sbanished, int_ip, t, euid);
 
-        sbanished += ([ ip : t; euid ]);
         funcall(symbol_function('log_file/*'*/), "ARCH/SBANISH",
                 sprintf( "%s: %s sperrt die Adresse %s %s.\n",
                          ctime(time()), capitalize(euid),
-                         regreplace( ip, "\\\\.", ".", 1 )[0..<2],
+                         ip,
                          days > 0 ? (days > 1 ? "fuer " + days + " Tage"
                                      : "fuer einen Tag")
                          : "bis zum St. Nimmerleinstag" ) );

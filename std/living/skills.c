@@ -2,7 +2,7 @@
 //
 // living/skills.c -- Gilden-, Skill- und Spellfunktionen fuer Lebewesen
 //
-// $Id: skills.c 6831 2008-04-14 21:31:10Z Zesstra $
+// $Id: skills.c 7514 2010-03-27 14:46:30Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma range_check
@@ -22,8 +22,17 @@ inherit "/std/living/std_skills";
 #include <new_skills.h>
 #include <wizlevels.h>
 
+// speichert die Spell-Fatigues (global, Spruchgruppen, Einzelsprueche)
+private mapping spell_fatigues = ([]);
+
+// Prototypen
+private void expire_spell_fatigues();
+
 protected void create()
 {
+  // mainly necessary for players, but there may be some NPC with savefiles.
+  // Additionally, it simplifies expiration of old keys to have it here.
+  call_out(#'expire_spell_fatigues, 4);
 }
 
 nomask protected int security_check()
@@ -678,5 +687,67 @@ public varargs mixed UseSkill(string skill, mapping args)
     res=UseSkill(skill2,res); // Fuer Skills, die von anderen abhaengen
 
   return res;
+}
+
+// ************** Spellfatigues ***************
+
+/*  Prueft die Spellfatigue fuer Spruch(gruppe) <key>.
+ *  <key> darf 0 sein (globale Spruchsperre).
+ *  Liefert 0, wenn keine Sperre und die Ablaufzeit, wenn eine Sperre noch
+ *  gueltig. ist.
+ */
+public varargs int CheckSpellFatigue(string key) {
+  // key==0 is the (default) global spellfatigue.
+  if (spell_fatigues[key] > time())
+    return spell_fatigues[key]; // Ablaufzeit zurueckgeben.
+
+  return 0; // ok, keine Sperre.
+}
+
+/** Speichert eine Spellfatigue von <duration> Sekunden fuer <key>.
+ * <key> darf 0 sein und bezeichnet das globale Spellfatigue.
+ * Rueckgabewert: Ablaufzeit der gesetzten Sperre
+                  -1, wenn noch eine nicht-abgelaufene Sperre auf dem <key> lag.
+                  0, wenn duration 0 ist.
+ */
+public varargs int SetSpellFatigue(int duration, string key) {
+  // aktuelle Sperre abgelaufen?
+  if (CheckSpellFatigue(key))
+    return -1; // alte Sperre noch aktiv.
+
+  duration += time();
+  // 0 is OK for <key>, it is the key for global spell fatigues
+  spell_fatigues[key] = duration;
+  return duration;
+}
+
+/*  Prueft die Spellfatigue fuer Spruch(gruppe) <key>.
+ *  <key> darf fuer diese Funktion 0 (globale Spruchsperre) sein, aber man
+ *  darf das Argument nicht weglassen, damit nicht ein verpeilter Magier
+ *  versehentlich die globale Spruchsperre nullt.
+ */
+public void DeleteSpellFatigue(string key) {
+  // key==0 is the (default) global spellfatigue.
+  efun::m_delete(spell_fatigues, key);
+}
+
+/** Loescht abgelaufene Keys aus dem spell_fatigue mapping.
+ */
+private void expire_spell_fatigues() {
+  foreach(string key, int endtime: spell_fatigues) {
+    if (endtime <= time())
+      efun::m_delete(spell_fatigues, key);
+  }
+}
+
+/** Setmethode fuer P_NEXT_SPELL_TIME.
+  */
+static int _set_next_spell(int fatigue) {
+  return SetSpellFatigue(fatigue - time());
+}
+/** Querymethode fuer P_NEXT_SPELL_TIME.
+  */
+static int _query_next_spell() {
+  return CheckSpellFatigue();
 }
 

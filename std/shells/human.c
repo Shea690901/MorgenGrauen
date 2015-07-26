@@ -2,9 +2,9 @@
 //
 // shells/human.c -- Human Shell
 //
-// $Id: human.c 6672 2008-01-05 20:44:16Z Ark $
+// $Id: human.c 7423 2010-02-07 22:56:38Z Zesstra $
 
-#pragma strong_types
+#pragma strong_types,save_types
 
 inherit "/std/player/base";
 

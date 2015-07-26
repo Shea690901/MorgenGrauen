@@ -13,17 +13,20 @@
 #define UDPSERV "87.79.24.60"
 #define SSLPORT 4712
 
+// Guess a MUDNAME if none is set.
+#ifndef MUDNAME
 // set mudname to MorgenGrauen if Mud started on the MG server
-#if MUDHOST == __HOST_NAME__
-#define MUDNAME "MorgenGrauen"
-#else
-#define MUDNAME "MG-Homemud"
+#  if MUDHOST == __HOST_NAME__ && !defined(__TESTMUD__)
+#    define MUDNAME "MorgenGrauen"
+#  else
+#    define MUDNAME "MG-Homemud"
+#  endif
 #endif
 
 // undef to disable MSSP support.
 #define MSSP_SUPPORT "MSSP-Plaintext"
 
-#define _MUDLIB_NAME_ "Morgengrauen"
+#define _MUDLIB_NAME_ "MorgenGrauen"
 #define _MUDLIB_VERSION_ "3.3.4"
 
 /* define general pathnames */
@@ -102,10 +105,10 @@
 
 
 #ifndef SIMUL_EFUN_FILE
-#define SIMUL_EFUN_FILE       "secure/simul_efun"
+#define SIMUL_EFUN_FILE       "secure/simul_efun/simul_efun"
 #endif
 #ifndef SPARE_SIMUL_EFUN_FILE
-#define SPARE_SIMUL_EFUN_FILE "secure/spare_simul_efun"
+#define SPARE_SIMUL_EFUN_FILE "secure/simul_efun/spare/simul_efun"
 #endif
 
 #define MAX_MAILS_PER_HOUR 200

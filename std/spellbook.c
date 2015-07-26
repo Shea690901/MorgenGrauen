@@ -2,7 +2,7 @@
 //
 // spellbook.c -- Grundlegende Funktionen fuer Zaubersprueche
 //
-// $Id: spellbook.c 6998 2008-08-24 17:17:46Z Zesstra $
+// $Id: spellbook.c 7505 2010-03-15 21:23:25Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma no_shadow
@@ -295,8 +295,12 @@ UseSpell(object caster, string spell, mapping sinfo) {
     return 1;
   }
   // printf("cost: %d\n",cost);
+#if __BOOT_TIME__ < 1268687556
   if (time()<caster->QueryProp(P_NEXT_SPELL_TIME)) {
-    if(txt=ski[SI_TIME_MSG])write(txt);
+#else
+  if (caster->CheckSpellFatigue()) {
+#endif
+    if(txt=ski[SI_TIME_MSG]) write(txt);
     else write("Du bist noch zu erschoepft von Deinem letzten Spruch.\n");
     return 1;
   }
@@ -365,8 +369,11 @@ UseSpell(object caster, string spell, mapping sinfo) {
   if ((fat=GetFValueO(SI_SPELLFATIGUE,ski,caster))<0)
     fat=1;
   caster->restore_spell_points(-1*cost);
+#if __BOOT_TIME < 1268687556
   caster->SetProp(P_NEXT_SPELL_TIME,time()+fat);
-  caster->Set(P_NEXT_SPELL_TIME,SAVE,F_MODE_AS);
+#else
+  caster->SetSpellFatigue(fat);
+#endif
 
   if (res==ERFOLG)
     Erfolg(caster,spell,ski);
@@ -384,7 +391,7 @@ FindGroup(object pl, int who) {
 
   res=({});
   if (!pl || !(env=environment(pl))) return res;
-  p1=((int)(query_once_interactive(pl)?1:-1));
+  p1 = query_once_interactive(pl) ? 1 : -1;
   team=(object)pl->QueryProp(P_TEAM);
   for (ob=first_inventory(env);ob;ob=next_inventory(ob)) {
     if (!living(ob)) continue;
@@ -394,7 +401,7 @@ FindGroup(object pl, int who) {
     else if (objectp(team) && funcall(qp,P_TEAM)==team)
       p2=p1; // Teammitglieder sind immer auf Seite des Spielers
     else
-      p2=((int)((query_once_interactive(ob)||funcall(qp,P_FRIEND))?1:-1));
+      p2 = (query_once_interactive(ob)||funcall(qp,P_FRIEND)) ? 1 : -1;
     if (p2>0 && !interactive(ob) && query_once_interactive(ob))
       continue; // keine Netztoten.
     if (funcall(qp,P_GHOST))
@@ -453,7 +460,7 @@ FindDistantGroups(object pl, int dist, int dy, int dx) {
   max=dist+dy/2;
 
   pos=([]);
-  p1=((int)(query_once_interactive(pl)?1:-1));
+  p1=query_once_interactive(pl) ? 1 : -1;
   is_enemy=symbol_function("IsEnemy",pl); // zur Beschleunigung
   myteam=(object)pl->QueryProp(P_TEAM);
   for (ob=first_inventory(environment(pl));ob;ob=next_inventory(ob)) {

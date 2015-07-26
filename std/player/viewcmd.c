@@ -2,7 +2,7 @@
 //
 // player/viewcmd.c -- player view command handling
 //
-// $Id: viewcmd.c 6715 2008-02-03 22:06:56Z Zesstra $
+// $Id: viewcmd.c 7427 2010-02-11 20:18:54Z Zesstra $
 
 #pragma strong_types
 #pragma save_types
@@ -93,9 +93,10 @@ private string getflags(string arg, int flags)
         //
         // Tiamak, 15.10.2000
         //    case 'S': flags |= I_FORCE_SORT << no; break;
-    default : return arg[i..i];
+    default : return arg[i..i]; // wird ausgegeben an Spieler als unbekannt.
     }
   }
+  return 0;
 }
 
 static int _check_keep(object ob)
@@ -112,7 +113,7 @@ int _inventory(string str)
 {
   mixed *args, output;
   int ansi, i, flags, minv;
-  mixed s, weapons, armours, misc;
+  mixed inventory, weapons, armours, misc;
   string format;
 
   if(CannotSee()) return 1;
@@ -132,9 +133,9 @@ int _inventory(string str)
   }
   // Fuer Spieler gehen nur sichtbare Objekte in den Algorithmus
   if (IS_LEARNING(ME))  
-    s = all_inventory(ME);
+    inventory = all_inventory(ME);
   else
-    s = filter( all_inventory(ME), "_check_visible");
+    inventory = filter( all_inventory(ME), "_check_visible");
   
   ansi = member(({"vt100", "ansi"}), QueryProp(P_TTY)) != -1;
   minv = 1 | (flags & (I_FORMATTED | (I_FORMATTED << 1)) ? 2 : 0);
@@ -153,44 +154,45 @@ int _inventory(string str)
 //  }
 
   if (flags & I_AUTOLOAD)
-    s = filter_objects(all_inventory(ME),"QueryProp",P_AUTOLOADOBJ);
+    inventory = filter_objects(inventory,"QueryProp",P_AUTOLOADOBJ);
   else if (flags & (I_AUTOLOAD << 1))
-    s -= filter_objects(s,"QueryProp",P_AUTOLOADOBJ);
+    inventory -= filter_objects(inventory,"QueryProp",P_AUTOLOADOBJ);
 
   if(flags & I_KEEP)
-    s = filter(s,#'_check_keep);
+    inventory = filter(inventory,#'_check_keep);
   else if(flags & (I_KEEP << 1))
-    s -= filter(s,#'_check_keep);
+    inventory -= filter(inventory,#'_check_keep);
 
-  armours = filter_objects(s, "QueryProp", P_ARMOUR_TYPE);
+  armours = filter_objects(inventory, "QueryProp", P_ARMOUR_TYPE);
   // Kleidung dazu addieren, vorher die erkannten Ruestungen abziehen, die
   // muessen nicht nochmal durchiteriert werden.
-  armours += filter_objects(s-armours, "IsClothing");
-  // ja, die Zuweisung sieht doof aus.
-  weapons = filter_objects((s = s-armours), "QueryProp", P_WEAPON_TYPE);
-  misc = s - weapons; // rest ;-)
+  armours += filter_objects(inventory-armours, "IsClothing");
+  // Ruestungen werden hier nicht abgezogen, weil es Kram gibt, welche sowohl
+  // Ruestung als auch Waffe ist.
+  weapons = filter_objects(inventory, "QueryProp", P_WEAPON_TYPE);
+  misc = inventory - weapons - armours; // rest ;-)
 
   if(flags & I_WEAPON)
   {
-    s = weapons; misc = ({});
+    inventory = weapons; misc = ({});
     if(!(flags & (I_ARMOUR))) armours = ({});
   }
   if(flags & I_ARMOUR)
   {
-     s = armours; misc = ({});
+     inventory = armours; misc = ({});
      if(!(flags & I_WEAPON)) weapons = ({});
   }
-  if(flags & (I_WEAPON << 1)) { weapons = ({}); s = armours + misc; }
-  if(flags & (I_ARMOUR << 1)) { armours = ({}); s = weapons + misc; }
+  if(flags & (I_WEAPON << 1)) { weapons = ({}); inventory = armours + misc; }
+  if(flags & (I_ARMOUR << 1)) { armours = ({}); inventory = weapons + misc; }
 
   output = "";
   if(flags & (I_FORMATTED | (I_FORMATTED << 1)))
   {
-    s = make_invlist(this_player(), s, minv);
+    inventory = make_invlist(this_player(), inventory, minv);
     if(flags & (I_SORT | (I_SORT << 1)))
-    s = sort_array(s, #'sortinv/*'*/);
+    inventory = sort_array(inventory, #'sortinv/*'*/);
     output += sprintf("%"+format+"-78s\n",
-                      implode(map(s,#'collectinv/*'*/),"\n"));
+                      implode(map(inventory,#'collectinv/*'*/),"\n"));
   }
   else
   {
@@ -208,7 +210,8 @@ int _inventory(string str)
       armours = make_invlist(this_player(), armours, minv);
       if(flags & (I_SORT | (I_SORT << 1)))
         armours = sort_array(armours, #'sortinv/*'*/);
-      output += (ansi?ANSI_BOLD:"") + "Kleidung & Ruestungen:" + (ansi?ANSI_NORMAL:"")+"\n"
+      output += (ansi?ANSI_BOLD:"") 
+              + "Kleidung & Ruestungen:" + (ansi?ANSI_NORMAL:"")+"\n"
               + sprintf("%"+format+"-78s\n",
                         implode(map(armours, #'collectinv/*'*/), "\n"));
     }

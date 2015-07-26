@@ -1,3 +1,5 @@
+#pragma strong_types,save_types
+
 inherit "std/player/base";
 
 #include <properties.h>

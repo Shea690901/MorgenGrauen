@@ -2,7 +2,7 @@
 //
 // npc/combat.c -- NPC-spezifische Kampffunktionen
 //
-// $Id: combat.c 7308 2009-09-20 13:32:30Z Zesstra $
+// $Id: combat.c 7515 2010-03-28 07:54:50Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -102,7 +102,9 @@ public void make_immortal()
 // in der Naehe ist:
 static int _query_hb()
 {
-    return InFight() || Query(P_HB);
+    // TODO: return InFight() || Query(P_HB, F_VALUE), sobald InFight()
+    // geaendert.
+    return (InFight() || Query(P_HB,F_VALUE)) ? 1 : 0;
 }
 
 

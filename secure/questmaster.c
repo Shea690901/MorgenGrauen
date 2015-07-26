@@ -3,7 +3,7 @@
 // questmaster.c -- Questmaster, verwaltet die normalen Quests und
 //                  die MiniQuests
 //
-// $Id: questmaster.c 6897 2008-08-06 11:32:15Z Zesstra $
+// $Id: questmaster.c 7391 2010-01-25 22:52:51Z Zesstra $
 //
 #pragma strict_types
 #pragma no_clone
@@ -15,6 +15,7 @@
 //#pragma range_check
 #pragma warn_deprecated
 
+#include <config.h>
 #include "/secure/wizlevels.h"
 #include "/secure/questmaster.h"
 #include "/secure/lepmaster.h"
@@ -454,7 +455,7 @@ void SendMail(string questname, mixed *quest, object player)
     "Hallo "+capitalize(getuid(player))+",\n\n"+
     break_string("Nachdem Du gerade eben das Abenteuer '"+
 		 questname +"' ("+quest[Q_QP]+" Punkte), das "+
-		 capitalize(quest[Q_WIZ])+" fuer das MorgenGrauen entworfen hat, "
+		 capitalize(quest[Q_WIZ])+" fuer das "MUDNAME" entworfen hat, "
 		 "mit Erfolg bestanden hast, sind "
 		 "wir nun an Deiner Meinung dazu interessiert:", 78)+
     "\n  Hat Dir das Abenteuer gefallen und wieso bzw. wieso nicht?\n"
@@ -485,7 +486,7 @@ void SendMail(string questname, mixed *quest, object player)
   mail[MSG_BCC]=0;
   mail[MSG_SUBJECT]="Das Abenteuer: "+questname;
   mail[MSG_DATE]=dtime(time());
-  mail[MSG_ID]="MorgenGrauen:"+time();
+  mail[MSG_ID]=MUDNAME":"+time();
   mail[MSG_BODY]=text;
   
   "/secure/mailer"->DeliverMail(mail,0);

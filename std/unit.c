@@ -3,7 +3,7 @@
 // unit.c -- Basisklasse fuer Mengenobjekte
 //           (neue Version von Padreic)
 //
-// $Id: unit.c 7129 2009-02-15 13:06:48Z Zesstra $
+// $Id: unit.c 7327 2009-11-05 20:27:52Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -114,14 +114,16 @@ static int _query_plural()
   return (i<=1 ? 0 : i);
 }
 
-static string _query_name()
+// gibt string | string* zurueck.
+static mixed _query_name()
 {
   if (Query(U_REQ)==1)
     return "%s%s"+((string *)Query(P_NAME))[0];
   return "%d %s"+((string *)Query(P_NAME))[1];
 }
 
-static string _set_name(mixed names)
+// gibt string | string* zurueck.
+static mixed _set_name(mixed names)
 {
   if(!names)
     return Set(P_NAME,({"",""}));
@@ -235,10 +237,11 @@ varargs string name(int fall, int demo)
   string adj;
 
   if ((req=Query(U_REQ))<1) return 0;
-  if (fall!=RAW && pointerp(n_adj=QueryProp(P_NAME_ADJ)))
+  if (fall!=RAW && 
+      pointerp(n_adj=QueryProp(P_NAME_ADJ)) && sizeof(n_adj) )
     adj = implode(map(n_adj, #'DeclAdj, fall, demo && req==1), "");
-  if (!stringp(adj)) adj = "";                      
-                
+  else
+    adj = "";
 
   if (req==1)
     return sprintf(QueryProp(P_NAME),

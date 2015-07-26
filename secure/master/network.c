@@ -2,7 +2,7 @@
 //
 // master/network.c - UDP-Handling
 //
-// $Id: network.c 7162 2009-02-26 21:14:43Z Zesstra $
+// $Id: network.c 7483 2010-02-21 16:43:28Z Zesstra $
 
 #pragma strict_types
 
@@ -11,30 +11,18 @@
 
 /*
 #undef DEBUG
-#define DEBUG(x) if (funcall(symbol_function('find_player),"vanion")) \
-                 tell_object(funcall(symbol_function('find_player),"vanion"),x);
+#define DEBUG(x) if (funcall(symbol_function('find_player),"zesstra")) \
+                 tell_object(funcall(symbol_function('find_player),"zesstra"),x);
 */
 
 //ich will hieraus momentan kein Debug, ist zuviel. Zesstra
+
 #ifdef DEBUG
 #undef DEBUG
 #endif
 #define DEBUG(x)
 
 nosave int mails_last_hour;
-nosave private mapping ip_map;
-
-protected void _cleanup_ipnames() {
-  if (mappingp(ip_map) 
-      && sizeof(ip_map) > 15000 ) {
-    foreach(string key, mixed val, int zeit: ip_map) {
-      if (get_eval_cost() < 500000) 
- return;
-      if (zeit + 86400 > time())
- efun::m_delete(ip_map, key);
-    }
-  }
-}
 
 static string mail_normalize( string str )
 {
@@ -397,74 +385,40 @@ static void udp_query( string query, string host, int port )
 #endif
 }
 
-
-public void get_ip_name( string ip_num )
-{
-#if __EFUN_DEFINED__(send_udp)
-    send_udp( UDPSERV, 4123, "IPNAME|" + ip_num );
-#endif
-}
-
-
-#if __EFUN_DEFINED__(query_ip_port)
-public void get_auth_user( object pl )
-{
-#if __EFUN_DEFINED__(send_udp)
-    string s;
-
-    s = sprintf( "AUTH|%s|%s|%d|%d", getuid(pl), query_ip_number(pl),
-                 query_ip_port(pl), query_mud_port(pl) );
-
-    send_udp( UDPSERV, 4123, s );
-#endif
-}
-#endif
+#define UDP_DEBUG(x) (write_file("/log/ARCH/udp.log",(x)))
 
 void receive_udp(string host, string message, int port)
 {
   mixed *tmp;
-  DEBUG(sprintf("Message from %s:%d: %s\n",host,port,message));
-  if (message[0..6]=="EXTREQ:")
-  {
-    "/secure/udp/external"->_receive_udp(message[7..]);
+  UDP_DEBUG(sprintf("%s %s:%d: %s\n",strftime(),host,port,message));
+
+  if (message[0..6]=="EXTREQ:"
+  	|| message[0..5]=="IPNAME"
+  	|| message[0..3]=="AUTH"
+  ) {	
     return;
   }
-  if (message[0..4]=="NFTPD")
-  {
+
+  if( message[0..8]=="IPLOOKUP\n" ) {
+    "/p/daemon/iplookup"->update( message );
+    return;
+  }
+
+  if (message[0..4]=="NFTPD") {
 #if __HOST_NAME__==MUDHOST
-    if (host!=FTPD_IP)
-    {
-      DEBUG("INVALID HOST\n");
+    if (host!=FTPD_IP) {
+      DEBUG(sprintf("INVALID HOST: %s\n",host));
       return;
     }
 #endif
     FtpAccess(host,message,port);
     return;
   }
-  if (message[0..9]=="udp_query:")
-    return udp_query(message[10..],host,port);
-  if (message[0..5]=="IPNAME")
-  {
-    tmp=explode(message,"|");
-    if (sizeof(tmp)<3) return;
-    if (!ip_map) ip_map=get_extra_wizinfo(0)[IP_NAMES];
-    ip_map[tmp[1]]=tmp[2];
-    ip_map[tmp[1],1]=time();
-    return;
-  }
-  if (message[0..3]=="AUTH")
-  {
-    object pl;
-    mixed *data;
 
-    data=explode(message,"|");
-    if (pl=funcall(symbol_function('find_player),data[1])) //'))
-        {
-          while (strlen(data[2]) && data[2][<1]<=' ') data[2]=data[2][0..<2];
-      pl->SetProp("auth_info",data[2]);
-        }
-    return;
+  if (message[0..9]=="udp_query:") {
+    return udp_query(message[10..],host,port);
   }
+
   "secure/inetd"->_receive_udp(host, message);
 }
 

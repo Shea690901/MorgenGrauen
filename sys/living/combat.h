@@ -2,7 +2,7 @@
 //
 // living/combat.h -- combat header
 //
-// $Id: combat.h 7185 2009-03-14 20:57:07Z Zesstra $
+// $Id: combat.h 7470 2010-02-20 17:48:21Z Zesstra $
 
 #ifndef __LIVING_COMBAT_H__
 #define __LIVING_COMBAT_H__
@@ -140,7 +140,7 @@ static mapping _query_resistance_strengths();
 static int     _query_total_ac();
 static int     _query_total_wc();
 static int     _query_used_hands();
-static int     _set_attack_busy(int val);
+static int     _set_attack_busy(mixed val);
 static int     _set_disable_attack(int val);
 static mixed   _set_hands(mixed h);
 static mixed   _set_resistance(mixed arg);

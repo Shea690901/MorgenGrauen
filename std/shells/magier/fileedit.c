@@ -2,7 +2,7 @@
 //
 //fileedit.c
 //
-// $Id: fileedit.c 6379 2007-07-20 22:32:02Z Zesstra $
+// $Id: fileedit.c 7482 2010-02-21 15:43:43Z Zesstra $
 #pragma strict_types
 #pragma save_types
 //#pragma range_check
@@ -76,7 +76,7 @@ static int _ed(string cmdline)
       args[arg_size..arg_size]=args2;
     else
       args[arg_size]=({ "" , -1, 0 , (string)
-              call_other(__MASTER_OBJECT__,"_get_path",args[arg_size],
+              call_other(master(),"_get_path",args[arg_size],
                   getuid())});
   }
 #if __VERSION__ < "3.2.9"
@@ -159,6 +159,7 @@ static mixed cp_file(mixed filedata,int move,int flags, mixed *do_delete)
       if (flags&CP_V) printf(FILE_COPIED,source);
       return RET_OK;
   }
+  return 0; // not-reached
 }
 
 static void _cp_ask_overwrite2(string input, mixed *filedata,
@@ -642,7 +643,7 @@ private void _rm_ask_delete(mixed *filedata, int flags)
 }
 
 
-private void rm_file(mixed filedata,int dummy, int flags)
+private void rm_file(mixed filedata, mixed notused, int flags)
 {
   string dest;
   dest=filedata[FULLNAME];

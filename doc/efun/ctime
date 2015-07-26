@@ -19,4 +19,4 @@ BEISPIEL
      Dies gibt etwas aus wie "Sun Oct 26 19:28:30 2003".
 
 SIEHE AUCH
-     gmtime(E), localtime(E), time(E), utime(E)
+     dtime(E), gmtime(E), localtime(E), strftime(E), time(E), utime(E)

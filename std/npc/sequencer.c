@@ -2,7 +2,7 @@
 //
 // npc/sequencer.c -- Scripte und Trigger fuer NPCs :)
 //
-// $Id: sequencer.c 7084 2009-01-19 21:06:40Z Zesstra $
+// $Id: sequencer.c 7526 2010-04-02 00:01:26Z Arathorn $
 
 // seq2.c
 // Version 2.0 des Sequencers von Don Rumata 28.06.93
@@ -56,56 +56,57 @@ mixed *program;
 int isRunning;
 
 // zur sicherheit nicht von aussen aufrufbar !!!!
-static RegisterGive( fun, prog )
+static string RegisterGive( string fun, mixed prog )
 {
-  if( isRunning ) return;
+  if( isRunning ) return 0;
   program = prog;
   tellfun = 0;
   return givefun = fun;
 }
 
 // zur sicherheit nicht von aussen aufrufbar !!!!
-static RegisterTell( fun, prog )
+static string RegisterTell( string fun, mixed prog )
 {
-  if( isRunning ) return;
+  if( isRunning ) return 0;
   program = prog;
   givefun = 0;
   return tellfun = fun;
 }
 
 // zur sicherheit nicht von aussen aufrufbar !!!!
-static Start()
+static void Start()
 {
   if( isRunning || !objectp(this_object())) return;
   isRunning = 1;
   call_out( "nextStep", 0, 0 );
 }
 
-static Load( prog )
+static void Load( mixed prog )
 {
   if( isRunning ) return;
   program = prog;
   Start();
 }
 
-catch_tell( str )
+public void catch_tell( string str )
 {
   if( isRunning || previous_object()==this_object()) return;
   if( stringp(tellfun) && call_other( this_object(), tellfun, str ) )
     Start();
 }
 
-give_notify( ob )
+int give_notify( object ob )
 {
-  if( isRunning ) return;
+  if( isRunning ) return 0;
   if( stringp(givefun) && call_other( this_object(), givefun, ob ) )
   {
     Start();
     return 1;
   }
+  return 0;
 }
 
-static nextStep( line )
+static void nextStep( int line )
 {
   if( !isRunning ) return;
   if( line >= sizeof( program ) )
@@ -118,7 +119,7 @@ static nextStep( line )
   call_out( "nextStep", program[line][1], line+1 );
 }
 
-QueryProg()
+mixed QueryProg()
 {
   return program[0..];
 } 

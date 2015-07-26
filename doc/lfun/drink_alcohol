@@ -16,6 +16,8 @@ BESCHREIBUNG:
     Es wird geprueft, ob dem Spieler der angebene Wert "alc" auf seine
     aktuelle P_ALCOHOL addiert werden kann oder nicht. Ist dies moeglich,
     wird es gemacht.
+    Sollen neben P_ALCOHOL noch weitere Props manipuliert werden - bspw. zur
+    Heilung eines Lebewesens - bietet sich die Funktion consume() an.
 
 RUECKGABEWERT:
      0, wenn alc + P_ALCOHOL > P_MAX_ALCOHOL.
@@ -26,9 +28,8 @@ BEMERKUNG:
     P_ALCOHOL und P_MAX_ALCOHOL des Spielers weggelassen werden kann. 
     Nervige Zahlenspielereien entfallen somit.
 
-    Achtung: Es ist hierbei wichtig, in der Fkt eine Abfrage auf
-    -------  !this_player()->drink_alcohol(alc) zu machen, da sonst P_ALCOHOL
-             P_MAX_ALCOHOL u.U. ueberschreiten kann!
+    Achtung: Es ist hierbei wichtig, auf den Erfolg der Funktion zu testen, 
+    -------  bevor eine Heilung erfolgt.
 
     Bei Heilstellen sollte eine evtl. Heilung des Spielers mit der eigens
     dafuer eingerichteten Funktion check_and_update_timed_key realisiert
@@ -39,10 +40,12 @@ BEISPIEL:
 
 SIEHE AUCH:
 ----------
-     heilung, drink_soft, eat_food, heal_self, restore_spell_points,
+     consume, drink_alcohol, eat_food, heal_self, restore_spell_points,
      reduce_hit_points, check_and_update_timed_key, buffer_hp, buffer_sp,
-     enttanken, defuel_drink, defuel_food, reduce_food, reduce_drink,
-     reduce_alcohol, P_DRINK, P_FOOD, P_ALCOHOL, P_LAST_XP, food
+     defuel_drink, defuel_food,
+     P_DRINK, P_FOOD, P_ALCOHOL
+     heilung, enttanken, food
 
 ----------------------------------------------------------------------------
-Last modified: Mit Aug 13 02:02:02 2003 by Gabylon
+27.10.2009, Zesstra
+

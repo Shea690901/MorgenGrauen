@@ -10,6 +10,7 @@
 #include <daemon.h>
 #include <events.h>
 #include <strings.h>
+#include <files.h>
 
 #define FTPSAVE "/secure/ARCH/ftpd"
 
@@ -77,8 +78,8 @@ public void Eventhandler(string eid, object trigob, mixed data) {
   if (previous_object() == find_object(EVENTD)) {
     string uid;
     if (objectp(trigob)
-	&& strstr(load_name(trigob),"/std/shells/") == 0
-	&& !trigob->QueryGuest()) {
+        && strstr(load_name(trigob),"/std/shells/") == 0
+        && !trigob->QueryGuest()) {
       // Bei Login und Logout den BBMode einschalten (weil der Loginevent ja
       // erst 1-2s nach Einloggen abgearbeitet wird.
       trigob->__set_bb(1);
@@ -146,19 +147,24 @@ private void DumpData(string uid, string erstie, string ip, int flags, mixed log
 
   //DEBUG("DumpData: "+res);
   if (flags & FL_PERMANENT)
-    log_file("ARCH/bb."+uid, res, MAXLOGSIZE);
-  else
-    log_file("ARCH/bbmaster/"+uid, res, SMALLLOGSIZE);
-
+    catch(log_file("ARCH/bb."+uid, res, MAXLOGSIZE));
+  else if (file_size(LIBLOGDIR"/ARCH/bbmaster") == FSIZE_DIR)
+    catch(log_file("ARCH/bbmaster/"+uid, res, SMALLLOGSIZE));
+  // kein else, in anderen Faellen werden die Daten verworfen.
 }
 
 private void AddTemporaryPlayer(string uid) {
     // natuerlich nur, wenn noch nix eingetragen.
     if (!member(ldata, uid)) {
       object ob = find_player(uid) || find_netdead(uid);
+      
+      mixed erstie;
+      if (ob)
+        erstie = (string)ob->QueryProp(P_SECOND);
+
       ldata += ([uid: time() + LOGTIME + random(LOGTIME/2); 
 	              0;
-		      (ob ? ob->QueryProp(P_SECOND) : 0);
+		      (stringp(erstie) ? erstie : 0);
 		      query_ip_number(ob);
 		      0; ({})
 	        ]);
@@ -210,7 +216,7 @@ public varargs void BBWrite(string msg, int catmode) {
       // drinhaengt. Ist aber egal, dann wird der Puffer halt naechstesmal
       // geschrieben.
       if (find_call_out(#'ProcessBuffer) == -1)
-	call_out(#'ProcessBuffer, 2, uid);
+          call_out(#'ProcessBuffer, 2, uid);
     }
     return;
   }
@@ -250,8 +256,8 @@ public varargs void BBWrite(string msg, int catmode) {
     // es kann vorkommen, dass hier nen ProcessBuffer mit anderer uid
     // drinhaengt. Ist aber egal, dann wird der Puffer halt naechstesmal
     // geschrieben.
-    if (index > MAXBUFFSIZE &&
-	find_call_out(#'ProcessBuffer) == -1)
+    if (index > MAXBUFFSIZE 
+        && find_call_out(#'ProcessBuffer) == -1)
       call_out(#'ProcessBuffer, 2, uid);
   }
 }

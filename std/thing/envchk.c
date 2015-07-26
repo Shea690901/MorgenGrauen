@@ -14,7 +14,7 @@
 #define NEED_PROTOTYPES
 #include <thing/moving.h>
 
-protected void check_for_environment(object cloner)
+protected void check_for_environment(string cloner)
 {
   // Clones, die innerhalb von 10 Sekunden kein Environment haben,
   // sollen auf -debug scrollen.
@@ -23,12 +23,14 @@ protected void check_for_environment(object cloner)
     // werden, aber zumindest hinterher noch einfach auffindbar sind. (Und
     // entweder per hand oder automatisch aufgeraeumt werden koennen.)
     move("/room/muellraum",M_NOCHECK|M_SILENT);
-    raise_error("Objekt hat kein Environment. Cloner: ["+
-		(cloner?(string)cloner:"destructed object")+"] ");
+    if ( !stringp(cloner) || !strlen(cloner) )
+      cloner = "<Unbekannt>";
+    raise_error("Objekt hat kein Environment. Cloner: ["+cloner+"] ");
   }
 }
 
 void create()
 {
-	if( clonep() ) call_out(#'check_for_environment,3 , previous_object());
+	if( clonep() ) 
+    call_out(#'check_for_environment, 3, object_name(previous_object()));
 }

@@ -13,10 +13,12 @@ RUECKGABEWERT:
 
 BEMERKUNGEN:
 	Als time wird meistens das Ergebnis von time() benutzt.
+  strftime() stellt eine wesentlich flexiblere Moeglichkeit der Ausgabe von
+  Zeiten dar.
 
 BEISPIELE:
 	datum = dtime(time());
         => datum = "Mon,  6. Mar 1994, 15:00:08"
 
 SIEHE AUCH:
-	ctime(E), time(E)
+	ctime(E), strftime(E), time(E)

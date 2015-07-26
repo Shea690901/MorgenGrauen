@@ -2,7 +2,7 @@
 //
 // player/commands.c -- alias, history and player command handling
 //
-// $Id: command.c 7234 2009-06-11 14:40:12Z Zesstra $
+// $Id: command.c 7512 2010-03-26 15:17:54Z Zesstra $
 #pragma strong_types
 #pragma save_types
 //#pragma range_check
@@ -405,13 +405,17 @@ static mixed _return_args(string str)
   string *t,*t2,verb,s2;
   int i,l,j,l2;
 
-  t=old_explode(str," ");
+  t=explode(trim(str,TRIM_BOTH)," ");
   verb=t[0];
-  if ((str=unparsed_args[0]=implode(t[1..]," "))=="")
+  t = t[1..];
+  if (!sizeof(t))
   {
     unparsed_args[0]=unparsed_args[1]=unparsed_args[2]=0;
     return str=verb;
   }
+  else
+    str = unparsed_args[0] = implode(t, " ");
+
   str=unparsed_args[1]=lower_case(_single_spaces(str));
   t=regexplode(str,"\\<im\\>|\\<ins\\>");
   for (i=1;i<sizeof(t);i+=2) t[i]="in";
@@ -904,7 +908,7 @@ int command_me(string cmd)
 }
 
 
-static mapping _query_p_lib_disablecommands() {
+static mixed _query_p_lib_disablecommands() {
     // abgelaufen oder Objekt zerstoert? Weg damit.
     if (pointerp(disablecommands)
 	&& (disablecommands[B_TIME] < time()
@@ -915,7 +919,7 @@ static mapping _query_p_lib_disablecommands() {
     return(copy(disablecommands));
 }
 
-static mapping _set_p_lib_disablecommands(mixed data) {
+static mixed _set_p_lib_disablecommands(mixed data) {
 
   // setzendes Objekt ermitteln, da diese Funktion nur per SetProp() gerufen
   // werden sollte (!), ist das PO(1);

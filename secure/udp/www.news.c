@@ -2,7 +2,7 @@
 //
 // www.news.c -- WWW frontend for reading mud news
 //
-// $Id: www.news.c 6806 2008-03-28 21:35:10Z Zesstra $
+// $Id: www.news.c 7516 2010-03-28 07:56:05Z Zesstra $
 
 #pragma strong_types
 #pragma combine_strings
@@ -93,7 +93,7 @@ private int thread(mixed article, int i, mapping t)
             dtime(article[N_DATE])[5..11],
             (t[info[TID]] - 1) ? "+"+(t[info[TID]]-1) : " - ",
             make_link(article[N_TITLE],
-          article[N_GROUP], (string)i))
+          article[N_GROUP], to_string(i)))
       + (t[info[TID], 1] ? t[info[TID], 1] : "");
     t[info[TID], 2] = info;
     if(article[N_DATE] > to_int(t[info[TID], 3]))
@@ -142,7 +142,7 @@ string ArticleList(string group)
             +(ttmp > 0 ?
         " ("+dtime(to_int(t[tid, 3]))[5..11]
         +dtime(to_int(t[tid, 3]))[17..]+")" : ""),
-            group, (string)i+":"+t[tid, 3])) + ret;
+            group, to_string(i)+":"+t[tid, 3])) + ret;
     }
 
   return "<H2>Gruppe: "+group+"</H2>"
@@ -194,9 +194,9 @@ private varargs string Message(string group, mixed article)
        + (t[info[TID]] ?
           "<HR>Weitere Artikel zu diesem Thema:"
   + "<PRE>" + t[info[TID], 1] + "</PRE><HR>" : "")
-       + " ["+(article < sizeof(tmp)-1 ? make_link(next, group, article+1) :
+       + " ["+(article < sizeof(tmp)-1 ? make_link(next, group,to_string(article+1)) :
               next)+"]"
-       + " ["+(article ? make_link(prev, group, article-1) : prev)+"]"
+       + " ["+(article ? make_link(prev, group, to_string(article-1)) : prev)+"]"
        + " ["+make_link("Artikel&uuml;bersicht", group)+"]"
        + " ["+make_link("Gruppen&uuml;bersicht")+"]";
 }

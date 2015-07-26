@@ -2,7 +2,7 @@
 //
 // merlin.c -- Unser geliebter Merlin
 //
-// $Id: merlin.c 7219 2009-06-02 18:24:54Z Zesstra $
+// $Id: merlin.c 7447 2010-02-17 20:20:16Z Zesstra $
 #pragma strict_types
 #pragma no_clone
 #pragma no_shadow
@@ -13,6 +13,7 @@
 //#pragma range_check
 #pragma warn_deprecated
 
+#include <config.h>
 #include <properties.h>
 #include <language.h>
 #include <moving.h>
@@ -190,7 +191,7 @@ string GetDetail(string key,mixed race,int sense) {
   case "finger": case "fingernaegel": case "fingernagel":
           return BS("Seine Finger sind voller Gichtknoten und seine gelben Fingernaegel koennte Merlin auch mal wieder schneiden.");
   case "gehstock": case "stock":
-          return BS("Merlin stuetzt sich auf einen Gehstock. Der knorrige Stock scheint schon fast Eins mit seiner gichtknotigen Hand geworden zu sein. Ob es sich bei dem Stock um einen Magierstab ist?");
+          return BS("Merlin stuetzt sich auf einen Gehstock. Der knorrige Stock scheint schon fast Eins mit seiner gichtknotigen Hand geworden zu sein. Ob es sich bei dem Stock um einen Magierstab handelt?");
   case "zauberstab": case "magierstab":
           return BS("Merlin stuetzt sich auf einen knorrigen Gehstock. Das koennte sein Zauberstab sein - aber vielleicht ist es auch nur ein Gehstock.");
   case "guertel": case "guertelschnalle":
@@ -281,7 +282,7 @@ private void GibFehlerteufel(object wiz) {
   if (!objectp(wiz))
       return;
 
-  clone_object(FEHLERTEUFEL)->move(wiz, M_NOCHECK, M_GET);
+  clone_object(FEHLERTEUFEL)->move(wiz, M_NOCHECK|M_GET);
   tell_object(wiz, break_string(
     "Huhu "+wiz->Name(WER) + "! Ich habe gesehen, dass Du keinen "
     "Fehlerteufel hast. Dieses Tool ist zum Debuggen von Fehlern im "
@@ -779,9 +780,10 @@ static int create_wizard(mixed who, mixed promoter)
       say("Merlin: error "+ret+"\n");
       write("Merlin: error "+ret+"\n");
     }
+    string wizname = (string)who->query_real_name();
     "secure/master"->renew_player_object(who);
     // Fehlerteufel geben
-    call_out(#'GibFehlerteufel,4,who);
+    call_out(#'GibFehlerteufel,4,find_player(wizname));
     return 1;
   }
 
@@ -946,8 +948,8 @@ void seer_sequenz1(mixed player, string plname)
 
   tell_room(environment(),
             break_string(sprintf("Das ist eine grosse Freude. %s hat sich "
-     +"tapfer durch das MorgenGrauen geschlagen und mittlerweile alle "                          
-     +"Anforderungen erfuellt, um %s zu werden.",                                  
+     "tapfer durch das "MUDNAME" geschlagen und mittlerweile alle "
+     "Anforderungen erfuellt, um %s zu werden.",                                  
      plname, ((int)player->QueryProp(P_GENDER))==1?"Seher":"Seherin"),
               78, "Merlin sagt: "));
 

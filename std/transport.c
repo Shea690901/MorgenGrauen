@@ -2,7 +2,7 @@
 //
 // transport.c -- Basisklasse fuer Schiffe und aehnliche Transporter
 //
-// $Id: transport.c 7223 2009-06-11 14:02:18Z Zesstra $
+// $Id: transport.c 7527 2010-04-04 19:24:27Z Arathorn $
 #pragma strong_types
 //#pragma save_types
 #pragma range_check
@@ -50,7 +50,7 @@ string _query_short()
   return 0; 
 }
 
-string _query_transparent()
+mixed _query_transparent()
 { 
   if (roomCode) return Query(P_TRANSPARENT);
   return 0; 
@@ -112,8 +112,8 @@ mixed HasRoute(mixed dest)
   return 0;
 }
 
-void AddRoute(string room, int stay, int next, string code, mixed dest, 
-                string deststr)
+public varargs void AddRoute(string room, int stay, int next, string code, 
+                             mixed dest, string deststr)
 {
   object ob;
   int i;
@@ -133,7 +133,11 @@ void AddRoute(string room, int stay, int next, string code, mixed dest,
   }
 }
     
-void AddMsg(string msg, int next) { route += ({ ({ HP_MSG, msg, next }) }); }
+varargs void AddMsg(string msg, int next) 
+{
+  route += ({ ({ HP_MSG, msg, next }) }); 
+}
+
 void AddFun(string fun, int next) { route += ({ ({ HP_FUN, fun, next }) }); }
 
 string QueryArrived() { return roomCode; }
@@ -304,6 +308,7 @@ static int GoInAndOutside(string str)
     return Enter(),1;
   if ((sscanf(str,"von %s",to) == 1 || sscanf(str,"aus %s",to) == 1) && id(to))
     return Leave(),1;
+  return 0;
 }
 
 void create()
@@ -339,7 +344,7 @@ static varargs void disconnect(int change, int change_time)
   if (change) call_out("changeHp",change_time);
 }
 
-static void connect(string room, string code)
+static varargs void connect(string room, string code)
 {
   mixed *arrivemsg, *t;
   object *trav, ob;

@@ -115,5 +115,10 @@ void reset() {
   if (!spielerhaufen)
     remove_multiple(3);
   ::reset();
+  // wenn nur noch unsichtbare items im Haufen: aufloesen
+  if (!sizeof(filter(all_inventory(), function int (object o)
+          { return !o->QueryProp(P_INVIS);} )))
+    remove(1);
+
 }
 

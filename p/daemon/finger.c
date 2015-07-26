@@ -19,11 +19,15 @@
  * Gelegentlich minor changes, zuletzt 04.Okt.95
  */
 
+#pragma strong_types,save_types
+#pragma no_clone, no_shadow
+
 #include <config.h>
 #include <properties.h>
 #include <wizlevels.h>
 #include <new_skills.h>
 #include <userinfo.h>
+#include <config.h>
 
 #define HBINT    2   /* interval between two heart_beats in seconds */
 #define MINIDLE 60   /* minimum idle time in seconds to be stated idle */
@@ -148,7 +152,7 @@ varargs string finger_single(string str,int local)
 
   if( (!pointerp(userinfo) || userinfo[USER_LEVEL+1]==-1)
 	&& !player) {
-    text="Hmm... diesen Namen gibt es in Morgengrauen nicht.\n";
+    text="Hmm... diesen Namen gibt es im "MUDNAME" nicht.\n";
     if (tmp="/secure/master"->QueryBanished(str)){
       text="Hoppla - dieser Name ist reserviert oder gesperrt (\"gebanisht\")!\n";
       if ( tmp != "Dieser Name ist gesperrt." )
@@ -165,7 +169,8 @@ varargs string finger_single(string str,int local)
     properties[P_RACE]=player->QueryProp(P_RACE);
     properties[P_VISIBLE_GUILD]=player->QueryProp(P_VISIBLE_GUILD);
     properties[P_TITLE]=player->QueryProp(P_TITLE);
-    properties[P_PRESAY]=player->QueryProp(P_PRESAY)[0..<2];
+    tmp = player->QueryProp(P_PRESAY);
+    properties[P_PRESAY]=(stringp(tmp) && strlen(tmp)>1) ? tmp[0..<2] : 0;
   }
   else
     restore_object("/save/"+str[0..0]+"/"+str);

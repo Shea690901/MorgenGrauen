@@ -2,7 +2,7 @@
 //
 // thing/description.c -- description handling for standard objects
 //
-// $Id: description.c 7276 2009-08-28 08:53:49Z Zesstra $
+// $Id: description.c 7343 2009-11-23 20:22:45Z Zesstra $
 
 #pragma strict_types
 #pragma save_types
@@ -14,6 +14,7 @@
 #include <thing/material.h>
 #include <thing/lighttypes.h>
 #include <exploration.h>                  // wegen EPMASTER
+#include <class.h>
 
 #define NEED_PROTOTYPES
 #include <thing/properties.h>
@@ -780,22 +781,35 @@ static int _set_light( int light )
 //                    ##########################
 
 // Klasse hinzufuegen
-void AddClass(mixed str)
+public void AddClass(mixed str)
 {
-  if (!str) return;
-  if(stringp(str)) str = ({ str });
-  if(pointerp(str))
-    // Doppelte eliminieren
-    Set( P_CLASS,Query(P_CLASS, F_VALUE)-str+str, F_VALUE);
+  if (!stringp(str) && !pointerp(str)) return;
+  if (stringp(str)) 
+      str = ({ str });
+  // Aliase aufloesen und implizite Klassen addieren.
+  str = (string*)CLASSDB->AddImplicitClasses(str);
+  // Summe mit alten Klassen bilden und Doppelte eliminieren
+  str = str + Query(P_CLASS, F_VALUE);
+  Set( P_CLASS, m_indices(mkmapping(str)), F_VALUE);
+
   return;
 }
 
 // Klasse entfernen
 void RemoveClass(mixed str)
 {
-  if (stringp(str)) str = ({ str });
-  if (pointerp(str))
-    Set( P_CLASS, Query(P_CLASS, F_VALUE)-str, F_VALUE);
+  if (!stringp(str) && !pointerp(str))
+      return;
+  if (stringp(str)) 
+      str = ({ str });
+
+  // Aliase aufloesen und implizite Klassen addieren.
+  str = (string*)CLASSDB->AddImplicitClasses(str);
+
+  // Und alle - inklusive impliziter Klassen - entfernen
+  // TODO: Pruefen, ob dies die richtige Entscheidung ist.
+  Set( P_CLASS, Query(P_CLASS, F_VALUE)-str, F_VALUE);
+
   return;
 }
 
@@ -806,19 +820,23 @@ int is_class_member(mixed str)
   int i;
 
   // Keine Klasse, keine Mitgliedschaft ...
-  if (!str) return 0;
+  if (!str || (!stringp(str) && !pointerp(str)) || str=="") 
+      return 0;
 
   // Es sollte schon ein Array sein
-  if (stringp(str)) str = ({ str });
+  if (stringp(str)) 
+      str = ({ str });
 
   // Klassen und Ids ins Array
+  // TODO: Pruefen, ob das Einschliessen von IDs  unbedingt hart-kodiert sein
+  // TODO::muss.
   if (!pointerp(cl=QueryProp(P_IDS))) cl=({});
   if (pointerp(cl2=QueryProp(P_CLASS))) cl+=cl2;
 
   // .. und testen
-  i = sizeof(str);
-  while(i--)
-    if (member(cl,str[i])> -1 ) return 1;
+  foreach(string cls : str)
+    if (member(cl,cls) > -1 ) return 1;
+
   return 0;
 }
 

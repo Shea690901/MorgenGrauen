@@ -1,4 +1,4 @@
-// $Id: magier_ext.c 7241 2009-07-30 15:59:30Z Rumata $
+// $Id: magier_ext.c 7499 2010-03-09 22:08:23Z Zesstra $
 #pragma strict_types
 #pragma save_types
 //#pragma range_check
@@ -13,6 +13,7 @@
 #include <player/telnetneg.h>
 #undef NEED_PROTOTYPES
 #include <properties.h>
+#include <files.h>
 
 inherit "/std/shells/magier/parsing";
 inherit "/std/shells/magier/upd";
@@ -31,22 +32,6 @@ inherit "/std/shells/magier/comm";
 //############################### SET #################################
 //                              #######
 
-#if __VERSION__ < "3.2.9"
-//
-// ShowVars(): Funktion zur Variablenausgabe (von _set verwendet)
-//             Ab Version 3.2.9 obsolet
-// key:        Variablennamen
-// value:      Wert der Variable. Arrays durch : trennen
-//
-
-private void ShowVars(string key, mixed value)
-{
-  if (pointerp(value)) value=implode(value,":");
-  printf(" %-20s = %s\n",key,value);
-  return;
-}
-
-#endif //
 
 //
 // _set(): Shell-Befehl 'set'
@@ -67,12 +52,9 @@ static int _set(mixed args)
     else
     {
       printf("Du hast die folgenden Variablen definiert:\n");
-#if __VERSION__<"3.2.9"
-    walk_mapping(vars,#'ShowVars/*'*/);
-#else
-    walk_mapping(vars,((: printf(" %-20s = %s\n",$1,
+      walk_mapping(vars,((: printf(" %-20s = %s\n",$1,
                                  pointerp($2)?implode($2,":"):$2) :)));
-#endif
+
     }
     return 1;
   }
@@ -80,9 +62,9 @@ static int _set(mixed args)
   if(pos == -1)
     if(strlen(args))
       {
-	efun::m_delete(QueryProp(P_VARIABLES), args);
-	printf("Variable %s wurde geloescht.\n",args);
-	return 1;
+        efun::m_delete(QueryProp(P_VARIABLES), args);
+        printf("Variable %s wurde geloescht.\n",args);
+        return 1;
       }
     else return USAGE("set <variable> <wert>");
   var = args[0..pos-1];
@@ -104,15 +86,6 @@ static int _pwd()
   printf("Aktuelles Verzeichnis: %s\n",QueryProp(P_CURRENTDIR));
   return 1;
 }
-
-#if __VERSION__ < "3.2.9"
-
-private static int _cd_filter(mixed arg)
-{
-  return (arg[FILESIZE]==-2);
-}
-
-#endif
 
 static int _cd2(string cmdline)
 {
@@ -138,11 +111,9 @@ static int _cd2(string cmdline)
     if (dest!="/")
     {
       args=file_list(({dest}),MODE_CD,0,"/");
-#if __VERSION__ < "3.2.9"
-      args=filter(args,#'_cd_filter);
-#else
-      args=filter(args,(: ($1[FILESIZE]==-2) :));
-#endif
+      args = filter(args, function int (mixed arr)
+          { return arr[FILESIZE] == FSIZE_DIR; } );
+
       if (!sizeof(args))
         return notify_fail("cd: "+dest+
                          ": Kein solches Verzeichnis gefunden.\n"),0;
@@ -239,8 +210,8 @@ private string _prompt_subst(string str)
     case "\\h": return strlen(MUDNAME)?MUDNAME:"Mud ohne Namen";
     case "\\u": return capitalize(getuid(this_object()));
     case "\\n": return "\n";
-    default: return str;
   }
+  return str;
 }
 
 

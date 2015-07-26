@@ -2,7 +2,7 @@
 //
 // login.c -- Object for players just logging in
 //
-// $Id: login.c 7279 2009-09-01 19:39:03Z Zesstra $
+// $Id: login.c 7475 2010-02-20 18:50:03Z Zesstra $
 
  /*
  * secure/login.c
@@ -29,6 +29,7 @@
 //#pragma range_check
 #pragma warn_deprecated
 
+#include <config.h>
 #include <properties.h>
 #include <moving.h>
 #include "/secure/wizlevels.h"
@@ -36,9 +37,6 @@
 #include <defines.h>
 
 inherit "/secure/mini_telnetneg.c";
-#ifdef MSSP_SUPPORT
-inherit "/secure/misc/mssp.c";
-#endif
 
 #define SSL_GRRETING "REMOTE_HOST="
 #define PROXIES ({"127.0.0.1","84.16.224.224"})
@@ -72,7 +70,7 @@ static string realip;
 // Prototypes
 static void SendTelopts();
 public nomask string loginname();
-static nomask int logon();
+public nomask int logon();
 static int check_illegal( string str );
 static int valid_name( string str );
 static int logon2( string str );
@@ -162,7 +160,7 @@ static int check_too_many_logons()
 /*
  * This is the function that gets called by /secure/master for every user
  */
-static nomask int logon()
+public nomask int logon()
 {
     loginname = "logon";
     hc_play=0;
@@ -201,7 +199,7 @@ static int check_too_many_from_same_ip()
 
     if ( sizeof(u) > 25 ){
         write( "\nDa anscheinend gerade jemand von Deiner Adresse aus "
-               "versucht, das \nMorgenGrauen mit neuen Charakteren zu "
+               "versucht, das \n"MUDNAME" mit neuen Charakteren zu "
                "ueberschwemmen, werden momentan \nnur aeltere Charaktere "
                "von dieser Adresse zugelassen.\nWenn Du meinst, dass es "
                "sich um einen Fehler handelt, logg Dich bitte als \n"
@@ -224,7 +222,7 @@ static int check_illegal( string str )
 {
     string res;
 
-    res = (string)__MASTER_OBJECT__->QuerySBanished(query_ip_number(this_object()));
+    res = (string)master()->QuerySBanished(query_ip_number(this_object()));
 
     if ( res ){
         write( res );
@@ -287,7 +285,7 @@ static int logon2( string str )
     // (http://tintin.sourceforge.net/mssp/)
 #ifdef MSSP_SUPPORT
     if (str == "MSSP-REQUEST") {
-      print_mssp_response();
+      "/secure/misc/mssp"->print_mssp_response();
       log_file( "MSSP.log", sprintf( "%s: %-15s (%s)\n",
                                          strftime("%c"),
                                          query_ip_number(this_object()),
@@ -345,7 +343,7 @@ static int logon2( string str )
 
     /* read the secure save file to see if character already exists */
     if ( str != "gast" &&
-         !restore_object( __MASTER_OBJECT__->secure_savefile(str) ) ){
+         !restore_object( master()->secure_savefile(str) ) ){
         object *user;
 
         if ( !neu ){
@@ -383,7 +381,7 @@ static int logon2( string str )
         }
 
         
-        if ( (txt = (string)__MASTER_OBJECT__->QueryBanished(str)) ){
+        if ( (txt = (string)master()->QueryBanished(str)) ){
             if ( txt != "Dieser Name ist gesperrt." )
                 txt = sprintf("Hoppla - dieser Name ist reserviert oder gesperrt "
                     "(\"gebanisht\")!\nGrund: %s\n",txt);
@@ -431,7 +429,7 @@ static int logon2( string str )
             return 1;
         }
 
-        if ( (int)__MASTER_OBJECT__->check_late_player(str) )
+        if ( (int)master()->check_late_player(str) )
         {
             write( "Dieser Spieler hat uns leider fuer immer verlassen.\n" );
             write( "Wie heisst Du denn (\"neu\" fuer neuen Spieler)? " );
@@ -440,7 +438,7 @@ static int logon2( string str )
             return 1;
         }
 
-        if ( txt = (string)__MASTER_OBJECT__->QueryTBanished(str) ){
+        if ( txt = (string)master()->QueryTBanished(str) ){
             write( txt );
             write( "Wie heisst Du denn (\"neu\" fuer neuen Spieler)? " );
             loginname = "logon";
@@ -477,7 +475,7 @@ static int new_password( string str )
 
     password = str;
 
-    if ( !__MASTER_OBJECT__->good_password( str, loginname ) ){
+    if ( !master()->good_password( str, loginname ) ){
         write( "Bitte gib ein Passwort an: " );
         input_to( "new_password", 1 );
         return 1;
@@ -601,7 +599,7 @@ static void select_race()
         write( "Es gibt nur eine Rasse, Du hast also keine Wahl.\n" );
 
         shell = races[0][0];
-        __MASTER_OBJECT__->set_player_object( loginname, shell );
+        master()->set_player_object( loginname, shell );
 
         return load_player_ob_2( shell, 0 );
     }
@@ -613,14 +611,14 @@ static void reask_hc_question()
 {
   hc_confirm=1;
   write( break_string(
-            "Du moechtest den Gefahren dieser Welt mit nur einem Leben "+
-            "entgegentreten. Doch bedenke wohl, dies ist ein schwerer Weg "+
-            "und bist Du erstmal in das Reich des Todes eingetreten, so gibt "+
-            "es kein Entrinnen.\n"+
-            "Als Neuling solltest Du Dir ueberlegen, ob Du das "+
-            "MorgenGrauen vielleicht nicht doch lieber mit der Moeglichkeit zur "+
-            "Wiedergeburt erkunden moechtest.\n"+
-            "Solltest Du Dir noch nicht ganz ueber die Folgen Deiner Entscheidung "+
+            "Du moechtest den Gefahren dieser Welt mit nur einem Leben "
+            "entgegentreten. Doch bedenke wohl, dies ist ein schwerer Weg "
+            "und bist Du erstmal in das Reich des Todes eingetreten, so gibt "
+            "es kein Entrinnen.\n"
+            "Als Neuling solltest Du Dir ueberlegen, ob Du das "
+            MUDNAME" vielleicht nicht doch lieber mit der Moeglichkeit zur "
+            "Wiedergeburt erkunden moechtest.\n"
+            "Solltest Du Dir noch nicht ganz ueber die Folgen Deiner Entscheidung "
             "im Klaren sein, bekommst du mit \"?\" Hilfe.\n\n",78,0,BS_LEAVE_MY_LFS));
 
     write( "\nNun entscheide Dich, willst Du wirklich nur ein Leben?(ja,nein,?): " );
@@ -748,7 +746,7 @@ static void get_mud_played_answer (string str)
 		return ask_mud_played_question();
 	}
         newbie=1;
-	write("\n\nEine kleine Einfuehrung in das MorgenGrauen bekommst "
+	write("\n\nEine kleine Einfuehrung in das "MUDNAME" bekommst "
 			"Du auch hier:\n\n"
 			"http://mg.mud.de/newweb/hilfe/tutorial/inhalt.shtml\n\n");
 	return ask_race_question();
@@ -793,7 +791,7 @@ static void get_hc_answer( string str )
     }
 
 
-    __MASTER_OBJECT__->set_player_object( loginname, shell );
+    master()->set_player_object( loginname, shell );
     load_player_ob_2( shell, 0 );
     return;
 }
@@ -831,7 +829,7 @@ static int load_player_object( int guestflag )
       else {
         //sonst Standardmeldung ausgeben.
         write ("\nAufgrund von technischen Problemen ist das Einloggen ins "
-                "MorgenGrauen zur \nZeit nicht moeglich. Bitte versuch es "
+                MUDNAME" zur \nZeit nicht moeglich. Bitte versuch es "
 	              "spaeter noch einmal.\n\n");
       }
       if ( IS_ARCH(loginname) || 
@@ -847,7 +845,7 @@ static int load_player_object( int guestflag )
       }
     }
 
-    if ( (fname = (string)__MASTER_OBJECT__->secure_isavefile(loginname)) != "" ) {
+    if ( (fname = (string)master()->secure_isavefile(loginname)) != "" ) {
         save_object( SECURESAVEPATH + loginname[0..0] + "/" + loginname );
         "/secure/master"->RemoveFromCache( loginname );
 
@@ -1087,7 +1085,7 @@ public mixed new_logon( string str)
     seteuid(ROOTID);
 
     /* read the secure save file to see if character already exists */
-    if ( !restore_object( __MASTER_OBJECT__->secure_savefile(str) ) ){
+    if ( !restore_object( master()->secure_savefile(str) ) ){
         write( "Kein solcher Spieler!\n" );
         destruct( this_object() );
         return 0;

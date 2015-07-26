@@ -2,7 +2,7 @@
 //
 // living/team.c
 //
-// $Id: team.c 6983 2008-08-22 21:01:33Z Zesstra $
+// $Id: team.c 7521 2010-03-28 19:08:11Z Arathorn $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -46,7 +46,7 @@ string _query_team_attack_cmd() {
   return Set(P_TEAM_ATTACK_CMD,team_attack_cmd);
 }
 
-string _query_team_autofollow() {
+int _query_team_autofollow() {
   return Set(P_TEAM_AUTOFOLLOW,team_autofollow);
 }
 

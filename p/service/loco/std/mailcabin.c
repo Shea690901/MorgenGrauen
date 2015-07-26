@@ -15,6 +15,8 @@
    Nightfall ansprechen.
 */
 
+#pragma strong_types,save_types
+
 #include "/mail/post.h"
 #include <config.h>
 #include <properties.h>

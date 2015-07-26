@@ -1,3 +1,5 @@
+#pragma strong_types,save_types
+
 #include <properties.h>
 
 object caster;
@@ -176,6 +178,7 @@ varargs int Defend(int dam,mixed dam_type,mixed spell,object enemy)
     ob->remove();
   if(this_object())
     remove();
+  return 0;
 }
 
 int Kill(object enemy)
@@ -186,6 +189,7 @@ int Kill(object enemy)
     ob->remove();
   if(this_object())
     remove();
+  return 0;
 }
 
 int InsertEnemy(object enemy)
@@ -200,6 +204,7 @@ int InsertEnemy(object enemy)
     ob->remove();
   if(this_object())
     remove();
+  return 0;
 }
 
 string short()

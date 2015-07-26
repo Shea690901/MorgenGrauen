@@ -3,7 +3,7 @@
 // /p/daemon/eventd.c -- Event Dispatcher
 //
 // $Id$
-#pragma strict_types
+#pragma strict_types,save_types
 #pragma no_clone
 #pragma no_shadow
 #pragma pedantic
@@ -22,8 +22,9 @@
 
 #define LOG(x) log_file("EVENTS", sprintf(\
       "[%s] %s\n",dtime(time()),x))
-#define LOGEVENT(x,y,z) log_file("EVENTS", sprintf(\
-      "[%s] Event %s triggered by %O (Args: %.40O)\n",dtime(time()),x,y,z))
+//#define LOGEVENT(x,y,z) log_file("EVENTS", sprintf(\
+//      "[%s] Event %s triggered by %O (Args: %.40O)\n",dtime(time()),x,y,z))
+#define LOGEVENT(x,y,z)
 //#define LOGREGISTER(w,x,y,z) log_file("EVENTLISTENER",sprintf(\
 //      "[%s] %O (Fun: %.25s) registered for %s by %O\n",dtime(time()),w,x,y,z))
 #define LOGREGISTER(w,x,y,z)
@@ -37,7 +38,7 @@
 #ifndef DEBUG
 #define DEBUG(x)  if (find_player("zesstra"))\
           tell_object(find_player("zesstra"),\
-	              "EDBG: "+x+"\n")
+                      "EDBG: "+x+"\n")
 #endif
 
 #define TICK_RESERVE 300000
@@ -81,7 +82,7 @@ nosave mixed active=({});
 int lastboot; // Zeitstempel des letzten Reboots
 // Flag, wenn gesetzt, zerstoert sich der Eventd, wenn keine Events
 // abzuarbeiten sind.
-int updateme; 
+nosave int updateme; 
 
 // einfache Statistik, gespeichert wird ein Histogramm. KEys sind die
 // Zeitdifferenzen zwschen Eintragen und Erledigen des Events, Values die
@@ -97,7 +98,7 @@ varargs int remove(int silent);
 // Liefert Anzahl der Listener zurueck.
 int CheckEventID(string eid) {
     if (!stringp(eid) || !member(events,eid))
-	return 0;
+        return 0;
     return(sizeof(events[eid]));
 }
 
@@ -126,17 +127,17 @@ protected int allowedtrigger(string eid, object trigger) {
 int RegisterEvent(string eid, string fun, object ob) {
     object po;
     if (!stringp(eid) || !stringp(fun) || 
-	!objectp(ob) || !objectp(po=previous_object()))
-	return -1;
+        !objectp(ob) || !objectp(po=previous_object()))
+        return -1;
     if (!allowed(eid, ob, po)) return -2;
     closure cl=symbol_function(fun,ob);
     if (!closurep(cl))
-	return -3;
+        return -3;
     if (!mappingp(events[eid]))
-	events[eid]=m_allocate(1,3); // 3 Werte pro Key
+        events[eid]=m_allocate(1,3); // 3 Werte pro Key
     events[eid]+=([object_name(ob):fun;cl;ob]);
     if (find_call_out(#'save_me)==-1)
-	call_out(#'save_me,15);
+        call_out(#'save_me,15);
     LOGREGISTER(ob,fun,eid,po);
     return 1;
 }
@@ -149,18 +150,18 @@ int RegisterEvent(string eid, string fun, object ob) {
 int UnregisterEvent(string eid, object ob) {
     object po;
     if (!stringp(eid) || !objectp(ob) || 
-	!objectp(po=previous_object()) || !mappingp(events[eid]))
-	return -1;
+        !objectp(po=previous_object()) || !mappingp(events[eid]))
+        return -1;
     string oname=object_name(ob);
     if (!member(events[eid],oname)) 
-	return -2;
+        return -2;
     efun::m_delete(events[eid],oname);
     if (!sizeof(events[eid]))
-	efun::m_delete(events,eid);
+        efun::m_delete(events,eid);
     // aus aktivem Event austragen, falls es drin sein sollte.
     if (sizeof(active) && member(active,eid) 
-	&& member(active[eid,A_LISTENERS], oname)) {
-	efun::m_delete(active[eid,A_LISTENERS],oname);
+        && member(active[eid,A_LISTENERS], oname)) {
+        efun::m_delete(active[eid,A_LISTENERS],oname);
     }
     if (find_call_out(#'save_me)==-1)
       call_out(#'save_me,15);
@@ -173,8 +174,8 @@ int UnregisterEvent(string eid, object ob) {
 varargs int TriggerEvent(string eid, mixed args) {
     object trigger;
     if (!stringp(eid) || 
-	!objectp(trigger=previous_object())) 
-	return -1;
+        !objectp(trigger=previous_object())) 
+        return -1;
     if (!allowedtrigger(eid, trigger)) return -2;
     if (!member(events,eid)) return -3;
     pending+=({ ({eid,trigger,object_name(trigger), args, time()}) });
@@ -191,21 +192,21 @@ protected void heart_beat() {
     // HB abschalten, wenn nix zu tun ist.
     if (!sizeof(active)) {
       if (!sizeof(pending)) {
-	set_heart_beat(0);
-	return;
+        set_heart_beat(0);
+        return;
       }
       // scheint noch min. ein Eintrag in pending zu sein, nach active kopieren,
       // plus die Callback-Infos aus events
       active=({pending[0][P_EID],
-	       pending[0][P_TRIGOB],pending[0][P_TRIGOBNAME],
-	       pending[0][P_ARGS], 		        
-	       deep_copy(events[pending[0][P_EID]]),
-	       pending[0][P_TIME] });
+               pending[0][P_TRIGOB],pending[0][P_TRIGOBNAME],
+               pending[0][P_ARGS],                         
+               deep_copy(events[pending[0][P_EID]]),
+               pending[0][P_TIME] });
 
       if (sizeof(pending)>1)
-	pending=pending[1..]; // und aus pending erstmal loeschen. ;-)
+        pending=pending[1..]; // und aus pending erstmal loeschen. ;-)
       else
-	pending=({});
+        pending=({});
       //DEBUG(sprintf("Pending: %O",pending));
       //DEBUG(sprintf("Active: %O",active));
     }
@@ -218,29 +219,29 @@ protected void heart_beat() {
     mapping listeners=active[A_LISTENERS];
     // und ueber alle Listener iterieren
     foreach(string obname, string fun, closure cl, object listener: 
-	         listeners) {
+                 listeners) {
       // erst pruefen, ob noch genug Ticks da sind. wenn nicht, gehts im
       // naechsten HB weiter.
       if (get_eval_cost() < TICK_RESERVE) {
-	return;
+        return;
       }
       // wenn Closure und/oder zugehoeriges Objekt nicht existieren, versuchen
       // wir erstmal, es wiederzufinden. ;-)
       if (!objectp(query_closure_object(cl))) {
-	if (objectp(listener=find_object(obname)) &&
-	    closurep(cl=symbol_function(fun,listener))) {
-	    //geklappt, auch in events wieder ergaenzen
-	    events[eid][obname,CB_CLOSURE]=cl;
-	    events[eid][obname,CB_OBJECT]=listener;
-	}
-	else {
-	  // Objekt nicht gefunden oder Closure nicht erzeugbar, austragen
-	  efun::m_delete(listeners,obname);
-	  // und aus events austragen.
-	  efun::m_delete(events[eid],obname);
-	  // und naechster Durchgang
-	  continue;
-	}
+        if (objectp(listener=find_object(obname)) &&
+            closurep(cl=symbol_function(fun,listener))) {
+            //geklappt, auch in events wieder ergaenzen
+            events[eid][obname,CB_CLOSURE]=cl;
+            events[eid][obname,CB_OBJECT]=listener;
+        }
+        else {
+          // Objekt nicht gefunden oder Closure nicht erzeugbar, austragen
+          efun::m_delete(listeners,obname);
+          // und aus events austragen.
+          efun::m_delete(events[eid],obname);
+          // und naechster Durchgang
+          continue;
+        }
       }
       // Objekt noch da, Closure wird als ausfuehrbar betrachtet. 
       catch(limited(#'funcall,({TICKSPERCALLBACK}),cl,eid,trigob,args);publish);
@@ -259,11 +260,13 @@ protected void heart_beat() {
   }  // while(get_eval_cost() > TICK_RESERVE)
   // Soll dies Ding neugeladen werden? Wenn ja, Selbstzerstoerung, wenn keine
   // Events mehr da sind.
-  if (updateme && !sizeof(active) && !sizeof(pending))
+  if (updateme && !sizeof(active) && !sizeof(pending)) {
+    DEBUG(sprintf("Update requested\n"));
     remove(1);
+  }
 }
 
-void create() {
+protected void create() {
     seteuid(getuid(ME));
     restore_object(STORE);
     if (lastboot != __BOOT_TIME__) {
@@ -277,16 +280,26 @@ void create() {
     LOG("Event-Dispatcher loaded");
 }
 
+
 protected void save_me() {
   save_object(STORE);
 }
 
 varargs int remove(int silent) {
     save_me();
-    LOG(sprintf("Remove called by %O - destructing",previous_object()));
+    DEBUG(sprintf("remove() called by %O - destructing\n", previous_object())); 
+    LOG(sprintf("remove called by %O - destructing",previous_object()));
     destruct(ME);
     return 1;
 }
+
+public void reset() {
+  if (updateme && !sizeof(active) && !sizeof(pending)) {
+    DEBUG(sprintf("Update requested\n"));
+    remove(1);
+  }
+}
+
 
 // fuer Debugzwecke. Interface und Verhalten kann sich jederzeit ohne
 // Vorankuendigung aendern.

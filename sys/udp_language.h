@@ -53,6 +53,7 @@
 
 // ***
 // *** query.c
+#define INETD_QUERY_REQUESTED "%s@%s: Abfrage abgeschickt.\n"
 // ***
 
 

@@ -2,6 +2,10 @@
 #include <thing/description.h>
 #include <strings.h>
 
+// hosts who asked us in the past and timestamp of last connection which got
+// the full datatset.
+private nosave mapping peers = ([:1]);
+
 /* For a list of official and extended fields:
    http://www.mudbytes.net/index.php?a=articles&s=MSSP_Fields
    For a protocal description:
@@ -10,7 +14,7 @@
 
 protected string list_ports() {
   int ports = query_mud_port(-1) - 1;
-  string res="23\t992";
+  string res="992\t23";
   for(; ports>=0 ; --ports)
     res += "\t" + to_string(query_mud_port(ports));
 
@@ -18,7 +22,7 @@ protected string list_ports() {
 }
 
 #define DESCRIPTION \
-    "MorgenGrauen is a native German LPmud. It was founded in 1992 and has "\
+    MUDNAME" is a native German LPmud. It was founded in 1992 and has "\
     "been prospering since. The world features an original fantasy setting "\
     "with many facets. The 13 domains form a big world with 15000 rooms to "\
     "explore and several thousand NPCs. You can choose between 7 races and "\
@@ -32,9 +36,12 @@ protected string list_ports() {
     "an option to turn ascii-graphics off. Multiplaying is a bit restricted "\
     "and scripting is discouraged."
 
-private nosave mapping data = ([
+private nosave mapping mindata = ([
     "NAME"             : MUDNAME,
     "UPTIME"           : to_string(__BOOT_TIME__),
+    ]);
+
+private nosave mapping data = mindata + ([
     "PORT"             : list_ports(),
     "CODEBASE"         : _MUDLIB_NAME_+"-"+_MUDLIB_VERSION_,
     "HOSTNAME"         : __HOST_NAME__ + "." + __DOMAIN_NAME__,
@@ -130,7 +137,23 @@ private nosave mapping data = ([
  */
     ]);
 
-protected void print_mssp_response() {
+public void print_mssp_response() {
+ string ip = query_ip_number(previous_object());
+ mapping ldata;
+ if (stringp(ip)) {
+     // Vollen Datensatz alle ("CRAWL DELAY" / 2) h, daher * 1800.
+   if (peers[ip] > (time() - (to_int(data["CRAWL DELAY"]) || 1) * 1800)) {
+       // this peers asks to often and gets only the minimal dataset
+       ldata = mindata;
+   }
+   else {
+       ldata = data;
+       peers[ip] = time(); // record timestamp
+   }
+ }
+ else
+     ldata = data;
+
  /* data["WHO"] = implode(map(filter(users(), 
                       function status (object o)
                       { return !o->QueryProp(P_INVIS); } ),
@@ -138,11 +161,11 @@ protected void print_mssp_response() {
                     { return capitalize(o->query_real_name()); } ),
                   "\t" );
   */
-  data["PLAYERS"] = to_string(sizeof(users())-1);
+  ldata["PLAYERS"] = to_string(sizeof(users())-1);
 
   string reply = "\r\nMSSP-REPLY-START\r\n";
 
-  foreach(string key, string value: data) {
+  foreach(string key, string value: ldata) {
     reply += key + "\t" + value + "\r\n";
   }
 

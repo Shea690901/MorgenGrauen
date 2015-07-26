@@ -2,10 +2,10 @@
 //
 // player/potion.c -- potion handling for player
 //
-// $Id: potion.c 6905 2008-08-06 13:17:25Z Zesstra $
+// $Id: potion.c 7423 2010-02-07 22:56:38Z Zesstra $
 //
 
-#pragma strong_types
+#pragma strong_types,save_types
 
 #define NEED_PROTOTYPES
 

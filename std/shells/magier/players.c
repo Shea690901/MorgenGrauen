@@ -2,7 +2,7 @@
 //
 // players.c
 //
-// $Id: players.c 7069 2009-01-08 20:07:44Z Zesstra $
+// $Id: players.c 7358 2010-01-06 20:48:40Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma range_check
@@ -479,7 +479,7 @@ if (catch(
     arg+=sprintf("%-11s %-17s %26s  %-15s\n",
                  capitalize(getuid(spieler[i])),
                  ((dummy=(string)spieler[i]->QueryProp(P_SECOND))?
-                  (sizeof((mixed *)call_other(__MASTER_OBJECT__,
+                  (sizeof((mixed *)call_other(master(),
                                               "get_userinfo",dummy))?
                    capitalize(dummy):"*ungueltig*"):""),
                  dtime(spieler[i]->QueryProp(P_LAST_LOGIN)),

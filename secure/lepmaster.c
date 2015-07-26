@@ -7,7 +7,7 @@
 //                Weiters derjenige, der die Seheranforderungen 
 //                prueft. 
 //
-// $Id: lepmaster.c 6196 2007-02-11 15:16:55Z Zesstra $
+// $Id: lepmaster.c 7391 2010-01-25 22:52:51Z Zesstra $
 
 // Hier kommen Funktionen fuer die Levelpunkte
 #pragma strict_types
@@ -140,13 +140,13 @@ string QueryForschung()
   string ret;
 
   if ((my=(int)EPMASTER->QueryExplorationPoints(getuid(previous_object()))) < MIN_EP)
-    return "Du kennst Dich im MorgenGrauen so gut wie gar nicht aus.\n";
+    return "Du kennst Dich im "MUDNAME" so gut wie gar nicht aus.\n";
 
   my *= 100;
   max = my/(int)EPMASTER->QueryMaxEP();
   avg = my/(int)EPMASTER->QueryAverage();
 
-  ret = "Verglichen mit Deinen Mitspielern, kennst Du Dich im MorgenGrauen ";
+  ret = "Verglichen mit Deinen Mitspielern, kennst Du Dich im "MUDNAME" ";
   switch(avg) {
   case 0..10:
     ret += "kaum";
@@ -195,7 +195,7 @@ string QueryForschung()
 
   switch(max) {
   case 0..5:
-    ret += "kennst Du nur wenig vom MorgenGrauen.";
+    ret += "kennst Du nur wenig vom "MUDNAME".";
     break;
   case 6..10:
     ret += "solltest Du Dich vielleicht noch genauer umsehen.";
@@ -262,7 +262,7 @@ nomask mixed QueryWizardRequirements(object player)
   z = 6 * (int)EPMASTER->QueryExplorationPoints(player);
   DEBUG("Forscherpunkte: %d ("+REQ_EP+")\n", z);
   if (z < REQ_EP) {
-    s += sprintf(" * Du kennst Dich im MorgenGrauen noch nicht genug aus, "
+    s += sprintf(" * Du kennst Dich im "MUDNAME" noch nicht genug aus, "
 		 +"genau genommen\n   musst Du Dir noch %s ansehen.\n", 
 		 REQ_TEXT1[(z*10/REQ_EP)] );
     i--;

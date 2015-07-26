@@ -1,7 +1,7 @@
 //
 // pub.c -- Alles, was eine Kneipe braucht.
 //
-// $Id: pub.c 7139 2009-02-19 21:57:05Z Zesstra $
+// $Id: pub.c 7437 2010-02-13 01:21:48Z Zesstra $
 // spendiere ueberarbeitet, 22.05.2007 - Miril
 #pragma strong_types
 #pragma save_types
@@ -21,6 +21,11 @@
 #include <exploration.h>
 #include <wizlevels.h>
 #include <pub.h>
+
+// TODO nach Reboot entfernen
+#if __BOOT_TIME__ < 1256677992
+#define LEGACY
+#endif
 
 // Alle nicht-privaten werden in erbenen Objekten verwendet.
 private nosave int     max_list;
@@ -594,6 +599,7 @@ int do_deliver(string ident, object zahler, object empfaenger,
      return -4;
   }
 
+#ifdef LEGACY
   if ( QueryProp(P_NPC_FASTHEAL) && !query_once_interactive(empfaenger) )
   {
     /* Direkte Heilung fuer NPCs, wenn P_NPC_FASTHEAL gesetzt */
@@ -606,6 +612,15 @@ int do_deliver(string ident, object zahler, object empfaenger,
     empfaenger->buffer_hp(entryinfo[P_HP], entryinfo[PM_RATE_PUBMASTER]);
     empfaenger->buffer_sp(entryinfo[P_SP], entryinfo[PM_RATE_PUBMASTER]);
   }
+#else
+  if ( QueryProp(P_NPC_FASTHEAL) && !query_once_interactive(empfaenger) ) {
+    entryinfo[H_DISTRIBUTION] = HD_INSTANT;
+  }
+  else {
+    entryinfo[H_DISTRIBUTION] = entryinfo[PM_RATE_PUBMASTER];
+  }
+  empfaenger->consume(entryinfo);
+#endif
 
   /* Meldung ausgeben */
   /* Hinweis: Da die ausfuehrenden Funktionen auch ident und minfo
@@ -728,6 +743,7 @@ int consume_something(string ident, object zahler, object empfaenger) {
   entryinfo[P_ALCOHOL] = eval_anything(entryinfo[P_ALCOHOL],empfaenger);
   entryinfo[P_DRINK]   = eval_anything(entryinfo[P_DRINK],  empfaenger);
 
+#ifdef LEGACY
   /* Dieser Umweg ist leider noetig, da der Genuss an drei verschiedenen */
   /* Abfragen scheitern kann.                                            */
   if (entryinfo[P_FOOD] && !empfaenger->eat_food(entryinfo[P_FOOD], 1)) {
@@ -741,15 +757,32 @@ int consume_something(string ident, object zahler, object empfaenger) {
       "So viel kannst Du im Moment nicht trinken.\n");
     return -3;
   }
-
   /* Auch bei Delay wird sofort getrunken/gegessen */
   if (entryinfo[P_ALCOHOL] &&
       !empfaenger->drink_alcohol(entryinfo[P_ALCOHOL]) )
     return -3;
+#else
+  int result = empfaenger->consume(entryinfo, 1);
+  if (result < 0) {
+    if (result & HC_MAX_FOOD_REACHED)
+      tell_object(empfaenger,
+                  "Du bist zu satt, das schaffst Du nicht mehr.\n");
+    else if (result & HC_MAX_DRINK_REACHED)
+      tell_object(empfaenger,
+                  "So viel kannst Du im Moment nicht trinken.\n");
+    else if (result & HC_MAX_ALCOHOL_REACHED)
+      tell_object(empfaenger,
+                  "Soviel Alkohol vertraegst Du nicht mehr.\n");
+    return -3;
+  }
+#endif
+
+#ifdef LEGACY
   if (entryinfo[P_FOOD])
     empfaenger->eat_food(entryinfo[P_FOOD]);
   if (entryinfo[P_DRINK])
     empfaenger->drink_soft(entryinfo[P_DRINK]);
+#endif
 
   /* Gezahlt wird auch sofort */
   zahler->AddMoney(-entryinfo[P_VALUE]);

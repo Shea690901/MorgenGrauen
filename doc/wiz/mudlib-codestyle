@@ -3,6 +3,7 @@ beachtet die folgenden Hinweise zum Codestyle (nicht erschoepfend):
 
 * Einrueckungen per Leerzeichen, nicht Tabs
 * Einrueckung von 2 Leerzeichen pro Ebene
+* praegnante und viele Kommentare
 * keine lambdas
 * Bei inline-closures die function-Syntax statt der (: :)-Syntax verwenden.
 * else, else if in eine eigene Zeile
@@ -10,4 +11,15 @@ beachtet die folgenden Hinweise zum Codestyle (nicht erschoepfend):
 * Nach ifs, Loops & Co: umfasst der davon kontrollierte Code mehr als eine
   physische Zeile Code, bitte einen Block mit { } formulieren.
 * keine return fun(), 0;
+* keine return (void)nonvoid_function();
+* (type) Casts sollten vermieden werden (Ausnahme: (type)call_other).
+  (type) konvertieren nur, wenn die Typen zur Compilezeit bekannt und
+  unterschiedlich sind. Daher bei gewuenschten Konversionen to_type() nehmen.
+
+Sonstiges:
+* In der Mudlib wird keine neue Funktion(alitaet) angeschlossen, bevor die
+  Dokumentation dafuer fertig ist.
+  Am liebsten ist mir, bei der Konzeptentwicklung zuerst die fertige
+  Dokumentation (Manpage) fuer Nutzer/Spieler zu entwickeln, bevor ein Magier
+  ueberhaupt eine Zeile Code schreibt.
 

@@ -18,10 +18,7 @@
 
 protected void create() {
   SetProp(P_CLOTHING, ({}));
-  //TODO: #if entfernen.
-#if __BOOT_TIME__ > 1218394035
   Set(P_CLOTHING, PROTECTED, F_MODE_AS);
-#endif
 }
 
 public object *FilterClothing(closure filterfun, varargs mixed* extra) {
@@ -33,7 +30,7 @@ public object *FilterClothing(closure filterfun, varargs mixed* extra) {
 public object *FilterArmours(closure filterfun, varargs mixed* extra) {
   if (!closurep(filterfun))
     return ({});
-  return apply(#'filter, QueryProp(P_ARMOURS), filterfun, extra);
+  return apply(#'filter, QueryProp(P_ARMOURS)-({0}), filterfun, extra);
 }
 
 public int WearClothing(object ob) {

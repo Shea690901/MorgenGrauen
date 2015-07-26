@@ -261,16 +261,13 @@ static void get_carbon_copy(string str) {	// Aufruf mit 0, wenn keine cc gewuens
   if (!str || str=="") carbon=0;
   else carbon=process_names(str);
   carbon=(oldcarbons ? oldcarbons : ({}))+(carbon ? carbon : ({}));
-/*  if (!sizeof(carbon)) carbon=0; */
 
 #ifdef MAIL_SUPPORT_BCC
-  //blindcarbon=filter(carbon,lambda(({'x}),({#'==,'-',({#'[,'x,0})})));
   blindcarbon=filter(carbon,
       function status (string x)
         {if (x[0]=='-') return(1);
 	 return(0);});
   carbon-=blindcarbon;
-  //blindcarbon=map(blindcarbon,lambda(({'x}),({#'slice_array,'x,1,1000})));/*'*/
   blindcarbon=map(blindcarbon,
       function string (string x) 
         {return(x[1..]);} );
@@ -279,7 +276,7 @@ static void get_carbon_copy(string str) {	// Aufruf mit 0, wenn keine cc gewuens
 #ifdef MAIL_SUPPORT_BCC
   oldcarbons=({receiver})+carbon+blindcarbon; // speichere alle Originaladressen
 #else
-  oldcarbons=({receiver})+carbon;         
+  oldcarbons=({receiver})+carbon;
 #endif
 
   /* Forwards auswerten, dabei werden auch ungueltige Adressen gefiltert */

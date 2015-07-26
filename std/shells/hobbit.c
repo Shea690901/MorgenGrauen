@@ -6,9 +6,9 @@
 //
 //   15.Juni prayroom und defHome auf Hobbitdorf gesetzt von Gundur
 //
-// $Id: hobbit.c 6572 2007-10-21 18:36:41Z Zesstra $
+// $Id: hobbit.c 7423 2010-02-07 22:56:38Z Zesstra $
 
-#pragma strong_types
+#pragma strong_types,save_types
 
 inherit "std/player/base";
 

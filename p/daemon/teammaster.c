@@ -1,4 +1,6 @@
-#pragma strong_types
+#pragma strong_types,save_types
+#pragma no_shadow,no_clone
+
 #include <living/team.h>
 #include <wizlevels.h>
 #define ME this_object()
@@ -8,10 +10,7 @@ static mapping team_names;
 static mapping team_names_reverse;
 
 void create() {
-  if (clonep(ME)) {
-    destruct(ME);
-    return;
-  }
+
   team_names=([]);         // Objekt -> Name
   team_names_reverse=([]); // Name -> Objekt
 }

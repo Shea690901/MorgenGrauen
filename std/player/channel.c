@@ -2,7 +2,7 @@
 //
 // channel.c -- channel client
 //
-// $Id: channel.c 6939 2008-08-09 13:23:51Z Zesstra $
+// $Id: channel.c 7519 2010-03-28 07:59:44Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -36,7 +36,6 @@
  "q":"D-chat",         \
  "G":"Grats",          \
  "M":"Moerder",        \
- "N":"Nachrichten",    \
  "h":"Seher",          \
  "T":"Tod",            \
 ])
@@ -201,12 +200,13 @@ private void createList(string n, mixed a, mixed m, mixed l)
                   a[I_MASTER] ?
                   getName(a[I_MASTER]) : getName(a[I_ACCESS]),
                   sizeof(mem),
-                  intp(query_closure_object(a[I_INFO]))
-                  ? (stringp(a[I_INFO]) ? a[I_INFO] : "- Keine Beschreibung -")
-                  : funcall(a[I_INFO]) || "- Keine Beschreibung -") });
+            (closurep(a[I_INFO]) && objectp(query_closure_object(a[I_INFO]))) ?
+                  funcall(a[I_INFO]) || "- Keine Beschreibung -" :
+                  (stringp(a[I_INFO]) ? a[I_INFO] : "- Keine Beschreibung -")
+        ) });
 }
 
-private string getChannel(string ch)
+private mixed getChannel(string ch)
 {
   mixed ff;
   if(!strlen(ch)) ch = QueryProp(P_STD_CHANNEL);

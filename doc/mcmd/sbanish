@@ -23,19 +23,23 @@ sbanish
     Die Angabe von 'sbanish' ohne Parameter gibt eine Liste aller gesperrten
     Adressen aus.
 
-    Die zu sperrende IP-Adresse muss in der Form 'n.n.n.n' angegeben werden.
-    Um ganze Subnetze auf einen Schlag zu sperren, kann man die letzten acht
-    oder 16 Bit der Adresse weglassen. Der Befehl 'sbanish 192.3 20' wuerde
-    z.B. das komplette Class-B Netz 192.3.n.n fuer zwanzig Tage sperren.
+    Die zu sperrende IP-Adresse kann in den folgenden Formen angegeben werden:
+      - 'n.n.n.n': einzelne Adresse
+      - 'n.n.n.n/x': Subnetzwerk in CIDR-Notation mit Subnetzmaske x.
+                     2^(32-x) Adressen
+      - 'n.n.n.n/m.m.m.m': Subnetzwerk in CIDR-Notation mit Subnetzmaske 
+                           m.m.m.m
+      - 'n.n.n': Class-C-Netz n.n.n (255 Adressen)
+      - 'n.n': Class-B-Netz n.n (65536 Adressen)
 
     Dieser Befehl steht eingeschraenkt ab Level 26 zur Verfuegung:
 
       - ab Level 26 kann man bis zu zehn einzelne IPs fuer einen Tag sperren
         und eigene Sperrungen wieder aufheben
-      - ab Level 40 kann man bis zu zehn IPs und/oder Class-C Subnetze fuer
-        einen Tag sperren und eigene Sperrungen wieder aufheben
-      - Hilfssheriffs und Erzmagier koennen beliebig viele IPs bzw. Class-B
-        oder Class-C Subnetze fuer beliebige Zeitraeume sperren sowie fremde
+      - ab Level 40 kann man bis zu zehn IPs und/oder Subnetze mit bis zu 255
+        Adressen fuer einen Tag sperren und eigene Sperrungen wieder aufheben
+      - Hilfssheriffs und Erzmagier koennen beliebig viele IPs bzw. Subnetze
+        beliebiger Groesse fuer beliebige Zeitraeume sperren sowie fremde
         Sperrungen wieder aufheben
 
  BEMERKUNGEN:
@@ -48,4 +52,5 @@ sbanish
     banish, mbanish, tbanish
 
  LETZTE AeNDERUNG:
-    Sat, 25.05.2002, 01:30:00 von Tiamak
+ 06.02.2010, Zesstra
+

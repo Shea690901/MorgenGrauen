@@ -1,7 +1,7 @@
 // MorgenGrauen MUDlib
 //
 // zentralbank.c -- Zentrale Geld-Verwaltung der Haendler im MG
-// $Id: zentralbank.c 7099 2009-01-31 23:26:41Z Zesstra $
+// $Id: zentralbank.c 7421 2010-02-07 21:10:32Z Zesstra $
 //
 /*
  * $Log: zentralbank.c,v $
@@ -26,7 +26,7 @@
 #pragma no_shadow
 #pragma no_clone
 #pragma no_inherit
-#pragma strong_types
+#pragma strong_types,save_types
 
 #include <wizlevels.h>
 #include <properties.h>

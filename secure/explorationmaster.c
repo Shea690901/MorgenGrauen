@@ -2,7 +2,7 @@
 //
 // explorationmaster.c -- Verwaltung der ExplorationPoints (FP)
 //
-// $Id: explorationmaster.c 7155 2009-02-25 21:20:50Z Zesstra $
+// $Id: explorationmaster.c 7391 2010-01-25 22:52:51Z Zesstra $
 //
 #pragma strict_types
 #pragma no_clone
@@ -133,7 +133,7 @@ static void dumpEPObjects(string *doit)
   j = sizeof(doit);
 
   for (i=0; i<j; i++) {
-    id = (string)__MASTER_OBJECT__->creator_file(doit[i]);
+    id = (string)master()->creator_file(doit[i]);
     if (member(dumpMap, id))
       dumpMap[id] += ({ doit[i] });
     else
@@ -225,7 +225,7 @@ nomask varargs int AddEPObject(object ob, mixed keys, int type, int bonusflag)
     else
       obs += ([ fn : keys; obs[fn, MPOS_NUM]; type ]);
     if (bonusflag) bonus = set_bit(bonus, obs[fn, MPOS_NUM]);
-	else bonus = clear_bit(bonus, obs[fn, MPOS_NUM]);
+       else bonus = clear_bit(bonus, obs[fn, MPOS_NUM]);
   }
   else {
     int nr, i;
@@ -238,7 +238,7 @@ nomask varargs int AddEPObject(object ob, mixed keys, int type, int bonusflag)
     cnt++;
     alloc = set_bit(alloc,nr);
     if (bonusflag) bonus = set_bit(bonus,nr);
-	else bonus = clear_bit(bonus,nr);
+       else bonus = clear_bit(bonus,nr);
   }
 
   changed = 1;
@@ -297,20 +297,20 @@ nomask int ChangeEPObject(object ob, int what, mixed new)
     if (!(intp(new)))
       return EPERR_INVALID_ARG;
     if (new) bonus=set_bit(bonus,obs[fn,MPOS_NUM]);
-	else bonus=clear_bit(bonus,obs[fn,MPOS_NUM]);
+       else bonus=clear_bit(bonus,obs[fn,MPOS_NUM]);
     break;
   case CHANGE_KEY:
     if (!stringp(new) && !pointerp(new))
       return EPERR_INVALID_ARG;
-	
-	tmp=getTipFromList(fn);
-	removeTip(fn);
+       
+       tmp=getTipFromList(fn);
+       removeTip(fn);
     if (stringp(new))
       new = ({ new });
 
     obs[fn] = new;
     if(tmp && tmp!="")
-	    addTip(fn,tmp);
+           addTip(fn,tmp);
     break;
   case CHANGE_TYPE:
     if (!intp(new) || new < 0 || new > EP_MAX)
@@ -422,31 +422,31 @@ nomask varargs void ShowEPObjects(string what, string magname)
 #ifdef DOMAIN_INFO
     if (IS_LORD(this_interactive())) {
       if (!what || what == "")
-	what = "/"+getuid(this_interactive())+"/";
+       what = "/"+getuid(this_interactive())+"/";
       else {
-	if (!__MASTER_OBJECT__->domain_master(getuid(this_interactive()), what)) {
-	  write("Sorry, Du kannst nur Objekte in Deiner eigenen Region abfragen!\n");
-	  return;
-	}
-	if (!magname || magname=="")
-	  magname = getuid(this_interactive());
-//        if (!__MASTER_OBJECT__->domain_member(magname, what)) {
+       if (!master()->domain_master(getuid(this_interactive()), what)) {
+         write("Sorry, Du kannst nur Objekte in Deiner eigenen Region abfragen!\n");
+         return;
+       }
+       if (!magname || magname=="")
+         magname = getuid(this_interactive());
+//        if (!master()->domain_member(magname, what)) {
 //         write(capitalize(magname)+" ist gar kein Mitarbeiter in Deiner Region!\n");
 //          return;
-//	}
-	what = "/d/"+what+"/"+magname+"/";
+//       }
+       what = "/d/"+what+"/"+magname+"/";
       }
     }
     else
 #endif
       {
-	if (!what || what == "")
-	  what = getuid(this_interactive());
-	else if (what != getuid(this_interactive())) {
-	  write("Sorry, Du kannst nur Deine eigenen Objekte abfragen!\n");
-	  return;
-	}
-	what="/"+what+"/";
+       if (!what || what == "")
+         what = getuid(this_interactive());
+       else if (what != getuid(this_interactive())) {
+         write("Sorry, Du kannst nur Deine eigenen Objekte abfragen!\n");
+         return;
+       }
+       what="/"+what+"/";
       }
   if (allowed())
     this_interactive()->More(getMatchArch(what));
@@ -700,13 +700,13 @@ nomask int RemoveFP(int num, string pl, string grund)
 
      mail = allocate(9);
      mail[MSG_FROM] = getuid(this_interactive());
-     mail[MSG_SENDER] = "MorgenGrauen";
+     mail[MSG_SENDER] = MUDNAME;
      mail[MSG_RECIPIENT] = pl;
      mail[MSG_CC]=0;
      mail[MSG_BCC]=0;
      mail[MSG_SUBJECT]="FP-Reduktion";
      mail[MSG_DATE]=dtime(time());
-     mail[MSG_ID]="MorgenGrauen:"+time();
+     mail[MSG_ID]=MUDNAME":"+time();
      mail[MSG_BODY]=text;
 
      "/secure/mailer"->DeliverMail(mail,1);
@@ -784,7 +784,7 @@ nomask int ClearFP(int num, string pl)
 private static void printep( int nr, string key, int kind, string* det )
 {
   output+=sprintf("%4d %s %s.c %s ({ %s })\n",nr,test_bit(bonus,nr)?"b":"n",key,EP_TYPES[kind],
-		  strArr(det));
+                strArr(det));
 }
 
 nomask varargs int ShowPlayerEPs(string pl,string pattern)
@@ -798,12 +798,12 @@ nomask varargs int ShowPlayerEPs(string pl,string pattern)
     teststring="%s";
   else teststring="%s"+pattern+"%s";
   walk_mapping( obs, lambda( ({ 'key, 'v1, 'v2, 'v3 }),
-			     // v1 -- details, v2 -- Nummer, v3 -- art
-			     // key -- Filename
-			     ({ #'if, ({ #'test_bit, ep, 'v2 }),
-			     ({#'if,({#'sscanf,'key,teststring,'v4,'v5}),
-			     ({ #'printep, 'v2, 'key, 'v3, 'v1 })
-			     }) }) ));
+                          // v1 -- details, v2 -- Nummer, v3 -- art
+                          // key -- Filename
+                          ({ #'if, ({ #'test_bit, ep, 'v2 }),
+                          ({#'if,({#'sscanf,'key,teststring,'v4,'v5}),
+                          ({ #'printep, 'v2, 'key, 'v3, 'v1 })
+                          }) }) ));
   this_interactive()->More(output);
   return 1;
 }
@@ -813,7 +813,7 @@ nomask varargs int ShowPlayerEPs(string pl,string pattern)
 
 nomask int QueryLEP(int lep) {
     raise_error("Bitte QueryLEP() im LEPMASTER abfragen, nicht im "
-	"EPMASTER!");
+       "EPMASTER!");
     return(-1); //never reached
 }
 
@@ -823,13 +823,13 @@ string QueryForschung()
   string ret;
 
   if ((my=QueryRealExplorationPoints(getuid(previous_object()))) < MIN_EP)
-    return "Du kennst Dich im MorgenGrauen so gut wie gar nicht aus.\n";
+    return "Du kennst Dich im "MUDNAME" so gut wie gar nicht aus.\n";
 
   my *= 100;
   max = my/QueryMaxEP();
   avg = my/QueryAverage();
 
-  ret = "Verglichen mit Deinen Mitspielern, kennst Du Dich im MorgenGrauen ";
+  ret = "Verglichen mit Deinen Mitspielern, kennst Du Dich im "MUDNAME" ";
   switch(avg) {
   case 0..10:
     ret += "kaum";
@@ -878,7 +878,7 @@ string QueryForschung()
 
   switch(max) {
   case 0..5:
-    ret += "kennst Du nur wenig vom MorgenGrauen.";
+    ret += "kennst Du nur wenig vom "MUDNAME".";
     break;
   case 6..10:
     ret += "solltest Du Dich vielleicht noch genauer umsehen.";
@@ -909,35 +909,35 @@ nomask status hasFP(object player,string key)
   string ep;
   
   if(!allowed() || !player || !query_once_interactive(player) || !key || !member(obs,key)){
-	return -1;
+       return -1;
   }
   
   ep = (MASTER->query_ep(getuid(player)) || "");
 
   return test_bit(ep,obs[key,1]);
-	
+       
 }
 
 nomask mapping getFreeFPsForPlayer(object player)
 {
-	mapping freeFPs;
-	string* indices;
-	int i;
-	
-	freeFPs=([]);
-	if(!allowed() || !player || !query_once_interactive(player)){
-		return freeFPs;
-	}
-	
-	freeFPs=copy(obs);
-	indices=m_indices(freeFPs);
-	i=sizeof(indices)-1;
-	for(i;i>=0;i--){
-		if(hasFP(player,indices[i])){
-			efun::m_delete(freeFPs,indices[i]);
-		}
-	}
-	return freeFPs;
+       mapping freeFPs;
+       string* indices;
+       int i;
+       
+       freeFPs=([]);
+       if(!allowed() || !player || !query_once_interactive(player)){
+              return freeFPs;
+       }
+       
+       freeFPs=copy(obs);
+       indices=m_indices(freeFPs);
+       i=sizeof(indices)-1;
+       for(i;i>=0;i--){
+              if(hasFP(player,indices[i])){
+                     efun::m_delete(freeFPs,indices[i]);
+              }
+       }
+       return freeFPs;
 }
 
 nomask int addTip(mixed key,string tip)
@@ -964,7 +964,7 @@ nomask int addTip(mixed key,string tip)
 
 nomask int changeTip(mixed key,string tip)
 {
-	return addTip(key,tip);
+       return addTip(key,tip);
 }
 
 nomask int removeTip(mixed key)
@@ -1032,131 +1032,131 @@ nomask string getTip(mixed key)
   
   tip=getTipFromList(fn);
   if(!tip || tip==""){
-  	path=old_explode(fn,"/");
-  	if(sizeof(path)<3) return "";
-  	if(path[0]=="players") return "Schau Dich doch mal bei "+capitalize(path[1])+" um.";
-	
-	if(path[0]=="d"){
-		tip+="Schau Dich doch mal ";
-		
-		if(file_size("/players/"+path[2])==-2){
-			tip+="bei "+capitalize(path[2]+" ");
-		}
-		
-		if(path[1]=="anfaenger")
-			tip+="in den Anfaengergebieten ";
-		if(path[1]=="fernwest")
-			tip+="in Fernwest ";
-		if(path[1]=="dschungel")
-			tip+="im Dschungel ";
-		if(path[1]=="schattenwelt")
-			tip+="in der Welt der Schatten ";
-		if(path[1]=="unterwelt")
-			tip+="in der Unterwelt ";
-		if(path[1]=="gebirge")
-			tip+="im Gebirge ";
-		if(path[1]=="seher")
-			tip+="bei den Sehergebieten ";
-		if(path[1]=="vland")
-			tip+="auf dem Verlorenen Land ";
-		if(path[1]=="ebene")
-			tip+="in der Ebene ";
-		if(path[1]=="inseln")
-			tip+="auf den Inseln ";
-		if(path[1]=="wald")
-			tip+="im Wald ";
-		if(path[1]=="erzmagier")
-			tip+="bei den Erzmagiern ";
-		if(path[1]=="polar")
-			tip+="im eisigen Polar ";
-		if(path[1]=="wueste")
-			tip+="in der Wueste ";
-		tip+="um.";
-	}
+         path=old_explode(fn,"/");
+         if(sizeof(path)<3) return "";
+         if(path[0]=="players") return "Schau Dich doch mal bei "+capitalize(path[1])+" um.";
+       
+       if(path[0]=="d"){
+              tip+="Schau Dich doch mal ";
+              
+              if(file_size("/players/"+path[2])==-2){
+                     tip+="bei "+capitalize(path[2]+" ");
+              }
+              
+              if(path[1]=="anfaenger")
+                     tip+="in den Anfaengergebieten ";
+              if(path[1]=="fernwest")
+                     tip+="in Fernwest ";
+              if(path[1]=="dschungel")
+                     tip+="im Dschungel ";
+              if(path[1]=="schattenwelt")
+                     tip+="in der Welt der Schatten ";
+              if(path[1]=="unterwelt")
+                     tip+="in der Unterwelt ";
+              if(path[1]=="gebirge")
+                     tip+="im Gebirge ";
+              if(path[1]=="seher")
+                     tip+="bei den Sehergebieten ";
+              if(path[1]=="vland")
+                     tip+="auf dem Verlorenen Land ";
+              if(path[1]=="ebene")
+                     tip+="in der Ebene ";
+              if(path[1]=="inseln")
+                     tip+="auf den Inseln ";
+              if(path[1]=="wald")
+                     tip+="im Wald ";
+              if(path[1]=="erzmagier")
+                     tip+="bei den Erzmagiern ";
+              if(path[1]=="polar")
+                     tip+="im eisigen Polar ";
+              if(path[1]=="wueste")
+                     tip+="in der Wueste ";
+              tip+="um.";
+       }
   }
   return tip;
 }
 
 nomask static string* makeTiplistFromBitString(string bitstr)
 {
-	string* ret;
-	string* keys;
-	int* nums;
-	int i,tmp;
-	string key;
-	
-	keys=m_indices(obs);
-	nums=({});
-	for(i=0;i<sizeof(keys);i++){
-		nums+=({obs[keys[i],MPOS_NUM]});
-	}
-	
-	ret=({});
+       string* ret;
+       string* keys;
+       int* nums;
+       int i,tmp;
+       string key;
+       
+       keys=m_indices(obs);
+       nums=({});
+       for(i=0;i<sizeof(keys);i++){
+              nums+=({obs[keys[i],MPOS_NUM]});
+       }
+       
+       ret=({});
     for (i=6*strlen(bitstr)-1;i>0;i--){
       if (test_bit(bitstr,i)){
-      	key=0;
-      	tmp=member(nums,i);
-      	if(tmp!=-1){
-      		key=keys[tmp];
-      	}
-		if(key) ret+=({key});
+             key=0;
+             tmp=member(nums,i);
+             if(tmp!=-1){
+                    key=keys[tmp];
+             }
+              if(key) ret+=({key});
       }
     }
-	
-	return ret;
+       
+       return ret;
 }
 
 nomask string allTipsForPlayer(object player)
 {
-	string ret,tipstr,tmp;
-	string* tips;
-	int i;
-	
-	ret="";
-	
-	if(!player || !this_interactive() 
-	    || (this_interactive()!=player && !IS_ARCH(this_interactive())) )
-		return "";		
-	
-	tipstr=(string)MASTER->query_fptips(getuid(player) || "");
-	tips=makeTiplistFromBitString(tipstr);
-		
-	for(i=0;i<sizeof(tips);i++){
-		tmp=getTip(tips[i]);
-		if(tmp && tmp!="") ret+=tmp+"\n";
-	}
-	
-	return ret;
+       string ret,tipstr,tmp;
+       string* tips;
+       int i;
+       
+       ret="";
+       
+       if(!player || !this_interactive() 
+           || (this_interactive()!=player && !IS_ARCH(this_interactive())) )
+              return "";              
+       
+       tipstr=(string)MASTER->query_fptips(getuid(player) || "");
+       tips=makeTiplistFromBitString(tipstr);
+              
+       for(i=0;i<sizeof(tips);i++){
+              tmp=getTip(tips[i]);
+              if(tmp && tmp!="") ret+=tmp+"\n";
+       }
+       
+       return ret;
 }
 
 nomask status playerMayGetTip(object player)
 {
-	int numElegible;
-	int numReceived;
-	int lvl;
-	int i;
-	string tips;
-	
+       int numElegible;
+       int numReceived;
+       int lvl;
+       int i;
+       string tips;
+       
     if(!allowed() || !player || !query_once_interactive(player))
-  	    return 0;
+             return 0;
 
-	if(!player || !query_once_interactive(player))
-		return 0;
-	lvl=(int)player->QueryProp(P_LEVEL);
-	numElegible=0;
-	i=sizeof(FPTIPS_LEVEL_LIMITS)-1;
+       if(!player || !query_once_interactive(player))
+              return 0;
+       lvl=(int)player->QueryProp(P_LEVEL);
+       numElegible=0;
+       i=sizeof(FPTIPS_LEVEL_LIMITS)-1;
 
-	if(lvl>FPTIPS_LEVEL_LIMITS[i])
-		numElegible+=(lvl-FPTIPS_LEVEL_LIMITS[i]);
+       if(lvl>FPTIPS_LEVEL_LIMITS[i])
+              numElegible+=(lvl-FPTIPS_LEVEL_LIMITS[i]);
 
-	for(i;i>=0;i--){
-		if(lvl>=FPTIPS_LEVEL_LIMITS[i]) numElegible++;
-	}
-	
-	tips=MASTER->query_fptips(getuid(player)) || ""; 
-	numReceived=count_bits(tips);
+       for(i;i>=0;i--){
+              if(lvl>=FPTIPS_LEVEL_LIMITS[i]) numElegible++;
+       }
+       
+       tips=MASTER->query_fptips(getuid(player)) || ""; 
+       numReceived=count_bits(tips);
 
-	return numElegible>numReceived;
+       return numElegible>numReceived;
 }
 
 nomask string giveTipForPlayer(object player)
@@ -1168,33 +1168,33 @@ nomask string giveTipForPlayer(object player)
   int i,index;
   
   if(!allowed() || !player || !query_once_interactive(player) || !playerMayGetTip(player))
-  	return "";
+         return "";
   
   pl=getuid(player);
   free=getFreeFPsForPlayer(player);
   if(!free || sizeof(free)==0)
-  	return "";
+         return "";
 
   tmp=m_indices(free);
   fptip=MASTER->query_fptips(pl) || "";
   tips=makeTiplistFromBitString(fptip);
   if(tips==0)
-  	tips=({});
+         tips=({});
   tmp-=tips;
   if(sizeof(tmp)==0)
-  	return "";
+         return "";
 
   i=FPTIPS_MAX_RETRY;
   while(i>0){
-  	i--;
-	index=random(sizeof(tmp));
-	tip=getTip(tmp[index]);
-	if(tip!=""){
-		i=0;
-		fptip=set_bit(fptip,obs[tmp[index],MPOS_NUM]);
-		MASTER->update_fptips(pl,fptip);
-	}
-	tmp-=({tmp[index]});
+         i--;
+       index=random(sizeof(tmp));
+       tip=getTip(tmp[index]);
+       if(tip!=""){
+              i=0;
+              fptip=set_bit(fptip,obs[tmp[index],MPOS_NUM]);
+              MASTER->update_fptips(pl,fptip);
+       }
+       tmp-=({tmp[index]});
   }
   tips=makeTiplistFromBitString(fptip);
   return tip;

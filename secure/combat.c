@@ -59,9 +59,9 @@ int default_weapon_value(string type) {
 }
 
 int valid_weapon_type(mixed t) {
-	if (member_array(t, ({WT_SWORD, WT_AXE, WT_CLUB, WT_SPEAR, WT_STAFF,
-			 WT_KNIFE}) ) != -1) {
-		 return t;
+	if (member(({WT_SWORD, WT_AXE, WT_CLUB, WT_SPEAR, WT_STAFF,
+               WT_KNIFE}), t ) != -1) {
+		 return 1;
 	}
 	else {
 		log_file("COMBAT","Invalid weapon type: "+t+", object: "+
@@ -73,7 +73,7 @@ int valid_weapon_type(mixed t) {
 
 int valid_armour_type(mixed t) {
 	if (VALID_ARMOUR_TYPE(t)) {
-		 return t;
+		 return 1;
 	}
 	else {
 		log_file("COMBAT","Invalid armour type: "+t+", object: "+

@@ -1,3 +1,5 @@
+#pragma strong_types,save_types
+
 #include <defines.h>
 #include <properties.h>
 

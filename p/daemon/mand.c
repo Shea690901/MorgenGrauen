@@ -16,7 +16,8 @@
                          tell_object(find_player(DEBUGGER),x+"\n")
 
 
-#pragma strict_types
+#pragma strict_types,save_types
+#pragma no_clone,no_shadow
 
 #include <daemon/mand.h>
 
@@ -129,11 +130,6 @@ void update_cache()
 
 void create()
 {
-  if (clonep(this_object()))
-  {
-    destruct(this_object());
-    return;
-  }
   seteuid(getuid());
   update_cache();
   set_next_reset(10080); //Einmal pro Woche langt

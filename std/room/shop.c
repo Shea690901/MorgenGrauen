@@ -120,7 +120,7 @@ static mixed *GetList()
 
   for (i=sizeof(tmp)-1,s=1;i>=0;i--) {
     str=({({sprintf("%-25.25s%7.7d", (tmp[i]->short()||"???")[0..<3],
-		     QueryBuyValue(tmp[i], PL)), tmp[i]})});
+                     QueryBuyValue(tmp[i], PL)), tmp[i]})});
     comp=str[0][0][0..25];
     if (!tmp2[comp]) {
       tmp2[comp]=s++;
@@ -149,7 +149,7 @@ static int DoList(string query_fun)
       indent=!indent;
       out+=sprintf("%3d. %s", i+1, output[i][0]);
       if (!indent)
-	out+="\n";
+        out+="\n";
       else out+=" | ";
     }
   }
@@ -159,16 +159,16 @@ static int DoList(string query_fun)
   return 1;
 }
 
-static int AlwaysTrue(object ob)
+static int AlwaysTrue(mixed ob)
 {   return 1;   }
 
-static mixed IsWeapon(object ob)
+static mixed IsWeapon(mixed ob)
 {  return ob->QueryProp(P_WEAPON_TYPE);  }
 
-static mixed IsArmour(object ob)
+static mixed IsArmour(mixed ob)
 {  return ob->QueryProp(P_ARMOUR_TYPE);  }
 
-static int NoWeaponNoArmour(object ob)
+static int NoWeaponNoArmour(mixed ob)
 { return (!ob->QueryProp(P_WEAPON_TYPE) && !ob->QueryProp(P_ARMOUR_TYPE)); }
 
 
@@ -223,6 +223,7 @@ static int list(string str)
   if (str=="waf") return DoList("IsWeapon");
   if (str=="ver") return DoList("NoWeaponNoArmour");
   if (str=="rue") return DoList("IsArmour");
+  return 0;
 }
 
 static varargs int QueryBuyValue(mixed ob, object client)
@@ -269,7 +270,7 @@ mixed FindInStore(mixed x)
 }
 
 static string buy_obj(mixed ob, int short)
-{    }
+{ return 0; }
 
 static void really_buy(string str, int val, object ob1, mixed ob2)
 {
@@ -438,7 +439,7 @@ static int make_to_money(object ob, int value)
     ret = ob->move(storage,M_PUT|M_GET);
     
     if (ret > 0) // Sonst werden auch Sachen zerstoert, die man nicht
-    {	         // weglegen kann
+    {                 // weglegen kann
       say(break_string(PL->Name()+" verkauft "+ob->name(WEN)+".", 78));
       
       if(ob->QueryProp(P_DAMAGED))  // Andere Meldung bei beschaedigten
@@ -452,7 +453,7 @@ static int make_to_money(object ob, int value)
         write(break_string(Name(WER, 1)+" findet Gefallen an "
            +ob->name(WEM, 1) + " und legt "+ob->QueryPronoun(WEN)
            +" zu "+(QueryProp(P_GENDER)==FEMALE?"ihren":"seinen")
-	   +" Privatsachen.", 78));
+           +" Privatsachen.", 78));
       }
       /* Er zahlt Dir "+value+" Muenze"+(value==1?"":"n")+" dafuer.", 78)); */
       _add_money(-value);
@@ -464,8 +465,8 @@ static int make_to_money(object ob, int value)
     }
     else if (ret == ME_CANT_BE_DROPPED) {
       if ((str=ob->QueryProp(P_NODROP)) && stringp(str)) {
-	write(str);
-	return 0;
+        write(str);
+        return 0;
       }
       write(break_string("Du kannst "+ob->name(WEN,1)+" nicht verkaufen!", 78));
       return 0;
@@ -673,16 +674,16 @@ static int evaluate(string str)
     val=QuerySellValue(ob, PL);
     if (rval==val) {
       write("Naja, ich denke, " +val+ " Muenze"+
-	    (val==1 ? "" : "n") +
-	    " waere"+(ob->QueryProp(P_AMOUNT)>1?"n ":" ")+
-	    (ob->QueryPronoun(WER))+" schon wert.\n");
+            (val==1 ? "" : "n") +
+            " waere"+(ob->QueryProp(P_AMOUNT)>1?"n ":" ")+
+            (ob->QueryPronoun(WER))+" schon wert.\n");
     }
     else if (val) {
-	write("Oh, nach der aktuellen Marktlage kann ich nur "+val+" Muenze"+
-	      (val==1?"":"n")+" bezahlen, obwohl "
-	      +(QueryProp(P_PLURAL) ? "sie" : "es")
-	      +" eigentlich "+rval+
-	      " Muenze"+(rval==1?"":"n")+" wert ist.\n");
+        write("Oh, nach der aktuellen Marktlage kann ich nur "+val+" Muenze"+
+              (val==1?"":"n")+" bezahlen, obwohl "
+              +(QueryProp(P_PLURAL) ? "sie" : "es")
+              +" eigentlich "+rval+
+              " Muenze"+(rval==1?"":"n")+" wert ist.\n");
     }
     else write("Ich bin vollkommen pleite. Tut mir leid.\n");
   }
@@ -857,6 +858,6 @@ varargs mapping FindBestArmoursT(mixed type, int maxmon, int maxw,
 }
 
 varargs object *FindBestArmours(mixed type, int maxmon, int maxw,
-		                                mapping bestac, mixed restr) {
+                                                mapping bestac, mixed restr) {
   return m_values(FindBestArmoursT(type,maxmon,maxw,bestac,restr));
 }

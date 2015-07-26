@@ -2,7 +2,7 @@
 //
 // moving.c
 //
-// $Id: moving.c 6371 2007-07-17 22:46:50Z Zesstra $
+// $Id: moving.c 7358 2010-01-06 20:48:40Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma range_check
@@ -73,7 +73,7 @@ static int _in_room(string str)
       sscanf(str, "%s %s", room, cmd) != 2)
     return USAGE("in <raum> <befehl>\n");
   old_room = environment();
-  room=(string)call_other(__MASTER_OBJECT__,"_get_path",room,getuid());
+  room=(string)call_other(master(),"_get_path",room,getuid());
   if (err=catch(move_object(room)))
   {
     if (catch(size=file_size(room+".c"))||size<1)
@@ -133,7 +133,7 @@ static int _goto(string dest){
     return USAGE("goto [lebewesen|filename]\n");
   if (!((target=find_living_nr(dest)) && (target=environment(target))))
   {
-     target2=target=(mixed)call_other(__MASTER_OBJECT__,"_get_path",dest,getuid());
+     target2=target=(mixed)call_other(master(),"_get_path",dest,getuid());
      if (!find_object(target))
      {
        if (target2[<1]=='.') target2+="c";
@@ -198,7 +198,7 @@ static int _go_wiz_home(string str)
     move("/secure/merlin",M_TPORT|M_NOCHECK);
     return 1;
   }
-  if ((!call_other(__MASTER_OBJECT__,"get_userinfo",str))||
+  if ((!call_other(master(),"get_userinfo",str))||
       !IS_LEARNER(str))
   {
     printf("Es gibt keinen Magier namens %s.\n",

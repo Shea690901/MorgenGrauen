@@ -2,7 +2,7 @@
 //
 // thing/commands.c -- thing description
 //
-// $Id: commands.c 6732 2008-02-14 20:26:45Z Vanion $
+// $Id: commands.c 7346 2009-12-19 14:46:29Z Zesstra $
 //
 // Aus Regenbogen MUDLib
 // aus Gueldenland/Wunderland MUDlib (Morgengrauen MUDlib)
@@ -396,7 +396,7 @@ static int _process_command(string str, string *noparsestr,
         matchstr=explode(matchstr,"^");
         write(capitalize(break_string(matchstr[0],78,0,1)));
         if(strlen(matchstr[1]))
-         say(capitalize(break_string(matchstr[1],78,0,1)));
+         say(capitalize(break_string(matchstr[1],78,0,1)),({this_player()}) );
        } else write(capitalize(break_string(matchstr,78,0,1)));
        return 1;
       } else notify_fail(capitalize(break_string(matchstr,78,0,1)));

@@ -3,10 +3,12 @@
 // class.h -- Definitionen fuer Klassen von Objekten und Lebewesen.
 //            Siehe AddClass()/is_class_member() in /std/thing/description.c
 //
-// $Id: class.h 6637 2007-12-15 12:05:30Z Zesstra $
+// $Id: class.h 7342 2009-11-19 21:46:03Z Zesstra $
 
 #ifndef __CLASS_H__
 #define __CLASS_H__
+
+#define CLASSDB "/p/daemon/classdb"
 
 /* -------------------- Klassen fuer "Lebewesen" -------------------- */
 
@@ -32,7 +34,7 @@
 #define CL_HOBBIT "hobbit"
 #define CL_HOBGOBLIN "hobgoblin"
 #define CL_HUMAN "mensch"
-#define CL_INORGANIC "anorganisch"
+#define CL_ILLUSION "illusion" // Bsp. beschworene Illusionen
 #define CL_INSECT "insekt"
 #define CL_LIVING "lebewesen"
 #define CL_MAMMAL "saeugetier"
@@ -47,9 +49,10 @@
 #define CL_SNAKE "schlange"
 #define CL_TROLL "troll"
 #define CL_UNDEAD "untoter"
+#define CL_VAMPIRE "_cl_vampir"
 #define CL_ZOMBIE "zombie"
 #define CL_SHAPECHANGER "gestaltwandler" // Bsp. Werwoelfe etc.
-#define CL_ILLUSION "illusion" // Bsp. beschworene Illusionen
+
 
 /* ------------------ Klassen nach Bewegungsmethoden ----------------- */
 
@@ -63,6 +66,7 @@
 #define CL_EXPLOSIVE "sprengstoff"
 #define CL_DISEASE "krankheit"
 #define CL_CURSE "fluch"
+#define CL_INORGANIC "anorganisch"
 #define CL_POISON "gift"
 #define CL_POISONOUS "giftiges"
 #define CL_BIGBANG "massenvernichtungswaffe"
@@ -71,7 +75,7 @@
 
 #define CL_ALL ({CL_ANIMAL, CL_ARACHNID, CL_BIRD, CL_DEMON, CL_DRAGON, \
                 CL_DWARF, CL_ELF, CL_ELEMENTAL, CL_FELINE, CL_FISH, CL_FROG, \
-                CL_FURIE, CL_HARPY,\
+                CL_FURIE, CL_HARPY, CL_VAMPIRE,\
                 CL_GHOST, CL_GHOUL, CL_GIANT, CL_GNOME, CL_GOBLIN, CL_HOBBIT, \
                 CL_HOBGOBLIN, CL_HUMAN, CL_INORGANIC, CL_INSECT, CL_LIVING, \
                 CL_MAMMAL, CL_MAMMAL_LAND, CL_MAMMAL_WATER, CL_ORC, CL_PLANT, \

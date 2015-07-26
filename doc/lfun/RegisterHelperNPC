@@ -4,6 +4,7 @@ FUNKTION:
 
 DEFINIERT IN:
      /std/player/combat.c
+     /sys/living/combat.h
 
 ARGUMENTE:
      object npc

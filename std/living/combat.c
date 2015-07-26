@@ -2,7 +2,7 @@
 //
 // living/combat.c -- Basis-Kampfmodul
 //
-// $Id: combat.c 7291 2009-09-17 21:51:26Z Zesstra $
+// $Id: combat.c 7528 2010-04-05 15:18:38Z Arathorn $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -651,10 +651,10 @@ public void Attack(object enemy)
   mixed hookData;
   mixed hookRes;
 
-  if ( no_more_attacks || QueryProp(P_GHOST) || !objectp(enemy)
-      || (QueryProp(P_DISABLE_ATTACK) > 0) || enemy->QueryProp(P_NO_ATTACK)
-      || ( query_once_interactive(this_object())
-        && !interactive(this_object()) ) )
+  if ( no_more_attacks || QueryProp(P_GHOST) || 
+      !objectp(enemy) || !objectp(this_object()) || 
+      (QueryProp(P_DISABLE_ATTACK) > 0) || enemy->QueryProp(P_NO_ATTACK) || 
+      (query_once_interactive(this_object()) && !interactive(this_object())) )
     return;
 
   edefendinfo=([]);
@@ -1786,9 +1786,9 @@ static int _set_attack_busy(mixed val)
   if ( ((to_int(val))>5) && previous_object(1)
       && query_once_interactive(previous_object(1)) )
     log_file("ATTACKBUSY",sprintf("%s %d Taeter: %O Opfer: %O\n",
-             dtime(time()),(int)val,previous_object(1),this_object()));
+             dtime(time()),to_int(val),previous_object(1),this_object()));
 
-  attack_busy-=((int)(val*100.0));
+  attack_busy-=to_int(val*100.0);
 
   if ( attack_busy<-2000 )
     attack_busy=-2000;

@@ -2,7 +2,7 @@
 //
 // room/exits.c -- room exits handling 
 //
-// $Id: exits.c 6680 2008-01-08 23:22:37Z Zesstra $
+// $Id: exits.c 7481 2010-02-21 15:36:28Z Zesstra $
 
 /*
  * Exits of the room (obvious ones, doors, and special ones)
@@ -54,6 +54,7 @@ static mapping _set_exits( mapping map_ldfied )
 {
     if( mappingp(map_ldfied) )
         return Set( P_EXITS, map_ldfied );
+    return 0;
 }
 
 
@@ -154,9 +155,11 @@ void RemoveExit( mixed cmd )
     mapping exita;
     int i;
   
-    if ( !cmd )
-        return SetProp( P_EXITS, ([]) );
-  
+    if ( !cmd ) {
+        SetProp(P_EXITS, ([]) );
+        return;
+    }
+
     if ( !pointerp(cmd) )
         cmd = ({ cmd });
 
@@ -268,11 +271,11 @@ int _normalfunction()
         message = message[0];
     } 
     else
-        if( member_array( verb, ({ "sueden", "suedwesten", "westen",
-                                   "nordwesten", "norden", "nordosten", "osten",
-                                   "suedosten" }) ) != -1 )
+        if( member( ({ "sueden", "suedwesten", "westen",
+                       "nordwesten", "norden", "nordosten", "osten",
+                       "suedosten" }), verb ) != -1 )
             message = "nach " + capitalize(verb);
-        else if ( member_array( verb, ({ "oben", "unten" }) ) != -1 )
+        else if ( member( ({ "oben", "unten" }), verb ) != -1 )
             message = "nach " + verb;
         else
             message = verb;

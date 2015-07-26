@@ -61,7 +61,7 @@ protected varargs int _recv(object ob, string message,
                             int flag, string indent);
 
 varargs int Message(string msg, int flag, string indent,
-                    string cname, object sender);
+                    string cname, mixed sender);
 
 #endif // __PLAYER_COMM_H_PROTO__
 

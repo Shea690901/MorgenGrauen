@@ -1,4 +1,4 @@
-#pragma strict_types
+#pragma strict_types, no_warn_deprecated
 
 #include "/secure/master.h"
 
@@ -21,42 +21,66 @@ void LoadDeputyFileList()
   return;
 }
 
+#define PATH_ARRAY(x) (explode(x, "/")-({"."}))
 string *full_path_array(string path, string user) {
   string *strs;
-  int p;
+  string cwd;
 
   if(!path)
-    path="/";
+    return ({"",""}); // additional "" to yield "/" later.
+
+  // remove multiple '/'
+  path = regreplace(path, "/+", "/", 1);
+
   switch(path[0]) {
     case '/':
-    if(!path[1]) return ({""});
-    strs=PATH_ARRAY(path);
-    break;
-    case '+':
-    if(!path[1]) return ({"d"});
-    strs=({"d"})+PATH_ARRAY(path[1..<1]);
-    break;
-    case '~':
-    if(user && !path[1])
-      return ({"players",user});
-    if(user && path[1]=='/')
-      strs=({"players",user})+PATH_ARRAY(path[2..<1]);
-    else
-      strs=({"players"})+PATH_ARRAY(path[1..<1]);
-    break;
-    default:
-    if(user && TP && getuid(TP) == user && TP->QueryProp(P_CURRENTDIR))
-      strs=PATH_ARRAY(TP->QueryProp(P_CURRENTDIR)+"/"+path);
-    else
+      if(!path[1]) return ({"",""}); //additional "" to yield "/" later
       strs=PATH_ARRAY(path);
+      if (!sizeof(strs))
+          strs = ({"",""});
+      break;
+    case '+':
+      if(!path[1]) return ({"","d"});
+      strs=({"","d"})+PATH_ARRAY(path[1..<1]);
+      break;
+    case '~':
+      if(user && !path[1])
+        return ({"","players",user});
+      if(user && path[1]=='/')
+        strs=({"","players",user})+PATH_ARRAY(path[2..<1]);
+      else
+        strs=({"","players"})+PATH_ARRAY(path[1..<1]);
+      break;
+    default:
+      if(user && TP && getuid(TP) == user
+          && (cwd=(string)TP->QueryProp(P_CURRENTDIR)))
+        strs=PATH_ARRAY(cwd + "/" + path);
+      else
+        strs=PATH_ARRAY(path);
   }
+  // /../ behandeln. Einschraenkungen der RegExp:
+  // /a/b/../../d wuerde nur durch Wiederholung aufgeloest.
+  // /../d wird nicht richtig aufgeloest.
+  //regreplace("/d/inseln/toeter/room/hoehle/../wald/bla.c","(.*)\/[^/]+/\.\.
+  //    /(.*)", "\\1\/\\2", RE_GLOBAL)
+  
+  // dies sieht schlimmer aus als es ist (member ist O(n)), solange das Array
+  // nicht gross wird.
+  int p;
   while((p=member(strs, "..")) != -1)
-    strs = strs[0..p-2]+strs[p+1..];
+      strs = strs[0..p-2]+strs[p+1..];
+
   return strs;
 }
+#undef PATH_ARRAY
 
 string _get_path(string path, string user) {
-  return "/"+implode(full_path_array(path, user),"/");
+  string *p_arr = full_path_array(path, user);
+  // make path absolute
+  if (p_arr[0] != "")
+      p_arr = ({""}) + p_arr;
+
+  return implode(p_arr,"/");
 }
 
 static int project_access(string user, string project)
@@ -113,8 +137,8 @@ int access_rights(string *p_arr, string euid)
       return 0;
 
   if ( !catch(i = (int)call_other( 
-          implode(p_arr[0..i], "/") + "/access_rights",                    
-          "access_rights", euid,                    
+          implode(p_arr[0..i], "/") + "/access_rights",
+          "access_rights", euid,
           implode(p_arr[i+1..], "/") ); publish) )
       return i;
 
@@ -143,7 +167,9 @@ mixed valid_write(string path, string euid, string fun, object obj)
   switch(fun) {
     case "log_file":
       strs=full_path_array("/"+path, 0);
-      if (sizeof(strs)>1 && strs[0]=="log") return implode(strs,"/");
+      path = implode(strs, "/");
+      strs -= ({""}); // remove trailing and leading "/".
+      if (sizeof(strs)>1 && strs[0]=="log") return path;
       return 0;
     case "save_object":
       if (!path) return 0;
@@ -160,7 +186,14 @@ mixed valid_write(string path, string euid, string fun, object obj)
 
   if (!euid || euid=="NOBODY" || euid=="ftp" || euid=="anonymous") return 0;
 
-  path=implode(strs, "/");
+  // Pfad soll ab jetzt auf jeden Fall absolut sein.
+  if (strs[0] != "")
+      path = "/" + implode(strs, "/");
+  else
+      path=implode(strs, "/");
+
+  // fuer die Rechtebestimmung "/" an Anfang und Ende entfernen
+  strs -= ({""});
 
   //Root-Objekte und Master duerfen immer.
   if (euid == ROOTID || obj==TO) return path;
@@ -328,7 +361,14 @@ mixed valid_read(string path, string euid, string fun, object obj)
   if (!euid) euid="-";
 
   strs=full_path_array(path, euid);
-  path=implode(strs, "/");
+  // Pfad soll ab jetzt auf jeden Fall absolut sein.
+  if (strs[0] != "")
+      path = "/" + implode(strs, "/");
+  else
+      path=implode(strs, "/");
+
+  // fuer die Rechtebestimmung "/" an Anfang und Ende entfernen
+  strs -= ({""});
 
   if (!sizeof(strs) || !strlen(path) || euid == ROOTID || obj==TO) return path;
 
@@ -481,10 +521,9 @@ mixed valid_read(string path, string euid, string fun, object obj)
       if ( !sizeof(regexp( ({strs[<1]}), "\\.[och]" )) )
           return path;
 
-      /* folgende Funktionen sind natuerlich voellig uninteressant
-         read_file_test ist fuer mudlib interne Abfragen, z.b. filesys.c */
-      if (member(({"get_dir", "restore_object",
-                   "read_file_test"}), fun)!=-1)  return path;
+      /* folgende Funktionen sind natuerlich voellig uninteressant */
+      if (member(({"get_dir", "restore_object"}), fun)!=-1)
+          return path;
 
       /* Zugriff erlaubt, aber mitloggen */
       write_file( READ_FILE, sprintf("%O %s %s: %s\n", fun, ctime()[4..],
@@ -537,8 +576,8 @@ mixed valid_read(string path, string euid, string fun, object obj)
       if (lev>=LORD_LVL && domain_master(euid, strs[1])) return path;
 
       /* folgende Funktionen sind natuerlich voellig uninteressant */
-      if (member(({"get_dir", "restore_object",
-                   "read_file_test"}), fun)!=-1)  return path;
+      if (member(({"get_dir", "restore_object"}), fun)!=-1)
+          return path;
 
       /* Zugriff erlaubt, aber mitloggen */
       write_file( READ_FILE, sprintf("%O %s %s: %s\n", fun, ctime()[4..],

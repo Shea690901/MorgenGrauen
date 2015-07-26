@@ -31,6 +31,7 @@
 
 #endif // __INPC_WALKING_H__
 
+#ifdef NEED_PROTOTYPES
 #ifndef __INPC_WALKING_H_PROTOTYPES__
 #define __INPC_WALKING_H_PROTOTYPES__
 
@@ -38,3 +39,5 @@
 int may_enter_room(mixed room);
 
 #endif // __INPC_WALKING_H_PROTOTYPES__
+#endif // NEED_PROTOTYPES
+

@@ -2,7 +2,7 @@
 //
 // upd.c
 //
-// $Id: upd.c 6883 2008-06-17 18:49:26Z Rumata $
+// $Id: upd.c 7468 2010-02-20 17:40:29Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma range_check
@@ -38,7 +38,7 @@ static mixed *_query_localcmds()
 //            Spielerobjekt, falls doch
 //
 
-static mixed _save( object obj, string inv_saver )
+static mixed _save( object obj, object inv_saver )
 { 
     if ( query_once_interactive(obj) )
       { 

@@ -6,7 +6,8 @@
 
 // Erstellt auf Basis von rcs2news von Zook.
 
-#pragma strict_types
+#pragma strict_types,save_types
+#pragma no_clone,no_shadow
 
 #include <daemon.h>
 

@@ -5,7 +5,7 @@
 // Testversion mit support fuer AddItem
 // soll spaeter in npc.c aufgehen
 //
-// $Id: npc.c 7124 2009-02-14 22:16:12Z Zesstra $
+// $Id: npc.c 7319 2009-10-26 22:41:20Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -90,7 +90,6 @@ protected void create()
   SetProp(P_ALCOHOL, 0);
   SetProp(P_HANDS, ({ "", 30 }) );
   SetProp(P_MAX_HANDS, 2);
-  SetProp(P_USED_HANDS, 0);
   SetProp(P_NPC, 1);
   SetProp(P_GUARD,100);
   SetProp(P_NO_TPORT,NO_TPORT_IN);

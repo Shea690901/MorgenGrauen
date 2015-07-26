@@ -6,7 +6,8 @@
 //
 // Tiamak
 
-#pragma strong_types
+#pragma strong_types,save_types
+#pragma no_clone,no_shadow
 
 #include <wizlevels.h>
 
@@ -22,13 +23,7 @@ private int check, next_reset;
 
 
 public void create()
-{
-    // es darf nur einen daemon geben
-    if ( clonep(this_object()) ){
-        destruct(this_object());
-        return;
-    }
-    
+{    
     // wir muessen Savefile schreiben duerfen
     seteuid(getuid());
     
@@ -203,12 +198,12 @@ public varargs mixed query_thresholds( string str )
                              ((grenzen[str, 1] < 0) ? "unendlich viele" :
                               to_string(grenzen[str, 1])) +
                              " Muenzen fuer den taeglichen Check.", 78 ) );
-        return;
+        return 0;
     }
 
     if ( stringp(str) && str != "" ){
         write( "Es sind keine Grenzen fuer " + str + " eingetragen!\n" );
-        return;
+        return 0;
     }
 
     files = sort_array( m_indices(grenzen), #'</*'*/ );
@@ -220,6 +215,7 @@ public varargs mixed query_thresholds( string str )
                         files[i], grenzen[files[i], 0], grenzen[files[i], 1] );
 
     this_player()->More( txt );
+    return 1;
 }
 
 
@@ -241,6 +237,7 @@ public mixed query_status()
                         files[i], mon[files[i], 0], mon[files[i], 1] );
 
     this_player()->More( txt );
+    return 1;
 }
 
 

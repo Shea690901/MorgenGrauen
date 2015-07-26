@@ -25,7 +25,7 @@ BESCHREIBUNG:
     gesetzt, aber noch nicht ausgegeben.
 
 RUECKGABEWERT:
-    Wenn <str> irgendwelche vorhandenen Sachen sind 1, sonst 0.
+    Wenn <str> irgendwelche vorhandenen Sachen sind, 1, sonst 0.
 
 BEMERKUNG:
     Wenn die Funktion 1 zurueckgibt, heisst das noch nicht, dass der Spieler

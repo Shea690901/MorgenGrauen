@@ -3,9 +3,9 @@
  *  04.04.2004   Vanion  die() ueberschrieben, ignorierbar gemacht
  *  15.01.2000   Tiamak  aufgeraeumt, sicherer gemacht 
  *  15.02.1998   Wargon  Armageddon teilt einem die Restzeit mit
- *  07.01.1998	 Rumata  IS_ELDER ausgebaut.
+ *  07.01.1998         Rumata  IS_ELDER ausgebaut.
  *
- *  23.07.1997	 17.00	 Yantro
+ *  23.07.1997         17.00         Yantro
  *    Ich hab mal die shouts Zeitabhaengig gemacht, also sie sollten
  *    heftiger werden mit Annaeherung an den Reboot. Deswegen gibt
  *    es nun 4 arrays mit messages und die Entsprechende Aufrufaenderung
@@ -117,7 +117,7 @@ public varargs void die(int poisondeath,int extern)
     else 
       tell_room(room,
         "Armageddon sagt: Ich weigere mich, einfach so zu sterben, "+
-	(tp->Name())+".\n");
+        (tp->Name())+".\n");
   return;
 }
 
@@ -130,8 +130,8 @@ status access_check() {
     //Master darf natuerlich. (->slow_shut_down(), vom Driver bei
     //Speicherknappheit gerufen.)
     if (previous_object() && 
-	previous_object()==find_object(__MASTER_OBJECT__))
-	return(1);
+        previous_object()==find_object(__MASTER_OBJECT__))
+        return(1);
 
     // rebooten duerfen ansonsten nur [W]+
     if ( ELDER_SECURITY) {
@@ -157,8 +157,8 @@ public void create()
              "Armageddon grinst: Dein Ende kommt noch frueh genug!\n" );
 
     if (!access_check()) {
-	destruct(this_object());
-	raise_error("Armageddon darf nur von W+ aktiviert werden!");
+        destruct(this_object());
+        raise_error("Armageddon darf nur von W+ aktiviert werden!");
     }
 }
 
@@ -211,9 +211,9 @@ public int shut( mixed minutes )
     int a, b, c;
 
     if (!access_check()) {
-	destruct(this_object());
-	raise_error("Armageddon darf nur von W+ aktiviert werden!");
-	return(-1);   //never reached
+        destruct(this_object());
+        raise_error("Armageddon darf nur von W+ aktiviert werden!");
+        return(-1);   //never reached
     }
     
     a = b = c = 0;
@@ -239,6 +239,7 @@ public int shut( mixed minutes )
     
     restzeit = c * 60;
     call_out( "NextStep", 0, restzeit );
+    return restzeit;
 }
 
 // Schickt die Meldung str an alle Spieler, die Armageddon nicht ignorieren
@@ -273,7 +274,7 @@ static void NextStep( int seconds )
     
     if ( seconds <= 600 )
       SHOUT( "Teile mir mit, wenn Du in den Laden gebracht werden willst!", 
-	      S_PRESAY|S_IGNORE);
+              S_PRESAY|S_IGNORE);
     
     if ( seconds > 2 * 86400 )
         neu = seconds - 5 * 3600;
@@ -286,7 +287,7 @@ static void NextStep( int seconds )
     call_out( "NextStep", seconds-neu, neu );
     
     SHOUT( "In " + text_time( seconds, 1 ) + " werde ich die Welt "
-	   "zerstoeren und neu erschaffen!", S_PRESAY|S_IGNORE);
+           "zerstoeren und neu erschaffen!", S_PRESAY|S_IGNORE);
     
     if ( neu < 900 && find_call_out("ArmasShout") == -1 )
         call_out( "ArmasShout", random(60)+10 );
@@ -311,37 +312,37 @@ static void ArmasShout()
 }
 
 
-public int catch_tell( string str )
+public void catch_tell( string str )
 {
     string who, what;
     object ob;
 
     if ( sscanf( str, "%s teilt Dir mit: %s", who, what ) != 2 ||
          !this_player() )
-        return 0;
+        return;
     
     // Ein Spieler will fuer dieses Reboot ignoriert werden, oder
     // das Ignoriere soll aufgehoben werden.
     if (lower_case(what)[0..<2]=="ruhe"){
       if (member(ignorierer, getuid(this_player()))>-1)
       {
-	 ignorierer -= ({ getuid(this_player()) });
-	 tell_object( this_player(), break_string(
-	  "Gut, ich notier's mir. Ab nun hast Du wieder am grossen Showdown "
-	  "teil. Viel Spass dabei.\n", 78, "Armageddon teilt Dir mit: "));
+         ignorierer -= ({ getuid(this_player()) });
+         tell_object( this_player(), break_string(
+          "Gut, ich notier's mir. Ab nun hast Du wieder am grossen Showdown "
+          "teil. Viel Spass dabei.\n", 78, "Armageddon teilt Dir mit: "));
       } else {
-	 ignorierer += ({ getuid(this_player()) });
-	 tell_object( this_player(), break_string(
-	  "Gut, ich notier's mir. Der Weltuntergang soll Dich beim Spielen "
-	  "nicht weiter stoeren.\n", 78, "Armageddon teilt Dir mit: "));
+         ignorierer += ({ getuid(this_player()) });
+         tell_object( this_player(), break_string(
+          "Gut, ich notier's mir. Der Weltuntergang soll Dich beim Spielen "
+          "nicht weiter stoeren.\n", 78, "Armageddon teilt Dir mit: "));
       }
-      return 1;
+      return;
     }
    
     // In den Laden
     if ( _query_restzeit() < 600 ){
         this_player()->move( "/d/ebene/room/PortVain/laden", M_TPORT );
-        return 1;
+        return;
     }
     
     tell_object( this_player(),
@@ -350,7 +351,7 @@ public int catch_tell( string str )
                                text_time( _query_restzeit(), 1 ) +
                                " ist es soweit!", 78,
                                "Armageddon teilt Dir mit: ", 1 ) );
-    return 1;
+    return;
 }
 
 
@@ -371,5 +372,6 @@ string NotifyDestruct(object caller) {
     if( (caller!=this_object() && !ELDER_SECURITY) || process_call() ) {
       return "Du darfst Armageddon nicht zerstoeren!\n";
     }
+    return 0;
 }
 

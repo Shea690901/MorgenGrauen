@@ -2,7 +2,7 @@
 //
 // master.h -- definitions for the master object
 //
-// $Id: master.h 6720 2008-02-05 19:40:10Z Zesstra $
+// $Id: master.h 7477 2010-02-20 19:14:13Z Zesstra $
 
 #ifndef __MASTER_H__
 #define __MASTER_H__
@@ -75,7 +75,6 @@
 #define TI                 efun::this_interactive()
 #define PO                 efun::previous_object()
 #define TO                 efun::this_object()
-#define PATH_ARRAY(x) (efun::explode(x, "/")-({"","."}))
 
 // Verzeichnis mit Infomails fuer Magierbefoerderungen
 #define WIZ_HELP_MAIL_DIR "/doc/infomails/"
@@ -100,6 +99,8 @@ mixed         valid_write(string path, string euid, string fun, object obj);
 // aus misc.c
 string         _get_path(string path, string user);
 mixed          QueryBanished(string str);
+int            TBanishName(string name, int days);
+
 // sendet bei Befoerderungen Infomail an Magier
 protected void SendWizardHelpMail(string name, int level);
 

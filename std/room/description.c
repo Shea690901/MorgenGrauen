@@ -2,7 +2,7 @@
 //
 // room/description.c -- room description handling
 //
-// $Id: description.c 7221 2009-06-04 18:43:28Z Zesstra $
+// $Id: description.c 7476 2010-02-20 18:56:01Z Zesstra $
 
 #pragma strong_types
 #pragma save_types
@@ -118,7 +118,7 @@ varargs string int_long(mixed viewer,mixed viewpoint,int flags)
   // ggf. Ausgaenge hinzufuegen.
   if ( viewer->QueryProp(P_SHOW_EXITS) && (!QueryProp(P_HIDE_EXITS) 
 	|| pointerp(QueryProp(P_HIDE_EXITS))) )
-    descr += (string) (GetExits(viewer)||"");
+    descr += GetExits(viewer) || "";
 
   // Viewpoint (Objekt oder Objektarray) sind nicht sichtbar
   inv_descr = (string) make_invlist(viewer, all_inventory(ME) 
@@ -151,7 +151,7 @@ string int_short(mixed viewer,mixed viewpoint)
   if ( ( viewer->QueryProp(P_SHOW_EXITS)
          || ( environment(viewer) == ME && !viewer->QueryProp(P_BRIEF) ) )
        && (!QueryProp(P_HIDE_EXITS) || pointerp(QueryProp(P_HIDE_EXITS))) )
-    descr += (string) (GetExits(viewer)||"");
+    descr += GetExits(viewer) || "";
   
   // Viewpoint (Objekt oder Objektarray) sind nicht sichtbar
   inv_descr = (string) make_invlist( viewer, all_inventory(ME) 
@@ -200,6 +200,14 @@ static int _set_int_light(int *light)
       light[1]=((tmp^light[1]) & 0x80000000 ? 0 : tmp);
    }
    light[2]=light[0]+light[1];
-   return Set(P_INT_LIGHT, light);
+   Set(P_INT_LIGHT, light, F_VALUE);
+   // diese Prop setzen kaum Leute (offiziell gehts ja auch gar nicht. Keiner
+   // davon erwartet nen Rueckgabewert. Daher wird hier 0 zurueckgeben, statt
+   // des aufwaendig berechneten QueryProp(P_INT_LIGHT).
+   // Achja. Der Rueckgabewert vom Set() waere ein int*, was nicht geht, weil
+   // diese Funktion nur int zurueckgeben darf.
+   return 0;
 }
+
+static string _query_int_long() {return Query(P_INT_LONG, F_VALUE);}
 

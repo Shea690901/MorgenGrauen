@@ -109,4 +109,4 @@ BEISPIEL
      "Heute ist Montag, der 24. September 2007.\n"
 
 SIEHE AUCH
-     gmtime(E), localtime(E), mktime(), time(E), utime(E)
+     ctime(E), gmtime(E), localtime(E), mktime(E), time(E), utime(E)

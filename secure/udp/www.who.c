@@ -2,11 +2,12 @@
 //
 // www.who.c
 //
-// $Id: www.who.c 6081 2006-10-23 14:12:34Z Zesstra $
+// $Id: www.who.c 7391 2010-01-25 22:52:51Z Zesstra $
 
 #pragma strong_types
 #pragma combine_strings
 
+#include <config.h>
 #include <properties.h>
 #include <www.h>
 
@@ -35,6 +36,6 @@ string Request(mapping cmds)
   for(i = s; i--; i > 0) 
     who[i] = MakeLink(list[s - i - 1]);
   // who = map(WHO, #'MakeLink/*'*/);
-  return "<H2>Wer ist gerade in MorgenGrauen?</H2><HR>"
+  return "<H2>Wer ist gerade in "MUDNAME"?</H2><HR>"
        + "<OL><LI>"+implode(who, "\n<LI>")+"</OL>";
 }

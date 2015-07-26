@@ -2,7 +2,7 @@
 //
 // player/soul.c -- Die Seele des Spielers
 //
-// $Id: soul.c 7112 2009-02-06 21:31:06Z Zesstra $
+// $Id: soul.c 7513 2010-03-26 15:46:38Z Zesstra $
 
 // Letzte Aenderung vom 08.09.95  Wargon
 
@@ -324,7 +324,10 @@ ParseRemote(string arg)  {
   
   words=explode(arg," ");
 
-  who=find_player(match_living(lower_case(words[0])));
+  mixed liv = match_living(lower_case(words[0]));
+  if (stringp(liv))
+      who=find_player(liv);
+  
   if (who) {
     // Ziel ist ein Spieler.
     if (!who->QueryProp(P_INVIS) || IS_WIZARD(ME)) {

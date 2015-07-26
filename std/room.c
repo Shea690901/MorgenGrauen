@@ -2,7 +2,7 @@
 //
 // room.c -- room base object
 //
-// $Id: room.c 6823 2008-04-03 22:13:10Z Zesstra $
+// $Id: room.c 7412 2010-02-06 10:21:26Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -208,11 +208,12 @@ void
 init()
 {
   Set(" clean counter ",2);
+
   exits::init();
   commands::init();
   description::init();
   doors::init();
-  if(environment(this_player())!=this_object()) return;
+
   add_action("toggle_exits", "exits");
   add_action("toggle_exits", "ausgang");
   add_action("toggle_exits", "ausgaenge");

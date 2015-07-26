@@ -2,7 +2,7 @@
 //
 // shells/magier.c -- magier shell
 //
-// $Id: magier.c 7230 2009-06-11 14:38:42Z Zesstra $
+// $Id: magier.c 7423 2010-02-07 22:56:38Z Zesstra $
 
 //
 // Magiershell Basisfile
@@ -30,7 +30,7 @@
 // magier.h      Generelle Header-Datei
 //
 
-#pragma strict_types
+#pragma strict_types,save_types
 
 inherit "/std/player/base";
 inherit "/std/shells/magier/magier_ext";
@@ -39,7 +39,7 @@ inherit "/std/shells/magier/magier_ext";
 #include <moving.h>
 #include <properties.h>
 #include <new_skills.h>
-
+#include <config.h>
 
 protected void create()
 {
@@ -266,10 +266,10 @@ void notify_player_change(string who, int rein, int invis)
   {
     if (rein) 
       tell_object(this_object(),
-                  sprintf("%s ist gerade ins MorgenGrauen gekommen.\n",name));
+                  sprintf("%s ist gerade ins "MUDNAME" gekommen.\n",name));
     else
       tell_object(this_object(),
-                  sprintf("%s hat gerade das MorgenGrauen verlassen.\n",name));
+                  sprintf("%s hat gerade das "MUDNAME" verlassen.\n",name));
   }
 
   if(Query(P_WAITFOR_FLAGS) & (0x01))return ;

@@ -4,7 +4,7 @@
 // 2002-12-06 Mandragons Projektbrett eingebaut, Humni.
 // 2003-07-11 Bugfix
 // 2005-08-19 Miril Arks Bienen eingebaut
-
+// 2007-08-03 Zesstra, PFad fuers Vereinsbuero angepasst.
 inherit  "/std/gilden_room";
 
 #include <properties.h>
@@ -167,9 +167,8 @@ AddDetail("informationen","Du musst schon ins Buero gehen, wenn Du die Informati
 AddDetail("treppe","Die Treppe fuehrt nach Oben in das Buero des Foerdervereins Projekt MorgenGrauen e.V.\n");
  AddDetail(({"liste", "topliste"}), "Du kannst die Liste lesen.\n");
  AddReadDetail(({"liste", "topliste"}), "@@topliste@@");
-
- AddExit("norden", "/d/ebene/PortVain/konstrukt");
-
+AddExit("norden", "/d/ebene/room/PortVain/po_haf1");
+AddExit("oben","/p/verein/room/buero");
   AddCmd(({"treff"}), "GotoMagierTreff");
   AddCmd(({"lies","lese","les"}),"lesen");
 
@@ -179,15 +178,26 @@ AddDetail("treppe","Die Treppe fuehrt nach Oben in das Buero des Foerdervereins 
       " wie ,,norden'' oder ,,suedwesten''. Du kannst das auch "
       "abkuerzen, durch ,,n'' oder ,,sw''.");
 
-
-
   AddItem("/obj/zeitungsautomat", REFRESH_REMOVE);
+  //AddItem("/players/catweazle/obj/spendenliste",REFRESH_REMOVE,1);
 
   AddSpecialDetail("karte","karte");
+  // nur vorruebergehend Padreic
+  //AddItem("/players/feuerwehr/restore/restorer", REFRESH_MOVE_HOME);
   AddSpecialDetail("brett","brett_fun");
 
+  // nur auf dem Mudrechner laden (Stichwort: oeffentlich Mudlib)
+#if MUDHOST == __HOST_NAME__
+  AddItem("/p/service/troy/obj/buchautomat", REFRESH_REMOVE);
   AddItem("/p/service/mandragon/projektbrett/board", REFRESH_REMOVE);
-
+  // Die Biene fuer den Transport zur Wonnewichtlichtung.
+  // Ark, 19.08.05
+  AddItem("/d/anfaenger/ark/mon/mantisbiene",REFRESH_DESTRUCT,
+   ([P_ANFAENGER_BIENENORT_:"Mensch",
+     P_ANFAENGER_BIENENZIEL_:({"/d/anfaenger/ark/rooms/wald16",
+                               "zum Wald der Wonnewichte",
+                               "/gilden/abenteurer"})]));
+#endif
 }
 
 string det_bild()

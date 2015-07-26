@@ -2,8 +2,9 @@
 //
 // tell.c
 //
-// $Id: tell.c 6891 2008-08-05 22:22:12Z Zesstra $
+// $Id: tell.c 7391 2010-01-25 22:52:51Z Zesstra $
 
+#include <config.h>
 #include <udp.h>
 #include <properties.h>
 
@@ -49,22 +50,22 @@ void udp_tell(mapping data) {
     if (!ob->QueryProp(P_INVIS)){
       /* Erst testen, ob die Meldung ueberhaupt angekommen ist! */
       if(re==MESSAGE_DEAF)
-        message_string=sprintf("%s@MorgenGrauen ist momentan leider taub.\n",
+        message_string=sprintf("%s@"MUDNAME" ist momentan leider taub.\n",
                                capitalize(getuid(ob)));
       else if(re==MESSAGE_IGNORE_YOU)
-        message_string=sprintf("%s@MorgenGrauen ignoriert Dich.\n",
+        message_string=sprintf("%s@"MUDNAME" ignoriert Dich.\n",
                                capitalize(getuid(ob)));
       else if(re==MESSAGE_IGNORE_MUD)
-        message_string=sprintf("%s@MorgenGrauen ignoriert das Mud '%s'.\n",
+        message_string=sprintf("%s@"MUDNAME" ignoriert das Mud '%s'.\n",
                                capitalize(getuid(ob)),
                                data[NAME]);
       else {
         /* Erst dann die Erfolgs-Rueckmeldung abschicken */
-        message_prefix="Du teilst "+capitalize(data[RECIPIENT]) + "@" +
+        message_prefix="Du teilst "+capitalize(data[RECIPIENT]) + "@" 
                        LOCAL_NAME + " mit: ";
         message_string=break_string(data[DATA],78,message_prefix,0);
         if(ob->QueryProp(P_AWAY))
-          message_string=sprintf("%s%s@MorgenGrauen ist gerade nicht "+
+          message_string=sprintf("%s%s@"MUDNAME" ist gerade nicht "
                                  "da: %s\n",
                                  message_string,
                                  ob->name(WER),
@@ -73,7 +74,7 @@ void udp_tell(mapping data) {
           if (i<3600) away=time2string("%m %M",i);
           else away=time2string("%h %H und %m %M",i);
           message_string=
-             sprintf("%s%s@Morgengrauen ist seit %s voellig untaetig.\n",
+             sprintf("%s%s@"MUDNAME" ist seit %s voellig untaetig.\n",
                      message_string,
                      ob->Name(WER),
                      away);
@@ -81,14 +82,14 @@ void udp_tell(mapping data) {
         switch(re) {
         case MESSAGE_CACHE:
           message_string +=
-            sprintf("%s@MorgenGrauen moechte gerade nicht gestoert werden.\n"+
+            sprintf("%s@"MUDNAME" moechte gerade nicht gestoert werden.\n"+
                     "Die Mittelung wurde von einem kleinen Kobold in Empfang"+
                     "genommen.\nEr wird sie spaeter weiterleiten.\n",
                     capitalize(getuid(ob)));
           break;
         case MESSAGE_CACHE_FULL:
           message_string +=
-            sprintf("%s@MorgenGrauen moechte gerade nicht gestoert werden.\n"+
+            sprintf("%s@"MUDNAME" moechte gerade nicht gestoert werden.\n"+
                     "Die Mitteilung ging verloren, denn der Kobold kann sich "+
                     "nichts mehr merken.\n",
                     capitalize(getuid(ob)));
@@ -96,9 +97,9 @@ void udp_tell(mapping data) {
         }
       }
     }
-    else message_string="\nRoot@MorgenGrauen: Spieler "+
+    else message_string="\nRoot@"MUDNAME": Spieler "+
                         capitalize(data[RECIPIENT])+
-                        " finde ich in MorgenGrauen nicht!\n";
+                        " finde ich in "MUDNAME" nicht!\n";
     INETD->_send_udp(data[NAME],
                     ([ REQUEST: REPLY,
                        RECIPIENT: data[SENDER],
@@ -110,8 +111,8 @@ void udp_tell(mapping data) {
                     ([ REQUEST: REPLY,
                        RECIPIENT: data[SENDER],
                        ID: data[ID],
-                       DATA: sprintf("Root@MorgenGrauen: Spieler %s finde "+
-                                     "ich in MorgenGrauen nicht!\n",
+                       DATA: sprintf("Root@"MUDNAME": Spieler %s finde "+
+                                     "ich in "MUDNAME" nicht!\n",
                                      capitalize(data[RECIPIENT]))
                     ]) );
 }

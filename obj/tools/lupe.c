@@ -1815,8 +1815,7 @@ string scan(string arg)
     printf(", QuestPoints: %d (%d/%d), Alter: %s\n",ob->QueryProp(P_QP),ob->QueryProp(P_NEEDED_QP),QM->QueryMaxQP(),timef(2*ob->QueryProp(P_AGE)));
     if (interactive(ob))
     {
-      printf("User@IP-Addr: %s@%s (%s) [%s]\n",ob->QueryProp(P_AUTH_INFO)||"???",query_ip_name(ob),query_ip_number(ob),
-	     country(query_ip_name(ob)));
+      printf("From: %s (%s) [%s]\n",query_ip_name(ob),query_ip_number(ob),country(query_ip_name(ob)));
       tmp=query_idle(ob);
       printf("Idle seit %d Sekunden",tmp);
       if (tmp>60)

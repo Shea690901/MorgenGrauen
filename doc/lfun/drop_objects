@@ -8,7 +8,7 @@ DEFINIERT IN:
 
 ARGUMENTE:
     string str
-	Was fallengelassen werden soll.
+        Was fallengelassen werden soll.
     mixed msg
         Eine optionale Meldung, die anstelle von P_DROP_MSG oder der
         Standardmeldung verwendet wird, oder -1, um die Meldung zu

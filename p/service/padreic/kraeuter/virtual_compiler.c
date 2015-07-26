@@ -171,23 +171,41 @@ string Validate(string file)
    return (member(validfiles, file) ? file : 0);
 }
 
-private static object master, simul_efun;
+// fuer den Master kann man einfach master() nehmen. Zesstra, 7.1.10
+//private nosave object master;
+private nosave object simul_efun;
 
+// fuer SIMUL_EFUN_FILE
+#include <config.h>
 nomask static private string get_cloner()
 {
    int i;
    object po;
+   /*
    if (!master) {
       master=find_object("/secure/master.c");
       if (!master) raise_error("inkonsistent system!\n");
    }
+   */
+   // Es kann nicht passieren, dass es keine simul_efun oder master gibt, denn
+   // dann wird das Mud runtergefahren. Ausserdem sollte man die Pfade nicht
+   // hart-kodieren.
+   /*
    if (!simul_efun) {
       if (!(simul_efun=find_object("/secure/simul_efun")))
          simul_efun=find_object("/secure/spare_simul_efun.c");
       if (!simul_efun) raise_error("inkonsistent system!\n");
    }
+   */
+   if (!simul_efun) {
+      if (!(simul_efun=find_object(SIMUL_EFUN_FILE)))
+         simul_efun=find_object(SPARE_SIMUL_EFUN_FILE);
+   }
+   // wenn sie jetzt nicht existiert - auch gut, dann gibt es halt keine
+   // sefuns.
+
    for (i=0; po=previous_object(i); i++) {
-      if (po==master || po==simul_efun || po==ME || po==previous_object())
+      if (po==master() || po==simul_efun || po==ME || po==previous_object())
          continue;
       else return BLUE_NAME(po);
    }

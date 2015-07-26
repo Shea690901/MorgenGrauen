@@ -3,7 +3,7 @@
 // OBJECTD.C -- object daemon
 //
 // $Date: 1995/04/03 14:47:02 $
-// $Revision: 6142 $
+// $Revision: 7421 $
 /* $Log: objectd.c,v $
  * Revision 1.2  1995/04/03 14:47:02  Wargon
  * QueryObject() verwendet bei BluePrints jetzt auch AddItem.
@@ -13,7 +13,8 @@
  *
  */
 
-#pragma strong_types
+#pragma strong_types,save_types
+#pragma no_clone, no_shadow
 
 #include <rooms.h>
 #include <properties.h>
@@ -27,7 +28,6 @@ mapping objects;
 
 void create()
 {
-  if(IS_CLONE(ME)) destruct(ME);
   seteuid(getuid(ME));
   objects = ([]);
   restore_object(OBJECTD_SAVE);

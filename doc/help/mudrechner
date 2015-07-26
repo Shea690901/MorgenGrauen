@@ -1,11 +1,11 @@
 Der Mudrechner
 ==============
 
-     Das Mud laeuft momentan (Stand 08. April 2004) auf einem
-      - Xeon CPU 2.40GHz 1024MB RAM, 36 + 70 GB Plattenplatz (SCSI)
-      - Abgesichert durch eine USV
+     Das Mud laeuft seit 21. Feb 2010 auf:
+     - Dell 2950 mit 2 Netzteilen
+     - 2 * XEON 2.5GHz, 8GB RAM, 70GB (RAID1) OS, 500 GB (RAID1) Daten
      und ist ueber
-      - 1000MBit Ethernet (extern 155MBit WIN)
+      - 1GB Ethernet (extern 1GB)
      an das Internet angeschlossen.
 
      Unter der Adresse mg.mud.de sind ebenfalls:
@@ -22,5 +22,9 @@ Der Mudrechner
  SIEHE AUCH:
      lag, irc
 
+ HISTORY:
+      Rechner bis 21. Feb 2010, (Stand 08. April 2004):
+      - Xeon CPU 2.40GHz 1024MB RAM, 36 + 70 GB Plattenplatz (SCSI)
+
  LETZTE AeNDERUNG:
-    7. Mai 2004 Gloinson
+    2. Maerz 2010 Gloinson

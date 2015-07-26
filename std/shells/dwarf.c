@@ -4,6 +4,8 @@
 //
 // $Id: dwarf.c,v 3.14 2004/12/13 12:54:31 Zook Exp $
 
+#pragma strong_types,save_types
+
 inherit "std/player/base";
 
 #include <properties.h>
@@ -150,4 +152,5 @@ mixed RaceDefault(string arg)
     case P_BODY :
       return 10;
   }
+  return 0;
 }

@@ -2,7 +2,7 @@
 //
 // fileview.c
 //
-// $Id: fileview.c 6379 2007-07-20 22:32:02Z Zesstra $
+// $Id: fileview.c 7358 2010-01-06 20:48:40Z Zesstra $
 #pragma strict_types
 #pragma save_types
 //#pragma range_check
@@ -154,7 +154,7 @@ private string _ls_output_long(mixed filedata, int flags,closure valid_read,
     return 0;
   size=filedata[FILESIZE];
   path=filedata[PATHNAME];
-  tmp=(string *)call_other(__MASTER_OBJECT__,"full_path_array",
+  tmp=(string *)call_other(master(),"full_path_array",
                  filedata[FULLNAME],getuid());
   full=sprintf("/%s",implode(tmp,"/"));
   dir=(size==-2);
@@ -167,7 +167,7 @@ private string _ls_output_long(mixed filedata, int flags,closure valid_read,
   group="";
   if (flags&LS_U)
   {
-    creator=(string)call_other(__MASTER_OBJECT__,"creator_file",full);
+    creator=(string)call_other(master(),"creator_file",full);
     switch(creator)
     {
       case ROOTID: creator="root"; break;

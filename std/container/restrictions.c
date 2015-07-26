@@ -2,7 +2,7 @@
 //
 // container/restrictions.c -- container restrictions
 //
-// $Id: restrictions.c 6987 2008-08-22 21:36:53Z Zesstra $
+// $Id: restrictions.c 7508 2010-03-25 22:11:33Z Zesstra $
 
 // This is a simple container to put objects in. It defines all functions
 // which are necessary to describe an object which can be filled with
@@ -449,11 +449,12 @@ object *locate_objects( string complex_desc, int info ) {
     string was, wo;
 
     if ( sscanf( complex_desc, "%s in %s", was, wo ) == 2 ){
-        object *found_obs = ({});
-	foreach(object invob: present_objects(wo)) {
-	  found_obs += (object *)invob->locate_objects( was, info);
-	}
-        return found_obs;
+      object *found_obs = ({});
+      foreach(object invob: present_objects(wo)) {
+        // || ({}) weil invob ein Objekt ohne locate_objects() sein koennte.
+        found_obs += (object *)invob->locate_objects( was, info) || ({});
+      }
+      return found_obs;
     }
     // kein "in" gefunden
     return present_objects( complex_desc );

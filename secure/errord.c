@@ -2,7 +2,7 @@
     /p/daemon/errord.c
     speichert Fehler und Warnungen
     Autor: Zesstra
-    $Id: errord.c 7155 2009-02-25 21:20:50Z Zesstra $
+    $Id: errord.c 7541 2010-05-02 12:38:09Z Zesstra $
     ggf. Changelog:
 */
 
@@ -14,7 +14,7 @@
 #pragma range_check
 #pragma warn_deprecated
 
-#include <properties.h>
+#include <config.h>
 #include <wizlevels.h>
 #include <defines.h>
 #include <debug_info.h>
@@ -1179,7 +1179,7 @@ private int  versende_mail(mapping fehler) {
   mail[MSG_BCC] = 0;
   mail[MSG_SUBJECT] = sprintf("Fehler in %s behoben",fehler[F_LOADNAME]);
   mail[MSG_DATE] = dtime(time());
-  mail[MSG_ID]=sprintf("MorgenGrauen: %d.%d",time(),random(__INT_MAX__));
+  mail[MSG_ID]=sprintf(MUDNAME": %d.%d",time(),random(__INT_MAX__));
   mail[MSG_BODY]=text;
 
   if (!sizeof("/secure/mailer"->DeliverMail(mail,0)))
@@ -1206,15 +1206,16 @@ private void archive() {
 }
 
 void reset() {
-    archive(); // und _expire() wird von archive() gerufen 
-    //_expire(time()-(STDEXPIRE)); //21 Tage
-    set_next_reset(3600*24);
+  archive(); // und _expire() wird von archive() gerufen 
+  //_expire(time()-(STDEXPIRE)); //21 Tage
+  set_next_reset(3600*24);
 }
 
 // Nicht jeder Magier muss den ErrorD direkt zerstoeren koennen.
-string NotifyDestruct(object caller) {
-    if( (caller!=this_object() && !ARCH_SECURITY) || process_call() ) {
-      return "Du darfst den Error-Daemon nicht zerstoeren!\n";
-    }
+public string NotifyDestruct(object caller) {
+  if( (caller!=this_object() && !ARCH_SECURITY) || process_call() ) {
+    return "Du darfst den Error-Daemon nicht zerstoeren!\n";
+  }
+  return 0;
 }
 

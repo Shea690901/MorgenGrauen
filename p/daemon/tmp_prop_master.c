@@ -1,4 +1,5 @@
-#pragma strong_types
+#pragma strong_types,save_types
+#pragma no_clone,no_shadow
 
 #include <thing/properties.h>
 
@@ -36,10 +37,6 @@ varargs public void SetTmpProp( object ob, string prop, mixed newval,
 
 public void create()
 {
-    if ( clonep(this_object()) ){
-        destruct(this_object());
-        return;
-    }
 
     seteuid(getuid(this_object()));
     

@@ -1,6 +1,6 @@
 // MorgenGrauen MUDlib
 //
-// $Id: sperrer.c 6437 2007-08-18 22:58:58Z Zesstra $
+// $Id: sperrer.c 7446 2010-02-16 22:56:34Z Zesstra $
 
 #include <properties.h>
 #include <moving.h>
@@ -32,8 +32,13 @@ debug(what,arg)
   
   if (!environment())
     return;
-  log=sprintf("%s %s %O PO=%O PPO=%O TO=%O TI=%O verb=%O\n",dtime(time()),what,arg,previous_object(),previous_object(1),this_object(),this_interactive(),(this_interactive()||this_player()||this_object())->_unparsed_args());
+  log=sprintf("%s %s %O PO=%O PPO=%O TO=%O TI=%O verb=%O\n",
+      dtime(time()), what, arg, 
+      previous_object(), previous_object(1), 
+      this_object(), this_interactive(), 
+      (this_interactive()||this_player()||this_object())->_unparsed_args());
   log_file("NDEAD",log);
+  
   if (find_player("jof"))
     tell_object(find_player("jof"),log);
   if (previous_object() && 
@@ -49,7 +54,7 @@ debug(what,arg)
       tell_object(TI,"MESSING WITH NETDEAD ROOM - STOP\n");
       TI->remove();
       if (TI)
-	destruct(TI);
+        destruct(TI);
       log_file("NDEAD",sprintf("STOPPED %O\n",TI));
     }
     raise_error("DONT MESS WITH NETDEAD\n");

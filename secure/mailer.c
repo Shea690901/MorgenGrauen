@@ -2,7 +2,7 @@
 //
 // mailer.c
 //
-// $Id: mailer.c 7215 2009-05-26 20:14:39Z Zesstra $
+// $Id: mailer.c 7452 2010-02-20 12:59:01Z Zesstra $
 
 /*
  *------------------------------------------------------------
@@ -16,43 +16,43 @@
  *   DON'T USE restore_object any more, use GetFolders instead!
  *------------------------------------------------------------
  *
- *	Save file format (sort of formal notation):
+ *     Save file format (sort of formal notation):
  *
- *	mixed *folders = ({
- *	   ({ string name1; string name2; ... string nameN; })
- *	   ({ mixed *msgs1; mixed *msgs2; ... mixed *msgsN; })
- *	})
+ *     mixed *folders = ({
+ *        ({ string name1; string name2; ... string nameN; })
+ *        ({ mixed *msgs1; mixed *msgs2; ... mixed *msgsN; })
+ *     })
  *
- *	Each msgs field is an array of messages:
+ *     Each msgs field is an array of messages:
  *
- *	mixed *msgs = ({ mixed *message1; ... mixed *messageM })
+ *     mixed *msgs = ({ mixed *message1; ... mixed *messageM })
  *
- *	A message is represented as an array with the following fields:
+ *     A message is represented as an array with the following fields:
  *
- *	mixed *message = ({
- *	   string from;
- *	   string sender;
- *	   string recipient;
- *	   string *cc;
- *	   string *bcc;
- *	   string subject;
- *	   string date;
- *	   string id;
- *	   string body;
- *	})
+ *     mixed *message = ({
+ *        string from;
+ *        string sender;
+ *        string recipient;
+ *        string *cc;
+ *        string *bcc;
+ *        string subject;
+ *        string date;
+ *        string id;
+ *        string body;
+ *     })
  *
- *	The mailer demon (/secure/mailer) provides the following functions:
+ *     The mailer demon (/secure/mailer) provides the following functions:
  *
- *	string *DeliverMail(mixed *message)
- *	  Hand a mail message over to the mailer demon. The mailer
- *	  demon extracts recipients from the recipient, cc and bcc
- *	  fields and removes the bcc information. It then deposits
- *	  the message to the mail files of all recipients. A valid
- *	  message is shown above. Returns a list of successfully
- *	  delivered recipients.
+ *     string *DeliverMail(mixed *message)
+ *       Hand a mail message over to the mailer demon. The mailer
+ *       demon extracts recipients from the recipient, cc and bcc
+ *       fields and removes the bcc information. It then deposits
+ *       the message to the mail files of all recipients. A valid
+ *       message is shown above. Returns a list of successfully
+ *       delivered recipients.
  *
- *	int FingerMail(string user)
- *	  Gives the number of unread messages a user has.
+ *     int FingerMail(string user)
+ *       Gives the number of unread messages a user has.
  *------------------------------------------------------------
  */
 #pragma strict_types
@@ -60,9 +60,7 @@
 #pragma no_shadow
 #pragma no_inherit
 #pragma verbose_errors
-#pragma combine_strings
-//#pragma pedantic
-//#pragma range_check
+#pragma pedantic
 #pragma warn_deprecated
 
 #include <config.h>
@@ -70,8 +68,8 @@
 #include <wizlevels.h>
 
 // debugging
-#define DEBUG(msg) if ( find_player("vanion") ) \
-                      tell_object( find_player("vanion"), "MAILER: "+msg )
+#define DEBUG(msg) if ( find_player("zesstra") ) \
+                      tell_object( find_player("zesstra"), "MAILER: "+msg )
 #undef DEBUG
 #define DEBUG(x)
 
@@ -83,13 +81,8 @@
 // flag for _DeliverMail
 #define MAIL_DELAYED   4096
 
-
-// no shadowing
-public int query_prevent_shadow() { return 1; }
-
-
 // prototypes
-public void create();
+protected void create();
 static int GetFolders( string user );
 static string _unify( string str );
 static string *unify( string *str );
@@ -108,12 +101,12 @@ public void deliver_mail( string recipient, string from, string subject,
                           string mail_body );
 
 
-mixed *folders;		      /* used for save and restore of mail files */
+mixed *folders;                /* used for save and restore of mail files */
 static mapping alias;
 static string cachedname; /* whose folder is still in memory? */
 
 
-public void create()
+protected void create()
 {
     mixed tmp;
     int i;
@@ -175,7 +168,7 @@ static string *unify( string *str )
 }
 
 
-#define MG_NAMES ({ "mg", "morgengrauen", "mud", "mg.mud.de" })
+#define MG_NAMES ({ MUDNAME, "mg", "morgengrauen", "mud", "mg.mud.de" })
 
 string expandSystemRecursive(string addr,int maxrec){
   string *list,*tlist;
@@ -225,7 +218,7 @@ static string *expand( string *addr, int expa )
 
     for ( i = sizeof(addr); i--; ){
         addr[i] = lower_case( addr[i] );
-
+        // @morgengrauen-namen werden lokal zugestellt.
         if ( sizeof(new = explode( addr[i], "@" )) == 2  &&
              member( MG_NAMES, new[1] ) != -1 )
             addr[i] = new[0];
@@ -255,25 +248,28 @@ static string _filter_addr( string addr )
     return regreplace( addr, " *([^ ][^ ]*).*", "\\1", 0);
 }
 
-
+#ifdef INTERNET_MAIL_ENABLED
 #define FOOTER \
     "\n*****************************************************************\n" \
     "* MorgenGrauen MailRelay v1.0 - Processed %s, %s *\n" \
     "* MorgenGrauen - mg.mud.de 23 -                  87.79.24.60 23 *\n" \
     "*****************************************************************"
+#endif
 
 public string *DeliverMail( mixed msg, int expa )
 {
     string sender, *recipients, *recok, t, *tmp;
     mixed *newmsg;
-    int i, ext;
+    int i;
+#ifdef INTERNET_MAIL_ENABLED
+    int ext;
+#endif
 
     if ( !pointerp(msg) || sizeof(msg) != 9 )
         return 0;
 
     DEBUG( sprintf( "DeliverMail: %O %O\n", msg[0..4] +({0})+ msg[6..7], expa ) );
     t = ctime(time());
-    ext = 0;
 
     if ( !(expa & MAIL_DELAYED) ){
         /* determine the real sender */
@@ -316,12 +312,12 @@ public string *DeliverMail( mixed msg, int expa )
             recipients -= tmp;
         }
 
-	// check for valid Subject and Body
-	if (!stringp(msg[MSG_SUBJECT]))
-	    msg[MSG_SUBJECT] = "(no subject given)";
-	if (!stringp(msg[MSG_BODY]))
-	    msg[MSG_BODY] = 
-	      "\n\nSorry - This mail was delivered without a mail body\n\n";
+     // check for valid Subject and Body
+     if (!stringp(msg[MSG_SUBJECT]))
+         msg[MSG_SUBJECT] = "(no subject given)";
+     if (!stringp(msg[MSG_BODY]))
+         msg[MSG_BODY] =
+           "\n\nSorry - This mail was delivered without a mail body\n\n";
 
         DEBUG( sprintf( "NEED TO DELIVER TO %O\n", recipients ) );
 
@@ -342,19 +338,23 @@ public string *DeliverMail( mixed msg, int expa )
         DEBUG( sprintf( "Begin delivering to %s. Evalcosts left: %d.\n",
                         recipients[i], get_eval_cost() ) );
         if ( member( recipients[i], '@' ) > 0 &&
-             strstr( recipients[i], "daemon" ) < 0 ){
+             strstr( recipients[i], "daemon" ) < 0 ) {
             string rec, mud;
             
             tmp = explode( recipients[i], "@" );
             mud = tmp[1];
             rec = tmp[0];
             sender = regreplace( sender, "@", "%", 1 );
-            
-            if ( member( mud, '.' ) == -1 )
+            // Zustellung via Intermud-Mail an andere Muds.
+            if ( member( mud, '.' ) == -1 ) {
                 "/secure/udp_mail"->deliver_mail( rec, mud, sender,
                                                   msg[MSG_SUBJECT],
                                                   msg[MSG_BODY] );
-            else{
+                recok += ({ recipients[i] });
+            }
+#ifdef INTERNET_MAIL_ENABLED
+            // Zustellung in den Rest des Internets.
+            else {
                 ext = 1;
                 sender = explode( sender, "%" )[0];
                 rec = explode( regreplace( rec, "@", "%", 1 ), "%" )[0];
@@ -363,12 +363,12 @@ public string *DeliverMail( mixed msg, int expa )
                 write_file( sprintf( "/mail/outbound/%s.%d-%d-%d",
                                      sender, time(), i, random(123456) ),
                             sprintf( "%s\n%s@%s\n"
-			             "Subject: %s\n"
-				     "X-MUD-From: %s\n"
-				     "X-MUD-To: %s\n"
-				     "X-MUD-Cc: %s\n"
-				     "X-MU-Subject: %s\n\n", 
-				     sender, rec, mud,
+                            "Subject: %s\n"
+                         "X-MUD-From: %s\n"
+                         "X-MUD-To: %s\n"
+                         "X-MUD-Cc: %s\n"
+                         "X-MU-Subject: %s\n\n",
+                         sender, rec, mud,
                                      msg[MSG_SUBJECT],
                                      sender, recipients[0],
                                      pointerp(msg[MSG_CC]) ?
@@ -376,9 +376,10 @@ public string *DeliverMail( mixed msg, int expa )
                                      msg[MSG_SUBJECT] ) + msg[MSG_BODY] +
                             sprintf( FOOTER, t[4..10] + t[20..], t[11..18] )
                             + "\n" );
+                recok += ({ recipients[i] });
             }
-            
-            recok += ({ recipients[i] });
+#endif // INTERNET_MAIL_ENABLED
+
         }
         else
             if ( file_size( SAVEPATH + recipients[i][0..0] + "/" +
@@ -398,10 +399,10 @@ public string *DeliverMail( mixed msg, int expa )
         DEBUG( sprintf( "End delivering to %s. Evalcosts left: %d.\n",
                         recipients[i], get_eval_cost() ) );
     }
-    
+#ifdef INTERNET_MAIL_ENABLED
     if ( ext )
         send_udp( UDPSERV, 4123, "DELIVERMAIL" );
-    
+#endif
     return recok;
 }
 
@@ -412,9 +413,9 @@ public int FingerMail( string user )
 
     //Zugriff beschraenken, Zahl der gelesenen Mails ist Privatsphaere
     if (!objectp(this_interactive()) || !stringp(user) || !strlen(user)) 
-	return(-1);
+     return(-1);
     if ((getuid(this_interactive())!=user) &&
-	(process_call() || !ARCH_SECURITY)) return(-1);
+     (process_call() || !ARCH_SECURITY)) return(-1);
 
     if ( !GetFolders(user) )
         return 0;
@@ -591,8 +592,17 @@ public int MakeFolder( string folder, string user )
 
 public int query_recipient_ok( string name )
 {
-    return  (file_size( "secure/save/" + name[0..0] + "/" + name + ".o" ) > 0 ||
-             member( name, '%' ) > 0 || member( name, '@' ) > 0 );
+#if INTERNET_MAIL_ENABLED
+    return  (file_size( "secure/save/" + name[0..0] + "/" + name + ".o" ) > 0
+        || member( name, '%' ) > 0 || member( name, '@' ) > 0 );
+#else
+    // es darf zwar ein @ in der Adresse vorkommen, dahinter aber kein . mehr
+    // (dann ist es ne Mail via Intermud-Mail, nicht ins Internet).
+    string *tmp;
+    return  (file_size( "secure/save/" + name[0..0] + "/" + name + ".o" ) > 0
+        || member( name, '%' ) > 0
+        || (sizeof(tmp=explode(name,"@")) == 2 && strstr(tmp[1],".") == -1));
+#endif
 }
 
 
@@ -608,10 +618,10 @@ public void deliver_mail(
     // Geloggt wird, wenn ein aufrufendes Objekt nicht sicher ist.
     if (object_name(previous_object())[0..7]!="/secure/")
       write_file("/secure/ARCH/DELIVER_MAIL",
-	sprintf("%s : Aufruf von /secure/mailer->deliver_mail()\n"
-		"  Sender: %O Empfaenger: %O\n  PO: %O TI: %O TP:%O\n\n",
-		ctime(time()),from, recipient, 
-		previous_object(), this_interactive(), this_player()));
+     sprintf("%s : Aufruf von /secure/mailer->deliver_mail()\n"
+          "  Sender: %O Empfaenger: %O\n  PO: %O TI: %O TP:%O\n\n",
+          ctime(time()),from, recipient,
+          previous_object(), this_interactive(), this_player()));
     
     DeliverMail( ({ from, from, recipient, ({}), ({}), subject, time(),
                     "EXTERNAL", mail_body }), 0 );

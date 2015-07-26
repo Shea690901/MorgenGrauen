@@ -5,9 +5,9 @@
 //
 // shells/magier.c -- magier shell
 //
-// $Id: baum.c 6976 2008-08-16 19:37:38Z Rumata $
+// $Id: baum.c 7439 2010-02-13 15:57:08Z Rumata $
 
-#pragma strong_types
+#pragma strong_types,save_types
 
 inherit "/std/shells/magier";
 
@@ -107,7 +107,7 @@ varargs int move( mixed dest, int method, string dir,
 	return ::move( dest, method, dir, textout, textin );
 }
 
-static int new_quit( string s ) {
+static int new_quit() {
 	_wurzel = -1;
-	return ::new_quit( s );
+	return ::new_quit();
 }

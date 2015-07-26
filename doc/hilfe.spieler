@@ -42,7 +42,7 @@ Eingaben und Ersetzungen:
 
 Kampf:
     toete, stop, vorsicht, zuecke, ziehe (hervor/aus), trage,
-    stecke (weg/zurueck), heilung, sterben
+    stecke (weg/zurueck), heilung, sterben, spruchermuedung
     team, waffenfertigkeiten, gift/krankheiten/flueche
 
 Gildenuebersicht:
@@ -52,7 +52,8 @@ Gildenuebersicht:
 Andere Befehle:
     ende, schlafe (ein), speichern, lang, kurz, ultrakurz, ausgaenge,
     passwort, fehler, idee, typo, zeilen, selbstloeschung, spieldauer,
-    spielpause, uhrmeldung, zweitiemarkierung, telnegs, stty
+    spielpause, uhrmeldung, zweitiemarkierung, telnegs, stty,
+    keepalive
 
 Sonstige Themen:
     verein, konzept, seher, magier, regionen, editor, buecher, faq,

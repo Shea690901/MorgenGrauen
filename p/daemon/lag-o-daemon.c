@@ -1,7 +1,5 @@
-#pragma strong_types
-#pragma no_clone
-#pragma no_shadow
-#pragma no_inherit
+#pragma strong_types,save_types
+#pragma no_clone,no_shadow,no_inherit
 #pragma pedantic
 
 #include <debug_info.h>
@@ -22,7 +20,7 @@ mapping lastwarning=([]);
 void create()
 {
   int i;
-  if(clonep(this_object())) destruct(this_object());
+
   call_out("step",10);
   zeit = allocate(360, -1);
   hb = allocate(360, -1);

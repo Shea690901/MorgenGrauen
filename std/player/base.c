@@ -2,7 +2,7 @@
 //
 // player/base.c -- the basic player object
 //
-// $Id: base.c 7254 2009-08-09 17:42:32Z Zesstra $
+// $Id: base.c 7529 2010-04-13 09:44:05Z Rumata $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -169,7 +169,6 @@ protected void create()
   SetProp(P_HANDS, ({" mit blossen Haenden", 30}));
   Set(P_HANDS, SAVE, F_MODE_AS);
   SetProp(P_MAX_HANDS, 2);
-  SetProp(P_USED_HANDS, 0);
 
   Set(P_MARRIED, SAVE, F_MODE_AS);
   Set(P_EXTRA_LOOK, SAVE, F_MODE_AS);
@@ -751,6 +750,7 @@ protected void heart_beat() {
 
   life::heart_beat();
   combat::heart_beat();
+  skills::heart_beat();
 }
 
 /** ID-Funktion fuer Spielerobjekte.
@@ -789,12 +789,13 @@ static int set_homepage(string str)
     return 1;
   }
   write("Deine offizielle URL-Adresse wurde geaendert.\n");
-  if (str=="keine") SetProp(P_HOMEPAGE, 0);
+  if (str=="keine") 
+    SetProp(P_HOMEPAGE, 0);
   else {
     tmp = filter(regexplode(str, "[<][^>]*[>]"),
                        lambda(({'e}), ({#'!=, ({#'[, 'e, 0}), '<'})));
     write("Sie lautet jetzt: "+(str = implode(tmp, ""))+"\n");
-    return SetProp(P_HOMEPAGE, str);
+    SetProp(P_HOMEPAGE, str);
   }
   return 1;
 }
@@ -886,7 +887,7 @@ static int set_messenger(string str) {
   * \param[in] str Spielereingabe
   * \return 1 bei Erfolg, 0 sonst.
   */
-static int set_email(string str)
+static mixed set_email(string str)
 {
   if (!(str=_unparsed_args())) {
     write("Deine offizielle Email-Adresse lautet: " + QueryProp(P_MAILADDR)
@@ -895,7 +896,7 @@ static int set_email(string str)
   }
   write("Deine offizielle Email-Adresse wurde geaendert.\n");
   if (str=="keine") str="none";
-  return SetProp(P_MAILADDR, str);
+  SetProp(P_MAILADDR, str); // rumata: return entfernt
   return 1;
 }
 
@@ -909,7 +910,7 @@ static int self_delete()
     "     B I S T  D U  D I R  W I R K L I C H  S I C H E R ????????????\n"+
     "Wenn Du Dich selbstloeschen willst, ist Dein Charakter UNWIDERRUFLICH\n"+
     "verloren. Es gibt KEINE Moeglichkeit ihn wiederzuerschaffen. Solltest\n"+
-    "Du nur zeitweilig vom MorgenGrauen wegbleiben wollen, so benutze bitte\n"+
+    "Du nur zeitweilig vom "MUDNAME" wegbleiben wollen, so benutze bitte\n"+
     "den Befehl 'spielpause'.\n"+
     "Fallst Du Dich immer noch selbstloeschen willst, gib Dein Password ein."+
     "\n\n");
@@ -1064,7 +1065,7 @@ static int spielpause(string str)
           +"Erzmagier wenden (mit einem Gast oder Mail von aussen).\n" );
   else {
     write( "Die Spielpause ist aufgehoben.\n" );
-    __MASTER_OBJECT__->TBanishName(getuid(this_object()), 0);
+    master()->TBanishName(getuid(this_object()), 0);
     return 1;
   }
   write( "Wenn Du das wirklich willst, gib jetzt 'ja' ein.\n]" );
@@ -1080,7 +1081,7 @@ static int spielpause(string str)
 static void spielpause2(string str, int days)
 {
   if (str && (str == "ja" || str == "Ja" || str == "JA")) {
-    __MASTER_OBJECT__->TBanishName(getuid(this_object()), days);
+    master()->TBanishName(getuid(this_object()), days);
     write(
       "Ok, die Spielpause wird mit dem naechsten Ausloggen wirksam.\n"
      +"Solltest Du es Dir bis dahin noch einmal ueberlegt haben, so kannst\n"
@@ -1956,7 +1957,7 @@ static int remote(string str, int flag)
 
   dest = lower_case(exstr[0]);
 
-  if( !(destpl=find_player( match_living(dest, 1) )) ||
+  if( !(destpl=find_player( dest ) ) ||
       (destpl->QueryProp(P_INVIS) && !IS_LEARNER(ME)) ){
     write("Einen solchen Spieler gibt es derzeit nicht.\n");
     return 1;
@@ -2172,7 +2173,7 @@ varargs nomask int start_player( string str, string ip )
      */
     if ( newflag ) {
         if ( QueryGuest())
-            SetProp( P_TITLE, "ueberkommt das MorgenGrauen ..." );
+            SetProp( P_TITLE, "ueberkommt das "MUDNAME" ..." );
 
         Set( P_LEVEL, -1 );
         SetProp( P_ATTRIBUTES, ([ A_STR:1, A_CON:1, A_INT:1, A_DEX:1 ]) );
@@ -3223,8 +3224,8 @@ int disconnect(string str)
   if (verb[0..5]=="schlaf" && str!="ein")
   {
     notify_fail(
-      "\"schlafe ein\" beendet Deine Verbindung mit Morgengrauen. Du behaeltst "
-     +"Deine\nSachen, aber Vorsicht: Wenn MorgenGrauen abstuerzt, waehrend Du "
+      "\"schlafe ein\" beendet Deine Verbindung mit "MUDNAME". Du behaeltst "
+     +"Deine\nSachen, aber Vorsicht: Wenn "MUDNAME" abstuerzt, waehrend Du "
      +"weg bist,\nverlierst Du sie doch, genauso, als wenn Du Deine Verbindung "
      +"mit \"ende\"\nbeendet haettest (allerdings bekommst Du dann eine "
      +"finanzielle Entschaedigung).\n"
@@ -3234,14 +3235,14 @@ int disconnect(string str)
   if (IS_LEARNER(this_object()))
     return quit();
   tell_object(this_object(),
-    "Dieser Befehl beendet Deine Verbindung mit Morgengrauen. Du behaeltst Deine"
-   +"\nSachen, aber Vorsicht: Wenn MorgenGrauen abstuerzt, waehrend Du weg bist," +"\nverlierst Du sie doch, genauso, als wenn Du Deine Verbindung mit \"ende\""
+    "Dieser Befehl beendet Deine Verbindung mit "MUDNAME". Du behaeltst Deine"
+   +"\nSachen, aber Vorsicht: Wenn "MUDNAME" abstuerzt, waehrend Du weg bist," +"\nverlierst Du sie doch, genauso, als wenn Du Deine Verbindung mit \"ende\""
    +"\nbeendet haettest (allerdings bekommst Du dann eine finanzielle "
    +"Entschaedigung).\n"
    +"ABER: BENUTZUNG AUF EIGENE GEFAHR !!!\n" );
   if (clonep(environment()) && !environment()->QueryProp(P_NETDEAD_INFO))
     tell_object(this_object(),"\nACHTUNG: Wenn Du hier laenger als ETWA 10 Minuten schlaefst, kommst Du nicht\nan diesen Ort zurueck !\n");
-  say(capitalize(name(WER))+" hat gerade die Verbindung zu MorgenGrauen gekappt.\n");
+  say(capitalize(name(WER))+" hat gerade die Verbindung zu "MUDNAME" gekappt.\n");
   remove_interactive(ME);
   call_out(#'clear_tell_history,4);
   return 1;
@@ -3393,7 +3394,8 @@ int _set_shell_version(int arg)
 {
   if (!intp(arg))
     return -1;
-  return Set(P_SHELL_VERSION,({QueryProp(P_RACE),arg}));
+  Set(P_SHELL_VERSION,({QueryProp(P_RACE),arg}));
+  return 1;
 }
 
 int _query_shell_version()
@@ -3570,7 +3572,7 @@ static int inform(string str)
     write("Das hattest Du schon so eingestellt.\n");
       else
       {
-    write("Kuenftig wirst Du informiert, wenn jemand das MorgenGrauen verlaesst/betritt.\n");
+    write("Kuenftig wirst Du informiert, wenn jemand das "MUDNAME" verlaesst/betritt.\n");
     Set(P_INFORMME,1);
       }
       return 1;
@@ -3612,9 +3614,9 @@ void notify_player_change(string who, int rein, int invis)
   if (Query(P_INFORMME))
   {
       if (rein)
-        tell_object(ME,name+" ist gerade ins MorgenGrauen gekommen.\n");
+        tell_object(ME,name+" ist gerade ins "MUDNAME" gekommen.\n");
       else
-        tell_object(ME,name+" hat gerade das MorgenGrauen verlassen.\n");
+        tell_object(ME,name+" hat gerade das "MUDNAME" verlassen.\n");
   }
 
   if(Query(P_WAITFOR_FLAGS) & (0x01))return ;
@@ -3788,7 +3790,7 @@ static int zeitzone(string str)
   int zt;
   if(!str || str==""){
     if(!(zt=QueryProp(P_TIMEZONE)))
-      write("Du hast derzeit die gleiche Zeitzone wie das Morgengrauen "+
+      write("Du hast derzeit die gleiche Zeitzone wie das "MUDNAME" "+
             "eingestellt.\n");
     else if(zt>0)
       printf("Deine Zeitzone ist auf %d Stunden vor (oestlich) von Berlin "+
@@ -3804,7 +3806,7 @@ static int zeitzone(string str)
   SetProp(P_TIMEZONE,zt);
 
   if(!zt)
-    write("Du hast derzeit die gleiche Zeitzone wie das Morgengrauen "+
+    write("Du hast derzeit die gleiche Zeitzone wie das "MUDNAME" "+
           "eingestellt.\n");
   else if(zt>0)
     printf("Deine Zeitzone ist auf %d Stunden vor (oestlich) von Berlin "+
@@ -3939,27 +3941,8 @@ static string *_query_localcmds()
      })+
      command::_query_localcmds()+
      viewcmd::_query_localcmds()+
-     comm::_query_localcmds();
-}
-
-static string _query_auth_info()
-{
-  mixed auth;
-
-  if (!interactive(ME))
-    return Set(P_AUTH_INFO,0);
-  if (stringp(auth=Query(P_AUTH_INFO))) return auth;
-  if (auth>3) return Set(P_AUTH_INFO,"UNKNOWN");
-  "/secure/master"->get_auth_user(ME);
-  (void)Set(P_AUTH_INFO,++auth);
-  return "NOT YET KNOWN";
-}
-
-static string _set_auth_info(mixed s)
-{
-  if (!previous_object(1)||object_name(previous_object(1))[0..7]!="/secure/")
-    return 0;
-  return(Set(P_AUTH_INFO,s));
+     comm::_query_localcmds()+
+     skills::_query_localcmds();
 }
 
 static int _check_keep(object ob)
@@ -4068,8 +4051,8 @@ int set_keep_alive(string str) {
     telnet_tm_counter = 600 / __HEART_BEAT_INTERVAL__;
     tell_object(this_object(), break_string(
 	"An Deinen Client werden jetzt alle 10 Minuten unsichtbare Daten "
-	"geschickt, um zu verhindern, dass Deine Verbindung zum MorgenGrauen "
-	"beendet wird.", 78));
+	"geschickt, um zu verhindern, dass Deine Verbindung zum "MUDNAME
+	" beendet wird.", 78));
   }
   else if (str == "aus") {
     telnet_tm_counter = 0;
@@ -4085,7 +4068,7 @@ int set_keep_alive(string str) {
       tell_object(this_object(), break_string(
 	"An Deinen Client werden alle 10 Minuten " 
 	"unsichtbare Daten geschicht, damit Deine Verbindung "
-	"zum MorgenGrauen nicht beendet wird.",78));
+	"zum "MUDNAME" nicht beendet wird.",78));
   }
   return 1;
 }

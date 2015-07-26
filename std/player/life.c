@@ -2,7 +2,7 @@
 //
 // player/life.c -- player life handling
 //
-// $Id: life.c 7309 2009-09-20 13:56:47Z Zesstra $
+// $Id: life.c 7506 2010-03-21 15:34:17Z Zesstra $
 
 // Defines some things which are different than in living.c
 // One example is the heart_beat().
@@ -405,7 +405,7 @@ varargs protected int second_life( object corpse )
             break;
         // falls ein NPD() implizit andere Objekt zerstoert hat.
         if (objectp(item)) {
-            catch(limited(#'call_other, limits, killer, "NotifyPlayerDeath",
+            catch(limited(#'call_other, limits, item, "NotifyPlayerDeath",
                   ME, killer, lost_exp);publish);
         }
     }
@@ -675,6 +675,9 @@ varargs public void die( int poisondeath, int extern)
     limits[LIMIT_EVAL] == 10000000;
     limits[LIMIT_COST] == LIMIT_UNLIMITED;
     limited(#'::die, limits, poisondeath, (extern_call() ? 1 : 0)); 
+
+    // nach dem Tod sollte man auch keine LP mehr haben.
+    SetProp(P_HP, 0);
 
     // naechster Tod kann kommen. Dekrementierung, da 0 ein gueltiger Wert
     // fuer DINFO_EVAL_NUMBER waere. abs(), um nicht  -__INT_MAX__ zu

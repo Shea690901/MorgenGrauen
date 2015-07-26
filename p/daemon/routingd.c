@@ -1,4 +1,6 @@
-#pragma strong_types
+#pragma strong_types,save_types
+#pragma no_clone,no_shadow
+
 #include <wizlevels.h>
 
 #define DB_NAME "/p/daemon/save/routingd"

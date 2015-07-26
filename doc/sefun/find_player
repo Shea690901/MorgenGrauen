@@ -1,8 +1,13 @@
 FUNKTION:
-        object find_player(string str)
+        object find_player(string uid)
 
 BESCHREIBUNG:
-        Findet den Spieler mit dem Namen str. 
+        Findet den Spieler mit dem Namen bzw. der User-ID <uid>.
+        
+        Akzeptiert auch die UUID statt einer UID. In diesem Fall erfolgt aber
+        nur eine Pruefung, ob die UID des gefundenen Spielers zur angegebenen
+        UUID passt (d.h. "jof_-1" wuerde dann ggf. auch das Spielerobjekt Jof
+        zurueckliefern, wenn das die UUID "Jof_1234" hat).
 
         Rueckgabewert ist das Spielerobjekt (wenn Spieler anwesend),
         ansonsten 0.
@@ -34,4 +39,4 @@ SIEHE AUCH:
         find_living(E), set_living_name(E), find_object(E), find_netdead(E)
 
 ----------------------------------------------------------------------------
-Letzte Aenderung: Die, Feb 06 14:38:18 2001 von Tilly
+Letzte Aenderung: 06.01.2009, Zesstra 

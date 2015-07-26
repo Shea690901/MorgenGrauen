@@ -2,7 +2,7 @@
 //
 // master.c -- master object
 //
-// $Id: master.c 7304 2009-09-19 19:41:29Z Zesstra $
+// $Id: master.c 7486 2010-02-21 19:14:29Z Zesstra $
 #pragma strict_types
 #pragma no_clone
 #pragma no_shadow
@@ -28,13 +28,13 @@ inherit "/secure/master/players_deny";
 //for limited, set_limit(), etc. Abs. Pfad noetig, da noch kein Include-Hook
 #include "/sys/rtlimits.h"
 #include "/sys/debug_info.h"
-
+#include "/sys/debug_message.h"
 
 // Module des Master einfuegen. Per #include, damits geringfuegig schneller.
 // Da die Module ja nirgendwo sonst geerbt werden koennten, ist dies
 // ausnahmsweise OK. ;)
 #include "/secure/master/destruct.c"
-
+#include "/secure/master/autoinclude.c"
 
 // Fuer Logfile(-Rotation)
 #define RESETINT   3600                      // jede Stunde
@@ -43,6 +43,7 @@ inherit "/secure/master/players_deny";
 #define LOGNUM     3                         // Anzahl der Logfiles
 
 static int logrotate_counter; //READ_FILE alle LOGROTATE Resets rotieren
+
 
 //                       #####################
 //######################## Start des Masters ############################
@@ -53,25 +54,13 @@ static int logrotate_counter; //READ_FILE alle LOGROTATE Resets rotieren
 //arg==2: Master reaktiviert (Variablen weg), arg==3: Master wurde
 //neugeladen.
 protected void inaugurate_master(int arg) {
-  
+
   seteuid(ROOTID);
   userinfo::create();
   LoadPLDenylists();
 
   // Was soll vor jede Datei geschrieben werden?
-  //range_check waere noch nen interessantes Pragma, aber leider produziert es
-  //momentan zuviel Scroll. :-(
-  //pedantic ist auch nicht uebel, aber momentan laedt damit die halbe Mudlib
-  //nicht, bevor sowas geht, muessen viele Warnungen ausgebaut werden.
-  set_driver_hook(H_AUTO_INCLUDE,
-                  "#pragma combine_strings\n"
-                  "#pragma verbose_errors\n"
-                  "#pragma warn_deprecated\n"
-                  "#pragma no_warn_empty_casts\n"
-                  "#pragma no_warn_missing_return\n"
-                  "#pragma no_warn_function_inconsistent\n"
-//                  "#pragma pedantic\n"
-                  );
+  set_driver_hook(H_AUTO_INCLUDE, #'autoincludehook);
 
   //div. Listen einlesen
   ReloadBanishFile();
@@ -271,14 +260,26 @@ protected void preload(string file) {
 //nachfolgenden gelten als Backup-Objekte, falls eine sefun im Hauptobjekt
 //nicht gefunden wird.
 protected string *get_simul_efun() {
-  if(!catch(call_other(SIMUL_EFUN_FILE, "start_simul_efun") ))
+  string err;
+
+  if (!(err=catch(SIMUL_EFUN_FILE->start_simul_efun())) )
     return ({SIMUL_EFUN_FILE});
-  write("Failed to load " + SIMUL_EFUN_FILE + "\n");
-  if(!catch(call_other(SPARE_SIMUL_EFUN_FILE, "start_simul_efun") ))
+  
+  write("Failed to load simul efun " + SIMUL_EFUN_FILE + "\n");
+  debug_message("Failed to load simul efun " + SIMUL_EFUN_FILE +
+      " " + err, DMSG_STDOUT | DMSG_LOGFILE);
+
+  if (!(err=catch(SPARE_SIMUL_EFUN_FILE->start_simul_efun())) )
     return ({SPARE_SIMUL_EFUN_FILE});
-  write("Failed to load " + SPARE_SIMUL_EFUN_FILE + "\n");
+  
+  write("Failed to load spare simul efun" + SPARE_SIMUL_EFUN_FILE + "\n");
+  debug_message("Failed to load spare simul efun " + SPARE_SIMUL_EFUN_FILE +
+      " " + err, DMSG_STDOUT | DMSG_LOGFILE);
+
+ 
   efun::shutdown();
-  return ({});
+  
+  return 0;
 }
 
 // Preload manuell wiederholen; Keine GD-Funktion
@@ -349,9 +350,6 @@ protected void reset()
   mails_last_hour=0;
   mailread();
 
-  // ggf. den IP-Namenscache aufreumen
-  _cleanup_ipnames();
-
   return;
 }
 
@@ -373,6 +371,9 @@ string creator_file(mixed str) {
     strs=full_path_array(str, 0);
   else return NOBODY;
 
+  // absolute Pfade interessieren hier gerade nicht.
+  strs -= ({""});
+
   s=sizeof(strs);
   if(s<2) return NOBODY;
 
@@ -381,44 +382,44 @@ string creator_file(mixed str) {
       // Fuer Nicht-Magier bzw. "Pseudo-"Magier die Regionskennung
       if( s==2 || WIZLVLS[strs[2]] || !IS_LEARNER(strs[2]) )
         return strs[1];
- 
+
       // in /d/erzmagier gibt es Magier-IDs
       if (strs[1]=="erzmagier") return strs[2];
-      
+
       // Ansonsten d.region.magiername
       return sprintf("d.%s.%s", strs[1], strs[2]);
  
     case PROJECTDIR:
       // In p.service gibt es ids mit uid
-      if (s>2&&strs[1]=="service") return "p.service."+strs[2];
-      
+      if (s>2 && strs[1]=="service") return "p.service."+strs[2];
+
       // Ansonsten nur p.projekt (p.service ist auch hier drin)
       return "p."+strs[1];
 
     case WIZARDDIR:
       if (s>2)
         return strs[1];
-      if (s==2 && file_size(strs[0]+"/"+strs[1])==-2)
+      if (s==2 && file_size(strs[0]+"/"+strs[1])==FSIZE_DIR)
         return strs[1];
       return NOBODY;
 
     case SECUREDIR:
       return ROOTID;
-    
+
     case GUILDDIR:
     case SPELLBOOKDIR:
       tmp=strs[1];
       if (tmp[<2..<2]==".") tmp=tmp[0..<3];
       if ((s=member(tmp,'.'))>0) tmp=tmp[s+1..];
       return "GUILD."+tmp;
-    
+
     case LIBROOMDIR:
       return ROOMID;
-    
+
     case STDDIR:
     case LIBOBJDIR:
       return BACKBONEID;
-    
+
     case DOCDIR:
       return DOCID;
 
@@ -430,7 +431,7 @@ string creator_file(mixed str) {
     /* Fall-Through */
     default:
       return NOBODY;
-       
+
  }
  return(NOBODY);  //should never be reached.
 }
@@ -506,9 +507,9 @@ protected object connect()
   if (errno == 0) {
     printf("HTTP/1.0 302 Found\n"
          "Location: http://mg.mud.de/\n\n"
-         "NetCologne, Koeln, Germany. Local time: %s MET\n\n"
-         "MorgenGrauen LDmud, NATIVE mode, driver version %s\n\n",
-         ctime(),__VERSION__);
+         "NetCologne, Koeln, Germany. Local time: %s\n\n"
+         MUDNAME" LDmud, NATIVE mode, driver version %s\n\n",
+         strftime("%c"), __VERSION__);
   }
 
   // Blueprint im Environment? Das geht nun wirklich nicht ...
@@ -621,7 +622,7 @@ int valid_exec(string name, object ob, object obfrom)
   // Ungueltige Parameter oder Aufruf durch process_string -> Abbruch
   if (!objectp(ob) || !objectp(obfrom) 
       || !stringp(name) || !strlen(name)
-      || call_other("/secure/simul_efun","process_call"))
+      || funcall(symbol_function('process_call)) )
     return 0;
 
   // renew_player_object() darf ...
@@ -733,7 +734,7 @@ int privilege_violation(string op, mixed who, mixed arg1, mixed arg2)
       if (strstr(load_name(who), "/std/shells/") == 0
           && get_type_info(arg1, 2) == who
           && get_type_info(arg1, 3) == "/std/living/life"
-          && get_type_info(arg1, 4) == "die"
+//          && get_type_info(arg1, 4) == "die"
           && arg2[LIMIT_EVAL] <= 10000000 ) {
           return 1;
       }

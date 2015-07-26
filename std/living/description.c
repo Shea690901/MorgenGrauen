@@ -2,7 +2,7 @@
 //
 // living/description.c -- description for living objects
 //
-// $Id: description.c 7123 2009-02-14 22:13:54Z Zesstra $
+// $Id: description.c 7340 2009-11-19 21:44:51Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -291,23 +291,20 @@ int _query_container()
 }
 
 int is_class_member(mixed str) {
-  mixed cl;
+  // Keine Klasse, keine Mitgliedschaft ...
+  if (!str || (!stringp(str) && !pointerp(str)) || str=="") 
+      return 0;
+
   if (::is_class_member(str))
     return 1;
 
   if (stringp(str))
     str = ({str});
 
-  if (!pointerp(str))
-    return 0;
-
-  if ((member(str, CL_UNDEAD) >= 0) && 
-      ::is_class_member( ({CL_ZOMBIE, CL_SKELETON, CL_GHOUL}) ))
-    return 1;
-  else if ((member(str, CL_GOBLIN) >= 0) &&
-	   ::is_class_member( ({ CL_HOBGOBLIN }) ))
-    return 1;
-  else if ( (cl = QueryProp(P_RACE)) && member( str, lower_case(cl) ) > -1 )
+  // Rassen werden als implizite Klassen aufgefasst.
+  // TODO: Pruefen, ob das unbedingt hart-kodiert sein muss.
+  string race = QueryProp(P_RACE);
+  if ( stringp(race) && member( str, lower_case(race) ) > -1 )
     return 1;
   else
     return 0;
@@ -315,7 +312,7 @@ int is_class_member(mixed str) {
 
 mapping _query_material() {
   mixed res;
- 
+
   if (mappingp(res=Query(P_MATERIAL)))
     return res;
   return ([MAT_MISC_LIVING:100]);

@@ -321,8 +321,9 @@ int Walk()
       move(Query(MNPC_HOME), M_TPORT|M_NOCHECK);
     }
   }
- 
-  if ((Query(MNPC_DELAY)+Query(MNPC_RANDOM))>MAX_MASTER_TIME)
+  // Aufrufe in zerstoerten Objekten verhindern, die beim Bewegen sterben.
+  if ( objectp(this_object()) && 
+       (Query(MNPC_DELAY)+Query(MNPC_RANDOM))>MAX_MASTER_TIME )
     call_out("Walk", Query(MNPC_DELAY)+random(Query(MNPC_RANDOM)));
   return 1;
 }

@@ -1,3 +1,6 @@
+#pragma strong_types,save_types
+#pragma no_clone,no_shadow
+
 #include <wizlevels.h>
 
 #define SAVEFILE  "/p/daemon/save/ruestungen"
@@ -8,11 +11,7 @@ mapping armours;
 void create()
 {
     seteuid(getuid(this_object()));
-    if (clonep(this_object()))
-    {
-        destruct(this_object());
-        return;
-    }
+
     if (!restore_object(SAVEFILE))
     {
         armours = ([]);

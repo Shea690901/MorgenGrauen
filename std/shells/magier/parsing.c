@@ -1,10 +1,11 @@
-// $Id: parsing.c 6423 2007-08-15 23:02:49Z Zesstra $
+// $Id: parsing.c 7499 2010-03-09 22:08:23Z Zesstra $
 #pragma strict_types
 #pragma save_types
 //#pragma range_check
 #pragma no_clone
 #pragma pedantic
 
+#include <files.h>
 #include <wizlevels.h>
 #include <logging.h>
 #define NEED_PROTOTYPES
@@ -37,23 +38,12 @@ static mixed to_filename(string str)
   int i;
 // Testen ob .. in einem Filenamenabschnitt, falls Version <3.2.5
   tmp=explode(str,"/");
-#if __VERSION__< "3.2.5" 
-  i=sizeof(tmp);
-  while(i--)
-  {
-    if(strstr(tmp[i], "..") >= 0 && strlen(tmp[i]) != 2)
-    {
-       printf("Ungueltiger Filename: %s\n",str);
-       return 0;
-    }
-  }
-#endif
 // Testen auf Pfadvariable
   if (strlen(tmp[0]) && tmp[0][0]=='$' 
       && m_contains(&p,QueryProp(P_VARIABLES),tmp[0][1..]))
     tmp[0]=p;
 // Pfad absolut machen (Hat danach noch Wildcards drinnen) oder auch nicht
-  return __MASTER_OBJECT__->make_path_absolute(implode(tmp,"/"));
+  return master()->make_path_absolute(implode(tmp,"/"));
 }
 
 
@@ -204,7 +194,7 @@ private mixed *_get_matching(string *pathmask, int depth, string path,
 
   //DEBUG("_GM: PM: " + pathmask[depth]);
   //DEBUG("_GM: FM: " + filemask);
-  data=get_dir(path+pathmask[depth++],7)||({});
+  data=get_dir(path+pathmask[depth++],GETDIR_NAMES|GETDIR_SIZES|GETDIR_DATES)||({});
   if (!sizeof(data)) return ({});
   files=({});
   while(sizeof(data))

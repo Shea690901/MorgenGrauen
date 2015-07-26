@@ -8,7 +8,7 @@
 //
 // Tiamak
 
-#pragma strong_types
+#pragma strong_types,save_types
 
 #include <wizlevels.h>
 #include <player.h>

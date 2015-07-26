@@ -2,7 +2,7 @@
 //
 // master/userinfo.c -- Cache mit Spielerinfos
 //
-// $Id: userinfo.c 7162 2009-02-26 21:14:43Z Zesstra $
+// $Id: userinfo.c 7406 2010-02-05 23:12:46Z Zesstra $
 
 #pragma strict_types
 
@@ -683,15 +683,21 @@ int set_player_object( string user, string objectname )
     if ( !find_userinfo(user) )
         return -4;
 
-    prev = userlist[user, USER_OBJECT] || "keine";
+    prev = userlist[user, USER_OBJECT];
     userlist[user, USER_OBJECT] = objectname;
     save_userinfo(user);
 
-    funcall( symbol_function('log_file), "ARCH/SHELL_AENDERUNGEN",
+    // Loggen, falls die Aenderung nicht von Login beim Anlegen des Chars
+    // erfolgt.
+    if (load_name(this_interactive()) != "/secure/login"
+        || prev != "") {
+      if (prev == "") prev ="<keine>";
+      funcall( symbol_function('log_file), "ARCH/SHELL_AENDERUNGEN",
         sprintf( "%s: %O aendert die Shell von %s von %s auf %s (PO: %O)\n",
           funcall(symbol_function('strftime),"%Y%m%d-%H%M%S",time()), 
           this_interactive(), capitalize(user), prev, objectname,
           previous_object()) );
+    }
 
     return 1;
 }
@@ -750,17 +756,23 @@ int delete_player(string passwd, string real_name)
   mixed erstie=(mixed)this_interactive()->QueryProp(P_SECOND);
   password = userlist[real_name,USER_PASSWORD];
   wlevel = get_wiz_level(real_name);
-  //if (crypt(passwd, password) != password) return 0;
   if (!update_password(passwd, passwd)) return 0;
+
+  // Spielpausen aufheben (sonst kann man als Spieler nen Namen sperren).
+  TBanishName(real_name, 0);
+
   part_filename="/"+real_name[0..0]+"/"+real_name+".o";
-  rm("secure/save"+part_filename);
-  rm("save"+part_filename);
-  rm("mail"+part_filename);
+  rm("/"SECUREDIR"/save"+part_filename);
+  rm("/"LIBSAVEDIR"/"+part_filename);
+  rm("/"MAILDIR"/"+part_filename);
+  
   efun::m_delete(userlist,real_name);
+  
   if (wlevel >= LEARNER_LVL)
     TO->BanishName(real_name, "So hiess mal ein Magier hier");
   else if (wlevel >= SEER_LVL)
     TO->BanishName(real_name, "So hiess mal ein Seher hier");
+  
   funcall( symbol_function('log_file), "USERDELETE",
            sprintf("%s: %s %s(%s)\n",
                    ctime(time()),real_name,

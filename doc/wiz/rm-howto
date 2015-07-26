@@ -19,7 +19,7 @@ Vorlaeufiges Inhaltsverzeichnis:
    - anderer Befehl zum Betreten
    - Verweise auf Beispielcode
 5) Debuggen von Code
-6) besondere Funktionen
+6) besondere Funktionen/Funktionaelitaeten
    - catch_tell()
    - move()
    - Attack() / Defend()
@@ -27,7 +27,7 @@ Vorlaeufiges Inhaltsverzeichnis:
    - remove() / destruct()
    - for()-Schleifen
    - write_file()
-
+   - Verwalten von charakterbezogenen Daten
 
 1) Allgemeines
 ==============
@@ -39,6 +39,8 @@ o Um stets einen Ueberblick ueber die in Deiner Region (hoffentlich selten)
   Du, allein schon, um zusaetzliche Arbeit fuer Dich selbst zu reduzieren,
   dieses Werkzeug ebenfalls an die Hand geben und sie auffordern, ihren
   Kram moeglichst umfassend selbst zu reparieren.
+  Neuen Magiern wird dieses Tool uebrigens automatisch von Merlin in die
+  Hand gedrueckt, so dass sie sich vom ersten Tag an daran gewoehnen koennen.
 
 o Es ist empfehlenswert, das Logtool zu besitzen (/obj/tools/logtool.c) und
   in diesem fuer jedes Repfile eines Regionsmitarbeiters einen Eintrag vor-
@@ -134,10 +136,13 @@ o Sollte ein Objekt aus einer anderen Region bzw. allgemein aus einem
   -- Erstkill-Stufenpunkte muessen umgetragen werden (EM ansprechen),
   -- Zaubertraenke umtragen lassen (EM ansprechen),
   -- in Padreics Ruestungsskill umtragen lassen (EM ansprechen),
-  -- evtl. im Gebiet vorhandene Kraeuterskill-Kraeuter beruecksichtigen
+  -- evtl. im Gebiete vorhandene Seherhaeuser umziehen,
+  -- evtl. im Gebiet vorhandene Kraeuterskill-Kraeuter beruecksichtigen,
   -- ueber die Mudlib greppen lassen, um eventuell in anderen Regionen
      verwendete Referenzen auf die alten Pfade des umziehenden Codes
-     zu finden und dort umzustellen.
+     zu finden und dort umzustellen. Hierbei sind in Ausnahmefaellen von
+     fiesem Code auch in Spielersavefiles gespeicherte Pfade zu
+     beruecksichtigen (*ARGL*).
 
 
 4) Seherhaeuser
@@ -169,12 +174,12 @@ o Bei geaenderten Befehlen zum Betreten muss beachtet werden, dass bei einer
 o Nach dem Reparieren eines Objektes ist es meist erforderlich, das
   betreffende Objekt neu zu laden. Falls es sich dabei um Objekte handelt,
   die z.B. in einem Raum mittels AddItem() hinzugefuegt wurden (wie etwa
-  ein NPC), dann ist es am besten, auf die Datei den Befehl
+  ein NPC), dann ist es am besten, die Datei mit dem Befehl
   <upd -ad datei.c> zu aktualisieren und somit saemtliche Clones zu
   zerstoeren. Wenn man mittels <upd -ar datei.c> die bestehenden Clones
   ersetzen wuerde, wuerden diese aus der Item-Liste des clonenden Raumes
-  ausgetragen, so dass dieser Raum dann im reset() neue Items erzeugen und
-  diese dann doppelt existieren wuerden.
+  ausgetragen, so dass dieser Raum dann im reset() neue Items erzeugt und
+  diese in der Folge doppelt existieren wuerden.
 
 
 6) besondere Funktionen
@@ -221,8 +226,9 @@ o catch_tell()
              ueberschreiben zu muessen.
   Kommentar: Ausnutzbar als Remote-Fluchtteleport, indem man die Meldung
              mittels teile-mit an den NPC sendet:
-             "Robert teilt Dir mit: ja", was ungeprueft ein move() zur Folge
-             hat. Offensichtlich ebenso ungeeignet wie das vorige Beispiel.
+             "Robert teilt Dir mit: sagt: ja", was ungeprueft ein move() 
+             zur Folge hat. Offensichtlich ebenso ungeeignet wie das 
+             vorige Beispiel.
 
 
   Schnipsel 3)
@@ -248,14 +254,14 @@ o move()
   gewuenschte Effekt nicht anders sauberer erreicht werden kann.
   Als zusaetzlicher Hinweis sei auf NotifyMove() und PreventMove() verwiesen,
   mit deren Hilfe sich die allermeisten Faelle erschlagen lassen, in denen
-  Magier versucht sind, move() zu ueberschreiben.
+  Magier faelschlicherweise glauben, move() ueberschreiben zu muessen.
 
 o Defend()/Attack()
   hier ist ein beliebter Fehler einfach der, dass man am Ende der Funktion
   ::Defend() bzw. ::Attack() ruft, aber im Codeblock vorher das Objekt
   durch eigenen Tod oder anderes schon zerstoert wurde. Dann geht das schief.
   Einfach mal hinschauen - es ist aber kein wirklich gravierender Fehler,
-  da sowas im Kampf ziemlich schnell auffallen duerfte.
+  da sowas im Kampf meist ziemlich schnell auffaellt.
 
 o call_out()
   Hierzu zwei Hinweise: zum einen fuehrt call_out("x",0) seit der Umstellung
@@ -292,6 +298,35 @@ o write_file()
   Benutzung dieser Funktion nur in begruendeten Ausnahmefaellen abnehmen, da
   keinerlei Begrenzung der Dateigroesse existiert. Insbesondere bei Logfiles
   entstehen hierdurch im Laufe der Zeit Monsterdateien, die nur Plattenplatz
-  verbrauchen, aber kaum zu ueberschauen sind. Statt write_file() sollte in
+  verbrauchen, aber kaum zu ueberschauen sind. Statt write_file() wird in
   den allermeisten Faellen log_file() ausreichend sein.
 
+o Verwalten von charakterbezogenen Daten
+  Als Beispiel seien hier Statusdaten fuer den Ablauf von Quests genannt,
+  oder Highscores in irgendwelchen Toplisten. Fuer die Umsetzung dieser
+  Datenerfassung werden typischerweise zwei Techniken eingesetzt. Zum
+  einen kann ein Masterobjekt erstellt werden, das die Daten sammelt und
+  mittels save_object() dauerhaft speichert. Zum anderen kann man auch
+  Daten in einer Property im Spieler ablegen und diese je nach Anwendungs-
+  fall auf SAVE setzen.
+
+  Bei der ersten Variante wird man ueblicherweise die UID oder UUID des 
+  Spielers als Indizierungsmerkmal verwenden. Der erste Fallstrick ist nun,
+  dass die UID bei Spielern (nicht Sehern) ggf. nach einer Selbstloeschung
+  neu vergeben werden kann, so dass die Daten inkonsistent werden bzw. der
+  Spieler scheinbar schon in Eurem Master eingetragen ist, obwohl es sich
+  eigentlich um jemand ganz anderes handelt.
+  Als Abhilfemassnahme bietet sich folgendes an: 
+  a) UUID verwenden, da diese fuer jeden Spieler eindeutig ist.
+  b) Hinweis: find_player() kann auch mit UUIDs umgehen und das zugehoerige
+     Spielerobjekt ermitteln.
+  c) Man sollte ggf. auf das Mudlib-Event EVT_LIB_PLAYER_DELETION lauschen, 
+     um Spieler auszutragen, die sich loeschen, wodurch die zugehoerigen
+     Daten obsolet werden.
+
+  Bei der zweiten Variante muss man verschiedene Dinge beruecksichtigen:
+  a) nicht endlos viele Properties machen, sondern pro Thema (z.B. Quest)
+     einfach eine.
+  b) nur die Properties speichern, bei denen das wirklich noetig ist.
+  c) Speichert man Properties und die Aufgabe wird erledigt, d.h. der 
+     Inhalt der Property obsolet, muss die Property wieder geloescht werden.

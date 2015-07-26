@@ -6,7 +6,7 @@
  * Werte von Ark abgesegnet am 11.12.2007
  */
 
-#pragma strong_types
+#pragma strong_types,save_types
 
 #include <attributes.h>
 #include <health.h>

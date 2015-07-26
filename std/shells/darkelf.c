@@ -2,9 +2,9 @@
 //
 // shells/darkelf.c -- Darkelf Shell
 //
-// $Id: darkelf.c 7004 2008-08-29 16:31:54Z Zesstra $
+// $Id: darkelf.c 7423 2010-02-07 22:56:38Z Zesstra $
 
-#pragma strong_types
+#pragma strong_types,save_types
 
 inherit "std/player/base";
 

@@ -2,7 +2,7 @@
 //
 // container/items.c -- creating extra items in room
 //
-// $Id: items.c 7098 2009-01-31 18:17:12Z Zesstra $
+// $Id: items.c 7539 2010-05-02 12:09:08Z Zesstra $
 
 // extra items handling
 //
@@ -154,7 +154,7 @@ public varargs object AddItem( mixed filename, int refresh, mixed props )
                     ((mappingp(props) || props == 1) ? ({ props }) : ({})) }) );
     //}
 
-    if ( mappingp(props) ) 
+    if ( ob && mappingp(props) ) 
         walk_mapping( props, symbol_function( "SetProp", ob ) );
     
     return ob;

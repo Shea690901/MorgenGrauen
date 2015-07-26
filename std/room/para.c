@@ -4,7 +4,7 @@
 //
 // room/para.c -- Betreten einer Parallelwelt
 //
-// $Id: para.c 6371 2007-07-17 22:46:50Z Zesstra $
+// $Id: para.c 7510 2010-03-25 23:37:19Z Zesstra $
 
 // Veraltet - wird nicht mehr benoetigt.
 // Die Zuordnung der 'richtigen' Welt wird jetzt direkt von move() uebernommen.
@@ -15,4 +15,4 @@
 #pragma range_check
 #pragma no_clone
 
-int paramove() { return 0; }
+deprecated int paramove() { return 0; }

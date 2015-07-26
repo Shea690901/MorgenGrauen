@@ -2,7 +2,7 @@
 //
 // living/life.h -- living life header
 //
-// $Id: life.h 6276 2007-04-29 12:40:59Z Zesstra $
+// $Id: life.h 7325 2009-10-27 21:24:49Z Zesstra $
 
 #ifndef __LIVING_LIFE_H__
 #define __LIVING_LIFE_H__
@@ -49,6 +49,35 @@
 #define P_LAST_DEATH_PROPS        "last_death_props"
 #define P_CORPSE_DECAY_TIME       "corpse_decay"
 
+// ----- Definitionen fuer Beeinflussung der Gesundheit durch consume -----
+
+// H_EFFECTS - Zu aendernde Properties fuer den Effekt
+#define H_EFFECTS "effects"
+// H_CONDITIONS - Zu pruefende Properties für den Effekt (Saettigung, ...)
+#define H_CONDITIONS "conditions"
+// H_DISTRIBUTION - Wie die Aenderung an HP/SP austeilen, sofort, zeitlich
+// versetzt, ...
+#define H_DISTRIBUTION "distribution"
+// H_INGREDIENTS - Bestandteile, die die Aenderung verursachen
+#define H_INGREDIENTS "ingredients"
+
+// Verteilungen,
+// 0    Sofortwirkung
+// 1-50 gleichverteilte Pufferung mit angegebener Rate fuer SP/HP
+// >= 51 spezielle Verteilungen (TODO)
+#define HD_INSTANT      0
+#define HD_STANDARD     5
+
+#define H_ALLOWED_CONDITIONS ({P_FOOD, P_DRINK, P_ALCOHOL})
+#define H_ALLOWED_EFFECTS    ({P_SP, P_HP, P_POISON})
+
+#define HC_MAX_FOOD_REACHED        1
+#define HC_MAX_DRINK_REACHED       2
+#define HC_MAX_ALCOHOL_REACHED     4
+#define HC_HOOK_CANCELLATION       8
+
+// -------------------------------------------------------------------------
+
 #endif // __LIVING_LIFE_H__
 
 #ifdef NEED_PROTOTYPES
@@ -57,6 +86,10 @@
 #define __LIVING_LIFE_H_PROTO__         
 
 // prototypes
+
+// ----- zentrale Funktion, um die Gesundheit des Lebewesens zu beeinflussen -----
+public varargs int consume(mapping cinfo, int testonly);
+// -------------------------------------------------------------------------
 
 public int do_damage(int dam, mixed enemy);
 public int reduce_hit_points(int dam);

@@ -1,6 +1,6 @@
 P_SHOW_MSG
 NAME:
-    P_SHOW_MSG  			"show_message"
+    P_SHOW_MSG                          "show_message"
 
 DEFINIERT IN:
     /sys/living/put_and_get.h
@@ -14,7 +14,7 @@ BESCHREIBUNG:
     o 0
       Es wird eine Standardmeldung ausgegeben. Dies ist Voreinstellung.
 
-    o NO_PNG_MSG	== -1
+    o NO_PNG_MSG        == -1
       Es wird keinerlei Meldung ausgegeben
 
     o Ein Array aus Strings
@@ -23,9 +23,9 @@ BESCHREIBUNG:
       Empfaenger.
 
       Die Strings werden durch die Funktion replace_personal() geparst.
-	Objekt1 - Spieler
-	Objekt2 - das Objekt, das uebergeben wird
-	Objekt3 - Empfaenger
+        Objekt1 - Spieler
+        Objekt2 - das Objekt, das uebergeben wird
+        Objekt3 - Empfaenger
 
       Wird der zweite String nicht angegeben, erfolgt keine Meldung an den
       Raum. Beim Fehlen des dritten gibt es keine Meldung an den Empfaenger.
@@ -46,6 +46,6 @@ BEISPIEL:
 SIEHE AUCH:
      Aehnliches: P_DROP_MSG, P_PUT_MSG, P_PICK_MSG, P_GIVE_MSG
      Sonstiges:  replace_personal(E), show(L), show_objects(L),
-		 show_notify(L), /std/living/put_and_get.c
+                 show_notify(L), /std/living/put_and_get.c
 
 3. Juni 2008 Amynthor

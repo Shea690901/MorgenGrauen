@@ -1,12 +1,13 @@
 // channeld.c
 //
-// $Id: channeld.c 7278 2009-09-01 19:37:18Z Zesstra $
+// $Id: channeld.c 7444 2010-02-16 22:55:10Z Zesstra $
 //
 
 #pragma strong_types
 #pragma no_shadow // keine Shadowing...
 #pragma no_clone
 #pragma no_inherit
+#pragma save_types
 
 #include <sys_debug.h>
 #include <lpctypes.h>
@@ -327,7 +328,9 @@ string Name() { return "<MasteR>"; }
 // access() - check access by looking for the right argument types and
 //            calling access closures respectively
 // SEE: new, join, leave, send, list, users
-varargs private int access(mixed ch, object pl, string cmd, string txt)
+// Note: <pl> is usually an object, only the master supplies a string during
+//       runtime error handling.
+varargs private int access(mixed ch, mixed pl, string cmd, string txt)
 {
   mixed co, m;
 

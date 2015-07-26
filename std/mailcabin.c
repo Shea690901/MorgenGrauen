@@ -1,4 +1,4 @@
-#pragma strict_types
+#pragma strict_types,save_types
 
 inherit "/p/service/loco/std/mailcabin";
 

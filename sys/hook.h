@@ -2,7 +2,7 @@
 //
 // /sys/hooks.h  - Hooksystem
 //
-// $Id: hook.h 6367 2007-07-15 22:19:30Z Zesstra $
+// $Id: hook.h 7325 2009-10-27 21:24:49Z Zesstra $
 
 #ifndef _HOOKS_H_
 #define _HOOKS_H_
@@ -15,6 +15,11 @@
 #define H_HOOK_HP             5
 #define H_HOOK_KP             6
 #define H_HOOK_ATTACK_MOD     7
+#define H_HOOK_ALCOHOL        8
+#define H_HOOK_FOOD           9
+#define H_HOOK_DRINK          10
+#define H_HOOK_POISON         11
+#define H_HOOK_CONSUME        12
 
 // the possible consumer types
 #define H_HOOK_SURVEYOR       1

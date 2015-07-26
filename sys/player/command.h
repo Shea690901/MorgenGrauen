@@ -28,8 +28,8 @@ mixed modify_command(string str);
 int command_me(string cmd);
 
 // Set- und Query-Methoden
-static mapping _set_p_lib_disablecommands(mixed data);
-static mapping _query_p_lib_disablecommands();
+static mixed _set_p_lib_disablecommands(mixed data);
+static mixed _query_p_lib_disablecommands();
 
 #endif // __PLAYER_ATTRIBUTES_H_PROTO__
 

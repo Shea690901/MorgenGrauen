@@ -2,7 +2,7 @@
 //
 // player.h -- player object defines
 //
-// $Id: player.h 7242 2009-08-05 16:54:51Z Rumata $
+// $Id: player.h 7386 2010-01-22 14:59:05Z Zesstra $
 
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
@@ -37,7 +37,6 @@
 #define P_NETDEAD_INFO          "netdead_info"
 #define P_NETDEAD_ENV           "netdead_env"
 #define P_IP_NAME               "ip_name"
-#define P_AUTH_INFO             "auth_info"
 #define P_LAST_KILLER           "last_killer"
 #define P_ACTUAL_NOTIFY_FAIL    "actual_notify_fail"
 #define P_LEP                   "lep"

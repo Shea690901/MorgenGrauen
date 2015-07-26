@@ -4,13 +4,13 @@
 //
 // Zook
 
-// $Id: brett.h 7216 2009-05-26 20:17:41Z Zesstra $ 
+// $Id: brett.h 7495 2010-03-08 19:21:11Z Zesstra $ 
 
 #ifndef PARTYDIR
 #include "party.h"
 #endif
 
-#define ORGANISATOR "srabi"
+#define ORGANISATOR "mesirii"
 
 #define INFOFILE       (PARTYDIR+"info.txt")
 #define MOREINFOFILE   (PARTYDIR+"moreinfo.txt")
@@ -43,13 +43,10 @@ mapping *Fragen() {
 
     ([Q_KEY:"ankunft",
       Q_TEXT:"Ankunft",
-      Q_CHOICES:(["20":"Montag",
-                  "21":"Dienstag",
-                  "22":"Mittwoch",
-                  "23":"Donnerstag",
-                  "24":"Freitag",
-                  "25":"Samstag", ]),
-      Q_DEFAULT:"20"]),
+      Q_CHOICES:(["9":"Freitag",
+                  "10":"Samstag",
+                  "11":"Sonntag"]),
+      Q_DEFAULT:"9"]),
 
 /*    ([Q_KEY:"verpflegung",
       Q_TEXT:"Verpflegung (momentan wird HP fuer alle erwogen).",
@@ -58,9 +55,9 @@ mapping *Fragen() {
       Q_DEFAULT:"hp"]),
 */
     ([Q_KEY:"uebernachtung",
-      Q_TEXT:"Uebernachtungswunsch (Zelt, Ferienhaus, Hotel, selbstorganisiert)",
-      Q_CHOICES:({"zelt","ferienhaus","hotel", "selbstorganisiert"}),
-      Q_DEFAULT:"zelt"]),
+      Q_TEXT:"Uebernachtungswunsch (Blaues Haus, Dresdner, Hotel, selbstorganisiert)",
+      Q_CHOICES:({"blaues haus","dresdner","hotel", "selbstorganisiert"}),
+      Q_DEFAULT:"blaues haus"]),
 
      ([Q_KEY:"vegetarier",
       Q_TEXT:"Vegetarier:",
@@ -73,16 +70,16 @@ mapping *Fragen() {
       Q_DEFAULT:"ja",
       Q_BOOLEAN:1]),
 
-//        ([Q_KEY:"sonntagessen",
-//        Q_TEXT:"Moechtest Du am Sonntag zu einem Abschieds-Mittagessen?",
-//        Q_DEFAULT:"ja",
-//        Q_BOOLEAN:1]),
+        ([Q_KEY:"sonntagessen",
+        Q_TEXT:"Moechtest Du am Sonntag zu einem Abschieds-Mittagessen?",
+        Q_DEFAULT:"ja",
+        Q_BOOLEAN:1]),
 
-//      ([Q_KEY:"tshirt",
-//      Q_TEXT:"Moechtest Du ein T-Shirt (falls es eins gibt)?
-// (nein,S,M,L,XL,XXL,XXXL)",
-//      Q_CHOICES:({"nein","s","m","l","xl","xxl","xxxl"}),
-//      Q_DEFAULT:"nein"]),
+      ([Q_KEY:"goodie",
+      Q_TEXT:"Moechtest Du eine Party-Goodie, wenn es eins gibt?",
+      Q_CHOICES:({"nein","ja"}),
+      Q_DEFAULT:"ja",
+      Q_BOOLEAN:1]),
 
 
     ([Q_KEY:"familie",

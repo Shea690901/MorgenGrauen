@@ -3,7 +3,7 @@
 // scoremaster.c - Verwaltung der eindeutigen Nummernvergabe fuer NPCs und
 //		   MiniQuests sowie der Stufenpunkte, die sie geben  
 //
-// $Id: scoremaster.c 6685 2008-01-12 20:19:44Z Zesstra $
+// $Id: scoremaster.c 7532 2010-04-21 22:13:38Z Arathorn $
 #pragma strict_types
 #pragma no_clone
 #pragma no_shadow
@@ -265,7 +265,7 @@ public varargs mixed QueryNPC(int score)
   if (!previous_object())
     return SCORE_INVALID_ARG;
   
-  key=explode(object_name(previous_object()),"#")[0];
+  key = load_name(previous_object());
 
   // schon bekannter EK?
   if (member(npcs,key))
@@ -316,7 +316,7 @@ public varargs mixed NewNPC(string key,int score)
   if (!key || !stringp(key))
     return SCORE_INVALID_ARG;
   
-  key = explode(key, "#")[0];
+  key = load_name(key);
   if (val=npcs[key,NPC_NUMBER])
     return ({val,npcs[key,NPC_SCORE]});
   if (score<=0)
@@ -484,7 +484,7 @@ public varargs int SetScore(mixed key,int score)
   if (!key) return SCORE_INVALID_ARG;
 
   if (stringp(key) && strlen(key)) {
-    ob = explode(key, "#")[0];
+    ob = load_name(key);
     if (!member(npcs, ob)) return SCORE_INVALID_ARG;
     num = npcs[ob, NPC_NUMBER];
     if (ob != by_num[num, BYNUM_KEY])
@@ -650,7 +650,7 @@ public varargs int MoveScore(mixed oldkey, string newpath)
     return SCORE_INVALID_ARG;
 
   if (stringp(oldkey)) {
-    oldkey = explode(oldkey, "#")[0];
+    oldkey = load_name(oldkey); 
     num=npcs[oldkey,NPC_NUMBER];
   }
   else if (intp(oldkey)) num=oldkey;
@@ -746,7 +746,7 @@ public mixed *QueryNPCbyObject(object o)
   string key;
   int val;
 
-  key=explode(object_name(o),"#")[0];
+  key=load_name(o);
   if (member(npcs,key)) {
     val = npcs[key,NPC_NUMBER];
     return ({val, by_num[val, BYNUM_SCORE], by_num[val, BYNUM_KEY]});
@@ -766,7 +766,7 @@ public int GiveKill(object pl, int bit)
     return -1;
 
   if ((!po=previous_object()) 
-      || explode(object_name(po),"#")[0] != info[SCORE_KEY])
+      || load_name(po) != info[SCORE_KEY])
     return -2;
 
   pls=getuid(pl);
@@ -801,11 +801,10 @@ public int HasKill(mixed pl, mixed npc)
 
   if (!objectp(pl) && !stringp(pl) && !objectp(npc) && !stringp(npc))
     return 0;
-  if (!stringp(pl)) pl=getuid(pl);
-  if (objectp(npc))
-    fn=explode(object_name(npc),"#")[0];
-  else
-    fn=explode(npc,"#")[0];
+  if (!stringp(pl)) 
+    pl=getuid(pl);
+
+  fn=load_name(npc);
 
   if (!member(npcs, fn)) return 0;
   
@@ -910,7 +909,7 @@ private status ektipAllowed()
   string poName;
   status ret;
                 
-  poName=object_name(blueprint(previous_object()));        
+  poName=load_name(previous_object());        
   poOK=previous_object() && 	  
     ((previous_object()==find_object(EKTIPGIVER)) || (poName==EKTIPLIST) );
 
@@ -976,10 +975,7 @@ public int addTip(mixed key,string tip)
   if (!tip || (!objectp(key) && !stringp(key)))
     return SCORE_INVALID_ARG;
 
-  if (objectp(key))
-    fn=explode(object_name(key),"#")[0];
-  else
-    fn=explode(key,"#")[0];
+  fn=load_name(key);
 
   if (!member(npcs, fn)) return SCORE_INVALID_ARG;
   tipList+=([fn:tip]);
@@ -1003,10 +999,7 @@ public int removeTip(mixed key)
   if ((!objectp(key) && !stringp(key)))
     return SCORE_INVALID_ARG;
 
-  if (objectp(key))
-    fn=explode(object_name(key),"#")[0];
-  else
-    fn=explode(key,"#")[0];
+  fn=load_name(key);
   
   if (!member(tipList, fn)) return SCORE_INVALID_ARG;
     
@@ -1026,10 +1019,7 @@ private string getTipFromList(mixed key)
   if ((!objectp(key) && !stringp(key)))
     return "";
 
-  if (objectp(key))
-    fn=explode(object_name(key),"#")[0];
-  else
-    fn=explode(key,"#")[0];
+  fn=load_name(key);
   
   if (!member(tipList, fn)) return "";
         
@@ -1045,10 +1035,7 @@ private string _getTip(mixed key)
   if ((!objectp(key) && !stringp(key)))
     return "";
 
-  if (objectp(key))
-    fn=explode(object_name(key),"#")[0];
-  else
-    fn=explode(key,"#")[0];
+  fn=load_name(key);
   
   if(!member(npcs,fn)) return "";
   

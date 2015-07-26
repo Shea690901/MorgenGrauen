@@ -2,7 +2,7 @@
 //
 // living/life.c -- life variables
 //
-// $Id: life.c 7306 2009-09-20 13:26:03Z Zesstra $
+// $Id: life.c 7498 2010-03-09 22:05:19Z Zesstra $
 
 // living object life variables
 //
@@ -101,7 +101,7 @@ protected void create()
   nextdefueltimefood=time()+QueryProp(P_DEFUEL_TIME_FOOD);
   nextdefueltimedrink=time()+QueryProp(P_DEFUEL_TIME_DRINK);
 
-  enemy_damage=([]);
+  enemy_damage=([:2 ]);
   hp_buffer=([]);
   sp_buffer=([]);
 
@@ -113,20 +113,22 @@ protected void create()
   SetProp(P_DEFUEL_AMOUNT_DRINK,1);
 
   offerHook(H_HOOK_DIE,1);
+
+  offerHook(H_HOOK_FOOD,1);
+  offerHook(H_HOOK_DRINK,1);
+  offerHook(H_HOOK_ALCOHOL,1);
+  offerHook(H_HOOK_POISON,1);
+  offerHook(H_HOOK_CONSUME,1);
 }
 
-private void DistributeExp(object enemy, int exp_to_give)
-{ int total_damage, tmp, i, ex;
-  mixed *present_enemies;
-  object *inv,ob;
-  mapping endmg;
+private void DistributeExp(object enemy, int exp_to_give) {
+  int total_damage, tmp, ex;
+  mapping present_enemies;
 
   if ( exp_to_give<=0 )
     return;
 
-  present_enemies=({});
-  total_damage=0;
-  endmg=deep_copy(enemy_damage);
+  mapping endmg=deep_copy(enemy_damage);
 
   // Mitglieder im Team des Killers bekommen:
   //
@@ -136,34 +138,41 @@ private void DistributeExp(object enemy, int exp_to_give)
   // ---------------------------------------
   //                2
   //
-  if ( pointerp(inv=enemy->TeamMembers()) )
+  object *inv = enemy->TeamMembers();
+  if ( pointerp(inv) )
   {
-    for ( i=sizeof(inv)-1 ; i>=0 ; i-- )
+    present_enemies=m_allocate(sizeof(inv), 1);
+    foreach(object ob: inv)
     {
-      if ( objectp(ob=inv[i]) && (environment(ob)==environment()) )
+      if ( objectp(ob) && (environment(ob)==environment()) )
       {
-        tmp=endmg[ob];
+        tmp=endmg[object_name(ob)];
         total_damage+=tmp;
-        present_enemies+=({({ob,tmp/2})});
-        efun::m_delete(endmg,ob);
+        present_enemies[ob] = tmp/2;
+        efun::m_delete(endmg,object_name(ob)); //s.u.
       }
     }
-    if ( i=sizeof(present_enemies) )
+    int mitglieder = sizeof(present_enemies);
+    if ( mitglieder )
     {
-      tmp=total_damage/(2*i);
-      for ( --i ; i>=0 ; i-- )
-        present_enemies[i][1]+=tmp;
+      tmp=total_damage/(2*mitglieder);
+      foreach(object ob, int punkte: &present_enemies)
+        punkte += tmp;
     }
   }
-
-  inv=all_inventory(environment());
-  for ( i=sizeof(inv)-1 ; i>=0 ; i-- )
+  else {
+    // ohne Team wird trotzdem ein Mapping gebraucht. Da Groessenveraenderung
+    // rel. teuer sind, kann einfach mal fuer 3 Eintraege Platz reservieren.
+    present_enemies=m_allocate(3, 1);
+  }
+  // Und noch die Lebewesen im Raum ohne Team.
+  foreach(object ob: all_inventory(environment()))
   {
-    if ( tmp=endmg[ob=inv[i]] )
+    if ( tmp=endmg[object_name(ob)] )
     {
-      total_damage+=tmp;
-      present_enemies+=({({ob,tmp})});
-      efun::m_delete(endmg,ob); // Nur einmal pro Leben Punkte :)
+      total_damage += tmp;
+      present_enemies[ob] = tmp;
+      efun::m_delete(endmg,object_name(ob)); // Nur einmal pro Leben Punkte :)
     }
   }
   if ( !total_damage )
@@ -172,19 +181,18 @@ private void DistributeExp(object enemy, int exp_to_give)
   }
   else
   {
-    for ( i=sizeof(present_enemies)-1 ; i>=0 ; i-- )
+    foreach(object ob, int damage: present_enemies)
     {
-      if ( !objectp(ob=present_enemies[i][0]) )
+      if ( !objectp(ob) )
         continue;
-      if ( query_once_interactive(ob)
-          && ( !interactive(ob)
+      if ( query_once_interactive(ob) && ( !interactive(ob)
               || (query_idle(ob)>600) ) )
         continue;
       //exp_to_give*present_enemies[i][1]/total_damage gibt bei viel Schaden
       //einen numerical overflow. Daher muessen wir hier wohl doch
       //zwischenzeitlich mit floats rechnen, auch wenn das 0-1 XP Verlust
       //durch float->int-Konversion gibt. (ceil() lohnt sich IMHO nicht.)
-      ex = (int)(exp_to_give*((float)present_enemies[i][1]/(float)total_damage));
+      ex = (int)(exp_to_give*((float)damage/(float)total_damage));
       ob->AddExp(ex);
     }
   }
@@ -223,7 +231,24 @@ public int do_damage(int dam, mixed enemy)
   {
     if ( !QueryProp(P_NO_XP) )
       enemy->AddExp(dam*(int)QueryProp(P_TOTAL_WC)/10);
-    enemy_damage[enemy]+=dam;
+  }
+
+  if (living(enemy)) {
+      string enname = object_name(enemy);
+      // Hmpf. Blueprints sind doof. Die Chance ist zwar gering, aber koennte
+      // sein, dass ein Unique-NPC mit zwei verschiedenen Spielern am gleichen
+      // NPC metzelt.
+      // TODO: MHmm. wie gross ist das Risiko wirklich?
+      //if (!clonep(enemy))
+      //    enname = enname + "_" + to_string(object_time(enemy));
+      // nur wenn gegner NPC ist und noch nicht drinsteht: Daten aus
+      // P_HELPER_NPC auswerten
+      if (!member(enemy_damage,enemy) && !query_once_interactive(enemy)) {
+          mixed helper = enemy->QueryProp(P_HELPER_NPC);
+          if (pointerp(helper) && objectp(helper[0]))
+              enemy_damage[enname,1] = helper[0];
+      }
+      enemy_damage[enname,0]+=dam;
   }
 
   SetProp(P_HP, hit_point);
@@ -1247,44 +1272,149 @@ static int _set_sp( int sp )
 
 static int _set_alcohol(int n)
 {
+  if(!intp(n))
+      raise_error(sprintf(
+        "_set_alcohol(): expected <int>, got %.50O\n", n));
+
   if (QueryProp(P_GHOST))
-    return n;
-  
-  return Set(P_ALCOHOL, (n < 0 ? 0 : n));
+    return Query(P_ALCOHOL, F_VALUE);
+
+  // nur Änderungen und Werte >=0 werden gesetzt...
+  n = n < 0 ? 0 : n;
+  int old = Query(P_ALCOHOL, F_VALUE);
+  if ( old == n)
+    return old;
+
+  // Hooks aufrufen
+  int *ret = HookFlow(H_HOOK_ALCOHOL, n);
+  // Bei Abbruch alten Wert zurueckgeben
+  switch (ret[H_RETCODE]) {
+    case H_CANCELLED:
+      return old;
+    case H_ALTERED:
+      // sonst neuen Wert setzen
+      if(!intp(ret[H_RETDATA]))
+          raise_error(sprintf(
+            "_set_alcohol(): data from HookFlow() != <int>: %.50O\n",
+            ret[H_RETDATA]));
+      n = ret[H_RETDATA];
+      n = n < 0 ? 0 : n;
+
+    // H_NO_MOD is fallthrough
+  }
+
+  return Set(P_ALCOHOL, n, F_VALUE);
 }
 
 static int _set_drink(int n)
 {
+  if(!intp(n))
+      raise_error(sprintf(
+        "_set_drink(): expected <int>, got %.50O\n", n));
+
   if (QueryProp(P_GHOST))
-    return n;
-  
-  return Set(P_DRINK, (n < 0 ? 0 : n));
+    return Query(P_DRINK, F_VALUE);
+
+  // nur Änderungen und Werte >=0 werden gesetzt...
+  n = n < 0 ? 0 : n;
+  int old = Query(P_DRINK, F_VALUE);
+  if ( old == n)
+    return old;
+
+  // Hooks aufrufen
+  int *ret = HookFlow(H_HOOK_DRINK, n);
+  // Bei Abbruch alten Wert zurueckgeben
+  switch (ret[H_RETCODE]) {
+    case H_CANCELLED:
+      return old;
+    case H_ALTERED:
+      // sonst neuen Wert setzen
+      if(!intp(ret[H_RETDATA]))
+          raise_error(sprintf(
+            "_set_drink(): data from HookFlow() != <int>: %.50O\n",
+            ret[H_RETDATA]));
+      n = ret[H_RETDATA];
+      n = n < 0 ? 0 : n;
+
+    // H_NO_MOD is fallthrough
+  }
+
+  return Set(P_DRINK, n, F_VALUE);
 }
 
 static int _set_food(int n)
 {
+  if(!intp(n))
+      raise_error(sprintf(
+        "_set_food(): expected <int>, got %.50O\n", n));
+
   if (QueryProp(P_GHOST))
-    return n;
-  
-  return Set(P_FOOD, (n < 0 ? 0 : n));
+    return Query(P_FOOD, F_VALUE);
+
+  // nur Änderungen und Werte >=0 werden gesetzt...
+  n = n < 0 ? 0 : n;
+  int old = Query(P_FOOD, F_VALUE);
+  if ( old == n)
+    return old;
+
+  // Hooks aufrufen
+  int *ret = HookFlow(H_HOOK_FOOD, n);
+  // Bei Abbruch alten Wert zurueckgeben
+  switch (ret[H_RETCODE]) {
+    case H_CANCELLED:
+      return old;
+    case H_ALTERED:
+      // sonst neuen Wert setzen
+      if(!intp(ret[H_RETDATA]))
+          raise_error(sprintf(
+            "_set_food(): data from HookFlow() != <int>: %.50O\n",
+            ret[H_RETDATA]));
+      n = ret[H_RETDATA];
+      n = n < 0 ? 0 : n;
+
+    // H_NO_MOD is fallthrough
+  }
+
+  return Set(P_FOOD, n, F_VALUE);
 }
 
 static int _set_poison(int n)
 {
+    if(!intp(n))
+      raise_error(sprintf(
+        "_set_poison(): expected <int>, got %.50O\n", n));
+
+  if (QueryProp(P_GHOST))
+    return Query(P_POISON, F_VALUE);
+
   n = (n<0 ? 0 : (n>MAX_POISON ? MAX_POISON : n));
 
-  if (Query(P_POISON) == 0 && n==0)
-    return 0;
+  // nur >=0 zulassen.
+  n = n < 0 ? 0 : n;
 
-  log_file("POISON", sprintf("%s - %s: %d von %O (%s)\n",
-           dtime(time())[5..],
-           (query_once_interactive(this_object()) ?
-             capitalize(geteuid(this_object())) :
-             capitalize(name(WER))),
-           n,
-           (previous_object(2) ? previous_object(2) : previous_object(1)),
-           (this_player() ? capitalize(geteuid(this_player())) : "???")));
+  int old = Query(P_POISON, F_VALUE);
+  if ( old == 0 && n == 0)
+    return old;
 
+  // Hooks aufrufen
+  int *ret = HookFlow(H_HOOK_POISON, n);
+  // Bei Abbruch alten Wert zurueckgeben
+  switch (ret[H_RETCODE]) {
+    case H_CANCELLED:
+      return old;
+    case H_ALTERED:
+      // sonst neuen Wert setzen
+      if(!intp(ret[H_RETDATA]))
+          raise_error(sprintf(
+            "_set_poison(): data from HookFlow() != <int>: %.50O\n",
+            ret[H_RETDATA]));
+      n = ret[H_RETDATA];
+      n = n < 0 ? 0 : n;
+
+    // H_NO_MOD is fallthrough
+  }
+
+  // Fuer die Selbstheilung.
   switch(n) {
   case 1:
     drop_poison = 40+random(16);
@@ -1296,12 +1426,23 @@ static int _set_poison(int n)
     drop_poison = 18+random(4);
     break;
   }
-  return Set(P_POISON, n);
+
+  log_file("POISON", sprintf("%s - %s: %d von %O (%s)\n",
+           dtime(time())[5..],
+           (query_once_interactive(this_object()) ?
+             capitalize(geteuid(this_object())) :
+             capitalize(name(WER))),
+           n,
+           (previous_object(2) ? previous_object(2) : previous_object(1)),
+           (this_player() ? capitalize(geteuid(this_player())) : "???")));
+
+  return Set(P_POISON, n, F_VALUE);
+
 }
 
-static int _query_age() { return Set(P_AGE, age); }
+static int _query_age() { return Set(P_AGE, age, F_VALUE); }
 
-static int _set_xp(int xp) { return Set(P_XP, xp < 0 ? 0 : xp); }
+static int _set_xp(int xp) { return Set(P_XP, xp < 0 ? 0 : xp, F_VALUE); }
 
 static mixed _set_die_hook(mixed hook)
 {
@@ -1311,12 +1452,12 @@ static mixed _set_die_hook(mixed hook)
                      dtime(time())[5..],
                      (previous_object(2) ? previous_object(2):previous_object(1)),
                      this_object(),getuid(this_object())));
-  return Set(P_TMP_DIE_HOOK,hook);
+  return Set(P_TMP_DIE_HOOK,hook, F_VALUE);
 }
 
 static mapping _query_enemy_damage()
 {
-        return deep_copy(enemy_damage);
+  return copy(enemy_damage);
 }
 
 // nur ne Kopie liefern, sonst kann das jeder von aussen aendern.
@@ -1324,3 +1465,93 @@ static mapping _query_timing_map() {
   return copy(Query(P_TIMING_MAP));
 }
 
+/****************************************************************************
+ * Consume-Funktion, um zentral durch konsumierbare Dinge ausgeloeste
+ * Aenderungen des Gesundheitszustandes herbeizufuehren.
+ ***************************************************************************/
+
+/* Konsumiert etwas
+ *
+ * Rueckgabewert
+ *      1       erfolgreich konsumiert
+ *      0       fehlende oder falsche Parameter
+ *     <0       Bedingung fuer konsumieren nicht erfuellt, Bitset aus:
+ *      1       Kann nichts mehr essen
+ *      2       Kann nichts mehr trinken
+ *      4       Kann nichts mehr saufen
+ *      8       Abgebrochen durch Hook H_HOOK_CONSUME
+ */
+public varargs int consume(mapping cinfo, int testonly)
+{
+  int retval = 0;
+  // nur was tun, wenn auch Infos reinkommen
+  if (mappingp(cinfo) && sizeof(cinfo)) {
+    // Hooks aufrufen, sie aendern ggf. noch was in cinfo.
+    mixed *hret = HookFlow(H_HOOK_CONSUME, ({cinfo, testonly}) );
+    switch(hret[H_RETCODE]) {
+        case H_CANCELLED:
+          return -HC_HOOK_CANCELLATION;
+        case H_ALTERED:
+          cinfo = hret[H_RETDATA];
+    }
+    // Legacy-Mappings (flache) neben strukturierten Mappings zulassen
+    // flache Kopien erzeugen (TODO?: und fuer Teilmappings nicht relevante
+    // Eintraege loeschen)
+    mapping conditions;
+    if (mappingp(cinfo[H_CONDITIONS])) {
+      conditions = copy(cinfo[H_CONDITIONS]);
+    } else {
+      conditions = copy(cinfo);
+    }
+    mapping effects;
+    if (mappingp(cinfo[H_EFFECTS])) {
+      effects = filter(cinfo[H_EFFECTS], (: member(H_ALLOWED_EFFECTS, $1) > -1 :));
+    } else {
+      effects = filter(cinfo, (: member(H_ALLOWED_EFFECTS, $1) > -1 :));
+    }
+
+    // Bedingungen pruefen
+    if (mappingp(conditions) && sizeof(conditions)) {
+      // Bedingungen fuer Konsum auswerten
+      if (conditions[P_FOOD] && !eat_food(conditions[P_FOOD], 1))
+        retval |= HC_MAX_FOOD_REACHED;
+      else if (conditions[P_DRINK] && !drink_soft(conditions[P_DRINK], 1))
+        retval |= HC_MAX_DRINK_REACHED;
+      else if (conditions[P_ALCOHOL] && !drink_alcohol(conditions[P_ALCOHOL], 1))
+        retval |= HC_MAX_ALCOHOL_REACHED;
+      // retval negativ machen, damit Fehler leicht erkennbar ist
+      retval = -retval;
+    }
+    // Bedingungen wurden abgearbeitet, jetzt die Heilung durchfuehren
+    if (!retval) {
+      if (!testonly) {
+        // Bedingungen erfuellen, wenn alles passt und kein Test
+        if (conditions[P_ALCOHOL])
+          drink_alcohol(conditions[P_ALCOHOL]);
+        if (conditions[P_DRINK])
+          drink_soft(conditions[P_DRINK]);
+        if (conditions[P_FOOD])
+          eat_food(conditions[P_FOOD]);
+        // Und jetzt die Wirkungen
+        if (effects[P_POISON])
+          SetProp(P_POISON, QueryProp(P_POISON) + effects[P_POISON]);
+        // Und nun wirklich heilen
+        switch (cinfo[H_DISTRIBUTION]) {
+        case HD_INSTANT:
+          map(effects, (: SetProp($1, QueryProp($1) + $2) :));
+          break;
+        case 1..50:
+          buffer_hp(effects[P_HP], cinfo[H_DISTRIBUTION]);
+          buffer_sp(effects[P_SP], cinfo[H_DISTRIBUTION]);
+          break;
+        default:
+          buffer_hp(effects[P_HP], HD_STANDARD);
+          buffer_sp(effects[P_SP], HD_STANDARD);
+          break;
+        }
+      }
+      retval = 1;
+    }
+  }
+  return retval;
+}

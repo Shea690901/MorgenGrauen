@@ -11,6 +11,8 @@ ARGUMENTE:
 BESCHREIBUNG:
     Erhoeht die LP eines Spielers automatisch insgesamt um den Wert "val".
     Pro heart_beat() wird ihm dabei der Wert "rate" zugefuehrt.
+    Sollen neben P_HP noch weitere Props manipuliert werden - bspw. zur
+    P_FOOD - bietet sich die Funktion consume() an.
 
 RUECKGABEWERTE:
     Der getankte Wert pro heart_beat().
@@ -66,10 +68,11 @@ BEISPIEL:
 
 SIEHE AUCH:
 ----------
-     heilung, drink_alcohol, drink_soft, heal_self, restore_spell_points,
+     consume, drink_alcohol, drink_soft, heal_self, restore_spell_points,
      reduce_hit_points, check_and_update_timed_key, buffer_sp, eat_food,
-     enttanken, defuel_drink, defuel_food, reduce_food, reduce_drink,
-     reduce_alcohol, P_DRINK, P_FOOD, P_ALCOHOL, P_LAST_XP, food
-
+     defuel_drink, defuel_food,
+     P_DRINK, P_FOOD, P_ALCOHOL,
+     food, enttanken, heilung
 ----------------------------------------------------------------------------
-Last modified: Mit Aug 13 02:02:02 2003 by Gabylon
+27.10.2009, Zesstra
+
