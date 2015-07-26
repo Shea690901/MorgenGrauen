@@ -1,3 +1,6 @@
+// Aenderungshistorie:
+// 25.07.2015, Amaryllis: QueryFish implementiert, AddFishFood an/von Fraggle adaptiert
+
 inherit "/std/container";
 
 #include <moving.h>
@@ -17,6 +20,14 @@ private int waagen_preis_faktor=4; // Um wieviel teurer als in Laeden wird
 
 private int get_price();
 private void RemoveFish();
+
+// Amaryllis, 25.07.2015: QueryFish "quick and dirty" reingehackt, 
+// damits funktioniert. Kann man sicher besser machen...
+private int QueryFish(object ob); // wird hier im Objekt in PreventInsert verwendet
+
+private int QueryFish(object ob) {
+  return (objectp(ob))&&(ob->id(FISCH_ID));
+}
 
 private int SetFactors(int good_value, int bad_value) {
   FAC=good_value;
@@ -138,7 +149,8 @@ private int get_price() {
 }
 
 int PreventInsert(object obj) {
-  if( objectp(obj) && obj->QueryFish() )
+//  if( objectp(obj) && obj->QueryFish() )
+  if( objectp(obj) && QueryFish(obj) )
     return ::PreventInsert(obj);
   write("Das ist eine Fischwaage! Und keine Waage fuer "+obj->name(WEN)+
     ".\n");
@@ -157,7 +169,9 @@ private void RemoveFish() {
     pub = ETO;
 
   foreach(object ob : all_inventory(ME)) {
-    pub->AddFishFood(ob);
+    // pub->AddFishFood(ob);
+    // Amaryllis, 25.07.2015: Angepasst wegen AddFishFood von Fraggle
+    pub->AddFishFood(ob->name(WER,0),ob->QueryProp(P_WEIGHT),ob->QueryQuality());
     ob->remove();
   }
 }
