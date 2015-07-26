@@ -15,7 +15,7 @@ BESCHREIBUNG:
 
      Setzt man diese Property auf 0, so ist das Objekt unsichtbar, allerdings
      ansprechbar, wenn der Spieler eine ID des Objektes kennt. D.h. Objekte
-     genommen mitgenommen, weggeworfen oder ggf. auch angegriffen werden. Will
+     koennen mitgenommen, weggeworfen oder ggf. auch angegriffen werden. Will
      man dies nicht, sollte man das Objekt mit P_INVIS unsichtbar machen.
 
      Diese Property bestimmt die Ansicht des Objektes von aussen. Fuer die
@@ -37,5 +37,5 @@ SIEHE AUCH:
      Sonstiges:		P_INT_SHORT, process_string()
 
 ----------------------------------------------------------------------------
-03.03.2013, Zesstra
+27.05.2015, Zesstra
 

@@ -66,19 +66,16 @@ Welche Hooks gibt es zur Zeit in der Basis-Mudlib?
   nochmal geaendert werden. Auch ein Abbruch des Attack() ist hier noch
   moeglich.
 * H_HOOK_ALCOHOL
-  Bei Veraenderung von P_ALCOHOL im Lebewesens gerufen. (Zur Zeit keine
-  Datenveraenderung moeglich)
+  Bei Veraenderung von P_ALCOHOL im Lebewesens gerufen.
 * H_HOOK_FOOD
-  Bei Veraenderung von P_FOOD im Lebewesens gerufen. (Zur Zeit keine
-  Datenveraenderung moeglich)
+  Bei Veraenderung von P_FOOD im Lebewesens gerufen.
 * H_HOOK_DRINK
-  Bei Veraenderung von P_DRINK im Lebewesens gerufen. (Zur Zeit keine
-  Datenveraenderung moeglich)
+  Bei Veraenderung von P_DRINK im Lebewesens gerufen.
 * H_HOOK_POISON
   Bei Veraenderung von P_POISON im Lebewesens gerufen.
 * H_HOOK_CONSUME
   Beim Konsumieren von Speisen und Getraenken in Kneipen im Lebewesens
-  gerufen. (Zur Zeit keine Datenveraenderung moeglich)
+  gerufen.
 * H_HOOK_TEAMROWCHANGE
   Bei Teamreihenwechsel vom Lebewesen ausgeloest.
 * H_HOOK_INSERT

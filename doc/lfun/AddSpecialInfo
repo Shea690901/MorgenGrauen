@@ -1,6 +1,6 @@
 AddSpecialInfo()
 FUNKTION:
-     varargs void AddInfo( frage, meldung
+     varargs void AddSpecialInfo( frage, meldung
 			   [, indent [, [silent [, casebased] ] ] );
 
 ARGUMENTE:
@@ -26,11 +26,11 @@ BESCHREIBUNG:
      Fuer die Beschreibung der weiteren Parameter siehe man AddInfo(L).
 
      AddSpecialInfo(keys, "function", ...) entspricht:
-     - AddInfo(keys, #'function,...) oder
+     - AddInfo(keys, #'function, ...) 
 
 BEMERKUNGEN:
      Da AddSpecialInfo() und AddInfo() auf die gleichen Daten zugreifen,
-     kann man Informationen, die mit AddSpecialInfo() gesetzt wurden auch
+     kann man Informationen, die mit AddSpecialInfo() gesetzt wurden, auch
      mit RemoveInfo() entfernen. Es gibt kein RemoveSpecialInfo().
 
 BEISPIELE:

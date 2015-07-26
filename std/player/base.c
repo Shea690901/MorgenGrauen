@@ -2,7 +2,7 @@
 //
 // player/base.c -- the basic player object
 //
-// $Id: base.c 9188 2015-04-01 11:33:13Z Arathorn $
+// $Id: base.c 9244 2015-05-31 21:59:27Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -1463,7 +1463,7 @@ void smart_log(string myname, string str)
 
   tell_object(this_object(), break_string( sprintf(
     "Du hast an %s erfolgreich %s abgesetzt.\n"
-    "Die ID des abgesetzten Fehlers lautet: %s\n",
+    "Die ID der abgesetzten Meldung lautet: %s\n",
     (obj->IsRoom() ? "diesem Raum" : obj->name(WEM,1)),desc,
     hashkey||"N/A"),78,BS_LEAVE_MY_LFS));
 }
@@ -2931,7 +2931,7 @@ private void load_auto_object( string file, mixed data )
     m_delete( autoload_rest, file );
     autoload_error-=({file});
 
-    if ( file == "/items/money" )
+    if ( file == "/obj/money" )
       file = "/items/money";
     if ( file == "/obj/seercard" )
       file = "/items/seercard";

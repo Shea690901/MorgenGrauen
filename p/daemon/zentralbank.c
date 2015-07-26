@@ -1,7 +1,7 @@
 // MorgenGrauen MUDlib
 //
 // zentralbank.c -- Zentrale Geld-Verwaltung der Haendler im MG
-// $Id: zentralbank.c 8966 2014-11-19 21:41:12Z Zesstra $
+// $Id: zentralbank.c 9223 2015-05-27 21:46:58Z Zesstra $
 //
 /*
  * $Log: zentralbank.c,v $
@@ -117,7 +117,7 @@ private void log_state()
 
 public varargs void PayIn(int amount, int percent)
 {
-  if (amount<0) return;
+  if (amount<=0) return;
   percent|=bank_default_percent;
   allmoney+=amount*percent/100;
   log_file("ZENTRALBANK",
@@ -130,7 +130,7 @@ public int WithDraw(int amount)
 {
   int got;
 
-  if (!amount) return 0;
+  if (amount<=0) return 0;
   if (allmoney<0) allmoney=0;
   if (!allmoney)
     got=0;

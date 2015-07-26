@@ -403,7 +403,7 @@ public int CmdFehlerListe(string arg) {
     foreach(string uid, < <int|string>* >* list : typemap)
     {
       if (!sizeof(list)) continue;
-      if (member(filteruids, uid) > -1) continue;
+      if (filterstatus && member(filteruids, uid) > -1) continue;
       //txt+=sprintf("%s:\n", uid);
       foreach(<int|string>* row : list)
       {

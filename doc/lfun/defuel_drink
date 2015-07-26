@@ -37,7 +37,6 @@ BEISPIEL:
     s. Bsp. zu defuel_food()
 
 SIEHE AUCH:
-----------
      heilung, drink_alcohol, drink_soft, heal_self, restore_spell_points,
      reduce_hit_points, check_and_update_timed_key, buffer_sp, buffer_hp,
      enttanken, eat_food, defuel_food, reduce_food, reduce_drink,

@@ -969,7 +969,7 @@ static string PlayerAge(object obj)
   if(!obj)
     return NULL;
   i=(int)obj->QueryProp(P_AGE);
-  str=" "+ARIGHT(""+(i/43200), 3, ".");
+  str=" "+ARIGHT(""+(i/43200), 4, ".");
   i-=(i/43200)*43200;
   return str+":"+ARIGHT(""+(i/1800), 2, "0");
 }

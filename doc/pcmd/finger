@@ -43,7 +43,7 @@ finger
     unsichtbar anwesend war. Um dieses Verhalten zu unterdruecken, ist die
     Option `-v' vorhanden.
 
-    Ist der Spieler als abwesend gekennzeichnet, wird zeigt 'finger' die
+    Ist der Spieler als abwesend gekennzeichnet, zeigt 'finger' die
     Wegmeldung des Spielers an.
     Will man nur wissen, ob ein Spieler als abwesend gekennzeichnet ist, 
     kann man den Befehl 'wegmeldung' benutzen.
@@ -52,4 +52,4 @@ finger
     avatar, email, url, messenger, icq, ort, weg, (wegmeldung)
 
  LETZTE AeNDERUNG:
-    25.08.2011, Zesstra
+    27.05.2015, Boing

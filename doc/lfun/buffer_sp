@@ -26,7 +26,6 @@ BEISPIEL:
     s. Bsp. zu "buffer_hp"
 
 SIEHE AUCH:
-----------
      consume, drink_alcohol, drink_soft, heal_self, restore_spell_points,
      reduce_hit_points, check_and_update_timed_key, buffer_hp, eat_food,
      defuel_drink, defuel_food

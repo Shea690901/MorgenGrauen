@@ -112,7 +112,7 @@ int PreventInsert(object obj)
 }
 
 // Transferiert den Inhalt der Flasche an <dest>
-private int transfer_to(object dest)
+protected int transfer_to(object dest)
 {
   int water=QueryProp(P_WATER);
   if (!water)
@@ -155,7 +155,7 @@ public int empty()
 }
 
 // Fuellt die Flasche aus <src>
-private int fill_bottle(object src)
+protected int fill_bottle(object src)
 {
   int liquidtype = src->QueryProp(P_WATER);
   if(liquidtype)

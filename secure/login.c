@@ -2,7 +2,7 @@
 //
 // login.c -- Object for players just logging in
 //
-// $Id: login.c 9013 2015-01-08 18:01:50Z Arathorn $
+// $Id: login.c 9245 2015-06-04 13:04:39Z Arathorn $
 
  /*
  * secure/login.c
@@ -668,7 +668,7 @@ static void ask_race_question()
 
     write( break_string( "\nDurch Eingabe einer Ziffer waehlst Du die Rasse "
                          "aus, durch Eingabe eines \"\?\" gefolgt von einer "
-                         "Ziffer erhaelst Du naehere Informationen ueber "
+                         "Ziffer erhaeltst Du naehere Informationen ueber "
                          "eine Rasse. Ein \"\?\" allein wiederholt diese "
                          "Liste.", 78, 0, 1 ) );
 

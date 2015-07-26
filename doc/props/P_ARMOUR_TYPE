@@ -26,7 +26,9 @@ BESCHREIBUNG:
      Der Ruestungstyp AT_MISC ist schnoedem Tand und anderem nutzlosen
      Kram vorbehalten. Auf keinen Fall darf eine AT_MISC-Ruestung ueber
      eine AC > 0 verfuegen noch irgendwie kampfrelevante Bedeutung be-
-     sitzen.
+     sitzen. Ruestungen des Typs AT_MISC, die KEINE DefendFunc benoetigen,
+     muessen mittels /std/clothing als einfaches Kleidungsstueck realisiert
+     werden.
 
 BEMERKUNGEN:
      Die P_AC wird bei AT_MISC-Ruestungen gar nicht erst ausgewertet.
@@ -35,10 +37,10 @@ BEMERKUNGEN:
      der Balance in eurem Fall erlaubt sind.
 
 SIEHE AUCH:
-     Verwandt:		QueryArmourByType(L), P_WEAPON
-     Ruestungen:	P_AC, P_NR_HANDS (Schilde)
-     Sonstiges:		P_EQUIP_TIME, P_LAST_USE
-     Code:		/std/armour.c
-     Gildenergaenzung:	P_GLOVE_FINGERLESS
+     Verwandt:          QueryArmourByType(L), P_WEAPON
+     Ruestungen:        P_AC, P_NR_HANDS (Schilde)
+     Sonstiges:         P_EQUIP_TIME, P_LAST_USE
+     Code:              /std/armour.c, /std/clothing.c
+     Gildenergaenzung:  P_GLOVE_FINGERLESS
 
-06. Juli 2014, Arathorn
+27. Mai 2015, Arathorn

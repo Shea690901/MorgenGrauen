@@ -8,11 +8,6 @@ static efun_all_inventory( arg )
 	return all_inventory( arg );
 }
 
-static efun_assoc( arg1, arg2, arg3, arg4 )
-{
-	return assoc( arg1, arg2, arg3, arg4 );
-}
-
 static efun_break_string( arg1, arg2, arg3 )
 {
 	return break_string( arg1, arg2, arg3 );
@@ -108,19 +103,9 @@ static efun_implode( arg1, arg2 )
 	return implode( arg1, arg2 );
 }
 
-static efun_insert_alist( arg1, arg2, arg3 )
-{
-	return insert_alist( arg1, arg2, arg3 );
-}
-
 static efun_interactive( arg )
 {
 	return interactive( arg );
-}
-
-static efun_intersect_alist( arg1, arg2 )
-{
-	return intersect_alist( arg1, arg2 );
 }
 
 static efun_intp( arg )
@@ -161,11 +146,6 @@ static efun_member( arg1, arg2 )
 static efun_objectp( arg )
 {
 	return objectp( arg );
-}
-
-static efun_order_alist( arg1, arg2, arg3 )
-{
-	return order_alist( arg1, arg2, arg3 );
 }
 
 static efun_pointerp( arg )

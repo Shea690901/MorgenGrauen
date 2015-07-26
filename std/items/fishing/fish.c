@@ -118,7 +118,7 @@ void init() {
 }
  
 varargs string long(int mode) {
-  string pron = QueryPronoun(WER);
+  string pron = capitalize(QueryPronoun(WER));
   string txt = QueryProp(P_LONG);
  
   switch(QueryQuality()) {

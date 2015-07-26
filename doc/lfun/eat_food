@@ -11,6 +11,8 @@ ARGUMENTE:
               im normalen Betrieb auf '0' stehen!
     mytext: Wer selber einen Text bei Misserfolg ausgeben lassen moechte,
             darf sich hier was nettes ausdenken.
+            Achtung: Das unterdrueckt nicht die "Hunger"-Meldung, die bei
+            negativem food auftreten kann, wenn P_FOOD wieder 0 ist.
 
 BESCHREIBUNG:
     Es wird geprueft, ob dem Spieler der angebene Wert "food" auf seine
@@ -65,7 +67,6 @@ BEISPIEL:
      }
 
 SIEHE AUCH:
-----------
      consume, drink_alcohol, eat_food, heal_self, restore_spell_points,
      reduce_hit_points, check_and_update_timed_key, buffer_hp, buffer_sp,
      defuel_drink, defuel_food,

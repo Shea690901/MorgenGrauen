@@ -39,7 +39,7 @@ protected void create()
           "gilde TEXT NOT NULL, rasse TEXT NOT NULL, "
           "age DATETIME, wizlevel INTEGER, "
           "lastupdate DATETIME DEFAULT current_timestamp, "
-          "lep INTEGER, qp INTEGER, xp INTEGER, "
+          "lep INTEGER, qp INTEGER, xp INTEGER, level INTEGER"
           "hardcore INTEGER);");
   sl_exec("CREATE INDEX IF NOT EXISTS idx_gilde ON topliste(gilde);");
   sl_exec("CREATE INDEX IF NOT EXISTS idx_rasse ON topliste(rasse);");
@@ -50,6 +50,21 @@ protected void create()
                             "listen", this_object()) <= 0)
   {
     raise_error("Loginevent konnte nicht abonniert werden.\n");
+  }
+  if (EVENTD->RegisterEvent(EVT_LIB_ADVANCE,
+                            "listen", this_object()) <= 0)
+  {
+    raise_error("EVT_LIB_ADVANCE konnte nicht abonniert werden.\n");
+  }
+  if (EVENTD->RegisterEvent(EVT_LIB_ADVANCE,
+                            "listen", this_object()) <= 0)
+  {
+    raise_error("EVT_LIB_ADVANCE konnte nicht abonniert werden.\n");
+  }
+  if (EVENTD->RegisterEvent(EVT_LIB_MINIQUEST_SOLVED,
+                            "listen", this_object()) <= 0)
+  {
+    raise_error("EVT_LIB_MINIQUEST_SOLVED konnte nicht abonniert werden.\n");
   }
 }
 
@@ -64,8 +79,8 @@ private void process()
       return;
     }
     sl_exec("INSERT OR REPLACE INTO topliste(name, gilde, rasse, "
-                "age, wizlevel, lastupdate, lep, qp, xp,hardcore) "
-                "VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10);",
+                "age, wizlevel, lastupdate, lep, qp, xp, level, hardcore) "
+                "VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11);",
                 pl->query_real_name(),
                 pl->QueryProp(P_GUILD) || "unbekannt",
                 pl->QueryProp(P_RACE),
@@ -75,6 +90,7 @@ private void process()
                 LEPMASTER->QueryLEPForPlayer(pl),
                 pl->QueryProp(P_QP),
                 pl->QueryProp(P_XP),
+                pl->QueryProp(P_LEVEL),
                 pl->query_hc_play()
                );
     pl=0;
@@ -111,29 +127,30 @@ public varargs < <string|int>* >* Liste(string rasse, string gilde,
 {
   // Defaults:
   sort ||= "lep";
-  // Einschraenken auf 1-100
-  limit = min(limit,100);
-  limit = max(limit,1);
+  if (!limit || limit > 100)
+    limit=100;
+  else if (limit < 1)
+    limit=1;
   if (rasse && gilde)
     return sl_exec(
-        "select name,lep,qp,xp,age,rasse,gilde,wizlevel,hardcore from topliste "
+        "select name,lep,qp,xp,level,age,rasse,gilde,wizlevel,hardcore from topliste "
         "WHERE rasse=?1 AND gilde=?2 "
         "ORDER BY "+sort+" DESC LIMIT "+limit+";",
         rasse, gilde);
   else if (rasse)
     return sl_exec(
-        "select name,lep,qp,xp,age,rasse,gilde,wizlevel,hardcore from topliste "
+        "select name,lep,qp,xp,level,age,rasse,gilde,wizlevel,hardcore from topliste "
         "WHERE rasse=?1 "
         "ORDER BY "+sort+" DESC LIMIT "+limit+";",
         rasse);
   else if (gilde)
     return sl_exec(
-        "select name,lep,qp,xp,age,rasse,gilde,wizlevel,hardcore from topliste "
+        "select name,lep,qp,xp,level,age,rasse,gilde,wizlevel,hardcore from topliste "
         "WHERE gilde=?1 "
         "ORDER BY "+sort+" DESC LIMIT "+limit+";",
         gilde);
   return sl_exec(
-      "select name,lep,qp,xp,age,rasse,gilde,wizlevel,hardcore from topliste "
+      "select name,lep,qp,xp,level,age,rasse,gilde,wizlevel,hardcore from topliste "
       "ORDER BY "+sort+" DESC LIMIT "+limit+";");
 }
 
@@ -142,29 +159,30 @@ public varargs < <string|int>* >* SpielerListe(string rasse, string gilde,
 {
   // Defaults:
   sort ||= "lep";
-  // Einschraenken auf 1-100
-  limit = min(limit,100);
-  limit = max(limit,1);
+  if (!limit || limit > 100)
+    limit=100;
+  else if (limit < 1)
+    limit=1;
   if (rasse && gilde)
     return sl_exec(
-        "select name,lep,qp,xp,age,rasse,gilde,wizlevel,hardcore from topliste "
+        "select name,lep,qp,xp,level,age,rasse,gilde,wizlevel,hardcore from topliste "
         "WHERE rasse=?1 AND gilde=?2 AND wizlevel=0 "
         "ORDER BY "+sort+" DESC LIMIT "+limit+";",
         rasse, gilde);
   else if (rasse)
     return sl_exec(
-        "select name,lep,qp,xp,age,rasse,gilde,wizlevel,hardcore from topliste "
+        "select name,lep,qp,xp,level,age,rasse,gilde,wizlevel,hardcore from topliste "
         "WHERE rasse=?1 AND wizlevel=0 "
         "ORDER BY "+sort+" DESC LIMIT "+limit+";",
         rasse);
   else if (gilde)
     return sl_exec(
-        "select name,lep,qp,xp,age,rasse,gilde,wizlevel,hardcore from topliste "
+        "select name,lep,qp,xp,level,age,rasse,gilde,wizlevel,hardcore from topliste "
         "WHERE gilde=?1 AND wizlevel=0 "
         "ORDER BY "+sort+" DESC LIMIT "+limit+";",
         gilde);
   return sl_exec(
-      "select name,lep,qp,xp,age,rasse,gilde,wizlevel,hardcore from topliste "
+      "select name,lep,qp,xp,level,age,rasse,gilde,wizlevel,hardcore from topliste "
       "WHERE wizlevel=0 "
       "ORDER BY "+sort+" DESC LIMIT "+limit+";");
 }
@@ -174,29 +192,30 @@ public varargs < <string|int>* >* SeherListe(string rasse, string gilde,
 {
   // Defaults:
   sort ||= "lep";
-  // Einschraenken auf 1-100
-  limit = min(limit,100);
-  limit = max(limit,1);
+  if (!limit || limit > 100)
+    limit=100;
+  else if (limit < 1)
+    limit=1;
   if (rasse && gilde)
     return sl_exec(
-        "select name,lep,qp,xp,age,rasse,gilde,wizlevel,hardcore from topliste "
+        "select name,lep,qp,xp,level,age,rasse,gilde,wizlevel,hardcore from topliste "
         "WHERE rasse=?1 AND gilde=?2 AND wizlevel=1 "
         "ORDER BY "+sort+" DESC LIMIT "+limit+";",
         rasse, gilde);
   else if (rasse)
     return sl_exec(
-        "select name,lep,qp,xp,age,rasse,gilde,wizlevel,hardcore from topliste "
+        "select name,lep,qp,xp,level,age,rasse,gilde,wizlevel,hardcore from topliste "
         "WHERE rasse=?1 AND wizlevel=1 "
         "ORDER BY "+sort+" DESC LIMIT "+limit+";",
         rasse);
   else if (gilde)
     return sl_exec(
-        "select name,lep,qp,xp,age,rasse,gilde,wizlevel,hardcore from topliste "
+        "select name,lep,qp,xp,level,age,rasse,gilde,wizlevel,hardcore from topliste "
         "WHERE gilde=?1 AND wizlevel=1 "
         "ORDER BY "+sort+" DESC LIMIT "+limit+";",
         gilde);
   return sl_exec(
-      "select name,lep,qp,xp,age,rasse,gilde,wizlevel,hardcore from topliste "
+      "select name,lep,qp,xp,level,age,rasse,gilde,wizlevel,hardcore from topliste "
       "WHERE wizlevel=1 "
       "ORDER BY "+sort+" DESC LIMIT "+limit+";");
 }
@@ -206,29 +225,30 @@ public varargs < <string|int>* >* HardcoreListe(string rasse, string gilde,
 {
   // Defaults:
   sort ||= "lep";
-  // Einschraenken auf 1-100
-  limit = min(limit,100);
-  limit = max(limit,1);
+  if (!limit || limit > 100)
+    limit=100;
+  else if (limit < 1)
+    limit=1;
   if (rasse && gilde)
     return sl_exec(
-        "select name,lep,qp,xp,age,rasse,gilde,wizlevel,hardcore from topliste "
+        "select name,lep,qp,xp,level,age,rasse,gilde,wizlevel,hardcore from topliste "
         "WHERE rasse=?1 AND gilde=?2 AND hardcore>0 "
         "ORDER BY "+sort+" DESC LIMIT "+limit+";",
         rasse, gilde);
   else if (rasse)
     return sl_exec(
-        "select name,lep,qp,xp,age,rasse,gilde,wizlevel,hardcore from topliste "
+        "select name,lep,qp,xp,level,age,rasse,gilde,wizlevel,hardcore from topliste "
         "WHERE rasse=?1 AND hardcore>0 "
         "ORDER BY "+sort+" DESC LIMIT "+limit+";",
         rasse);
   else if (gilde)
     return sl_exec(
-        "select name,lep,qp,xp,age,rasse,gilde,wizlevel,hardcore from topliste "
+        "select name,lep,qp,xp,level,age,rasse,gilde,wizlevel,hardcore from topliste "
         "WHERE gilde=?1 AND hardcore>0 "
         "ORDER BY "+sort+" DESC LIMIT "+limit+";",
         gilde);
   return sl_exec(
-      "select name,lep,qp,xp,age,rasse,gilde,wizlevel,hardcore from topliste "
+      "select name,lep,qp,xp,level,age,rasse,gilde,wizlevel,hardcore from topliste "
       "WHERE hardcore>0 "
       "ORDER BY "+sort+" DESC LIMIT "+limit+";");
 }
@@ -255,6 +275,6 @@ void reset()
 //                time()-90*24*3600);
   sl_exec("DELETE FROM topliste WHERE name IN (SELECT name FROM topliste "
           "ORDER BY lep DESC LIMIT 1000, -1);");
-  set_next_reset(3600*24);
+  set_next_reset(86400);
 }
 

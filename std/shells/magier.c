@@ -2,7 +2,7 @@
 //
 // shells/magier.c -- magier shell
 //
-// $Id: magier.c 8675 2014-02-18 20:39:54Z Zesstra $
+// $Id: magier.c 9231 2015-05-27 21:53:32Z Zesstra $
 
 //
 // Magiershell Basisfile
@@ -55,7 +55,7 @@ protected void create()
   Set(P_TRANK_FINDEN, SAVE, F_MODE);
   Set(P_HANDS, SAVE, F_MODE);
   Set(P_RACESTRING, SAVE, F_MODE);
-  SetDefaultHome("gilden/abenteurer");
+  SetDefaultHome("/gilden/abenteurer");
   SetProp(P_ENEMY_DEATH_SEQUENCE,
     ([17:"Der Tod schuettelt verstaendnislos den Kopf.\n\n",
       18:"Der Tod sagt: WIESO MUSSTEST DU DICH AUCH UNBEDINGT "

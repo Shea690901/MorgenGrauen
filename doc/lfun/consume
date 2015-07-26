@@ -60,13 +60,13 @@ BEMERKUNGEN:
 BEISPIELE:
     Heilung um 100 KP, 50 LP, aber nur wenn 30 P_FOOD gegessen werden kann:
 
-    consume( ([H_EFFECT: ([P_HP:50, P_SP:100]),
+    consume( ([H_EFFECTS: ([P_HP:50, P_SP:100]),
                H_CONDITIONS: ([P_FOOD:30]) ]) );
 
     Heilung um 100 KP und Vergiftung um 2, wenn 15 Alkohol getrunken werden
     koennen. Die SP werden zeitverzoegert mit 10 pro Heartbeat zugefuehrt.
 
-    consume(([H_EFFECT: ([P_SP: 100, P_POISON: 2]),
+    consume(([H_EFFECTS: ([P_SP: 100, P_POISON: 2]),
               H_CONDITIONS: ([P_ALCOHOL: 15]),
               H_DISTRIBUTION: 10]) )
 
@@ -75,5 +75,5 @@ SIEHE AUCH:
     buffer_hp, buffer_sp, drink_soft, drink_alcohol, eat_food.
 
 LETZTE AeNDERUNG:
-    27.10.2009, Zesstra
+    29.05.2015, Boing
 

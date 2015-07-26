@@ -67,7 +67,6 @@ BEISPIEL:
     20 LP in 5-LP-Schritten und 80 KP in 10-LP-Schritten gutgeschrieben.
 
 SIEHE AUCH:
-----------
      consume, drink_alcohol, drink_soft, heal_self, restore_spell_points,
      reduce_hit_points, check_and_update_timed_key, buffer_sp, eat_food,
      defuel_drink, defuel_food,

@@ -27,8 +27,6 @@ BESCHREIBUNG:
        "Jemand". Zusaetzlich koennen Spieler ihn nicht mehr ansprechen, z.B.
        toeten oder knuddeln.
        (Bei magier-eigenen Kommandos ist dies evtl. nicht umgesetzt...)
-       Kaempfe werden abgebrochen, sobald ein NPC ueber P_INVIS unsichtbar
-       wird, da Spieler den NPC nicht mehr treffen koennen.
        Setzt man P_SHORT auf 0, wird der NPC nur nicht mehr in der
        Inventarliste von Behaeltern/Raeumen angezeigt, er behaelt aber seinen
        Namen und ist durch Spieler ansprechbar, wenn sie eine ID kennen. Auch
@@ -48,5 +46,5 @@ BESCHREIBUNG:
        wird.
 
 ----------------------------------------------------------------------------
-03.03.2013, Zesstra
+27.05.2015, Zesstra
 

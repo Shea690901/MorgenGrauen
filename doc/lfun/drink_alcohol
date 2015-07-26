@@ -11,6 +11,8 @@ ARGUMENTE:
               im normalen Betrieb auf '0' stehen!
     mytext: Wer selber einen Text bei Misserfolg ausgeben lassen moechte,
             darf sich hier was nettes ausdenken.
+            Achtung: Das unterdrueckt nicht die "Nuechtern"-Meldung, die bei
+            negativem strength auftreten kann, wenn P_ALCOHOL wieder 0 ist.
 
 BESCHREIBUNG:
     Es wird geprueft, ob dem Spieler der angegebene Wert fuer 'strength'
@@ -41,7 +43,6 @@ BEISPIEL:
     s. Bsp. zu eat_food
 
 SIEHE AUCH:
-----------
      consume, drink_alcohol, eat_food, heal_self, restore_spell_points,
      reduce_hit_points, check_and_update_timed_key, buffer_hp, buffer_sp,
      defuel_drink, defuel_food,

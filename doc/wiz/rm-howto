@@ -138,6 +138,7 @@ o Sollte ein Objekt aus einer anderen Region bzw. allgemein aus einem
   -- in Padreics Ruestungsskill umtragen lassen (EM ansprechen),
   -- evtl. im Gebiete vorhandene Seherhaeuser umziehen,
   -- evtl. im Gebiet vorhandene Kraeuterskill-Kraeuter beruecksichtigen,
+  -- evtl. Briefempfaenger der Postquest beruecksichtigen,
   -- ueber die Mudlib greppen lassen, um eventuell in anderen Regionen
      verwendete Referenzen auf die alten Pfade des umziehenden Codes
      zu finden und dort umzustellen. Hierbei sind in Ausnahmefaellen von

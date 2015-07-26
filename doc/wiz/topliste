@@ -28,6 +28,6 @@ Beispiele:
 Weiteres koennt ihr euch ja sicher denken.
 
 Achso, das Ergebnis sieht dann ungefaehr so aus:
-({ ({name, lep, qp, xp, age, rasse, gilde, wizlevel, hardcore}), ... })
-({({"hcplay",100,0,0,62,"Mensch","abenteurer",0, 1})})
+({ ({name, lep, qp, xp, level, age, rasse, gilde, wizlevel, hardcore}), ... })
+({({"hcplay",100,0,0,1,62,"Mensch","abenteurer",0,1})})
 

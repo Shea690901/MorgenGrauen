@@ -37,9 +37,9 @@ BEMERKUNGEN:
         abgenommen. Lediglich die Einhaltung der Kategorien ist zu beachten.
 
 BEISPIELE:
-        #include <items/kraeuter/kraeuterliste.h> // fuer Defines
-        inherit "/std/room/kraeuter"; // fuer AddPlant
-        inherit "/std/room"; // irgendein Raumobjekt inheriten...
+        #include <items/kraeuter/kraeuterliste.h>
+        inherit "/std/room/kraeuter";
+        inherit "/std/room";
         
         void create()
         {

@@ -109,16 +109,13 @@ varargs int QueryValue(object ob, int value, object client)
 
 varargs int QuerySellValue(object ob, object client)
 {
-  if (objectp(ob))
-    return QueryValue(ob,ob->QueryProp(P_VALUE),client);
-  return 0;
+  return QueryValue(ob,ob->QueryProp(P_VALUE),client);
 }
 
 varargs int QueryBuyValue(mixed ob, object client)
 {
-  if (objectp(ob))
-    return (ob->QueryProp(P_VALUE)*QueryBuyFact(client) + 50)/100; // runden...
-  return 0;
+  // Mit Runden.
+  return (ob->QueryProp(P_VALUE)*QueryBuyFact(client) + 50)/100;
 }
 
 protected void create()

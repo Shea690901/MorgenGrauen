@@ -2,7 +2,7 @@
 //
 // living/life.c -- life variables
 //
-// $Id: life.c 9107 2015-01-21 21:40:35Z Zesstra $
+// $Id: life.c 9239 2015-05-28 18:40:25Z Zesstra $
 
 // living object life variables
 //
@@ -836,8 +836,10 @@ public varargs int eat_food(int strength, int testonly, string mytext)
   if ((stuffed + strength > QueryProp(P_MAX_FOOD)) &&
       !IS_LEARNING(this_object()))
   {
-    if(!testonly)tell_object(ME, mytext||
-    "Das ist viel zu viel fuer Dich! Wie waers mit etwas leichterem?\n");
+    if(!testonly)
+        tell_object(ME,
+            mytext || "Das ist viel zu viel fuer Dich! Wie waers mit etwas "
+            "leichterem?\n");
     return 0;
   }
   if(testonly)return 1;
@@ -1510,11 +1512,13 @@ public varargs int consume(mapping cinfo, int testonly)
   if (mappingp(cinfo) && sizeof(cinfo)) {
     // Hooks aufrufen, sie aendern ggf. noch was in cinfo.
     mixed *hret = HookFlow(H_HOOK_CONSUME, ({cinfo, testonly}) );
-    switch(hret[H_RETCODE]) {
+    switch(hret[H_RETCODE])
+    {
         case H_CANCELLED:
           return -HC_HOOK_CANCELLATION;
         case H_ALTERED:
-          cinfo = hret[H_RETDATA];
+          // testonly kann nicht geaendert werden.
+          cinfo = hret[H_RETDATA][0];
     }
     // Legacy-Mappings (flache) neben strukturierten Mappings zulassen
     // flache Kopien erzeugen (TODO?: und fuer Teilmappings nicht relevante

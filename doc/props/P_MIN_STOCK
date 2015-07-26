@@ -30,8 +30,8 @@ BEISPIEL:
 	natuerlich auch veraendern.
 
 SIEHE AUCH:
-	P_STORE_CONSUME, SetStorageRoom(), /std/store.c, /std/laden.c
+	P_STORE_CONSUME, SetStorageRoom(), /std/store.c, /std/shop.c
 	AddItem(), RemoveItem(), AddFixedObject(), RemoveFixedObject()
 
 ----------------------------------------------------------------------------
-Last modified: Wed Jan 14 19:17:06 1998 by Patryn
+Last modified: 19-Jun-2015, Arathorn 
