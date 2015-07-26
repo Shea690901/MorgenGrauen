@@ -1,6 +1,6 @@
 is_class_member()
 FUNKTION:
-     int is_class_member(mixed class);
+     int is_class_member(string|string* class);
 
 DEFINIERT IN:
      /std/thing/description.c
@@ -151,5 +151,5 @@ SIEHE AUCH:
      P_CLASS
 
 ----------------------------------------------------------------------------
-19.11.2009, Zesstra
+20.01.2015, Zesstra
 

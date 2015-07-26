@@ -2,7 +2,7 @@
 //
 // room/exits.c -- room exits handling 
 //
-// $Id: exits.c 7481 2010-02-21 15:36:28Z Zesstra $
+// $Id: exits.c 8612 2014-01-08 18:37:54Z Zesstra $
 
 /*
  * Exits of the room (obvious ones, doors, and special ones)
@@ -60,21 +60,14 @@ static mapping _set_exits( mapping map_ldfied )
 
 static mapping _query_exits() 
 {
-    mapping exits;
-    mixed key;
-    int i;
-
     if( (!previous_object() || object_name(previous_object()) != DOOR_MASTER)
         && QueryProp(P_DOOR_INFOS) )
         call_other( DOOR_MASTER, "init_doors" );
     
-    key = m_indices( exits = (Query(P_EXITS) || rescueExit()) );
-    
-    for ( i = sizeof(key); i--; )
-        if( !stringp(exits[key[i]]) )
-            exits = m_delete( exits, key[i] );
-    
-    return exits;
+    mapping exits = Query(P_EXITS) || rescueExit();
+
+    return filter(exits, function int (string key, mixed val)
+        {return stringp(val);} );
 }
 
 
@@ -86,17 +79,10 @@ static int _set_special_exits( mapping map_ldfied )
 
 static mapping _query_special_exits() 
 {
-    mapping exits;
-    mixed key;
-    int i;
+    mapping exits = Query(P_EXITS) || rescueExit();
 
-    key = m_indices( exits = (Query(P_EXITS) || rescueExit()) );
-    
-    for ( i = sizeof(key); i--; )
-        if( stringp(exits[key[i]]) )
-            exits = m_delete( exits, key[i] );
-    
-    return exits;
+    return filter(exits, function int (string key, mixed val)
+        {return closurep(val);} );
 }
 
 
@@ -153,20 +139,18 @@ void AddExit( mixed cmd, mixed room )
 void RemoveExit( mixed cmd )
 {
     mapping exita;
-    int i;
   
     if ( !cmd ) {
         SetProp(P_EXITS, ([]) );
         return;
     }
 
-    if ( !pointerp(cmd) )
+    if ( stringp(cmd) )
         cmd = ({ cmd });
 
     exita = Query(P_EXITS) || rescueExit();
-    
-    for( i = sizeof(cmd); i--; )
-        exita = m_delete( exita, cmd[i] );
+    foreach(string c : cmd)
+      m_delete( exita, c );
   
     Set( P_EXITS, exita );
 }
@@ -196,9 +180,9 @@ void RemoveSpecialExit( mixed cmd )
 
 varargs string GetExits( object viewer ) 
 {
-    int n, i;
-    string exits, *indices, *hidden;
-  
+    string *indices, *hidden;
+    string exits;
+
     if ( QueryProp(P_DOOR_INFOS) )
         call_other( DOOR_MASTER, "init_doors" );
 
@@ -206,10 +190,9 @@ varargs string GetExits( object viewer )
     
     if ( pointerp(hidden = QueryProp(P_HIDE_EXITS)) )
         indices -= hidden;
-  
-    n = sizeof( indices );
-    
-    switch (n){
+
+    int n=sizeof(indices);
+    switch (n) {
     case 0:
         return "Es gibt keine sichtbaren Ausgaenge.\n";
         
@@ -223,19 +206,14 @@ varargs string GetExits( object viewer )
     default:
         exits = "Es gibt viele sichtbare Ausgaenge: ";
     }
-    
-    for ( i = 0; i < n-2; i++ )
-        exits += indices[i] + ", ";
-    
-    exits += indices[n-2] + " und " + indices[n-1] + ".";
-    
-    return break_string( exits, 78 );
+    exits += CountUp(indices);
+    return break_string( exits+".", 78 );
 }
 
 
 // Richtungsbefehle nur interpretieren, wenn der Spieler *im* Raum steht und
 // nicht davor (Transporter etc.)/o
-void init() 
+void init()
 {
     if ( environment(this_player()) == this_object() )
         add_action( "_normalfunction", "", 1 );

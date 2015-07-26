@@ -2,7 +2,7 @@
 //
 // living/description.c -- description for living objects
 //
-// $Id: description.c 7340 2009-11-19 21:44:51Z Zesstra $
+// $Id: description.c 8755 2014-04-26 13:13:40Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -38,43 +38,53 @@ public string _query_internal_extralook() {
       //hat offenbar nen Ablaufdatum
       if ( (zeit > 0 && zeit < time()) ||
            (zeit < 0 && abs(zeit) < object_time(ME)) ) {
-	// Zeit abgelaufen oder
-	// negative "Ablaufzeit" und das Objekt ist neuer als die
-	// Eintragzeit, also loeschen und weiter (ja, das geht. ;-) und xld
-	// hat das Eintragsmapping ja noch, weitere Benutzung also moeglich.)
-	efun::m_delete(xl,key);
-	// ggf. Meldung ausgeben
-	if (interactive(ME)) {
-	  if (strlen(xld["xlende"])) {
-	    tell_object(ME,xld["xlende"]);
-	  }
-	  //kein einfacher String, aber Objekt+Funktion gegeben?
-	  else if (strlen(xld["xlendefun"]) && strlen(xld["xlobjectname"]) &&
-	    (!catch(res=call_other(xld["xlobjectname"],xld["xlendefun"],ME)
-		    ;publish))) {
-	      if (stringp(res) && strlen(res))
-		tell_object(ME,res);
-	    }
-	}
-	continue;
+        // Zeit abgelaufen oder
+        // negative "Ablaufzeit" und das Objekt ist neuer als die
+        // Eintragzeit, also loeschen und weiter (ja, das geht. ;-) und xld
+        // hat das Eintragsmapping ja noch, weitere Benutzung also moeglich.)
+        m_delete(xl,key);
+        // ggf. Meldung ausgeben
+        if (interactive(ME)) {
+          if (sizeof(xld["xlende"])) {
+            tell_object(ME,xld["xlende"]);
+          }
+          //kein einfacher String, aber Objekt+Funktion gegeben?
+          else if (sizeof(xld["xlendefun"]) && sizeof(xld["xlobjectname"]) &&
+            (!catch(res=call_other(xld["xlobjectname"],xld["xlendefun"],ME)
+                    ;publish))) {
+              if (stringp(res) && sizeof(res))
+                tell_object(ME,res);
+            }
+        }
+        continue;
       }
     }
     // Der Eintrag ist offenbar noch gueltig, Meldung anhaengen, bzw. via
     // Funktionsaufruf beschaffen.
-    if (strlen(xld["xllook"]))
+    if (sizeof(xld["xllook"]))
       look+=xld["xllook"];
-    else if (strlen(xld["xlfun"]) && strlen(xld["xlobjectname"]) &&
-	(!catch(res=call_other(xld["xlobjectname"],xld["xlfun"],ME);publish))) {
-      if (!stringp(res) || !strlen(res)) {
-	// keinen String oder leeren String gekriegt -> ueberspringen.
-	continue;
+    else if (sizeof(xld["xlfun"]) && sizeof(xld["xlobjectname"])) {
+      closure cl;
+      if (catch(cl=symbol_function(xld["xlfun"],xld["xlobjectname"]);publish)
+          || !cl) {
+          // wenn Fehler beim Laden/Closure erstellen, dann Eintrag loeschen
+          // -> Annahme, dass dieser Fehler permanent sein wird, z.B. Eintrag
+          // von Clonen
+          m_delete(xl,key);
+          continue;
       }
-      else
-	look+=res;
+      else if (!catch(res=funcall(cl, ME); publish)) {
+        if (!stringp(res) || !sizeof(res)) {
+          // keinen String oder leeren String gekriegt -> ueberspringen.
+          continue;
+        }
+        else
+          look+=res;
+      }
     }
   }
   // fertig. Wenn look nicht leer ist, zurueckgeben, sonst 0.
-  if (strlen(look))
+  if (sizeof(look))
     return(look);
   else
     return(0);
@@ -84,18 +94,18 @@ public varargs int AddExtraLook(string look, int duration, string key,
                                 string lookende, object ob) {
   mapping xl;
   string oname;
-  if (!stringp(key) || !strlen(key)) {
+  if (!stringp(key) || !sizeof(key)) {
     // Automatisch erzeugen, wenn moeglich
     if (!objectp(previous_object()) || 
-	!stringp(key=object_name(previous_object())) || !strlen(key))
+        !stringp(key=object_name(previous_object())) || !sizeof(key))
       return(-1);
   }
-  
-  if (!stringp(look) || !strlen(look))
+
+  if (!stringp(look) || !sizeof(look))
     return(-2);
   if (!intp(duration))
     return(-3);
-  
+
   xl=Query(P_INTERNAL_EXTRA_LOOK,F_VALUE); // dran denken: liefert referenz zurueck
   if (!mappingp(xl)) {
     Set(P_INTERNAL_EXTRA_LOOK, xl=([]) );
@@ -116,24 +126,31 @@ public varargs int AddExtraLook(string look, int duration, string key,
   if (objectp(ob)) {
     // Funktionsname und Objektname (als Name, damit es auch noch geht, wenn
     // das Objekt entladen wurde, Crash/reboot war etc.) speichern
-    if (!oname=object_name(blueprint(ob)))
-	oname=BLUE_NAME(ob); //BLUE_NAME nimmt explode()...
-    xl[key]=(["xlobjectname":oname,
-	      "xlfun": look,
-	     ]);
+    // Clone werden auch gespeichert, aber es wird direkt ein harter Fehler
+    // ausgeloest, wenn ein permanenter Xlook fuer einen Clone registriert
+    // werden soll: das kann nicht gehen.
+    if (!duration && clonep(ob))
+        raise_error(sprintf(
+           "AddExtraLook(): Fehlerhaftes Argument <duration>: %d, "
+           "permanente Extralooks durch Clone (%s) nicht registrierbar.\n",
+           duration, object_name(ob)));
+
+    xl[key]=(["xlobjectname":object_name(ob),
+              "xlfun": look,
+             ]);
     // ggf. Name der Funktion speichern, die bei Ablauf aufgerufen wird.
-    if (stringp(lookende) && strlen(lookende))
-	xl[key]["xlendefun"]=lookende;
+    if (stringp(lookende) && sizeof(lookende))
+        xl[key]["xlendefun"]=lookende;
   }
   else {
     // Einfacher Eintrag, nur den bearbeiteten String merken. ;-)
     xl[key]=(["xllook": break_string(replace_personal(look,({ME}),1),78,
-	                             "",BS_LEAVE_MY_LFS),
-	     ]);
+                                     "",BS_LEAVE_MY_LFS),
+             ]);
     // ggf. Meldung speichern, die bei Ablauf ausgegeben werden soll.
-    if (stringp(lookende) && strlen(lookende)) {
+    if (stringp(lookende) && sizeof(lookende)) {
       xl[key]["xlende"]=break_string(replace_personal(lookende,({ME}),1),78,
-	                             "",BS_LEAVE_MY_LFS);
+                                     "",BS_LEAVE_MY_LFS);
     }
   }
   // Endezeit vermerken.
@@ -146,10 +163,10 @@ public varargs int AddExtraLook(string look, int duration, string key,
 
 public int RemoveExtraLook(string key) {
   mapping xl;
-  if (!stringp(key) || !strlen(key)) {
+  if (!stringp(key) || !sizeof(key)) {
     // Automatisch erzeugen, wenn moeglich
     if (!objectp(previous_object()) ||
-	!stringp(key=object_name(previous_object())) || !strlen(key))
+        !stringp(key=object_name(previous_object())) || !sizeof(key))
       return(-1);
   }
   xl=Query(P_INTERNAL_EXTRA_LOOK,F_VALUE); // dran denken: liefert referenz zurueck
@@ -158,7 +175,7 @@ public int RemoveExtraLook(string key) {
   if (!member(xl,key))
     return(-2);
 
-  efun::m_delete(xl,key);
+  m_delete(xl,key);
   // Kein Set noetig, weil Query das Mapping ja als Referenz lieferte.
   return(1);
 }
@@ -170,7 +187,6 @@ void create()
   // Extralook-Property speichern und vor manueller Aenderung schuetzen
   // EMs duerfen, die wissen hoffentlich, was sie tun.
   Set(P_INTERNAL_EXTRA_LOOK, SAVE|PROTECTED, F_MODE_AS);
-  SetProp(P_LIGHT_TRANSPARENCY, 0);
   SetProp(P_CLOTHING,({}));
   AddId("Living");
 }
@@ -187,23 +203,23 @@ string condition()
  
   switch(perc) {
     case 0..9:
-	return capitalize(QueryPronoun(WER))+" steht auf der Schwelle des Todes.\n";
+        return capitalize(QueryPronoun(WER))+" steht auf der Schwelle des Todes.\n";
     case 10..19:
-	return capitalize(QueryPronoun(WER))+" braucht dringend einen Arzt.\n";
+        return capitalize(QueryPronoun(WER))+" braucht dringend einen Arzt.\n";
     case 20..29:
-	return capitalize(QueryPronoun(WER))+" ist in keiner guten Verfassung.\n";
+        return capitalize(QueryPronoun(WER))+" ist in keiner guten Verfassung.\n";
     case 30..39:
-	return capitalize(QueryPronoun(WER))+" wankt bereits bedenklich.\n";
+        return capitalize(QueryPronoun(WER))+" wankt bereits bedenklich.\n";
     case 40..49:
-	return capitalize(QueryPronoun(WER))+" macht einen mitgenommenen Eindruck.\n";
+        return capitalize(QueryPronoun(WER))+" macht einen mitgenommenen Eindruck.\n";
     case 50..59:
-	return capitalize(QueryPronoun(WER))+" sieht nicht mehr taufrisch aus.\n";
+        return capitalize(QueryPronoun(WER))+" sieht nicht mehr taufrisch aus.\n";
     case 60..69:
-	return capitalize(QueryPronoun(WER))+" ist leicht angeschlagen.\n";
+        return capitalize(QueryPronoun(WER))+" ist leicht angeschlagen.\n";
     case 70..79:
-	return capitalize(QueryPronoun(WER))+" fuehlte sich heute schon besser.\n";
+        return capitalize(QueryPronoun(WER))+" fuehlte sich heute schon besser.\n";
     case 80..89:
-	return capitalize(QueryPronoun(WER))+" ist schon etwas geschwaecht.\n";
+        return capitalize(QueryPronoun(WER))+" ist schon etwas geschwaecht.\n";
   }
   //fall-through
   return capitalize(QueryPronoun(WER))+" ist absolut fit.\n";
@@ -318,26 +334,3 @@ mapping _query_material() {
   return ([MAT_MISC_LIVING:100]);
 }
 
-static int _query_player_light()
-{  return _query_int_light()+QueryProp(P_LIGHT_MODIFIER);  }
-
-varargs int CannotSee(int silent)
-{
-   string is_blind;
-   if (is_blind = QueryProp(P_BLIND)) {
-      if (!silent) {
-         if (stringp(is_blind))
-            tell_object(this_object(), is_blind);
-         else tell_object(this_object(), "Du bist blind!\n");
-      }
-      return 2;
-   }
-   if (UseSkill(SK_NIGHTVISION)<=0 &&
-       environment() && QueryProp(P_PLAYER_LIGHT)<=0 &&
-       (!IS_LEARNER(this_object()) || !Query(P_WANTS_TO_LEARN)))
-   {
-       if (!silent) tell_object(this_object(), "Es ist zu dunkel!\n");
-       return 1;
-   }
-   return 0;
-}

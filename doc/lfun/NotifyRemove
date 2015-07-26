@@ -1,7 +1,7 @@
 NotifyRemove()
 
 FUNKTION:
-     varargs void NotifyRemove(object ob);
+     void NotifyRemove(object ob);
 
 ARGUMENTE:
      ob

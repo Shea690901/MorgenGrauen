@@ -304,15 +304,15 @@ varargs mixed test_details(string str, string def)
     strs = ({str});
     ostr = str;
 
-    if ((suf=extract(str,-1,-1))=="s" || suf=="n" || suf=="e")
+    if ((suf=str[<1..<1])=="s" || suf=="n" || suf=="e")
     {
-        ostr  = extract(str,0,-2);
+        ostr  = str[0..<2];
         strs += ({ ostr });
         ostr += ("("+suf+")");
     }
-    if ((suf=extract(str,-2,-1))=="es" || suf=="en")
+    if ((suf=str[<2..<1])=="es" || suf=="en")
     {
-        ostr  = extract(str,0,-3);
+        ostr  = str[0..<3];
         strs += ({ ostr });
         ostr += ("("+suf+")");
     }
@@ -971,7 +971,7 @@ int dirtesten(string arg)
         printf("OTEST: Es existiert kein Verzeichnis '/log/%s/'\n",u);
         return 1;
     }
-    for (i=strlen(af)-1;i>=0;i--)
+    for (i=sizeof(af)-1;i>=0;i--)
         if (((si=af[i])<48 && si!=46) || (si>57 && si<65) || si>122 ||
             (si>90 && si<97))
         {
@@ -982,12 +982,12 @@ int dirtesten(string arg)
 
 // Zu untersuchendes Verzeichnis pruefen/einlesen.
 
-    if (!vz || !stringp(vz) || strlen(vz)<3 || vz[0]!='/' || vz[<1]!='/')
+    if (!vz || !stringp(vz) || sizeof(vz)<3 || vz[0]!='/' || vz[<1]!='/')
     {
         write("OTEST: Verzeichnisname muss mit '/' beginnen und aufhoeren.\n");
         return 1;
     }
-    for (i=strlen(af)-1;i>=0;i--)
+    for (i=sizeof(af)-1;i>=0;i--)
         if (((si=af[i])<46) || (si>57 && si<65) || si>122 || (si>90 && si<97))
         {
             write("OTEST: Illegaler Filename fuer Verzeichnis.\n");
@@ -1003,8 +1003,9 @@ int dirtesten(string arg)
 
     output    = u;
 
-    if (u=catch(write_file(output,
-        sprintf("Teststart: %s\n\n",dtime(time())))) && stringp(u))
+    if (stringp(catch
+          (i=write_file(output, sprintf("Teststart: %s\n\n",dtime(time())))))
+        && i!=1)
     {
         write(break_string(
             sprintf("Fehler beim Schreiben in das File %s:\n%sAborting.",

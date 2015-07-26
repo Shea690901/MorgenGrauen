@@ -85,7 +85,7 @@ int board_help(string arg)
 int board_list(string arg)
 {
   arg=TP->_unparsed_args(1);
-  if (!strlen(arg)) (PROJECTMASTER)->ShowList();
+  if (!sizeof(arg)) (PROJECTMASTER)->ShowList();
   else PROJECTMASTER->ParseArgs(arg);
   changetime=time();
   return 1;
@@ -96,7 +96,7 @@ int board_long(string arg)
   int number;
   arg=TP->_unparsed_args(1);
   notify_fail("Syntax: projektdetail <PROJEKTNUMMER>\n");
-  if (!strlen(arg)) return 0;
+  if (!sizeof(arg)) return 0;
   if (!(number=to_int(arg))||(arg!=to_string(number))) return 0;
   notify_fail("Projektnummern koennen nur Zahlen groesser Null sein.\n");
   if (number<1) return 0;
@@ -137,7 +137,7 @@ int remproj_fun(string arg)
     return 1;
   }
   notify_fail("Syntax: removeproject NUMMER\n");
-  if (!strlen(arg)||!intp(to_int(arg))||(arg!=to_string(to_int(arg)))) return 0;
+  if (!sizeof(arg)||!intp(to_int(arg))||(arg!=to_string(to_int(arg)))) return 0;
   PROJECTMASTER->DeleteData(to_int(arg));
   return 1;
 }
@@ -166,7 +166,7 @@ int watch_fun(string arg)
     TO->remove();
     return 1;
   }
-  if (!strlen(arg))
+  if (!sizeof(arg))
   {
     tell_object(TP,BS(sprintf("Du bekommst derzeit %sInformationen "
                               "ueber Aenderungen am Projektbrett.",

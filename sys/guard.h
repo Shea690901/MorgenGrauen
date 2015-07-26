@@ -1,8 +1,8 @@
 // MorgenGrauen MUDlib
 //
-// guard.h -- Definitionen fuer Waechter-NPCs. Siehe auch /std/npc/guard.c
+// guard.h -- Definition fuer P_GUARD-Property von NPCs.
 //
-// $Id: guard.h 6603 2007-11-17 12:37:49Z Zesstra $
+// $Id: guard.h 7701 2010-10-24 20:38:37Z Zesstra $
 
 #ifndef _GUARD_H_
 #define _GUARD_H_

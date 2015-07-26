@@ -164,7 +164,7 @@ static int PreventEnter(string file)
     int i;
     status exactmatch;
     exactmatch=Query(MNPC_FLAGS) & MNPC_EXACT_AREA_MATCH;
-    if ((i=strstr(file, "#"))!=-1) file=file[i+1..<1];
+    if ((i=strstr(file, "#"))!=-1) file=file[0..i-1];
     for (i=sizeof(area)-1; i>=0; i--) {
       if (exactmatch) {
 
@@ -220,7 +220,7 @@ static int direct_move(mixed dest, int method, string direction)
                      || (string) QueryProp(P_MMSGOUT);
 
       if (stringp(textout)) {
-         if ( !strlen(direction) ) direction = 0;
+         if ( !sizeof(direction) ) direction = 0;
 
          inv = all_inventory(oldenv) - ({ this_object() });
          inv = filter( inv, #'living);
@@ -246,6 +246,7 @@ static int direct_move(mixed dest, int method, string direction)
                        capitalize(name( WER, 0 )) + " " + textin + ".\n" );
       }
   }
+  return res;
 }
 
 int Walk()

@@ -31,7 +31,7 @@ void create()
     if (IS_ARCH(geteuid()))
       logs+=(["snooplog": "/log/SNOOP"; 0; 0, "killer": "/log/KILLER"; 0; 0]);
   }
-  SetProp(P_SHORT, geteuid()+"s Logtool");
+  SetProp(P_SHORT, this_player()->Name(WESSEN)+" Logtool");
   SetProp(P_NAME, QueryProp(P_SHORT));
   SetProp(P_NODROP, 0);
   SetProp(P_NEVERDROP, 0);
@@ -48,6 +48,7 @@ void reset()
   ::reset();
   if (!clonep(ME) || !environment()) return;
   call_out("check_logs", 0);
+  set_next_reset(2*__RESET_TIME__); // kein Zufall, max. Laenge
 }
 
 varargs int move(mixed dest, int method)
@@ -147,7 +148,7 @@ static int del_log(string str)
     notify_fail("Logfile nicht in Liste enthalten.\n");
     return 0;
   }
-  logs=m_delete(logs,str);
+  logs=m_copy_delete(logs,str);
   RemoveCmd(str);
   save_object(SAVEFILE);
   write("Logfile <"+str+"> aus Liste entfernt.\n");

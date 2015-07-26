@@ -2,7 +2,7 @@
 //
 // living/attributes.c -- attributes for living objects
 //
-// $Id: attributes.c 7067 2009-01-05 21:15:59Z Zesstra $
+// $Id: attributes.c 8375 2013-02-12 21:52:58Z Zesstra $
 
 #include <sys_debug.h>
 
@@ -29,9 +29,10 @@
 #pragma pedantic
 
 #define NEED_PROTOTYPES
-
 #include <thing/properties.h>
 #include <attributes.h>
+#include <player/gmcp.h>
+#undef NEED_PROTOTYPES
 
 #include <config.h>
 #include <properties.h>
@@ -468,8 +469,8 @@ public void UpdateAttributes() {
   if ( !query_once_interactive(this_object()))
     return;
 
-  SetProp(P_MAX_HP, ((int)QueryAttribute(A_CON))*8+42+hp_off);
-  SetProp(P_MAX_SP, ((int)QueryAttribute(A_INT))*8+42+sp_off);
+  SetProp(P_MAX_HP, QueryAttribute(A_CON)*8+42+hp_off);
+  SetProp(P_MAX_SP, QueryAttribute(A_INT)*8+42+sp_off);
   
   if(QueryProp(P_HP)>QueryProp(P_MAX_HP)) {
     SetProp(P_HP,QueryProp(P_MAX_HP));
@@ -478,6 +479,11 @@ public void UpdateAttributes() {
   if(QueryProp(P_SP)>QueryProp(P_MAX_SP)) {
     SetProp(P_SP,QueryProp(P_MAX_SP));
   }
+
+  GMCP_Char( ([ A_INT: QueryAttribute(A_INT),
+                A_DEX: QueryAttribute(A_DEX),
+                A_STR: QueryAttribute(A_STR),
+                A_CON: QueryAttribute(A_CON) ]) );
 }
 
 
@@ -556,7 +562,7 @@ static mixed _set_attributes_modifier(mixed arr)
 
   // wenn Modifier kein mapping oder ein leeres Mapping: loeschen
   if ( !mappingp(map_ldfied) || !sizeof(map_ldfied))
-    efun::m_delete(attributes_modifier,fn);
+    m_delete(attributes_modifier,fn);
   else
     attributes_modifier[fn]=map_ldfied;
 
@@ -578,6 +584,7 @@ public int SetAttr(string attr, int val)
 
   attributes[attr] = val;
   UpdateAttributes();
+  return val;
 }
 
 public int SetAttribute(string attr, int val) 

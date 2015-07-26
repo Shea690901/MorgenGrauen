@@ -34,6 +34,6 @@ BEISPIELE:
 
 SIEHE AUCH:
      /std/thing/language.c
-
+     QueryPossPronoun(), QueryOwn(), QueryPronoun()
 ----------------------------------------------------------------------------
 Last modified: Wed May 8 10:22:27 1996 by Wargon

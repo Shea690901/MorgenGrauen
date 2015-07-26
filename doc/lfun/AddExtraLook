@@ -7,7 +7,9 @@ DEFINIERT IN:
 BESCHREIBUNG:
    Der Extralook erscheint in der Langbeschreibung des Lebewesens.
    Eintraege koennen mit dieser Funktion hinzugefuegt werden. Dies ist der
-   bevorzugte Weg, da er kein Objekt im Inventar des Spielers benoetigt.
+   bevorzugte Weg, wenn ansonsten extra ein Objekt im Spielerinventar abgelegt
+   werden muesste.
+   
    Alle Parameter bis auf <look> sind optional.
 
 ARGUMENTE:

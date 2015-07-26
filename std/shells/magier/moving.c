@@ -2,23 +2,24 @@
 //
 // moving.c
 //
-// $Id: moving.c 7358 2010-01-06 20:48:40Z Zesstra $
+// $Id: moving.c 9142 2015-02-04 22:17:29Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma range_check
 #pragma no_clone
 #pragma pedantic
 
-#include <wizlevels.h>
 #define NEED_PROTOTYPES
 #include <magier.h>
 #include <thing/properties.h>
-#include <thing/moving.h>
-#include <moving.h>
+#include <living/moving.h>
 #include <player.h>
+#undef NEED_PROTOTYPES
+#include <wizlevels.h>
+#include <moving.h>
 #include <properties.h>
 
-private static mixed verfolger()
+private mixed verfolger()
 {
   mixed *pur;
 
@@ -68,8 +69,8 @@ static int _in_room(string str)
   object old_room;
   string cmd,err;
 
-  if (!strlen(str=_unparsed_args()) ||
-      !strlen(str=regreplace(str,"^ *","",1)) ||
+  if (!sizeof(str=_unparsed_args()) ||
+      !sizeof(str=regreplace(str,"^ *","",1)) ||
       sscanf(str, "%s %s", room, cmd) != 2)
     return USAGE("in <raum> <befehl>\n");
   old_room = environment();
@@ -92,8 +93,8 @@ static int _at_player(string dest)
   mixed tmp;
   string cmd;
 
-  if (!strlen(dest=_unparsed_args()) ||
-      !strlen(dest=regreplace(dest,"^ *","",1)) ||
+  if (!sizeof(dest=_unparsed_args()) ||
+      !sizeof(dest=regreplace(dest,"^ *","",1)) ||
       sscanf(dest, "%s %s", dest, cmd) != 2)
     return USAGE("at <lebewesen> <befehl>\n");
   if (!(ob=find_living(dest)))
@@ -117,7 +118,7 @@ static object find_living_nr(string str)
 { string name,check;
   int nr;
   object*livings;
-  if(sscanf(str,"%s %d%s",name,nr,check)<2||strlen(check))
+  if(sscanf(str,"%s %d%s",name,nr,check)<2||sizeof(check))
     return find_living(str);
   if(!sizeof(livings=filter((find_livings(name)||({})),#'environment))
      ||nr<1||sizeof(livings)<nr)
@@ -129,7 +130,7 @@ static int _goto(string dest){
   mixed target;
   string target2,err;
 
-  if (!strlen(dest=_unparsed_args()))
+  if (!sizeof(dest=_unparsed_args()))
     return USAGE("goto [lebewesen|filename]\n");
   if (!((target=find_living_nr(dest)) && (target=environment(target))))
   {
@@ -187,11 +188,11 @@ static int _home()
 static int _go_wiz_home(string str)
 {
   _notify_fail("Syntax: '+magiername'\n");
-  if(strlen(query_verb())>1) str=query_verb()[1..];
-  if(!strlen(str)) return 0;
+  if(sizeof(query_verb())>1) str=query_verb()[1..];
+  if(!sizeof(str)) return 0;
   if(query_verb()[0]!='+') return 0;
   str=(old_explode(str," ")-({0}))[0];
-  if(!strlen(str)) return 0;
+  if(!sizeof(str)) return 0;
   str=lower_case(str);
   if (str=="merlin")
   {
@@ -220,7 +221,7 @@ static int _go_wiz_home(string str)
 }
 
 
-static mixed *_query_localcmds()
+static mixed _query_localcmds()
 {
   return
     ({({"goto","_goto",0,LEARNER_LVL}),

@@ -2,7 +2,20 @@ NAME:
     P_READ_DETAILS                "read_details"                
 
 DEFINIERT IN:
-    /sys/properties.h
+    /sys/thing/description.h
 
 BESCHREIBUNG:
-     Details, die durch Lesen ermittelt werden koennen.
+    Mapping mit den Daten der Details, die durch Lesen ermittelt werden
+    koennen.
+
+BEMERKUNGEN:
+    Bitte nur mit den entsprechenden Methoden veraendern!
+
+SIEHE AUCH:
+    Setzen:    AddReadDetail()
+    Loeschen:  RemoveReadDetail()
+    Aehnlich:  AddDetail(), P_DETAILS
+    Veraltet:  P_READ_MSG
+    Sonstiges: GetDetail(), break_string()
+
+27. Jan 2013 Gloinson

@@ -57,7 +57,7 @@ void set_object_living_name(string livname, object obj)
       if (pointerp(a = name_living_m[old])) {
        a[member(a, obj)] = 0;
       } else {
-       efun::m_delete(name_living_m, old);
+       m_delete(name_living_m, old);
       }
     }
     living_name_m[obj] = livname;
@@ -91,18 +91,18 @@ void remove_living_name()
     return;
   if (livname=living_name_m[previous_object()])
   {
-    efun::m_delete(living_name_m,previous_object());
+    m_delete(living_name_m,previous_object());
     if (objectp(name_living_m[livname]))
     {
       if (name_living_m[livname]==previous_object())
-       efun::m_delete(name_living_m,livname);
+       m_delete(name_living_m,livname);
       return;
     }
     if (pointerp(name_living_m[livname]))
     {
       name_living_m[livname]-=({previous_object()});
       if (!sizeof(name_living_m[livname]))
-       efun::m_delete(name_living_m,livname);
+       m_delete(name_living_m,livname);
     }
   }
 }
@@ -115,7 +115,7 @@ void _set_netdead()
 
 void _remove_netdead()
 {
-  efun::m_delete(netdead,getuid(previous_object()));
+  m_delete(netdead,getuid(previous_object()));
 }
 
 object find_netdead(string uuid)
@@ -146,7 +146,7 @@ object find_living(string livname) {
     if (member(r,0)>=0)
       r-=({0});
     if (!sizeof(r)){
-      efun::m_delete(name_living_m,livname);
+      m_delete(name_living_m,livname);
       clean_log(sprintf("find_living loescht %s\n",livname));
       return 0;
     }
@@ -199,7 +199,7 @@ object find_player(string uuid) {
     }
     // ggf. Namen ohne Objekte entfernen.
     if (!sizeof(res)){
-      efun::m_delete(name_living_m,uid);
+      m_delete(name_living_m,uid);
       clean_log(sprintf("find_player loescht %s\n",uid));
       return 0;
     }
@@ -232,7 +232,7 @@ object find_player(string uuid) {
   return res;
 }
 
-private static int check_match( string str, int players_only )
+private int check_match( string str, int players_only )
 {
     mixed match;
 
@@ -252,12 +252,13 @@ private static int check_match( string str, int players_only )
            return 1;
     }
 
-    efun::m_delete( name_living_m, str );
+    m_delete( name_living_m, str );
     clean_log( sprintf("check_match loescht %s\n", str) );
     return 0;
 }
 
-varargs mixed match_living( string str, int players_only, string *exclude )
+//TODO:: string|string* exclude
+varargs mixed match_living( string str, int players_only, mixed exclude )
 {
     int i, s;
     mixed match, *user;
@@ -272,7 +273,7 @@ varargs mixed match_living( string str, int players_only, string *exclude )
        return str;
 
     user = m_indices(name_living_m);
-    s = strlen(str);
+    s = sizeof(str);
     match = 0;
 
     for ( i = sizeof(user); i--; )
@@ -310,7 +311,7 @@ private void clean_name_living_m(string *keys, int left, int num)
     if (!a || (pointerp(a) && !sizeof(a)))
     {
       clean_log("Toasting "+keys[left]+"\n");
-      efun::m_delete(name_living_m, keys[left]);
+      m_delete(name_living_m, keys[left]);
     } else clean_log(sprintf("KEEPING %s (%O)\n",keys[left],pointerp(a)?sizeof(a):a));
   }
   if (left)
@@ -327,7 +328,7 @@ private void clean_netdead() {
   s=m_indices(netdead);
   for (i=sizeof(s)-1;i>=0;i--)
     if (!objectp(ob=netdead[s[i]]) || interactive(ob))
-      efun::m_delete(netdead,s[i]);
+      m_delete(netdead,s[i]);
 }
 
 private void CleanLivingData() {

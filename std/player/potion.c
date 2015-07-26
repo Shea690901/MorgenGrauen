@@ -2,24 +2,26 @@
 //
 // player/potion.c -- potion handling for player
 //
-// $Id: potion.c 7423 2010-02-07 22:56:38Z Zesstra $
+// $Id: potion.c 9108 2015-01-21 22:15:29Z Zesstra $
 //
 
 #pragma strong_types,save_types
 
-#define NEED_PROTOTYPES
+#include <input_to.h>
 
-#include "/sys/thing/properties.h"
-#include "/sys/player/potion.h"
+#define NEED_PROTOTYPES
+#include <thing/properties.h>
+#include <player/potion.h>
+#include <attributes.h>
+#include <living/life.h>
+#include <player/base.h>
+#undef NEED_PROTOTYPES
 
 #include <properties.h>
-#include <attributes.h>
 #include <defines.h>
 #include <wizlevels.h>
-#include <player/base.h>
-#include <living/life.h>
 
-#define POTIONMASTER "secure/potionmaster"
+#define POTIONMASTER "/secure/potionmaster"
 
 static mixed *list;
 
@@ -29,7 +31,7 @@ mixed *known_potionrooms;
 static mixed _query_potionrooms();
 static mixed _query_known_potionrooms();
 
-void create() 
+protected void create() 
 { 
   if (!potionrooms) potionrooms=POTIONMASTER->InitialList(); 
   Set(P_POTIONROOMS, NOSETMETHOD, F_SET_METHOD);         // no tampering by methods
@@ -38,20 +40,24 @@ void create()
   if (!known_potionrooms) known_potionrooms = ({});
   Set(P_KNOWN_POTIONROOMS, NOSETMETHOD, F_SET_METHOD);
   Set(P_KNOWN_POTIONROOMS, SECURED, F_MODE_AS);
-
-  if (!stringp(Query(P_VISITED_POTIONROOMS)))
-    Set(P_VISITED_POTIONROOMS, " ");
-  Set(P_VISITED_POTIONROOMS, SAVE|PROTECTED, F_MODE_AS);
-  Set(P_BONUS_POTIONS, SAVE|PROTECTED, F_MODE_AS);
 }
 
-static int ReportPotion(string s, object po);
-static int SelectWhich(object po);
+static int ReportPotion(string s, object po, int num);
+static int SelectWhich(object po, int num);
 static int ask_question(object po);
 static int get_answer(string erg, object po);
 static int raise(string what, object po);
 int AddKnownPotion(int nr);
 int RemoveKnownPotion(int nr);
+
+protected void updates_after_restore(int newflag)
+{
+  // P_VISITED_POTIONROOMS ist lang veraltet und unbenutzt, aber bis zum
+  // 21.1.2015 sogar in neuen Spielern gespeichert worden.
+  // Aehnlich fuer P_BONUS_POTIONS. Weg damit.
+  Set(P_VISITED_POTIONROOMS, SAVE|PROTECTED, F_MODE_AD);
+  Set(P_BONUS_POTIONS, SAVE|PROTECTED, F_MODE_AD);
+}
 
 varargs int FindPotion(string s)
 {
@@ -63,14 +69,19 @@ varargs int FindPotion(string s)
   po=previous_object();
 
   flag=1;
-  if (QueryProp(P_TRANK_FINDEN) && IS_WIZARD(this_object()))
-    return ReportPotion(s,po);
+
+  if (QueryProp(P_TRANK_FINDEN) && IS_WIZARD(this_object())) {
+    pnum=POTIONMASTER->HasPotion(previous_object());
+    return ReportPotion(s,po,pnum);
+  }
+  
   if (QueryProp(P_KILLS)) return 0;
 
   if (!potionrooms || potionrooms==({}) ||
       !(POTIONMASTER->InList(previous_object(), potionrooms, 
 			     known_potionrooms)))
     flag=0;
+
   if ((pnum=POTIONMASTER->HasPotion(previous_object()))<0)
     return 0;
 
@@ -95,22 +106,22 @@ varargs int FindPotion(string s)
   log_file("ARCH/POTIONS", dtime(time()) + "  " +capitalize(getuid()) + " in " + 
        object_name(previous_object()) + "\n");
 
-  return ReportPotion(s,po);
+  return ReportPotion(s, po, pnum);
 }
 
-static int ReportPotion(string s, object po)
+static int ReportPotion(string s, object po, int pnum)
 {
-  if (stringp(s) && strlen(s)) 
+  if (stringp(s) && sizeof(s)) 
     tell_object(ME, s);
   else 
     tell_object(ME, "Du findest einen Zaubertrank, den Du sofort trinkst.\n");
 
-  SelectWhich(po);
+  SelectWhich(po, pnum);
   
   return 1;
 }
 
-static int SelectWhich(object po)
+static int SelectWhich(object po, int pnum)
 {
   list=({"Intelligenz","Kraft","Geschicklichkeit","Ausdauer"});
   if (QueryRealAttribute(A_INT)>=20) list-=({"Intelligenz"});
@@ -124,12 +135,8 @@ static int SelectWhich(object po)
 	     sprintf("  %s: Heiltrank (noch %d)\n",
 		     capitalize(getuid()),sizeof(potionrooms)));
 
-// RemoveList ersetzt den gefundenen Trank durch -1, das wird dann entfernt.
-// Dies ist ein Hack um einen Reboot zu vermeiden.
-
-    POTIONMASTER->RemoveList(po, potionrooms, known_potionrooms);
-    potionrooms       -= ({ -1 });
-    known_potionrooms -= ({ -1 }); 
+    potionrooms -= ({pnum});
+    known_potionrooms -= ({pnum});
     save_me(1);
     return 1;
   }
@@ -158,8 +165,8 @@ static int ask_question(object po)
   for (i=0;i<sizeof(list);i++)
     tell_object(ME, sprintf("%d) %s\n", i+1,list[i]));
 
-  tell_object(ME, sprintf("\nBitte gib jetzt eine Zahl (1-%d) an: ", i));
-  input_to("get_answer", 0, po);
+  input_to("get_answer", INPUT_PROMPT,
+      sprintf("\nBitte gib jetzt eine Zahl (1-%d) an: ", i), po);
   
   return 1;
 }
@@ -216,12 +223,12 @@ static int raise(string what, object po) {
 
 static mixed _query_potionrooms()
 {
-  return Set(P_POTIONROOMS, potionrooms);
+  return copy(Set(P_POTIONROOMS, potionrooms));
 }
 
 static mixed _query_known_potionrooms()
 {
-  return Set(P_KNOWN_POTIONROOMS, known_potionrooms);
+  return copy(Set(P_KNOWN_POTIONROOMS, known_potionrooms));
 }
 
 int AddKnownPotion(int nr)
@@ -230,7 +237,7 @@ int AddKnownPotion(int nr)
       object_name(previous_object()) != "/room/orakel")
     return -1; // Keine Berechtigung
 
-  if (member_array(nr, known_potionrooms) != -1)
+  if (member(known_potionrooms, nr) != -1)
     return -2; // Nummer bereits eingetragen
   else
   {
@@ -245,7 +252,7 @@ int RemoveKnownPotion(int nr)
       object_name(previous_object()) != "/room/orakel")
     return -1; // Keine Berechtigung
 
-  if (member_array(nr, known_potionrooms) == -1)
+  if (member(known_potionrooms, nr) == -1)
     return -2; // Nummer nicht eingetragen
   else
   {

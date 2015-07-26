@@ -13,6 +13,9 @@
 #define BS_NO_PARINDENT		8
 #define BS_INDENT_ONCE         16
 #define BS_PREPEND_INDENT      32
+// Falls hier Flags ergaenzt werden, sollten sie auch in living/comm.h fuer
+// ReceiveMsg() eingetragen werden. ReceiveMsg() kann per se auch nur 10
+// BS-Flags verarbeiten, das sollte beim Ergaenzen beachtet werden.
 
 #endif /* _BREAK_STRING_H_ */
 

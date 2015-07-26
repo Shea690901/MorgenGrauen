@@ -1,17 +1,22 @@
 Defend()
 FUNKTION:
-     varargs int Defend(int dam, mixed dam_type, mixed spell, object enemy)
+     public int Defend(int dam, string|string* dam_type, int|mapping spell, 
+                        object enemy)
 
 DEFINIERT IN:
      /std/living/combat
 
 ARGUMENTE:
      int dam                  initiale Staerke des Angriffs (10 dam ~ 1 HP)
-     string/string* dam_type  Art(en) des Schadens, der angerichtet werden
+     string* dam_type         Art(en) des Schadens, der angerichtet werden
                               soll
+                              Muss ein Array von Schadenstypen sein,
+                              alte Objekte uebergeben hier manchmal strings.
      int/mapping spell        - 0 fuer normale Angriffe (keine Zauber)
                               - 1 fuer Zauber (Standardruestungen ignorieren)
                               - mapping fuer mehr Informationen
+                              Heute bitte nach Moeglichkeit ein Mapping
+                              uebergeben.
      object enemy             der Feind/Schadenverursacher
 
 BESCHREIBUNG:
@@ -112,11 +117,12 @@ BEMERKUNGEN:
      aendern.
 
 RUECKGABEWERT:
-     Hoehe des tatsaechlichen Schadens.
+     Hoehe des tatsaechlichen Schadens. Dies kann mehr sein als die
+     Lebenspunkte des Lebewesens.
 
 BEISPIELE (SIEHE AUCH Defend_bsp):
      // ein simpler Angriff:
-     enem->Defend(100, DT_BLUDGEON, 0, this_object());
+     enem->Defend(100, ({DT_BLUDGEON}), 0, this_object());
 
      // ein magischer Angriff (ohne Treffermeldung):
      enem->Defend(100, ({DT_BLUDGEON, DT_FIRE}), 1, this_object());
@@ -134,10 +140,11 @@ SIEHE AUCH:
                 P_BODY, A_DEX
      Daten:     P_LAST_COMBAT_TIME
                 P_LAST_DAMTYPES, P_LAST_DAMTIME, P_LAST_DAMAGE
+                P_DAMAGE_MSG
      Resistenz: P_RESISTANCE_STRENGTHS, CheckResistance(L)
      Sonstiges: CheckSensitiveAttack(L)
                 InternalModifyDefend(L)
                 UseSkill(L),
                 DefendInfo
 
-18.Jul 2006 Muadib
+15.09.2010, Zesstra

@@ -46,7 +46,7 @@
 #define AUTOLOAD_ARGS      ({TOOL_INTERNAL, modi, morelines})
 #define EXEC_LINES         (10)
 #define EXEC_TIME          (1)
-#define SUBSTR(x,y,z)      extract(x,y,z)
+
 #define IA(x)              interactive(x)
 #define ENV(x)             environment(x)
 #define LOWER(x)           lower_case(x)
@@ -60,8 +60,8 @@
 
 #define FORALL(x, y)       for(x=first_inventory(y);x;x=next_inventory(x))
 #define DESTRUCT(x)        Destruct(x)
-#define ALEFT(x,y,z)       sprintf("%-*'"+z+"'s", y, extract(""+(x), 0, y-1))
-#define ARIGHT(x,y,z)      sprintf("%*'"+z+"'s" , y, extract(""+(x), 0, y-1))
+#define ALEFT(x,y,z)       sprintf("%-*'"+z+"'s", y, (""+(x))[0..y-1])
+#define ARIGHT(x,y,z)      sprintf("%*'"+z+"'s" , y, (""+(x))[0..y-1])
 #define W(x)               Write(x)
 #define WLN(x)             W(x+"\n")
 #define WDLN(x)            W(x+".\n")
@@ -106,7 +106,6 @@
                      if((!(x))||((x)=="?")) return FALSE;
 #define USAGE3(x)    return WLN("Usage: "+(x))
 
-varargs int ParseLine(string str, string verb);
 static int CatFile();
 static int Command(string str);
 int CommandScan(string arg);
@@ -208,7 +207,7 @@ static void Inheritance(object obj, string func, string pre);
 void InvisCheck();
 static void MoreFile(string str);
 void NetDeadCheck(int show);
-static varargs void PrintObj(object obj, string file);
+static void PrintObj(object obj, string file);
 static varargs void PrintShort(string pre, object obj, string file);
 void SnoopCheck();
 static void VarCheck(int show);

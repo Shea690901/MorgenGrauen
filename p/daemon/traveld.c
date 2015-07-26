@@ -19,6 +19,7 @@
 
 mapping ships;
 mapping harbours;
+private nosave int do_save;
 
 void create()
 {
@@ -55,7 +56,7 @@ public void AddHarbour(string ship, string harbour)
     {
       ships += ([ ship : ({ harbour }) ]);
     }
-    else if (member_array(harbour,ships[ship]) == -1)
+    else if (member(ships[ship], harbour) == -1)
     {
       ships[ship] += ({ harbour });
     }
@@ -76,19 +77,21 @@ public void AddHarbour(string ship, string harbour)
     {
       harbours += ([ harbour : ({ ship }) ]);
     }
-    else if (member_array(ship,harbours[harbour]) == -1)
+    else if (member(harbours[harbour],ship) == -1)
     { 
       harbours[harbour] += ({ ship });
     }
   }
-  save_object((TRAVELD_SAVEFILE));
+  do_save=1;
 }
 
 void reset()
 {
   if (extern_call() && previous_object()) return;
-
-  save_object((TRAVELD_SAVEFILE));
+  if (do_save) {
+    save_object((TRAVELD_SAVEFILE));
+    do_save=0;
+  }
 }
 
 int remove()
@@ -106,8 +109,7 @@ public void RemoveShip(object ship)
   {
     ships -= ([ object_name(ship) ]);
   }
-
-  save_object((TRAVELD_SAVEFILE));
+  do_save=1;
 }
 
 public varargs mixed HasShip(object harbour, string ship)

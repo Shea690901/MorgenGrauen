@@ -1,5 +1,5 @@
 EVENT: 
-   EVT_LIB_ADVANCE
+   EVT_LIB_CLOCK
 
 DEFINIERT IN:
    /sys/events.h
@@ -13,10 +13,8 @@ BESCHREIBUNG:
    an, diesem Event zu lauschen.
 
 EVENT-DATEN:
-   Die Daten werden als Mapping uebergeben:
-   ([ E_HOUR:    (int), 0-23
-      E_MINUTES: (int), 0-59
-    ])
+   Die Daten sind ein Mapping mit den Arrayindizes von localtime() als Keys
+   und den dazu gehoerigen Daten als Values.
 
 BEMERKUNGEN:
    Will man ermitteln, in welcher Viertelstunde man sich gerade befindet,
@@ -30,5 +28,5 @@ SIEHE AUCH:
    events, RegisterEvent(), UnregisterEvent(), TriggerEvent(), eventd
 
 -----------------------------------------------------------------------------
-18.08.2007, Zesstra
+28.11.2012, Zesstra
 

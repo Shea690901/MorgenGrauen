@@ -2,7 +2,7 @@
 //
 // unit.h -- Defines fuer Units
 //
-// $Id: unit.h 6826 2008-04-03 22:34:35Z Zesstra $
+// $Id: unit.h 9017 2015-01-10 19:20:14Z Zesstra $
 
 #ifndef _UNIT_H_
 #define _UNIT_H_
@@ -41,12 +41,12 @@
 varargs int    id(string str,int lvl);
         int    IsEqual(object ob);
         int    IsUnit();
-varargs int    move(mixed dest,int method);
+varargs int    move(object|string dest, int method);
         int    *QueryCoinsPerUnits();
         int    *QueryGramsPerUnits();
-varargs int    remove();
+varargs int remove(int silent);
 varargs string long();
-varargs string name(int fall, int demo);
+varargs string|<string>* name(int fall, int demo);
 varargs string QueryPronoun(int casus);
         string short();
         void   AddAmount(int am);
@@ -62,7 +62,6 @@ public  int    DoDecay(int silent);
 // internal functions
 static    void    check_leave();
 protected void    DoDecayMessage(int oldamount, int zerfall);
-private   void    _call_DoDecay(object *klone);
 
 // Query- und Set-Methoden
 static  int    _query_plural();
@@ -70,9 +69,9 @@ static  int    _query_total_weight();
 static  int    _query_u_req();
 static  int    _query_value();
 static  int    _query_weight();
-static  string _query_name();
+static  string|string* _query_name();
 static  int    _set_amount(int am);
-static  string _set_name(mixed names);
+static  string|string* _set_name(mixed names);
 static  int    _set_weight(int num);
 static  int    _set_value(int num);
 static  int    _query_unit_decay_interval();

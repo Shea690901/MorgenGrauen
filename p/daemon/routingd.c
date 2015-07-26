@@ -59,7 +59,7 @@ int AddDomain(string dom, int val) {
       || val>1)
     return 0;
   if (!val)
-    domains=m_delete(domains,dom);
+    domains=m_copy_delete(domains,dom);
   else
     domains[dom]=val;
   save_object(DB_NAME);

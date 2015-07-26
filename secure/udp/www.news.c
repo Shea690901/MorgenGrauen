@@ -2,7 +2,7 @@
 //
 // www.news.c -- WWW frontend for reading mud news
 //
-// $Id: www.news.c 7516 2010-03-28 07:56:05Z Zesstra $
+// $Id: www.news.c 8755 2014-04-26 13:13:40Z Zesstra $
 
 #pragma strong_types
 #pragma combine_strings
@@ -29,7 +29,7 @@ varargs private string url(string group, string article)
 
 varargs private string make_link(string text, string group, string article)
 {
-  if(!text || !strlen(text)) text = "-Unbenannt-";
+  if(!text || !sizeof(text)) text = "-Unbenannt-";
   return "<A HREF="+url(group, article)+">"+text+"</A>";
 }
 

@@ -112,14 +112,6 @@ protected int _check_wear_restrictions(int silent, int all) {
   return ::_check_wear_restrictions(silent,all);
 }
 
-#if __BOOT_TIME__ < 1234737458
-protected void _wear() {
-  // macht nur das lowlevel Eintragen in P_ARMOURS
-  object *armours=PL->QueryProp(P_ARMOURS)+({ME});
-  PL->SetProp(P_ARMOURS, armours);
-}
-#endif
-
 protected void _informwear(int silent, int all) {
 
   // Ruestungen koennen Resistenzen beeinflussen
@@ -165,14 +157,6 @@ protected int _check_unwear_restrictions(object worn_by, int silent,
   // Ausziehcheck der Kleidung machen
   return ::_check_unwear_restrictions(worn_by,silent,all);
 }
-
-#if __BOOT_TIME__ < 1234737458
-protected void _unwear(object worn_by) {
-  // Ruestung beim Spieler austragen
-  object *armours = (object*)worn_by->QueryProp(P_ARMOURS) - ({ME,0});
-  worn_by->SetProp(P_ARMOURS, armours);
-}
-#endif
 
 protected void _informunwear(object worn_by, int silent, int all) {
   mixed res;

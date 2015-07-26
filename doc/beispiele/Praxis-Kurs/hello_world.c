@@ -8,17 +8,11 @@
 // ganz besondere Bedeutung. Jede dieser 3 Funktionen wird vom Game-Driver
 // im laufenden Betrieb bei besonderen Anlaessen aufgerufen.
 
-void create()
+protected void create()
 // Diese Funktion wird aufgerufen sobald dieses Objekt geclont wird.
 {
    // gibt an den Spieler der dieses Objekt clont eine Meldung aus.
-   efun::write("Hello World!\n");
-   // spaeter wird man dieses durch ein einfach write("Hello World!\n");
-   // abkuerzen. Korrekt waere aber eigentlich nur diese Schreibweise,
-   // da eindeutig erklaert wird, dass eine Funktion des Game-Drivers
-   // gemeint ist und nicht eine Funktion write(), die hier im Objekt selbst
-   // definiert ist. Im weiteren werde auch ich dieses abkuerzen und
-   // hoechstens einen Kommentar wie: // eigentlich efun::write() anbringen.
+   tell_object(this_player(), "Hello World!\n");
 }
 
 void init()
@@ -28,7 +22,7 @@ void init()
 // Umgebung eines Objektes kommt oder umgekehrt.
 {
    // gibt wieder eine Meldung an den Spieler aus...
-   write("Hello again :).\n"); // eigentlich efun::write()
+   tell_object(this_player(), ("Hello again :).\n");
 }
 
 void reset()

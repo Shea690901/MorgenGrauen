@@ -38,8 +38,12 @@ BEISPIELE:
     cicerone 5   -> Du bist Cicerone und wirst nur angezeigt, wenn Du weniger
                     als 5min idle bist.
 
+BEMERKUNGEN:
+    Bitte benutzt die Zeitangabe, wenn ihr beim Idlen doch eher nicht auf den
+    Monitor schaut/erreichbar seid. Idle Cicerones sind wenig hilfreich.
+
 SIEHE AUCH:
     einfuehrung, cicerones
 
- LETZTE AeNDERUNG:
-    2007-07-31 von Zesstra
+LETZTE AeNDERUNG:
+    11. Sep 2013 Gloinson

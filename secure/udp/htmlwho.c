@@ -2,7 +2,9 @@
 //
 // htmlwho.c
 //
-// $Id: htmlwho.c 6142 2007-01-31 20:34:39Z Zesstra $
+// $Id: htmlwho.c 8755 2014-04-26 13:13:40Z Zesstra $
+
+#pragma weak_types
 
 #include <udp.h>
 
@@ -29,7 +31,7 @@ udp_htmlwho(data)
   for (i=num-1;i>=0;i--)
   {
     tmp=mdata[i][0]->name();
-    if (tmp&&strlen(tmp))
+    if (tmp&&sizeof(tmp))
     {
       tmp2=explode(mdata[i][1],tmp);
       if (sizeof(tmp2)>1)

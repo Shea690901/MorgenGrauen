@@ -1,7 +1,7 @@
 Event-Dispatcher: /p/daemon/eventd.c
 
 BENUTZUNG:
-   #include <events.>
+   #include <events.h>
    EVENTD->fun(bla);
 
 BESCHREIBUNG:

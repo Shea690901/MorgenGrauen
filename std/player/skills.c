@@ -2,7 +2,7 @@
 //
 // player/skills.c -- Spielerskills
 //
-// $Id: skills.c 7514 2010-03-27 14:46:30Z Zesstra $
+// $Id: skills.c 8809 2014-05-08 19:52:48Z Zesstra $
 
 //
 // 2003-01-20: Nun Zooks Baustelle
@@ -19,9 +19,11 @@ inherit "/std/living/skills";
 #include <new_skills.h>
 #include <properties.h>
 #include <break_string.h>
+#include <wizlevels.h>
 
 #define NEED_PROTOTYPES
 #include <player/base.h>
+#include <player/gmcp.h>
 #undef NEED_PROTOTYPES
 
 // Dieses Mapping speichert die deaktivierten Skills der einzelnen Gilden
@@ -114,37 +116,43 @@ protected void InitSkills() {
   Set(P_SKILLSVERSION, SAVE|SECURED, F_MODE_AS);
 }
 
-// Updated Skills aus Version 0 heraus.
-private void FixSkillV0(string skillname, mixed sinfo) {
-  // alte Skills auf mapping normieren
+// Updated Skills aus Version 0 und 1 heraus.
+private void FixSkillV1(string skillname, mixed sinfo) {
+  // alte Skills auf mappings normieren
   if (intp(sinfo)) {
     sinfo = ([SI_SKILLABILITY: sinfo ]);
   }
-  // wenn ein Spellbook vermerkt ist, ist es wohl ein Spell, sonst wird von
-  // Skill ausgegangen. Bei Skills: hier Abbruch
-  if (!sinfo[SI_SPELLBOOK])
-      return;
-
-  // Fuer Spells ggf. SI_SPELL erstellen
-  if (!mappingp(sinfo[SI_SPELL]))
-    sinfo[SI_SPELL] = ([]);
-  // SP_NAME vermerken
-  if (!sinfo[SP_NAME] && !sinfo[SI_SPELL][SP_NAME]) {
-    sinfo[SP_NAME] = skillname;
-    sinfo[SI_SPELL][SP_NAME] = skillname;
+  // Eine Reihe von Daten werden geloescht, da die Daten aus der
+  // Gilde/Spellbook frisch kommen sollten und sie nicht spieler-individuell
+  // sind: SI_CLOSURE (wird onthefly korrekt neu erzeugt), SI_SKILLARG,
+  // SI_NUMBER_ENEMIES, SI_NUMBER_FRIENDS, SI_DISTANCE, SI_WIDTH, SI_DEPTH,
+  // SI_TESTFLAG, SI_ENEMY, SI_FRIEND.
+  // Ausserdem sind alle SP_* im toplevel falsch, die muessen a) in SI_SPELL
+  // und sollten b) nicht im Spieler gespeichert werden, sondern von
+  // Gilden/Spellbook jeweils frisch kommen.
+  // all dieses Zeug landete in alten Spielern im Savefile.
+  if (mappingp(sinfo))
+    sinfo -= ([SI_CLOSURE, SI_SKILLARG, SI_NUMBER_ENEMIES, SI_NUMBER_FRIENDS,
+             SI_DISTANCE, SI_WIDTH, SI_DEPTH, SI_TESTFLAG, SI_ENEMY,
+             SI_FRIEND, SP_NAME, SP_SHOW_DAMAGE, SP_REDUCE_ARMOUR,
+             SP_PHYSICAL_ATTACK, SP_RECURSIVE, SP_NO_ENEMY,
+             SP_NO_ACTIVE_DEFENSE, SP_GLOBAL_ATTACK ]);
+  else
+  {
+    tell_object(this_object(),sprintf(
+      "\n**** ACHTUNG - FEHLER ***\n" 
+      "Deine Skills enthalten einen defekten Skill %O:\n"
+      "Bitte lass dies von einem Erzmagier ueberpruefen.\n",
+      skillname));
   }
-  else if (sinfo[SP_NAME] && !sinfo[SI_SPELL][SP_NAME])
-    sinfo[SI_SPELL][SP_NAME] = sinfo[SP_NAME];
-  else if (!sinfo[SP_NAME] && sinfo[SI_SPELL][SP_NAME])
-    sinfo[SP_NAME] = sinfo[SI_SPELL][SP_NAME];
 }
 
 // Updatet und repariert ggf. Skillmappings in Spielern
 protected void FixSkills() {
-/*
+
   // nur bei genug rechenzeit loslegen
-  if (get_eval_cost() < 1300000) {
-    call_out(#'FixSkills, 2);
+  if (get_eval_cost() < 750000) {
+    call_out(#'FixSkills, 1);
     return;
   }
   // wenn gar keine Skills da (?): InitSkills() rufen.
@@ -153,25 +161,53 @@ protected void FixSkills() {
       InitSkills();
       return;
   }
-  // bei Version 0
-  if (QueryProp(P_SKILLSVERSION) == 0) {
-    foreach(string gilde, mapping skills: allskills) {
-      walk_mapping(skills, #'FixSkillV0);
-    }
-    // Waffenskills aktivieren
-    set_weapon_skills();
-    // Speicherflag fuer die Versionsprop muss noch gesetzt werden.
-    Set(P_SKILLSVERSION, SAVE|SECURED, F_MODE_AS);
-    // Versionszaehlen um eins auf 1 erhoehen.
-    SetProp(P_SKILLSVERSION, 1);
-  }
 
+  // Die Fallthroughs in diesem switch sind voll Absicht!
+  switch(QueryProp(P_SKILLSVERSION)) {
+    // bei Version 0 und 1 das gleiche tun
+    case 0: // von 0 auf 1
+    case 1: // von 1 auf 2
+      foreach(string gilde, mapping skills: allskills) {
+        if (!stringp(gilde)) {
+          // sollte nicht vorkommen - tat aber... *seufz*
+          m_delete(skills, gilde);
+          continue;
+        }
+        walk_mapping(skills, #'FixSkillV1);
+      }
+      // allg. Waffenskills aktivieren, einige alte Spieler haben die noch
+      // nicht.
+      set_weapon_skills();
+      // Speicherflag fuer die Versionsprop muss noch gesetzt werden.
+      Set(P_SKILLSVERSION, SAVE|SECURED, F_MODE_AS);
+      // Version ist jetzt 2.
+      SetProp(P_SKILLSVERSION, 2);
+      // Fall-through
+   case 2:
+      // gibt es noch nicht, nichts machen.
+      //SetProp(P_SKILLSVERSION, 3);
+      // Fall-through, ausser es sind zuwenig Ticks da!
+      if (get_eval_cost() < 750000)
+        break; 
+  }
   // Falls noch nicht auf der aktuellen Version angekommen, neuer callout
-  if (QueryProp(P_SKILLSVERSION) != CURRENT_SKILL_VERSION)
+  if (QueryProp(P_SKILLSVERSION) < CURRENT_SKILL_VERSION)
       call_out(#'FixSkills, 2);
-      */
 }
 
+protected void updates_after_restore(int newflag) {
+  //Allgemeine Waffenskills aktivieren, wenn noetig
+  // Wird nun von InitSkills bzw. FixSkills uebernommen, falls noetig.
+  if (newflag) {
+    InitSkills();
+  }
+  else if (QueryProp(P_SKILLSVERSION) < CURRENT_SKILL_VERSION) {
+    // Falls noetig, Skills fixen/updaten. *grummel*
+    FixSkills();
+  }
+  // Prop gibt es nicht mehr. SAVE-Status loeschen. 
+  Set(P_GUILD_PREVENTS_RACESKILL,SAVE,F_MODE_AD);
+}
 
 // Standardisierte Nahkampf-Funktion fuer alle Nahkampf-Waffenarten
 protected mapping ShortRangeSkill(object me, string sname, mapping sinfo) 
@@ -193,10 +229,10 @@ protected mapping ShortRangeSkill(object me, string sname, mapping sinfo)
 
   val = sinfo[SI_SKILLABILITY]*(sinfo[P_WEAPON]->QueryProp(P_WC)*
                                 (w*QueryAttribute(A_DEX)+
-                                 (10-w)*QueryAttribute(A_STR))/800)
+                                 (10-w)*QueryAttribute(A_STR))/700)
         /MAX_ABILITY;
 
-  if (val > 75) {
+  if (val > 85) {
     log_file("WEAPON_SKILLS", sprintf("%s: Zu hoher Schaden von: "
     +"TO: %O, TI: %O, PO: %O, val: %d, A_DEX: %d, A_STR: %d, "
                                    +"P_WEAPON: %O, P_WC: %d\n", dtime(time()),
@@ -205,7 +241,7 @@ protected mapping ShortRangeSkill(object me, string sname, mapping sinfo)
                                    QueryAttribute(A_DEX),
                                    QueryAttribute(A_STR), sinfo[P_WEAPON],
                                    sinfo[P_WEAPON]->QueryProp(P_WC)));
-    val = 75;
+    val = 85;
   }
 
   /*
@@ -232,7 +268,7 @@ protected mapping ShortRangeSkill(object me, string sname, mapping sinfo)
 
   /* Lernen: Wird immer schwieriger, nur bei jedem 20. Schlag im Schnitt,
    * und nur dann, wenn der Gegner auch XP gibt. */
-  if (random(MAX_ABILITY+1)>sinfo[SI_SKILLABILITY] && !random(20))
+  if (random(MAX_ABILITY+1)>sinfo[SI_SKILLABILITY] && !random(10))
   {
          enemy=sinfo[SI_ENEMY];
          if (objectp(enemy) && (enemy->QueryProp(P_XP)>0))
@@ -294,7 +330,7 @@ protected mapping LongRangeSkill(object me, string sname, mapping sinfo, int dam
       (sinfo[P_WEAPON]->QueryProp(P_SHOOTING_WC))<5)
     return 0;
 
-  abil=sinfo[SI_SKILLABILITY]+OFFSET(sinfo[SI_SKILLABILITY]);
+  abil=sinfo[SI_SKILLABILITY]+sinfo[OFFSET(SI_SKILLABILITY)]; 
   val=dam*abil/MAX_ABILITY;
   val=val/2+random(val/2+1);
   val=(val*QuerySkillAttribute(SA_DAMAGE))/100;
@@ -372,7 +408,7 @@ protected mapping StdSkill_Shoot_stone(object me, string sname, mapping sinfo)
   return LongRangeSkill(me, sname, sinfo, 40);
 }
 
-protected string *_query_localcmds() {
+protected mixed _query_localcmds() {
     return ({ ({"spruchermuedung","enable_spell_fatigue_compat",0,0}) });
 }
 
@@ -457,4 +493,129 @@ protected void heart_beat() {
     spell_fatigue_compat_mode = time();
 }
 
+static int _set_guild_level(int num)
+{ string gilde;
+  mapping levels;
+
+  if ( !(gilde=QueryProp(P_GUILD)) )
+    return 0;
+
+  if ( !mappingp(levels=Query(P_GUILD_LEVEL)) )
+    levels=([]);
+
+  levels[gilde]=num;
+  Set(P_GUILD_LEVEL,levels);
+  GMCP_Char( ([P_GUILD_LEVEL: num]) );
+
+  return num;
+}
+
+static int _query_guild_level()
+{ string  gilde;
+  mapping levels;
+
+  if ( !(gilde=QueryProp(P_GUILD)) )
+    return 0;
+
+  if ( !mappingp(levels=Query(P_GUILD_LEVEL)) )
+      return 0;
+
+  return levels[gilde];
+}
+
+static string _set_guild_title(string t)
+{ string gilde;
+  mapping titles;
+
+  if ( !(gilde=QueryProp(P_GUILD)) )
+    return 0;
+
+  if ( !mappingp(titles=Query(P_GUILD_TITLE)) )
+    titles=([]);
+
+  titles[gilde]=t;
+  Set(P_GUILD_TITLE,titles);
+  GMCP_Char( ([P_GUILD_TITLE: t]) );
+  return t;
+}
+
+static string _query_guild_title()
+{ string gilde,t;
+  object g;
+  mapping titles;
+
+  if ( !(gilde=QueryProp(P_GUILD)) )
+    return 0;
+
+  if ( !mappingp(titles=Query(P_GUILD_TITLE)) )
+    titles=([]);
+
+  t=titles[gilde];
+  if ( !t && query_once_interactive(this_object())
+      && objectp(g=find_object("/gilden/"+gilde)) )
+  {
+    g->adjust_title(this_object());
+    SetProp(P_TITLE,0);
+
+    if ( !mappingp(titles=Query(P_GUILD_TITLE)) )
+      return 0;
+
+    t=titles[gilde];
+  }
+
+  return t;
+}
+
+
+static string _set_guild(string gildenname)
+{ object pre;
+
+  if (!objectp(pre=previous_object()))
+    return 0;
+
+  if ( pre!=this_object() // Das Lebewesen selber darf die Gilde setzen,
+      && object_name(pre)!=GUILDMASTER  // der Gildenmaster auch
+      && (!this_player()
+          || this_player() != this_interactive()
+          || !IS_ARCH(this_player())
+         )
+      )
+    return 0;
+
+  Set(P_GUILD,gildenname);
+  GMCP_Char( ([P_GUILD: gildenname]) );
+  return gildenname;
+}
+
+static string _query_guild()
+{ string res;
+
+  if ( !(res=Query(P_GUILD)) && query_once_interactive(this_object()) )
+  {
+    // Spieler, die keiner Gilde angehoeren, gehoeren zur Abenteurergilde
+    if ( !(res=QueryProp(P_DEFAULT_GUILD)) )
+      return DEFAULT_GUILD;
+    else
+      Set(P_GUILD,res);
+    return res;
+  }
+
+  return res;
+}
+
+static string _query_title()
+{ string ti;
+
+  if ( stringp(ti=Query(P_TITLE)) )
+    return ti;
+
+  return QueryProp(P_GUILD_TITLE);
+}
+
+static string _set_title(string t)
+{
+  Set(P_TITLE, t, F_VALUE);
+  GMCP_Char( ([P_TITLE: t]) );
+  return t;
+}
 

@@ -1,10 +1,14 @@
 /*
-** Ein Beispielmonster mit allen moeglichen extras     
-** (von Boing, etwas aktualisiert von Wim im Juli 99)
+** Ein Beispielmonster mit div Extras (von Boing, aktualisiert von Wim+Zesstra)
 */
 
-inherit "std/npc";
-inherit "std/npc/sequencer";
+// Diese Pragmas sorgen dafuer, dass der Driver darauf achtet, dass bei
+// Funktionsargumenten, -Rueckgabewerten und teilweise bei Zuweisung von
+// Werten an Variablen der richtige Datentyp verwendet wird (z.b. kein string
+// anstelle eines int verwendet wird). Sollte in keinem Objekt fehlen.
+#pragma strong_types, save_types, rtt_checks
+
+inherit "/std/npc";
 
 #include <properties.h>
 #include <language.h>
@@ -13,17 +17,14 @@ inherit "std/npc/sequencer";
 #include <class.h>     // fuer AddClass 
 #include <new_skills.h> // fuer SP_* bei AddSpell
 
-create()
+protected void create()
 {
-/* Das naechste Konstrukt verhindert eine Konfiguration der Blueprint 
-     --> man spart Speicher */
-  if (!clonep(this_object())) return;
-
   ::create();       /* WICHTIG!!! */
-  
+
 /* Standard-Knofiguration (Erlaeuterungen siehe bspmon1.c): */
   SetProp(P_SHORT, "Ein Zauberer");
-  SetProp(P_LONG, "Dieser Zauberer zaubert wie wild und schwingt dabei seinen langen Bart.\n");
+  SetProp(P_LONG, "Dieser Zauberer zaubert wie wild und schwingt dabei "
+    "seinen langen Bart.\n");
   SetProp(P_NAME, "Zauberer");
   SetProp(P_GENDER, MALE);
   AddId("zauberer");
@@ -33,16 +34,19 @@ create()
   SetProp(P_HANDS, ({" mit seinem langen Bart", 185}) );
   SetProp(P_SIZE,180);
   SetProp(P_MAX_HANDS, 2);  /* Anzahl der Haende (default ist 2) */
-  set_living_name("zauberer");  
-
+  // set_living_name() setzt einen Namen, mit der der Zauberer z.B. mit einem
+  // 'finde' gefunden werden kann. Fuer die meisten NPC ist dies nicht noetig.
+  // Speziell sollte man keine generischen Bezeichnungen hier anmelden, wenn
+  // schon, dann individuelle Namen.
+  /* set_living_name("zauberer"); */
 
 /* Mit AddClass() und P_RACE wird festgelegt, in welche Gruppe von Lebe-  */
 /* wesen der NPC gehoert, welche mit is_class_member(mixed str) abgefragt */
 /* werden kann. Im Minimalfall ist der NPC von der Klasse, die bei P_RACE */
 /* eingetragen ist. Mit AddClass() koennen aber noch weitere Eigen-       */
 /* schaften hinzugefuegt werden.                                          */
-  
-  SetProp(P_RACE,"Superduperzauberer");                     
+
+  SetProp(P_RACE,"Superduperzauberer");
   AddClass( ({ CL_HUMAN, CL_MAMMAL }) );
 
 /* Mit P_RESISTANCE und P_VULNERABILITY werden fixe Werte (50%) fuer      */
@@ -51,34 +55,20 @@ create()
 /* z.B.  SetProp(P_RESISTANCE, ({ DT_MAGIC }));                           */
 /*       SetProp(P_VULNERABILITY, ({ DT_COLD }))                          */
 /*                                                                        */
-/* Diese Properties wurden durch P_RESISTANCE_STRENGTHS ersetzt, welche   */
-/* ein -> mapping aller Schadensarten enthaelt. Negative Faktoren bis     */
-/* maximal -1.0 (=Imunitaet) geben Resistenzen, positive Werte Anfaellig- */
-/* keiten an. Die folgende Zeile entspricht dem Setzen der Werte mit der  */
-/* alten Property. (wird die alte Property parallel benutzt, so addieren  */
-/* sich ihre Werte zu der neuen. Ausgewertet wird im jeden Fall nur die   */
-/* neue.                                                                  */  
+/* Mit P_RESISTANCE_STRENGTHS koennen Resistenzen und Anfaelligkeit       */
+/* konfiguriert werden. Diese Property enthaelt ein Mapping von           */
+/* von Schadensarten enthaelt. Negative Faktoren bis maximal -1.0         */ 
+/* (=Immunitaet) geben Resistenzen, positive Werte Anfaelligkeiten an.    */
 
   SetProp(P_RESISTANCE_STRENGTHS, ([ DT_MAGIC: -0.5, DT_COLD: 2.0]) );					      
-  
-
-/* Ein Objekt kann nur andere Objekte clonen, wenn es eine euid != 0 hat. */
-/* Deshalb wird die euid auf die uid gesetzt (normalerweise, der Name     */
-/* des wizards, aus dessen directory das Objekt stammt.                   */   
-/* Diese Zeile ist inzwischen in /std/npc.c integriert und muss folglich  */
-/* nicht mehr in jedem eigenen NPC auftauchen.                            */
- seteuid(getuid(this_object()));
-
 
 /* Durch diesen Befehl wird eine Waffe geclont, sofern sie nicht im Raum  */
 /* herumliegt (in dem Fall wird sie vom NPC aufgehoben), und gezueckt     */ 
 /* (definiert in /std/npc/items.c resp. /sys/npc.h)                       */
 
-  AddItem("/doc/beispiele/misc/bspwaffe1",CLONE_WIELD);
+  AddItem("/doc/beispiele/misc/bspwaffe1", CLONE_WIELD);
 /* Und noch eine Ruestung clonen und anziehen.                            */  
-  AddItem("/doc/beispiele/misc/bspruest1",CLONE_WEAR);
-
-  
+  AddItem("/doc/beispiele/misc/bspruest1", CLONE_WEAR);
 
 /* Jetzt wird gezaubert ....     */
 
@@ -122,11 +112,12 @@ create()
 
 /* Reden kann der Zauberer auch von alleine, hier kommen die chats:     */
 
-/* Das erste Argument ist die Wahrscheinlichkeit, mit der das Monster   */
-/* einen Spruch bringt. Das zweite Argument ist die Liste der Sprueche  */
-/* (oder Aktionen).                                                     */
+/* Das erste Argument ist die Wahrscheinlichkeit, mit der das Monster
+ * einen Spruch bringt (weniger ist mehr!). Das zweite Argument ist die Liste
+ * der Sprueche (oder Aktionen).
+ */
 
-  SetChats(20, ({
+  SetChats(2, ({
   "Der Zauberer laeuft im Kreis herum.\n",
   "Der Zauberer stolpert ueber seinen Bart.\n",
   "Der Zauberer sagt: Heh Du! Was machst Du da?\n",
@@ -139,7 +130,7 @@ create()
 
 /* Das selbe fuer Sprueche die waehrend eines Kampfes kommen sollen    */
 
-  SetAttackChats(30, ({
+  SetAttackChats(20, ({
   "Der Zauberer macht: Buh!\n",
   "Der Zauberer wirft mit weissen Maeusen nach Dir.\n",
   "Der Zauberer sagt: Das war ein grosser Fehler!\n",
@@ -190,42 +181,19 @@ create()
 /* lassen. */
   SetProp( P_REJECT, ({ REJECT_KEEP, "Der Zauberer sagt: Dankeschoen.\n" }) );
 
-/* Mit RegisterGive kann Aktionsreihen in das Monster einbauen.      */
-/* Wenn dem Monster ein Objekt gegeben wird, und die Funktion        */
-/* "stabbekommen" mit diesem Objekt als Argument eine 1 zurueckgibt, */
-/* so fuehre die Befehle aus. Die Zahlen sind Zeitabstaende.         */
-  RegisterGive( "stabbekommen", ({
-     ({ "sage Oh, ich liebe Zauberstaebe!!!!", 5 }),
-     ({ "emote fuchtelt wie wild mit seinem neuen Zauberstab herum.", 5 }),
-     ({ "bohreinnase", 1 })
-  }) );
-
-/* Der Zauberer kann auch zusaetzliche Verben haben (fuer sich allein sogar) */
-/* Verben, die Spieler in Gegenwart des Zauberers koennen sollen, werden     */
-/* mit AddCmd angemeldet. */
+/* Der Zauberer kann auch zusaetzliche Verben haben, die nur er selber
+ * benutzen kann, kein anderes Living. Diese koennen mit add_action() im
+ * create eines NPC angemeldet werden (und idR NUR in dieser Funktion und NUR
+ * in Lebewesen, nicht in sonstigen Objekten! */
   add_action("nasebohren", "bohreinnase");
 
+/* Verben, die Spieler in Gegenwart des Zauberers koennen sollen, werden     */
+/* mit AddCmd angemeldet. */
 }
 
-stabbekommen( obj )
-{
-   return obj->id("zauberstab");
-}
-
-nasebohren( str ) // str ist das, was hinter dem verb eingegeben wurde.
+int nasebohren( string str ) // str ist das, was hinter dem verb eingegeben wurde.
 {
    say( "Der Zauberer bohrt mit dem Stab in seiner Nase.\n" );
    return 1; // Verb war erfolgreich.
 }
 
-catch_tell(str)
-{
-  sequencer::catch_tell(str);
-  npc::catch_tell(str);
-}
-
-give_notify(ob)
-{
-  sequencer::give_notify(ob);
-  npc::give_notify(ob);
-}

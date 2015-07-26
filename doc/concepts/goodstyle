@@ -16,12 +16,13 @@ Guter Stil
          filter(all_inventory(environment(TP)),
 		      #'einetollesortierfunktion, &extravariablen);
        - Strings koennen (ohne Addition mit +) unterbrochen werden:
-	 "Jemand "<EOL>    "jammert" == "Jemand jammert"
-	 "Jemand \<EOL>jammert"      == "Jemand jammert"
+         "Jemand "<EOL>    "jammert" == "Jemand jammert"
+         "Jemand \<EOL>jammert"      == "Jemand jammert"
 
      - Bloecke (mit {} umrandeter Code) einruecken, damit man den
        geplanten Programmfluss gut erkennen kann
-       - 1 oder 2 Zeichen, nicht gleich ein ganzes Tab (siehe erste Regel)
+       - 2 bis 4 Zeichen, nicht gleich ein ganzes Tab (siehe erste Regel)
+       - die { und } ruhig in einzelen Zeilen schreiben
 
      - Variablen in dem Block deklarieren, in dem sie gebraucht werden,
        dadurch sind sie schneller zu finden
@@ -40,15 +41,15 @@ Guter Stil
      - return mitten im Code wenn moeglich vermeiden, da der Programmfluss
        damit aufgesplittert wird - ein einziger Funktionsausgang ist
        uebersichtlicher
-       - mit if-Bloecken kann man oft ein fruehes return vermeiden:
-         statt:		if(<cond>) return;
-			tue_was; return;
-	 lieber:	if(!<cond>) { tue_was; } return;
-
+       - Ausnahme hiervon kann aber sein, (die meisten) Ausschlussbedingungen
+         fuer irgendwas am Anfang einer Funktion abzupruefen und die Funktion
+         dann auch sofort zu verlassen.
+      
      - korrekte Typen bei Variablen und Typen verwenden, damit der Leser
        erkennt welches Ding was ist
        - #pragma strong_types oder gar #pragma strict_types hilft
-       - bei Objekten, die geerbt werden, hilft #pragma save_types
+       - Auch Typpruefungen zur Laufzeit (#pragma rtt_checks) verwenden
+       - bei Objekten, die geerbt werden, immer auch  #pragma save_types
 
      Tipps zu Dateien:
      - unterteilt eure Gegenden am besten in verschiedene Verzeichnisse,
@@ -59,13 +60,15 @@ Guter Stil
        relativ #included werden kann. Damit erleichtert man spaeteren Magiern
        eventuell noetige Verzeichnisaenderungen.
        statt:	AddItem("/d/ebene/<magier>/sumpf/npc/schleimi", ...);
-       lieber:	#include "../local.h"
-		[enthaelt ein
-		 #define SUMPFNPC(x) ("/d/ebene/<magier>/sumpf/npc/" x)]
-		...
-		AddItem(SUMPFNPC("schleimi"), ...);
+       lieber:
+         #include "../local.h"
+           [enthaelt ein
+            #define SUMPFNPC(x) ("/d/ebene/<magier>/sumpf/npc/" x)]
+		     ...
+		     AddItem(SUMPFNPC("schleimi"), ...);
 
  SIEHE AUCH:
      inheritance, effizienz, pragma, oop
 
- 24. Maerz 2004 Gloinson
+05.06.2014, Zesstra
+

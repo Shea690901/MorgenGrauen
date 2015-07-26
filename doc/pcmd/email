@@ -12,13 +12,17 @@ email
 
  BESCHREIBUNG:
     Ohne Argumente gibt `email' die aktuelle EMail-Adresse aus. Mit Argument
-    wird sie auf die neue Adresse gesetzt. Ist das Argument 'keine', so wird
-    die Adresse geloescht.
+    wird sie auf die neue Adresse gesetzt.
 
- SIEHE AUCH:
+    Hinweis: eine gueltige EMail-Adresse erleichtert es _erheblich_ im
+    Bedarfsfall ein neues Passwort fuer den Charakter zu setzen. In vielen
+    Faellen ist dies ohne EMail-Adresse nicht moeglich.
+
+SIEHE AUCH:
     Einstellungen:        emailanzeige
     Persoenliche Details: email, url, icq, messenger, ort
     Sonstiges:            finger, wer, kwer
 
- LETZTE AeNDERUNG:
-    Sun, 05.07.1998, 17:00:00 von Rikus
+LETZTE AeNDERUNG:
+    12.09.2011, Zesstra
+

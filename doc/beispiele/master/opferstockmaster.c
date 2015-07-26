@@ -28,7 +28,7 @@
 // Funktionitaet brauchen. Der Master kann nicht genommen, bewegt oder
 // sonstwie innherlab des Muds benutzt werden. Insbesondere sollen
 // im savefile zum Master keine Properties oder so auftauchen.
-// inhert "std/thing";
+// inhert "/std/thing";
 
 // Um diese Daten geht es.
 // Das Mapping speichert zu jedem Spieler, wann das letzte Mal durch einen

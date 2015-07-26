@@ -18,7 +18,6 @@ EVENT-DATEN:
       E_ENVIRONMENT:    (object) Environment des Spielers
       E_GUILDNAME:      (string) Name der Gilde des Spielers
       P_LEVEL:          (int) s. Prop, neuer Spielerlevel
-      P_TITLE:          (string) s. Prop, neuer Spielertitel
     ])
 
 BEMERKUNGEN:

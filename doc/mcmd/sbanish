@@ -44,13 +44,12 @@ sbanish
 
  BEMERKUNGEN:
     Ein sbanish fuehrt ausdruecklich _nicht_ dazu, dass sich von den
-    entsprechenden Adressen keine betehenden Spieler mehr einloggen koennen.
-    Weiterhin ist ein sbanish unwirksam, sofern der Login-Versuch ueber den
-    SSL-Tunnel erfolgt.
+    entsprechenden Adressen keine bestehenden Spieler mehr einloggen
+    koennen.
 
  SIEHE AUCH:
     banish, mbanish, tbanish
 
  LETZTE AeNDERUNG:
- 06.02.2010, Zesstra
+ 20.01.2013, Zesstra
 

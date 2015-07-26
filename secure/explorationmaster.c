@@ -2,55 +2,57 @@
 //
 // explorationmaster.c -- Verwaltung der ExplorationPoints (FP)
 //
-// $Id: explorationmaster.c 7391 2010-01-25 22:52:51Z Zesstra $
+// $Id: explorationmaster.c 9171 2015-03-05 22:47:44Z Zesstra $
 //
-#pragma strict_types
-#pragma no_clone
-#pragma no_shadow
-#pragma no_inherit
-#pragma verbose_errors
-#pragma combine_strings
+#pragma strict_types,rtt_checks
+#pragma no_clone,no_shadow,no_inherit
 //#pragma pedantic
 //#pragma range_check
 #pragma warn_deprecated
 
+#define BY_EP "/secure/ARCH/EPSTAT_BY_EP"
+#define BY_PL "/secure/ARCH/EPSTAT_BY_PL"
+#define BY_PN "/secure/ARCH/EPSTAT_BY_PN"
+#define AVGLOG "/secure/ARCH/EPSTAT_AVG"
+
+inherit "/std/util/pl_iterator";
+
 #include <config.h>
 #include <wizlevels.h>
+#include <userinfo.h>
 #include <exploration.h>
 #include <properties.h>
 #include <new_skills.h>
 
 #define DOMAIN_INFO 1
 
+#include <living/comm.h>
+#define ZDEBUG(x) if (find_player("zesstra")) \
+  find_player("zesstra")->ReceiveMsg(x,MT_DEBUG,0,object_name()+":",this_object())
+//#define ZDEBUG(x)
+
 private mapping obs;
-private mapping tipList;
-private int cnt, avg;
+private int epcount;  // Anzahl FP
+private int epavg;    // Durchschnittliche FP/Spieler
 private string alloc,bonus;
 
-private static string vc_ob;
-private static string output;
+private nosave string vc_ob;
+private nosave string output;
 
-private static int changed;
-private static int dumping;
-private static mapping dumpMap, lastfound, querytime;
+private nosave int changed;
+private nosave int dumping;
+private nosave mapping dumpMap, lastfound, querytime;
 
-private static int stat_done;
+private nosave int stat_done;
 
-nomask int addTip(mixed key,string tip);
-nomask int changeTip(mixed key,string tip);
-nomask int removeTip(mixed key);
-nomask static string getTipFromList(mixed key);
-
-void create()
+protected void create()
 {
   seteuid(getuid(this_object()));
-  tipList=([]);
   if (!restore_object(EPSAVEFILE)) {
     obs = ([]);
-    cnt = avg = 0;
+    epcount = epavg = 0;
     alloc = " ";
     bonus = " ";
-    tipList=([]);
     save_object(EPSAVEFILE);
   }
   if (!bonus) bonus=" ";
@@ -58,12 +60,7 @@ void create()
   querytime=([]);
 }
 
-public nomask int query_prevent_shadow()
-{
-    return 1;
-}
-
-nomask int remove()
+public varargs int remove(int silent)
 {
   save_object(EPSAVEFILE);
   destruct(this_object());
@@ -71,40 +68,159 @@ nomask int remove()
 }
 
 // Statistik erstellen
-nomask void make_stat()
+private int SetAverage(int newavg)
 {
-  if (stat_done)
+  if (epavg != newavg)
+  {
+    epavg = newavg;
+    write_file(AVGLOG, sprintf("%s : %d\n",dtime(time()),newavg));
+    save_object(EPSAVEFILE);
+  }
+  return epavg;
+}
+
+private void check_player(string pl, mixed extra)
+{
+  int *fp_found = extra[0];
+  mapping plstat = extra[1];
+  mapping pnstat = extra[2];
+  object pldata = extra[3];
+  if (!pldata)
+  {
+    pldata=clone_object("/obj/playerdata");
+    extra[3]=pldata;
+  }
+  // Letzte Loginzeit ermitteln, wenn laenger als 90 Tage her und nicht
+  // eingeloggt, wird der Spieler uebersprungen.
+  // Der playerdata braucht eine UID, mit der er das Spielersavefile laden
+  // kann. Hierzu setzen wir ihm die des zu ladenden Spielers...
+  pldata->ReleasePlayer();
+  seteuid(pl);
+  efun::export_uid(pldata);
+  seteuid(getuid(this_object()));
+  (int)pldata->LoadPlayer(pl);
+  // Testspieler ausnehmen, Spieler, die 90 Tage nicht da waren.
+  if ( ((int)pldata->QueryProp(P_LAST_LOGIN) < time() - 7776000
+        && !find_player(pl))
+      || (mixed)pldata->QueryProp(P_TESTPLAYER))
+    return;
+  // Wenn kein SPieler/Seher, sondern Magier: auch ueberspringen
+  mixed* uinfo = (mixed*)master()->get_userinfo(pl);
+  if (uinfo[USER_LEVEL+1] >= LEARNER_LVL)
     return;
 
-  stat_done = 1;
+  string eps=(string)master()->query_ep(pl) || "";
+  int p=-1;
+  int count, avgcount;
+  while ((p=next_bit(eps,p)) != -1)
+  {
+    if (p<sizeof(fp_found))
+    {
+      ++count;
+      ++fp_found[p];
+      // es tragen nur normale EPs zum Durchschnitt bei
+      if (!test_bit(bonus,p))
+        ++avgcount;
+    }
+  }
 
-  if (file_size(EPSTAT_INFO) <= 0 || file_size(MAKE_EPSTAT ".c") <= 0)
-    return;
-
-  // Falls das Skript noch roedelt...
-  if (file_time(EPSTAT_INFO)+1800 > time())
-    call_out("make_stat", 1800);
+  // Spieler mit weniger als MIN_EP ignorieren.
+  if (avgcount >= MIN_EP)
+  {
+    extra[4] += avgcount;   // Summe der gefundenen FP
+    ++extra[5];          // Anzahl beruecksichtigter Spieler
+  }
+  plstat += ([ pl : count ]);
+  if (!member(pnstat, count))
+    pnstat += ([ count : ({ pl }) ]);
   else
-    catch(load_object(MAKE_EPSTAT);publish);
-  return;
+    pnstat[count] = ({ pl })+pnstat[count];
+}
+
+// Mit allen Spielern fertig, aufraeumen.
+#define BAR "************************************************************"
+private void plcheck_finished(mixed extra)
+{
+  ZDEBUG("plcheck_finished entry\n");
+  if (get_eval_cost() < 1000000)
+  {
+    call_out(#'plcheck_finished, 4+random(6), extra);
+    return;
+  }
+
+  int *fp_found = extra[0];
+  mapping plstat = extra[1];
+  mapping pnstat = extra[2];
+  object pldata = extra[3];
+  int avgcount = extra[4];
+  int avgspieler = extra[5];
+
+  if (objectp(pldata))
+    pldata->remove(1);
+
+  if (file_size(BY_EP) >= 0)
+    rm(BY_EP);
+  if (file_size(BY_PL) >= 0)
+    rm(BY_PL);
+  if (file_size(BY_PN) >= 0)
+    rm(BY_PN);
+
+  // Neuen Durchschnittswert fuer gefundene FP setzen.
+  if (avgspieler)
+  {
+    SetAverage(to_int(avgcount/avgspieler));
+  }
+
+  // Histogramm ueber alle FP schreiben: wie oft wurde jeder gefunden?
+  int maxval = max(fp_found);
+  int fp_index;
+  foreach(int found : fp_found)
+  {
+    write_file(BY_EP, sprintf("%5d:%5d %s\n", fp_index, found,
+               BAR[0..(60*found)/maxval]));
+    ++fp_index;
+  }
+  // sortierte Liste der Spieler (sortiert nach gefundenen FP) erzeugen
+  foreach(int fp : sort_array(m_indices(pnstat),#'<) )
+  {
+    foreach(string pl : pnstat[fp])
+      write_file(BY_PN, sprintf("%-14s: %5d\n", pl, fp));
+  }
+  // alphabetisch sortierte Liste der Spieler erzeugen
+  foreach(string pl : sort_array(m_indices(plstat),#'>) )
+  {
+    write_file(BY_PL, sprintf("%-14s: %5d\n", pl, plstat[pl]));
+  }
+}
+#undef BAR
+
+private void make_stat()
+{
+  stat_done = time();
+  int *fp_found = allocate(epcount);
+  mapping plstat = m_allocate(500);
+  mapping pnstat = m_allocate(500);
+  start_player_check(#'check_player, #'plcheck_finished, 1200000,
+                     ({fp_found,plstat,pnstat,
+                       0, 0, 0}) );
 }
 
 void reset()
 {
-  if (changed && !dumping) {
+  if (changed && !dumping)
+  {
     catch(rm(DUMPFILE);publish);
     dumping = 1;
     call_out("dumpEPObjects", 0, sort_array(m_indices(obs),#'> /*'*/));
+    changed = 0;
   }
-  if (time()%86400 < 4000)
-    stat_done = 0;
-
-  make_stat();
-
-  changed = 0;
+  // nur einmal am tag statistiken erstellen
+  if (time()%86400 < 4000
+      && stat_done < time()-80000)
+    make_stat();
 }
 
-private static string strArr(string *s)
+private string strArr(string *s)
 {
   string ret;
   int i;
@@ -150,7 +266,7 @@ static void dumpEPObjects(string *doit)
     for (i=0, j=sizeof(toGo); i<j; i++) {
       int k,l;
       doit = dumpMap[toGo[i]];
-      id += sprintf("### %s %s\n", toGo[i], "#########################"[strlen(toGo[i])..]);
+      id += sprintf("### %s %s\n", toGo[i], "#########################"[sizeof(toGo[i])..]);
       for (k=0, l=sizeof(doit); k<l; k++) {
         id += sprintf("%s %4d %s %s.c ({ %s })\n",
                       EP_TYPES[obs[doit[k], MPOS_TYPE]],
@@ -174,7 +290,7 @@ static void dumpEPObjects(string *doit)
   }
 }
 
-private static string validOb(mixed ob)
+private string validOb(mixed ob)
 {
   string fn, fpart;
 
@@ -195,7 +311,7 @@ private static string validOb(mixed ob)
   return fn;
 }
 
-private static int allowed()
+private int allowed()
 {
   if (previous_object() && geteuid(previous_object())==ROOTID)
     return 1;
@@ -235,7 +351,7 @@ nomask varargs int AddEPObject(object ob, mixed keys, int type, int bonusflag)
       nr++;
 
     obs += ([ fn : keys; nr; type ]);
-    cnt++;
+    ++epcount;
     alloc = set_bit(alloc,nr);
     if (bonusflag) bonus = set_bit(bonus,nr);
        else bonus = clear_bit(bonus,nr);
@@ -243,7 +359,7 @@ nomask varargs int AddEPObject(object ob, mixed keys, int type, int bonusflag)
 
   changed = 1;
   save_object(EPSAVEFILE);
-  return cnt;
+  return epcount;
 }
 
 nomask int RemoveEPObject(object ob)
@@ -263,17 +379,17 @@ nomask int RemoveEPObject(object ob)
   alloc = clear_bit(alloc, obs[fn, MPOS_NUM]);
   bonus = clear_bit(bonus, obs[fn, MPOS_NUM]);
 
-  obs = m_delete(obs, fn);
-  removeTip(fn);
+  m_delete(obs, fn);
+
   changed = 1;
-  cnt--;
+  --epcount;
   save_object(EPSAVEFILE);
-  return cnt;
+  return epcount;
 }
 
 nomask int ChangeEPObject(object ob, int what, mixed new)
 {
-  string fn, fn2,tmp;
+  string fn, fn2;
   mapping entry;
 
   if (!allowed())
@@ -290,7 +406,7 @@ nomask int ChangeEPObject(object ob, int what, mixed new)
     if (!(fn2 = validOb(new)))
       return EPERR_INVALID_ARG;
     entry = ([ fn2: obs[fn]; obs[fn,MPOS_NUM]; obs[fn,MPOS_TYPE] ]);
-    obs = m_delete(obs, fn);
+    obs = m_copy_delete(obs, fn);
     obs += entry;
     break;
   case CHANGE_BONUS:
@@ -303,14 +419,10 @@ nomask int ChangeEPObject(object ob, int what, mixed new)
     if (!stringp(new) && !pointerp(new))
       return EPERR_INVALID_ARG;
        
-       tmp=getTipFromList(fn);
-       removeTip(fn);
     if (stringp(new))
       new = ({ new });
 
     obs[fn] = new;
-    if(tmp && tmp!="")
-           addTip(fn,tmp);
     break;
   case CHANGE_TYPE:
     if (!intp(new) || new < 0 || new > EP_MAX)
@@ -342,7 +454,7 @@ nomask mixed QueryEPObject(object ob)
   return ({ obs[fn], obs[fn,MPOS_NUM], obs[fn, MPOS_TYPE], test_bit(bonus,obs[fn, MPOS_NUM]) });
 }
 
-private static string getMatch(string m)
+private string getMatch(string m)
 {
   string *res;
   int i;
@@ -357,7 +469,7 @@ private static string getMatch(string m)
   return implode(res, "\n");
 }
 
-private static string getMatchArch(string m)
+private string getMatchArch(string m)
 {
   string *res;
   int i;
@@ -494,21 +606,12 @@ nomask mixed *QueryExplore()
 
 nomask int QueryMaxEP()
 {
-  return (cnt||1);
+  return (epcount||1);
 }
 
 nomask int QueryAverage()
 {
-  return (avg||1);
-}
-
-nomask int SetAverage(int x)
-{
-  if (getuid(previous_object()) == ROOTID) {
-    avg = x;
-    save_object(EPSAVEFILE);
-  }
-  return avg;
+  return (epavg||1);
 }
 
 static int check_arch(object u)
@@ -516,7 +619,7 @@ static int check_arch(object u)
    return query_wiz_level(u)>=ARCH_LVL;
 }
 
-private static int check_to_fast(string name, string fn, int gesetzt)
+private int check_to_fast(string name, string fn, int gesetzt)
 {
     if (gesetzt) return 1; // Rikus, sonst arger scroll :)
 
@@ -616,7 +719,7 @@ nomask int GiveExplorationPointObject(string key, object ob)
 }
 
 
-private static int QueryRealExplorationPoints(string pl)
+private int QueryRealExplorationPoints(string pl)
 {
   return count_bits(MASTER->query_ep(pl) || " ");
 }
@@ -644,7 +747,7 @@ nomask int QueryExplorationPoints(mixed pl)
   return val[0];
 }
 
-private static int remove_fp(int num, string pl)
+private int remove_fp(int num, string pl)
 {
   int i,j,k,t,maxEP;
   string ep;
@@ -715,7 +818,7 @@ nomask int RemoveFP(int num, string pl, string grund)
 }
 /* */
 
-private static int add_fp(int num, string pl)
+private int add_fp(int num, string pl)
 {
   int i,j,k,t,maxEP;
   string ep;
@@ -781,7 +884,7 @@ nomask int ClearFP(int num, string pl)
   return num;
 }
 
-private static void printep( int nr, string key, int kind, string* det )
+private void printep( int nr, string key, int kind, string* det )
 {
   output+=sprintf("%4d %s %s.c %s ({ %s })\n",nr,test_bit(bonus,nr)?"b":"n",key,EP_TYPES[kind],
                 strArr(det));
@@ -819,18 +922,18 @@ nomask int QueryLEP(int lep) {
 
 string QueryForschung()
 {
-  int max, my, avg;
+  int my;
   string ret;
 
   if ((my=QueryRealExplorationPoints(getuid(previous_object()))) < MIN_EP)
     return "Du kennst Dich im "MUDNAME" so gut wie gar nicht aus.\n";
 
   my *= 100;
-  max = my/QueryMaxEP();
-  avg = my/QueryAverage();
+  int absolute = my/QueryMaxEP();
+  int relative = my/QueryAverage();
 
   ret = "Verglichen mit Deinen Mitspielern, kennst Du Dich im "MUDNAME" ";
-  switch(avg) {
+  switch(relative) {
   case 0..10:
     ret += "kaum";
     break;
@@ -876,7 +979,7 @@ string QueryForschung()
   }
   ret += " aus.\nAbsolut gesehen ";
 
-  switch(max) {
+  switch(absolute) {
   case 0..5:
     ret += "kennst Du nur wenig vom "MUDNAME".";
     break;
@@ -904,308 +1007,12 @@ string QueryForschung()
   return break_string(ret, 78, 0, 1);
 }
 
-nomask status hasFP(object player,string key)
-{
-  string ep;
-  
-  if(!allowed() || !player || !query_once_interactive(player) || !key || !member(obs,key)){
-       return -1;
-  }
-  
-  ep = (MASTER->query_ep(getuid(player)) || "");
-
-  return test_bit(ep,obs[key,1]);
-       
-}
-
-nomask mapping getFreeFPsForPlayer(object player)
-{
-       mapping freeFPs;
-       string* indices;
-       int i;
-       
-       freeFPs=([]);
-       if(!allowed() || !player || !query_once_interactive(player)){
-              return freeFPs;
-       }
-       
-       freeFPs=copy(obs);
-       indices=m_indices(freeFPs);
-       i=sizeof(indices)-1;
-       for(i;i>=0;i--){
-              if(hasFP(player,indices[i])){
-                     efun::m_delete(freeFPs,indices[i]);
-              }
-       }
-       return freeFPs;
-}
-
-nomask int addTip(mixed key,string tip)
-{
-  string fn;
-  
-  if (!allowed())
-    return EPERR_NOT_ARCH;
-
-  if (!tip || (!objectp(key) && !stringp(key)))
-    return EPERR_INVALID_ARG;
-
-  if (objectp(key))
-    fn=old_explode(object_name(key),"#")[0];
-  else
-    fn=old_explode(key,"#")[0];
-
-  if (!member(obs, fn)) return EPERR_INVALID_ARG;
-  tipList+=([fn:tip]);
-  save_object(EPSAVEFILE);
-    
-  return 1;
-}
-
-nomask int changeTip(mixed key,string tip)
-{
-       return addTip(key,tip);
-}
-
-nomask int removeTip(mixed key)
-{
-  string fn;
-  
-  if (!allowed())
-    return EPERR_NOT_ARCH;
-  
-  if ((!objectp(key) && !stringp(key)))
-    return EPERR_INVALID_ARG;
-
-  if (objectp(key))
-    fn=old_explode(object_name(key),"#")[0];
-  else
-    fn=old_explode(key,"#")[0];
-  
-  if (!member(tipList, fn)) return EPERR_INVALID_ARG;
-    
-  efun::m_delete(tipList,fn);
-  save_object(EPSAVEFILE);
-    
-  return 1;  
-}
-
-nomask static string getTipFromList(mixed key)
-{
-  string fn;
-  
-  if (!allowed())
-    return "";
-  
-  if ((!objectp(key) && !stringp(key)))
-    return "";
-
-  if (objectp(key))
-    fn=old_explode(object_name(key),"#")[0];
-  else
-    fn=old_explode(key,"#")[0];
-  
-  if (!member(tipList, fn)) return "";
-        
-  return tipList[fn];  
-}
-
-// return valid tips from database or existing 
-nomask string getTip(mixed key)
-{
-  string fn;
-  string tip;
-  string* path;
-  
-  if (!allowed())
-    return "";
-  
-  if ((!objectp(key) && !stringp(key)))
-    return "";
-
-  if (objectp(key))
-    fn=old_explode(object_name(key),"#")[0];
-  else
-    fn=old_explode(key,"#")[0];
-  
-  if(!member(obs,fn)) return "";
-  
-  tip=getTipFromList(fn);
-  if(!tip || tip==""){
-         path=old_explode(fn,"/");
-         if(sizeof(path)<3) return "";
-         if(path[0]=="players") return "Schau Dich doch mal bei "+capitalize(path[1])+" um.";
-       
-       if(path[0]=="d"){
-              tip+="Schau Dich doch mal ";
-              
-              if(file_size("/players/"+path[2])==-2){
-                     tip+="bei "+capitalize(path[2]+" ");
-              }
-              
-              if(path[1]=="anfaenger")
-                     tip+="in den Anfaengergebieten ";
-              if(path[1]=="fernwest")
-                     tip+="in Fernwest ";
-              if(path[1]=="dschungel")
-                     tip+="im Dschungel ";
-              if(path[1]=="schattenwelt")
-                     tip+="in der Welt der Schatten ";
-              if(path[1]=="unterwelt")
-                     tip+="in der Unterwelt ";
-              if(path[1]=="gebirge")
-                     tip+="im Gebirge ";
-              if(path[1]=="seher")
-                     tip+="bei den Sehergebieten ";
-              if(path[1]=="vland")
-                     tip+="auf dem Verlorenen Land ";
-              if(path[1]=="ebene")
-                     tip+="in der Ebene ";
-              if(path[1]=="inseln")
-                     tip+="auf den Inseln ";
-              if(path[1]=="wald")
-                     tip+="im Wald ";
-              if(path[1]=="erzmagier")
-                     tip+="bei den Erzmagiern ";
-              if(path[1]=="polar")
-                     tip+="im eisigen Polar ";
-              if(path[1]=="wueste")
-                     tip+="in der Wueste ";
-              tip+="um.";
-       }
-  }
-  return tip;
-}
-
-nomask static string* makeTiplistFromBitString(string bitstr)
-{
-       string* ret;
-       string* keys;
-       int* nums;
-       int i,tmp;
-       string key;
-       
-       keys=m_indices(obs);
-       nums=({});
-       for(i=0;i<sizeof(keys);i++){
-              nums+=({obs[keys[i],MPOS_NUM]});
-       }
-       
-       ret=({});
-    for (i=6*strlen(bitstr)-1;i>0;i--){
-      if (test_bit(bitstr,i)){
-             key=0;
-             tmp=member(nums,i);
-             if(tmp!=-1){
-                    key=keys[tmp];
-             }
-              if(key) ret+=({key});
-      }
-    }
-       
-       return ret;
-}
-
-nomask string allTipsForPlayer(object player)
-{
-       string ret,tipstr,tmp;
-       string* tips;
-       int i;
-       
-       ret="";
-       
-       if(!player || !this_interactive() 
-           || (this_interactive()!=player && !IS_ARCH(this_interactive())) )
-              return "";              
-       
-       tipstr=(string)MASTER->query_fptips(getuid(player) || "");
-       tips=makeTiplistFromBitString(tipstr);
-              
-       for(i=0;i<sizeof(tips);i++){
-              tmp=getTip(tips[i]);
-              if(tmp && tmp!="") ret+=tmp+"\n";
-       }
-       
-       return ret;
-}
-
-nomask status playerMayGetTip(object player)
-{
-       int numElegible;
-       int numReceived;
-       int lvl;
-       int i;
-       string tips;
-       
-    if(!allowed() || !player || !query_once_interactive(player))
-             return 0;
-
-       if(!player || !query_once_interactive(player))
-              return 0;
-       lvl=(int)player->QueryProp(P_LEVEL);
-       numElegible=0;
-       i=sizeof(FPTIPS_LEVEL_LIMITS)-1;
-
-       if(lvl>FPTIPS_LEVEL_LIMITS[i])
-              numElegible+=(lvl-FPTIPS_LEVEL_LIMITS[i]);
-
-       for(i;i>=0;i--){
-              if(lvl>=FPTIPS_LEVEL_LIMITS[i]) numElegible++;
-       }
-       
-       tips=MASTER->query_fptips(getuid(player)) || ""; 
-       numReceived=count_bits(tips);
-
-       return numElegible>numReceived;
-}
-
-nomask string giveTipForPlayer(object player)
-{
-  string* tmp;
-  mapping free;
-  string* tips;
-  string tip,pl,fptip;
-  int i,index;
-  
-  if(!allowed() || !player || !query_once_interactive(player) || !playerMayGetTip(player))
-         return "";
-  
-  pl=getuid(player);
-  free=getFreeFPsForPlayer(player);
-  if(!free || sizeof(free)==0)
-         return "";
-
-  tmp=m_indices(free);
-  fptip=MASTER->query_fptips(pl) || "";
-  tips=makeTiplistFromBitString(fptip);
-  if(tips==0)
-         tips=({});
-  tmp-=tips;
-  if(sizeof(tmp)==0)
-         return "";
-
-  i=FPTIPS_MAX_RETRY;
-  while(i>0){
-         i--;
-       index=random(sizeof(tmp));
-       tip=getTip(tmp[index]);
-       if(tip!=""){
-              i=0;
-              fptip=set_bit(fptip,obs[tmp[index],MPOS_NUM]);
-              MASTER->update_fptips(pl,fptip);
-       }
-       tmp-=({tmp[index]});
-  }
-  tips=makeTiplistFromBitString(fptip);
-  return tip;
-  
-}
-
 // Nicht jeder Magier muss den EPMASTER entsorgen koennen.
 string NotifyDestruct(object caller) {
-    if( (caller!=this_object() && !ARCH_SECURITY) || process_call() ) {
-      return "Du darfst den Exploration Master nicht zerstoeren!\n";
-    }
+  if( (caller!=this_object() && !ARCH_SECURITY) || process_call() )
+  {
+    return "Du darfst den Exploration Master nicht zerstoeren!\n";
+  }
+  return 0;
 }
 
-/* */

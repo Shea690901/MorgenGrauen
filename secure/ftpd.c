@@ -57,7 +57,7 @@ nomask void create() {
 
 nomask int player_exists( string user ) {
   user = lower_case(user);
-  if( !stringp( user ) || strlen( user ) < 1 ) return 0;
+  if( !stringp( user ) || sizeof( user ) < 1 ) return 0;
   return file_size( "/save/"+user[0..0]+"/"+user+".o" ) > 0;
 }
 

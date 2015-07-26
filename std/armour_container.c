@@ -2,7 +2,7 @@
 //,
 // armour_container.c -- Ruestung, in die man was reinstecken kann
 //
-// $Id: armour_container.c 6967 2008-08-13 19:41:02Z Zesstra $
+// $Id: armour_container.c 7804 2011-07-10 20:37:52Z Zesstra $
 
 #pragma strict_types
 #pragma save_types
@@ -14,6 +14,7 @@ inherit "/std/thing/properties";
 inherit "/std/thing/commands";
 inherit "/std/thing/language";
 inherit "/std/thing/envchk";
+inherit "/std/container/light";
 inherit "/std/container/restrictions";
 inherit "/std/container/inventory";
 inherit "/std/container/items";
@@ -29,6 +30,7 @@ inherit "/std/armour/container_description";
 protected void create() {
   properties::create();
   commands::create();
+  light::create();
   container_description::create();
   restrictions::create();
   items::create();

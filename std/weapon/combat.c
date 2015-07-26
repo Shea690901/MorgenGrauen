@@ -2,7 +2,7 @@
 //
 // weapon/combat.c -- combat part of the weapon standard object
 //
-// $Id: combat.c 7106 2009-02-02 19:33:13Z Zesstra $
+// $Id: combat.c 9142 2015-02-04 22:17:29Z Zesstra $
 
 #include <sys_debug.h>
 
@@ -27,8 +27,8 @@
 
 // Globale Variablen
                int     ftime, flaw;
-private static int     logged;
-private static closure defend_cl, hit_cl;
+private nosave int     logged;
+private nosave closure defend_cl, hit_cl;
 
 void create() 
 {
@@ -59,6 +59,12 @@ void create()
     // und wegstecken kann
     AddCmd( ({"zueck","zuecke","zieh","ziehe"}), "wield" );
     AddCmd( ({"steck","stecke"}), "unwield" );
+}
+
+// aktuelles Lebewesen, was diese Waffe zur Zeit gezueckt hat.
+public object QueryUser()
+{
+  return QueryProp(P_WIELDED);
 }
 
 /*

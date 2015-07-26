@@ -2,7 +2,7 @@
 //
 // upd.c
 //
-// $Id: upd.c 7468 2010-02-20 17:40:29Z Zesstra $
+// $Id: upd.c 8850 2014-06-13 21:34:44Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma range_check
@@ -22,11 +22,9 @@
 
 varargs static int _make(string file, int flags, int recursive);
 
-static mixed *_query_localcmds()
+static mixed _query_localcmds()
 {
   return ({({"upd","_upd",0,LEARNER_LVL}),
-           ({"update","_upd",0,LEARNER_LVL}),
-           ({"Update","_upd",0,LEARNER_LVL}),
            ({"load","_load",0,LEARNER_LVL})});
 }
 
@@ -82,7 +80,7 @@ private object _reload(string file, int clone, int flags, string err)
     pos = max(file_size(__DEBUG_LOG__),0);
 
     if ((err = (clone?catch(obj = clone_object(file)):
-                catch(load_object(file)) )) && (flags & UPD_B))	
+                catch(load_object(file)) )) && (flags & UPD_B))        
     {     
       if (( pos2=file_size(__DEBUG_LOG__)) > pos )
         err+=sprintf("\nBacktrace:\n%s",
@@ -113,10 +111,11 @@ private varargs int _update(string file, int dummy, int flags)
 {
   object obj;
   string err;
-  if (!dummy&&!objectp(obj = find_object(file))) return 0;
+  if (!dummy && !objectp(obj = find_object(file))) return 0;
   if (!IS_ARCH(this_object()))
   {
-    if(!MAY_WRITE(file))
+    // Schreibrechte nur pruefen, wenn echt aktualisiert werden soll.
+    if(!dummy && !MAY_WRITE(file))
       return (printf("upd: %s: Keine Schreibrechte!\n",file), -1);
     if(!MAY_READ(file)) 
       return (printf("upd: %s: Keine Leserechte!\n", file), -1);
@@ -136,8 +135,8 @@ private varargs int _update(string file, int dummy, int flags)
                  file,err);
       }
       if (sizeof(inv = deep_inventory(obj)))
-	filter(inv, function void (object ob)
-	    {destruct(ob);});
+        filter(inv, function void (object ob)
+            {destruct(ob);});
     }
   }
   if (!(flags&UPD_H))
@@ -194,17 +193,19 @@ private void _instance_upd(string file, int flags, mixed obj, int instances,
 // file:  Name des Files
 // clone: 0, wenn blueprint, ansonsten Clonenummer
 // flags: Kommandozeilenparameter
-// dep:   Array mit Meldungen (wg. Rekursion)
+// dep:   geschachteltes Array mit Meldungen (wg. Rekursion)
 // ready: Array der schon bearbeiteten Objekte (wg. Rekursion)
 // Rueckgabe: Array der Objektnamen, die bearbeitet wurden
 //            (Array in Array in ...)
 // 
 
-varargs private int _do_make( string file,int clone,int flags,string *dep,
+varargs private int _do_make( string file,int clone,int flags,mixed dep,
                               string *ready )
 {
   object obj;
-  string *ilist, err, *down;
+  string err;
+  string *ilist;
+  mixed downdeps;
   int ret;
   
   if (!pointerp(ready)) ready = ({});
@@ -218,23 +219,23 @@ varargs private int _do_make( string file,int clone,int flags,string *dep,
   
   ilist = inherit_list(obj)-ready;
   
-  down = ({});
+  downdeps = ({});
   
   while (sizeof(ilist))
   {
-    ret = _do_make( ilist[0],0,flags, &down, &ready )||ret;
+    ret = _do_make( ilist[0],0,flags, &downdeps, &ready )||ret;
     ilist[0..0] = ({});
     ilist -= ready;
   }
   
   if ( ret||file_time(file)>program_time(obj)||(flags &UPD_I))
     if ( _make( file, flags & ~(UPD_M|UPD_I) ,1) < 0 ) 
-      dep = ({ "{" + explode(file,"/")[<1] + "}", down });
+      dep = ({ "{" + explode(file,"/")[<1] + "}", downdeps });
     else{
-      dep = ({ "[" + explode(file,"/")[<1] + "]", down });
+      dep = ({ "[" + explode(file,"/")[<1] + "]", downdeps });
       ret = 1;
     }
-  else if (flags&UPD_V) dep += ({ explode(file,"/")[<1], down });
+  else if (flags&UPD_V) dep += ({ explode(file,"/")[<1], downdeps });
   return ret;
 }
 
@@ -341,8 +342,8 @@ varargs static int _make(string file, int flags,int recursive)
 // Backupraum festlegen
    
   if( blue==INV_SAVE ) {
-		printf("upd: Achtung: Raum zum Zwischenspeichern soll geladen werden?!\n");
-	} 
+                printf("upd: Achtung: Raum zum Zwischenspeichern soll geladen werden?!\n");
+        } 
   if ( !(inv_saver=load_object(INV_SAVE)) )
   {
     printf("upd: %s: Raum zum Zwischenspeichern des " +
@@ -359,40 +360,63 @@ varargs static int _make(string file, int flags,int recursive)
     object *inv, env, *pl_inv;
     mapping pro;
     int i;
+    mixed configdata;
+    int restore_config;
 
-// Wenn Objekt existiert, dann Inhalt sichern:
-    if (obj)  
+    // Wenn Objekt existiert, dann Inhalt und ggf. Daten aus Configure() oder
+    // Props sichern:
+    if (obj)
     {
+      // im Fall UPD_C erfolgt _kein_ Auslesen und _keine_ Restauration
+      // mittels Configure()
+      if ( ! (flags & UPD_C ) )
+      {
+        catch(restore_config=(mixed)call_resolved(&configdata,obj,
+                                                  "Configure",0);
+              publish);
+        // Wenn UPD_CONF gesetzt wird, _muss_ das Objekt ein oeffentliches
+        // Configure() definieren, sonst erfolgt Abbruch.
+        if ((flags & UPD_CONF) && !restore_config)
+        {
+          printf("upd: %s: hat kein Configure(), Zerstoerung abgebrochen.\n",file);
+          return RET_FAIL;
+        }
+      }
       if (!(flags&UPD_D)&&(flags&(UPD_L|UPD_R)))
       {
         if (i=sizeof(inv=(all_inventory(obj)-({0}))))
-	{
-	  mixed items;
-	  // Herausbekommen, ob hier Items existieren, die per AddItem 
-	  // erzeugt werden. Die duerfen nicht gesichert werden.
-	  items=(mixed)obj->QueryProp(P_ITEMS); // mixed, da array of arrays
-	  if (pointerp(items)&&sizeof(items))
-	  {
-	    items=transpose_array(items)[0];
-	    while (i--)
+        {
+          mixed items;
+          // Herausbekommen, ob hier Items existieren, die per AddItem 
+          // erzeugt werden. Die duerfen nicht gesichert werden.
+          items=(mixed)obj->QueryProp(P_ITEMS); // mixed, da array of arrays
+          if (pointerp(items)&&sizeof(items))
+          {
+            items=transpose_array(items)[0];
+            while (i--)
               if (member(items, inv[i])==-1)
-		    inv[i]->move(inv_saver,NO_CHECK);
-	  }
-	  else // In diesem Objekt sind keine Items gesetzt.
+                    inv[i]->move(inv_saver,NO_CHECK);
+          }
+          else // In diesem Objekt sind keine Items gesetzt.
             while (i--) inv[i]->move(inv_saver,NO_CHECK);
-	}
+        }
       }
       else
+      {
         inv=map( deep_inventory(obj), #'_save/*'*/, inv_saver )-({0});
+      }
       env = environment(obj);
-      if ( flags & UPD_C ) pro = (mapping)(obj->QueryProperties());
+      if ( flags & UPD_C )
+      {
+        pro = (mapping)(obj->QueryProperties());
+      }
     }
     else inv = ({});
 
 // Ererbte Objekte durchsuchen.
     if ( flags & (UPD_M|UPD_I) )
     {
-      string *dep;
+      mixed dep;
       dep = ({});
       _do_make( blue, inst, flags & ~(UPD_M|UPD_L|UPD_R|UPD_F|UPD_A), &dep );
       printf( _make_dep( dep, "" ) + "\n" );
@@ -413,7 +437,8 @@ varargs static int _make(string file, int flags,int recursive)
       if (!err)
       {
         if (!obj) obj = find_object(file);
-        
+        // Wenn gewuenscht, Props zurueckschreiben (hat Prioritaet vor
+        // Configure(), weil explizit vom Magier angefordert).
         if ( pro && (flags & UPD_C) )
         {
           string *names;
@@ -427,19 +452,37 @@ varargs static int _make(string file, int flags,int recursive)
             if ( _illegal_closure(pro[names[i], F_VALUE]) ||
                  _illegal_closure(pro[names[i], F_QUERY_METHOD]) ||
                  _illegal_closure(pro[names[i], F_SET_METHOD]) )
-              efun::m_delete( pro, names[i] );
+              m_delete( pro, names[i] );
           
           obj->SetProperties(pro);
           msg += ", Properties gesetzt";
         }
-        
-        if (env) 
+        // Wenn kein UPD_C, wird ggf. das Ergebnis von Configure() wieder
+        // uebergeben.
+        else if (restore_config)
+        {
+          int conf_res;
+          if (!catch(conf_res=(int)obj->Configure(configdata); publish)
+              && conf_res == 1)
+          {
+            msg += ", (re-)konfiguriert";
+          }
+          else
+          {
+            msg += ", (Re-)Konfiguration fehlgeschlagen";
+            if (flags & UPD_CONF)
+              printf("upd: Daten von %s konnten nicht rekonfiguriert werden: "
+                           "%O\n", file, configdata);
+          }
+        }
+        if (env)
+        {
           if ( obj->move( env, NO_CHECK ) <= 0 )
             printf( "upd: /%O konnte nicht in /%O zurueckbewegt werden\n",
                     obj, env );
           else
             msg += ", bewegt";
-        
+        }
         if (i=sizeof(inv))
         {
           while(i--) if (inv[i]) inv[i]->move(obj, NO_CHECK );
@@ -458,7 +501,7 @@ varargs static int _make(string file, int flags,int recursive)
       else
         msg += "geladen";
   
-  if ( strlen(msg)&&!(flags&UPD_S&&recursive) )
+  if ( sizeof(msg)&&!(flags&UPD_S&&recursive) )
     printf("%s: %s: %s.\n",(flags&UPD_LOAD?"load":"upd"),file,msg);
   return RET_OK;
 }
@@ -476,14 +519,21 @@ static int _upd(string cmdline)
   args=parseargs(cmdline,&flags,UPD_OPTS,1);
   if(flags==-1||!sizeof(args))
     return USAGE("upd [-"+UPD_OPTS+"] <datei> [<datei> ..]");
+  if ((flags & UPD_C) && (flags & UPD_CONF))
+  {
+    printf("upd: -c und -C gleichzeitig werden nicht unterstuetzt.\n");
+    return 1;
+  }
   args=file_list(args,MODE_UPD,0,"/");
   if(!sizeof(args)) return printf("upd: Keine passende Datei gefunden!\n"),1;
 
   args=map(args,(: $1[FULLNAME] :))-({0});
-  
+
   if(!sizeof(args))
-    return printf("upd: Verzeichnisse koennen nicht aktualisiert werden!\n"),1;
-  if (query_verb()=="Update") flags|=UPD_H;
+  {
+    printf("upd: Verzeichnisse koennen nicht aktualisiert werden!\n");
+    return 1;
+  }
   asynchron(args,#'_make,flags,0,0);
   return 1;
 }

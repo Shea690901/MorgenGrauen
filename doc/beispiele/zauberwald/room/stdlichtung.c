@@ -1,10 +1,10 @@
-// (c) by Padreic (Padreic@mg.mud.de)
+// (c) by Thomas Winheller (Padreic@mg.mud.de)
 
 #include "../files.h"
 #include <moving.h>
 
 inherit ROOM("stdroom");
-inherit "/p/service/padreic/kraeuter/proom";
+inherit "/std/room/kraeuter";
 
 void maybe_replace_program()
 // dieser Standardraum, darf _nicht_ replaced werden...

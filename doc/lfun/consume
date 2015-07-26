@@ -33,7 +33,7 @@ BESCHREIBUNG:
     Aenderung und Anwendung der Aenderung.
 
     Der erste Parameter gibt die Eigenschaften der Aenderung an, der zweite ob
-    ausschlieﬂlich die Pruefung auf Anwendbarkeit erfolgen soll.
+    ausschliesslich die Pruefung auf Anwendbarkeit erfolgen soll.
 
     Das Mapping cinfo hat folgende Struktur:
     a) Einfache Angabe der betroffenen Properties. In neuem Code bitte nicht

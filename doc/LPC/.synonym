@@ -22,3 +22,5 @@ strict_types pragma
 save_types pragma
 pedantic pragma
 range_check pragma
+rttc pragma
+rtt_checks pragma

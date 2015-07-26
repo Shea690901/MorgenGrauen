@@ -1,5 +1,4 @@
 QuerySkillAttributeModifier()
-
 FUNKTION:
     public varargs mapping QuerySkillAttributeModifier(object caster, 
                                                     string *atrnames)
@@ -8,7 +7,6 @@ DEFINIERT IN:
     /std/living/skill_attributes.c
 
 ARGUMENTE:
-
     <caster>    object
                 Objekt, welches die gesuchten Mods gesetzt hat
 
@@ -80,9 +78,13 @@ BEISPIELE:
      }
 
 SIEHE AUCH:
-    P_SKILL_ATTRIBUTES, P_SKILL_ATTRIBUTE_OFFSETS,
-    QuerySkillAttribute(), RemoveSkillAttributeModifier(),
-    ModifySkillAttribute()
+    Skills Lernen:  LearnSkill, ModifySkill, LimitAbility
+    * Nutzung:      UseSpell, UseSkill
+    * Abfragen:     QuerySkill, QuerySkillAbility
+    * Modifikation: ModifySkillAttribute, QuerySkillAttribute,
+                    RemoveSkillAttributeModifier
+      * Properties: P_SKILL_ATTRIBUTES, P_SKILL_ATTRIBUTE_OFFSETS
+    * sonstig:      spruchermuedung, skill_info_liste
+    * Properties:   P_NEWSKILLS
 
------------------------------------------------------------------------------
 14.08.2008, Zesstra

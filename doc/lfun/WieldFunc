@@ -27,7 +27,7 @@ BEMERKUNGEN:
      Spieler koennte zum Beispiel noch eine Waffe gezueckt haben, die sich
      nicht wegstecken laesst, etc.
      Wenn ihr sicher sein wollt, dass der Spieler ein Objekt gezueckt hat,
-     benutzt bitte InformWear().
+     benutzt bitte InformWield().
      Bitte nicht drauf verlassen, dass this_player() das Lebewesen ist,
      welches die Waffe zuecke will.
      Die Reihenfolge der Argumente ist etwas unschoen, aber leider wurde <user>

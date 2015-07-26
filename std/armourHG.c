@@ -2,7 +2,7 @@
 //
 // armourHG.c -- armour standard object for hats and glasses
 //
-// $Id: armourHG.c 6306 2007-05-20 11:32:03Z Zesstra $
+// $Id: armourHG.c 7804 2011-07-10 20:37:52Z Zesstra $
 
 #pragma strict_types
 #pragma save_types
@@ -10,7 +10,7 @@
 #pragma pedantic
 #pragma range_check
 
-inherit "std/armour";
+inherit "/std/armour";
 
 #define NEED_PROTOTYPES
 #include <thing/commands.h>

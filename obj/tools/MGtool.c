@@ -10,7 +10,7 @@
 
 #pragma strict_types
 
-inherit "std/thing/properties";
+inherit "/std/thing/properties";
 
 #include <properties.h>
 #if !defined(QUERYCACHED)
@@ -31,9 +31,9 @@ inherit "std/thing/properties";
 
 #define XDBG 1
 
-static object  cloner;
-static object  msgto=NULL;
-static string *manpath=({TOOL_PATH+"/man.d/",
+nosave object  cloner;
+nosave object  msgto=NULL;
+nosave string *manpath=({TOOL_PATH+"/man.d/",
 			 "/doc/efun/",
 			 "/doc/lfun/",
 			 "/doc/w/",
@@ -42,26 +42,26 @@ static string *manpath=({TOOL_PATH+"/man.d/",
 			 "/doc/std/",
 			 "/doc/concepts/",
 			 ""});
-static string  morefile=NULL;
-static string *scriptline=NULL;
-static string *history=allocate(MAX_HISTORY);
-static int     moreflag=FALSE;
-static int     moreoffset=1;
-static int     term=NULL;
-static int     scriptsize=NULL;
-static int     nostore=FALSE;
-static int     xlight=0;
-static int     pipe_in=FALSE;
-static int     pipe_out=FALSE;
-static int     pipe_ovr=TRUE;
-static string  pipe_if=NULL;
-static string  pipe_of=NULL;
-static int     xtk=FALSE;
-static mixed  *variable=({({}),({})});
-static string *cmds;
-private static mapping line_buffer=([]);
-private static string line_buffer_name="";
-private static string more_searchexpr="";
+nosave string  morefile=NULL;
+nosave string *scriptline=NULL;
+nosave string *history=allocate(MAX_HISTORY);
+nosave int     moreflag=FALSE;
+nosave int     moreoffset=1;
+nosave int     term=NULL;
+nosave int     scriptsize=NULL;
+nosave int     nostore=FALSE;
+nosave int     xlight=0;
+nosave int     pipe_in=FALSE;
+nosave int     pipe_out=FALSE;
+nosave int     pipe_ovr=TRUE;
+nosave string  pipe_if=NULL;
+nosave string  pipe_of=NULL;
+nosave int     xtk=FALSE;
+nosave mapping variable=([]);
+nosave string *cmds;
+private nosave mapping line_buffer=([]);
+private nosave string line_buffer_name="";
+private nosave string more_searchexpr="";
 int    morelines=MORE_LINES;
 int    modi=(MODE_FIRST|MODE_PROTECT|MODE_SHORT);
 
@@ -181,12 +181,12 @@ static varargs object FindObj(string str, object env, int silent)
   string tmp;
   int num, e;
   
-  if(!(str&&env))
+  if (!stringp(str) || !sizeof(str) || !objectp(env))
     return NULL;
   str=string_replace(str, "°01", ".");
   while(str[e++]=='^')
     ;
-  str=SUBSTR(str, --e, -1);
+  str=str[--e..<1];
   str=string_replace(str, "°02", "^");
   if(obj=VarToObj(str))
     ;
@@ -231,7 +231,7 @@ static varargs object FindObj(string str, object env, int silent)
 
 static object VarToObj(string str)
 {
-  if(!(str&&str[0]=='$'))
+  if (!stringp(str) || !sizeof(str) || str[0]!='$')
     return NULL;
   switch(str)
   {
@@ -242,7 +242,7 @@ static object VarToObj(string str)
     case "$here":
     return ENV(cloner);
     default:
-    return assoc(SUBSTR(str, 1, -1), variable);
+    return variable[str[1..<1]];
   }
   return(NULL); //never reached
 }
@@ -344,9 +344,9 @@ static varargs void PrintShort(string pre, object obj, string file)
     str+=".";
   str+=(shadow(obj, 0) ? "s" : ".");
   if(!file||file=="")
-    WLN(SUBSTR(pre+CAP(str)+" "+ObjFile(obj), 0, 79));
+    WLN((pre+CAP(str)+" "+ObjFile(obj))[0..79]);
   else
-    write_file(file,SUBSTR(pre+CAP(str)+" "+ObjFile(obj), 0, 79)+"\n");
+    write_file(file,(pre+CAP(str)+" "+ObjFile(obj))[0..79]+"\n");
 }
 
 static varargs void DeepPrintShort(object env, int indent, string pre, string file)
@@ -376,9 +376,9 @@ static string break_string_hard(string str, int len, string pre)
   int s,p,t;
   string tmp;
 
-  if(!str||!(s=strlen(str)))
+  if(!str||!(s=sizeof(str)))
     return "";
-  t=len-(p=strlen(pre))-1;
+  t=len-(p=sizeof(pre))-1;
 
   tmp="";
   while(p+s>len)
@@ -387,7 +387,7 @@ static string break_string_hard(string str, int len, string pre)
 	str=str[t+1..];
 	s-=t;
   }
-  if(strlen(str))
+  if(sizeof(str))
     tmp+=pre+str[0..]+"\n";
   return tmp;
 }
@@ -584,7 +584,7 @@ static string XFile(string file)
     switch(file[0])
     {
       case '@':
-	return source_file_name(XFindObj(SUBSTR(file, 1, -1)));
+	return source_file_name(XFindObj(file[1..<1]));
       case '$':
 	return source_file_name(XFindObj(file));
       default:
@@ -600,7 +600,7 @@ static string XFindFile(string file)
   {
     if(file_size(file)>=0)
       return file;
-    if(SUBSTR(file, -3, -1)!=".c"&&file_size(file+".c")>0)
+    if(file[<3..<1]!=".c" && file_size(file+".c")>0)
       return file+".c";
   }
   WDLN("File not found or not readable ["+short_path(file)+"]");
@@ -709,9 +709,9 @@ static void MoreFile(string str)
   
   SECURE1();
   
-  if (str /*&& strlen(str)*/)
+  if (str /*&& sizeof(str)*/)
   {
-		if( !strlen(str) ) str="\0";
+		if( !sizeof(str) ) str="\0";
     if(term)
       W("M[1M");
     switch(str[0])
@@ -748,7 +748,7 @@ static void MoreFile(string str)
       break;
       case '/':
       moreoffset--;
-      more_searchexpr=SUBSTR(str, 1, -1);
+      more_searchexpr=str[1..<1];
       case 'n':
       i=moreoffset-morelines+1;
       if(more_searchexpr=="")
@@ -813,7 +813,7 @@ static string sread_line(int num)
       last_file_date=file_time(morefile);
       last_file_buffer=explode(last_file, "\n");
       last_file_size=sizeof(last_file_buffer);
-      if (strlen(last_file)==50000 && last_file[<1]!='\n') {
+      if (sizeof(last_file)==50000 && last_file[<1]!='\n') {
 	 last_file_size--; // letzte Zeile nicht vollstaendig gelesen
 	 last_file_complete=0;
       }
@@ -866,8 +866,8 @@ static int XGrepFile(string pat, string file, int mode)
   fsize=file_size(file);
   for(i=0,f=0; i<fsize && t=read_bytes(file, i, 50000); i+=50000)
     tmp=strip_explode(t,"\n");
-    if (t && t[<1]!='\n' && strlen(t)==50000) {
-       i-=strlen(tmp[<1]);
+    if (t && t[<1]!='\n' && sizeof(t)==50000) {
+       i-=sizeof(tmp[<1]);
        tmp=tmp[0..<2];
     }
     if(s=sizeof(tmp))
@@ -924,7 +924,7 @@ static void XmtpScript(string dir, string file, string opt)
   s=sizeof(files=get_dir(dir+"/*"));
   while(s--)
   {
-    t=strlen(files[s])-1;
+    t=sizeof(files[s])-1;
     if(files[s] == ".." || files[s] == "." || files[s][t] == '~' ||
        (files[s][0] == '#' && files[s][t] == '#'))
       continue;
@@ -1177,7 +1177,7 @@ string _query_short()
 	   (PREV ? ObjFile(PREV) : "[destructed object]"));
 	if( sh=Query(P_SHORT) ) return sh; // added by Rumata
     return cloner->name(WESSEN)+" "+TOOL_TITLE+" ["+
-      SUBSTR(ctime(time()), 11, 18)+"]";
+      ctime(time())[11..18]+"]";
   }
   return TOOL_TITLE;
 }
@@ -1278,7 +1278,7 @@ void create()
 {
   object obj;
   
-  if(member_array('#', object_name())<0)
+  if(member(object_name(),'#')<0)
     return;
   if(!cloner&&!((cloner=TP)||(cloner=ENV(ME)))&&!interactive(cloner))
     destruct(ME);
@@ -1321,7 +1321,7 @@ void init()
 {
   object first, prev;
   
-  if(member_array('#', object_name())<0) return;
+  if(member(object_name(),'#')<0) return;
   first=first_inventory(ENV(ME));
   if(MODE(MODE_PROTECT)&&is_player(first)&&!IS_ARCH(first))
   {
@@ -1491,7 +1491,7 @@ varargs int ParseLine(string str)
     verb=query_verb();
 
     // return on unknown commands
-    if(!verb||!strlen(verb)||!GetFunc(verb,TRUE))
+    if(!verb||!sizeof(verb)||!GetFunc(verb,TRUE))
       return FALSE;
 
     str=(string)this_player()->_unparsed_args();
@@ -1540,7 +1540,7 @@ varargs int ParseLine(string str)
   }
   cmds=cmds[1..];
   TK("ParseLine: verb: "+verb);
-  if (!verb||!strlen(verb)||!GetFunc(verb,TRUE))
+  if (!verb||!sizeof(verb)||!GetFunc(verb,TRUE))
     SafeReturn(FALSE);
   TK("ParseLine(1): arg: "+arg+" cmds: "+sprintf("%O",cmds));
   switch(sizeof(cmds))
@@ -1629,11 +1629,11 @@ static string GetFunc(string verb, int test)
 
   if (!(fun=(string)ACTIONS[verb,0])) { // Try exact hit first
     key="";
-    len=strlen(verb);
+    len=sizeof(verb);
     for (i=sizeof(keys=m_indices(ACTIONS))-1;i>=0;i--) {
       TK("  trying: "+keys[i]);
-      if(strlen(keys[i])>=len&&keys[i][0..len-1]==verb) {
-	if(strlen(key)) {
+      if(sizeof(keys[i])>=len&&keys[i][0..len-1]==verb) {
+	if(sizeof(key)) {
 	  WLN("Das ist nicht eindeutig ...");
 	  return 0;
 	}
@@ -1701,13 +1701,11 @@ void InsertNotify(object obj)
 static void VarCheck(int show)
 {
   int i, s;
-  
-  for(i=0, s=sizeof(variable[0]); i<s; i++)
+  foreach(string k, mixed v : variable)
   {
-    if(variable[1][i]) continue;
-    if(show) WDLN("*** Variable $"+variable[0][i]+" has been destructed");
-    variable=remove_alist(variable[0][i], variable);
-    i--;s--;
+    if (v) continue;
+    if(show) WDLN("*** Variable $"+k+" has been destructed");
+    m_delete(variable, k);
   }
 }
 
@@ -1763,7 +1761,7 @@ int DoHistory(string line)
   string cmd, *strs;
   
   SECURE2(FALSE);
-  if(!line)
+  if(!stringp(line) || !sizeof(line))
     return TRUE;
   else if(line=="%!")
   {
@@ -1772,14 +1770,14 @@ int DoHistory(string line)
       if(history[i-1])
       {
 	W(" "+ARIGHT(""+i, 2, " ")+": ");
-	if(strlen(history[i-1])>70)
+	if(sizeof(history[i-1])>70)
 	  WLN(ALEFT(history[i-1], 70, " "));
 	else
 	  WLN(history[i-1]);
       }
     return TRUE;
   }
-  else if(SUBSTR(line, 0, 1)=="%%"&&(cmd=history[0]+SUBSTR(line, 2, -1)))
+  else if(line[0..1]=="%%" && (cmd=history[0]+line[2..<1]))
   {
     Command(cmd);
     return TRUE;
@@ -1798,7 +1796,7 @@ int DoHistory(string line)
       return TRUE;
     }
   }
-  else if(line[0]=='%'&&(sscanf(SUBSTR(line, 1, -1), "%d", i)))
+  else if(line[0]=='%' && (sscanf(line[1..<1], "%d", i)))
   {
     i= i>0 ? i : 1;
     i= i<=MAX_HISTORY ? i : MAX_HISTORY;
@@ -1811,7 +1809,7 @@ int DoHistory(string line)
     for(i=0; i<MAX_HISTORY; i++)
     {
       if(history[i]&&
-	 SUBSTR(history[i], 0, strlen(line)-2)==SUBSTR(line, 1, -1))
+	 history[i][0..sizeof(line)-2]==line[1.. <1])
       {
 	Command(history[i]);
 	return TRUE;

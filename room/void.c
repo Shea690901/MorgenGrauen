@@ -35,7 +35,7 @@ int onlywelt( string s ) {
 
 
 // Sonst zerstoert sich das Void brav selbst - an NotifyDestruct vorbei. 
-public int remove()
+public varargs int remove()
 {
   if (!ARCH_SECURITY || process_call())
     return 0;

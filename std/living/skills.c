@@ -2,7 +2,7 @@
 //
 // living/skills.c -- Gilden-, Skill- und Spellfunktionen fuer Lebewesen
 //
-// $Id: skills.c 7514 2010-03-27 14:46:30Z Zesstra $
+// $Id: skills.c 8755 2014-04-26 13:13:40Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma range_check
@@ -35,18 +35,6 @@ protected void create()
   call_out(#'expire_spell_fatigues, 4);
 }
 
-nomask protected int security_check()
-{ object tp;
-
-  if ( !objectp(tp=this_player())
-      || tp!=this_interactive()
-      || !interactive(tp)
-      || !IS_ARCH(tp) )
-    return 0;
-
-  return 1;
-}
-
 
 // Diese - hier scheinbar sinnlose - Funktion wird von /std/player/skills.c dann 
 // ueberladen.
@@ -55,37 +43,7 @@ public int is_deactivated_skill(string sname, string gilde)
 	return 0;
 }
 
-static string _set_guild(string gildenname)
-{ object pre;
 
-  if (!objectp(pre=previous_object()))
-    return 0;
-
-  if ( pre!=this_object() // Das Lebewesen selber darf die Gilde setzen,
-      && object_name(pre)!=GUILDMASTER  // der Gildenmaster auch
-      && !security_check() )          // und auch Erzmagier.
-    return 0;
-
-  Set(P_GUILD,gildenname);
-
-  return gildenname;
-}
-
-static string _query_guild()
-{ string res;
-
-  if ( !(res=Query(P_GUILD)) && query_once_interactive(this_object()) )
-  {
-    // Spieler, die keiner Gilde angehoeren, gehoeren zur Abenteurergilde
-    if ( !(res=QueryProp(P_DEFAULT_GUILD)) )
-      return DEFAULT_GUILD;
-    else
-      Set(P_GUILD,res);
-    return res;
-  }
-
-  return res;
-}
 
 static string _query_visible_guild()
 { string res;
@@ -103,38 +61,6 @@ static string _query_visible_subguild_title()
     return res;
 
   return QueryProp(P_SUBGUILD_TITLE);
-}
-
-static int _set_guild_level(int num)
-{ string gilde;
-  mapping levels;
-
-  if ( !(gilde=QueryProp(P_GUILD)) )
-    return 0;
-
-  if ( !mappingp(levels=Query(P_GUILD_LEVEL)) )
-    levels=([]);
-
-  levels[gilde]=num;
-  Set(P_GUILD_LEVEL,levels);
-
-  return num;
-}
-
-static int _query_guild_level()
-{ string  gilde;
-  mapping levels;
-
-  if ( !(gilde=QueryProp(P_GUILD)) )
-    return 0;
-
-  if ( gilde=="abenteurer" || gilde=="katzenkrieger" )
-      return _set_guild_level(QueryProp(P_LEVEL));
-
-  if ( !mappingp(levels=Query(P_GUILD_LEVEL)) )
-      return 0;
-
-  return levels[gilde];
 }
 
 static mixed _query_guild_prepareblock()
@@ -164,57 +90,6 @@ static mixed _set_guild_prepareblock(mixed arg)
   return arg;
 }
 
-static string _set_guild_title(string t)
-{ string gilde;
-  mapping titles;
-
-  if ( !(gilde=QueryProp(P_GUILD)) )
-    return 0;
-
-  if ( !mappingp(titles=Query(P_GUILD_TITLE)) )
-    titles=([]);
-
-  titles[gilde]=t;
-  Set(P_GUILD_TITLE,titles);
-
-  return t;
-}
-
-static string _query_guild_title()
-{ string gilde,t;
-  object g;
-  mapping titles;
-
-  if ( !(gilde=QueryProp(P_GUILD)) )
-    return 0;
-
-  if ( !mappingp(titles=Query(P_GUILD_TITLE)) )
-    titles=([]);
-
-  t=titles[gilde];
-  if ( !t && query_once_interactive(this_object())
-      && objectp(g=find_object("/gilden/"+gilde)) )
-  {
-    g->adjust_title(this_object());
-    SetProp(P_TITLE,0);
-
-    if ( !mappingp(titles=Query(P_GUILD_TITLE)) )
-      return 0;
-
-    t=titles[gilde];
-  }
-
-  return t;
-}
-
-static string _query_title()
-{ string ti;
-
-  if ( stringp(ti=Query(P_TITLE)) )
-    return ti;
-
-  return QueryProp(P_GUILD_TITLE);
-}
 
 private nosave int valid_setskills_override;
 // Man sollte eigentlich ja nicht Parameter als globale Variablen
@@ -335,6 +210,14 @@ private mapping internal_query_newskills(string gilde) {
   return(skills);
 }
 
+// Eigentlich sollte man den _query-Funktionen keine Parameter geben...
+static varargs mapping _query_newskills(string gilde) {
+
+  // sonst Kopie des spellmappings liefern! Kostet zwar, aber verhindert
+  // einige andere Bugs und versehentliche Aenderungen an den Skills!
+  return(deep_copy(internal_query_newskills(gilde)));
+}
+
 // Eigentlich sollte man den _set-Funktionen keine weiteren Parameter geben
 static varargs mapping _set_newskills(mapping value, string gilde) {
 
@@ -353,14 +236,6 @@ static varargs mapping _set_newskills(mapping value, string gilde) {
   return(_query_newskills(gilde));
 }
 
-// Eigentlich sollte man den _query-Funktionen keine Parameter geben...
-static varargs mapping _query_newskills(string gilde) {
-
-  // sonst Kopie des spellmappings liefern! Kostet zwar, aber verhindert
-  // einige andere Bugs und versehentliche Aenderungen an den Skills!
-  return(deep_copy(internal_query_newskills(gilde)));
-}
-
 private mapping InternalQuerySkill(string sname, string gilde) {
   mixed skill, skills;
   // In is_any wird gespeichert, ob es ein gildenunabhaengier Skill ist,
@@ -371,7 +246,7 @@ private mapping InternalQuerySkill(string sname, string gilde) {
   if (!mappingp(skills=Query(P_NEWSKILLS,F_VALUE)))
       return 0;
 
-  if (stringp(gilde) && strlen(gilde)) {
+  if (stringp(gilde) && sizeof(gilde)) {
     //bestimmte Gilde angegeben, gut, dort gucken.
     if (mappingp(skills[gilde]))
       skill=skills[gilde][sname]; 
@@ -395,13 +270,6 @@ private mapping InternalQuerySkill(string sname, string gilde) {
   // wenn kein Skill gefunden, mit 0 direkt raus
   if (!skill) return 0;
 
-  // ggf. Skills auf Mappings normalisieren und auch direkt im Skillmapping
-  // 'upgraden'
-  if ( !mappingp(skill) ) {
-    skill=([SI_SKILLABILITY:skill]);
-    skills[gilde][sname]=skill;
-  }
-
   // Bei gildenunabhaengigen auch im Skillmapping vermerken
   if ( is_any ) {	
       skill+=([SI_GUILD:"ANY"]);	
@@ -417,7 +285,7 @@ private mapping InternalQuerySkill(string sname, string gilde) {
 
 public varargs mapping QuerySkill(string sname, string gilde) {
  
-    if (!stringp(sname) || !strlen(sname))
+    if (!stringp(sname) || !sizeof(sname))
 	return 0;
 
     //Kopie zurueckliefern
@@ -425,19 +293,14 @@ public varargs mapping QuerySkill(string sname, string gilde) {
 }
 
 #define SMUL(x,y) ((x<0 && y<0)?(-1*x*y):(x*y))
-public varargs int QuerySkillAbility(mixed sname, mixed argl)
+public varargs int QuerySkillAbility(string sname, string gilde)
 { mapping skill;
   string skill2;
-  mixed val;
 
-  if ( objectp(sname) && stringp(argl) )
-    sname = argl;
-
-  if ( !(skill=InternalQuerySkill(sname, 0)) )
+  if ( !(skill=InternalQuerySkill(sname, gilde)) )
     return 0;
 
-  if ( !intp(val=skill[SI_SKILLABILITY]) )
-    return deep_copy(val);
+  int val=skill[SI_SKILLABILITY];
 
   if (skill2=skill[SI_INHERIT])
   {
@@ -449,18 +312,18 @@ public varargs int QuerySkillAbility(mixed sname, mixed argl)
   return val;
 }
 
-protected varargs mixed LimitAbility(mixed sinfo, int diff)
+protected varargs mixed LimitAbility(mapping sinfo, int diff)
 { mixed abil;
   int max,old,d2;
 
-  abil=(mappingp(sinfo)?sinfo[SI_SKILLABILITY]:sinfo);
+  abil=sinfo[SI_SKILLABILITY];
 
   if ( !intp(abil) )
     return sinfo;
   old=abil;
 
   // Beim Spieler eingetragene Schwierigkeit gilt vor angegebener.
-  if ( mappingp(sinfo) && (d2=sinfo[SI_DIFFICULTY]) )
+  if ( (d2=sinfo[SI_DIFFICULTY]) )
     diff=d2;
 
   // diff <-100 soll nicht hemmen und macht keinen Sinn
@@ -498,9 +361,6 @@ protected varargs mixed LimitAbility(mixed sinfo, int diff)
     abil=1;
   // Faehigkeiten sollen nicht durch die Begrenzung verschwinden
 
-  if ( !mappingp(sinfo) )
-    return abil;
-
   sinfo[SI_SKILLABILITY]=abil;
 
   return sinfo;
@@ -511,7 +371,7 @@ public varargs void ModifySkill(string sname, mixed val, int diff, string gilde)
   mapping skills;
   mixed skill;
 
-  if ( !stringp(sname) || !strlen(sname) )
+  if ( !stringp(sname) || !sizeof(sname) )
     return;
 
   // internal_query_newskills() macht keine Kopie
@@ -523,28 +383,18 @@ public varargs void ModifySkill(string sname, mixed val, int diff, string gilde)
   }
   
   // Zur Sicherheit mal das Mapping kopieren, wer weiss, was der	
-  // Aufrufende dieer Funktion selber spaeter damit noch macht.
+  // Aufrufende dieser Funktion selber spaeter damit noch macht.
   // ist ok, wenn val kein Mapping ist, dann macht deep_copy nix.
   val=deep_copy(val);
 
-  // Skill und val normalisieren und vereinigen
-  if ( mappingp(skill) )
-  {
-    if ( mappingp(val) )
-      skill+=val;
-    else
-      skill[SI_SKILLABILITY]=val;
-  }
+  // Skill und val vereinigen
+  if ( mappingp(val) )
+    skill+=val;
+  else if (intp(val))
+    skill[SI_SKILLABILITY]=val;
   else
-  {
-    if ( mappingp(val) )
-      skill=([SI_SKILLABILITY:skill])+val;
-    else
-      if (!diff)
-   	skill=([SI_SKILLABILITY:val]);
-      else
-	skill=([SI_SKILLABILITY:val,SI_DIFFICULTY:diff]);
-  }
+    raise_error(sprintf("Bad arg 2 to ModifySkill(): expected 'int', "
+          "got %.10O.\n",val));
 
   // Lernen entsprechend SI_DIFFICULTY begrenzen.
   if(diff && !member(skill,SI_DIFFICULTY))
@@ -568,7 +418,6 @@ public varargs void LearnSkill(string sname, int add, int diff)
   string skill2,gilde;
   int val;
 
-
   // Spieler sollen nur lernen, wenn sie interactive sind. Das soll
   // natuerlich nur fuer Spieler gelten.
   if (query_once_interactive(this_object()) && !interactive())
@@ -581,26 +430,16 @@ public varargs void LearnSkill(string sname, int add, int diff)
 
   // Skillmapping ermitteln (hier kommt keine Kopie zurueck)
   skill=InternalQuerySkill(sname, 0);
+  // wenn kein Skill, dann Abbruch
+  if (!skill) return;
 
-  if (mappingp(skill))
-  {
-    val=skill[SI_SKILLABILITY];
-    gilde=skill[SI_GUILD];
-  }
-  else
-  {
-    val=0;
-    gilde=0;
-  }
-
+  val=skill[SI_SKILLABILITY];
+  gilde=skill[SI_GUILD];
+ 
   val+=add;
 
-  // Faehigkeit soll durch Erhoehung nicht verschwinden.
-  if ( !val && add )
-    val=1;
-
   ModifySkill(sname,val,diff,gilde);
-  if ( mappingp(skill) && skill2=skill[SI_INHERIT] )
+  if ( skill2=skill[SI_INHERIT] )
     LearnSkill(skill2,add/3,diff);
 }
 
@@ -615,7 +454,9 @@ public varargs int UseSpell(string str, string spell)
   spell=lower_case(spell);
 
   // QuerySkill() liefert eine Kopie des Skillmappings.
-  if ( !(sinfo=QuerySkill(spell,0)) )
+  // wenn skill unbekannt oder Ability <= 0, ist der Spell nicht nutzbar.
+  if ( !(sinfo=QuerySkill(spell,0))
+        || sinfo[SI_SKILLABILITY] <= 0 )
     return 0;
 
   sinfo[SI_SKILLARG]=str; // Argument eintragen
@@ -668,7 +509,8 @@ public varargs mixed UseSkill(string skill, mapping args)
       // Dann Standard-Funktion nehmen, wenn es die nicht gibt, den
       // Ability-Wert zurueckliefern.
       if (!closurep(cl = symbol_function("StdSkill_"+skill,this_object())))
-        cl=symbol_function("QuerySkillAbility",this_object());
+        cl=function int (object ob, string sname)
+             {return QuerySkillAbility(sname);} ;
     }
     else
     {
@@ -728,7 +570,7 @@ public varargs int SetSpellFatigue(int duration, string key) {
  */
 public void DeleteSpellFatigue(string key) {
   // key==0 is the (default) global spellfatigue.
-  efun::m_delete(spell_fatigues, key);
+  m_delete(spell_fatigues, key);
 }
 
 /** Loescht abgelaufene Keys aus dem spell_fatigue mapping.
@@ -736,7 +578,7 @@ public void DeleteSpellFatigue(string key) {
 private void expire_spell_fatigues() {
   foreach(string key, int endtime: spell_fatigues) {
     if (endtime <= time())
-      efun::m_delete(spell_fatigues, key);
+      m_delete(spell_fatigues, key);
   }
 }
 

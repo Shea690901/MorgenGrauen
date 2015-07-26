@@ -1,7 +1,13 @@
+/* Hinweis zu diesem Beispielobjekt: Lebensmittel lassen sich besser von
+ * /std/food ableiten, das bringt viele Funktionalitaeten mit, die man sonst
+ * muehsam selber basteln muss.
+ */
+
+inherit "/std/thing";
+
 #include <moving.h>
 #include <properties.h>
 #include <wizlevels.h>
-inherit "/std/thing";
 
 #define SAETTIGUNG 2
 #define HEILUNG 20
@@ -9,11 +15,9 @@ inherit "/std/thing";
 
 #define BS78(x) break_string(x,78)
 
-void create()
+protected void create()
 {
-  if( !clonep(this_object()) ) return;
   ::create();
-  
 
   // Gemeinsamer Teil des create
   AddId("obst");
@@ -25,7 +29,7 @@ void create()
 
   // Nach ca. 10 Minuten resetet das Obst, im Reset wird es destructet, 
   // so spare ich call_outs
-  set_next_reset(600);  
+  set_next_reset(600);
 
   // Name, ID, Gender, Desc und Gewicht sind Abhaengig von der Obstart
   switch (random(11)){
@@ -145,47 +149,42 @@ void create()
     ));
     SetProp( P_WEIGHT, 20 );
     break;
-  }  
-	
+  }
 }
 
 void reset()
 {
-  object env;
-  
-  env = environment(this_object());
+  object env = environment(this_object());
 
-  if (env){
+  if (env) {
     if (query_once_interactive(env)){
       // Mein Env is ein User
       tell_object(env, BS78(
-	capitalize(this_object()->name(WER))+" verschwindet mit einem "+
+        capitalize(this_object()->name(WER))+" verschwindet mit einem "+
         "\"PLOPP\" aus deinem Inventar. Da scheint Magie im Spiel zu sein."
       ));
     } else if (sizeof(all_inventory(env)&users())){
       // In meinem Environment sind User (Es ist ein Raum)
       tell_room(env, BS78(
-	capitalize(this_object()->name(WER))+" verschwindet mit einem "+
+        capitalize(this_object()->name(WER))+" verschwindet mit einem "+
         "\"PLOPP\". Da scheint Magie im Spiel zu sein."
       ));
-    }  
+    }
   }
- 
-  // Objekt zerstoeren  
-  if (!remove()) destruct(this_object());
 
+  // Objekt zerstoeren
+  remove(1);
 }
 
 static int act_essen(string args)
-{ 
-   
+{
     // Nur ein Demo-Objekt
     if (!IS_LEARNING(this_player()))
     {
       write("Schwups, nun ist @@name@@ verschwunden. War wohl eine Illusion.");
-      remove();
+      remove(1);
     }
-		    
+
     // Der Syntaxtest ist unnoetig, der ist schon im new style
     // AddCmd() eingebaut.
 
@@ -207,24 +206,25 @@ static int act_essen(string args)
       if (this_player()->check_and_update_timed_key(EAT_DELAY,"vanion_zach_obst")==-1)
       {
         write(BS78(
-	  "Du isst genuesslich "+this_object()->name(WEN,0)+
-	  ". Du fuehlst Dich gestaerkt."
+          "Du isst genuesslich "+this_object()->name(WEN,0)+
+          ". Du fuehlst Dich gestaerkt."
         ));
         say(BS78(
-	  this_player()->name()+" isst mit vollem Genuss "+this_object()->name(WEN,0)+". "
-	  "Dir laeuft das Wasser im Munde zusammen."
+          this_player()->name()+" isst mit vollem Genuss "+this_object()->name(WEN,0)+". "
+          "Dir laeuft das Wasser im Munde zusammen."
         ));
         // Heilen und aufessen :)
         this_player()->heal_self(HEILUNG);
-      } else { // if (check_and_update_timed_key())
+      }
+      else { // if (check_and_update_timed_key())
         // Wenn es noch zu frueh ist, wieder welches zu essen
         // Keine Heilung, aber Saettigung
         write(BS78(
           "Du solltest "+this_object()->name(WEN,1)+" lieber jemandem geben, "
-	  "den Du magst, statt alles selbst zu futtern, findest Du nicht? "
-	  "Deine Gier hat Dir jetzt nur einen vollen Bauch und ein schlechtes "
+          "den Du magst, statt alles selbst zu futtern, findest Du nicht? "
+          "Deine Gier hat Dir jetzt nur einen vollen Bauch und ein schlechtes "
           "Gewissen bescheert."
-	));
+        ));
       } // end if (check_and_update_timed_key())
       if (!remove()) destruct(this_object());
     } // end of eat_food

@@ -12,30 +12,36 @@
 **      Krankheitsfolgen rueckgaengig gemacht.
 */
 
+// Diese Pragmas sorgen dafuer, dass der Driver darauf achtet, dass bei
+// Funktionsargumenten, -Rueckgabewerten und teilweise bei Zuweisung von
+// Werten an Variablen der richtige Datentyp verwendet wird (z.b. kein string
+// anstelle eines int verwendet wird). Sollte in keinem Objekt fehlen.
+#pragma strong_types, save_types, rtt_checks
+
+inherit "/std/thing";
+
 #include <properties.h>
 #include <moving.h>
 #include <language.h>
 #include <class.h>
 
-inherit "/std/thing";
-
-create()
+protected void create()
 {
-    if (!clonep(this_object()))
-        return;
     ::create();
 
+    // ausnahmsweise darf dieses Objekt mal kein P_SHORT+P_LONG haben...
     SetProp(P_SHORT,0);
-    SetProp(P_LONG,0);
+    SetProp(P_LONG, 0);
+    SetProp(P_INVIS, 1); // unsichtbar machen.
     SetProp(P_NAME,"Krankheit");
     SetProp(P_GENDER,FEMALE);
+    // wichtig, sonst wiegt die Krankheit 1kg (Standardgewicht fuer thing) 
     SetProp(P_WEIGHT,0);
     SetProp(P_VALUE,0);
     SetProp(P_MATERIAL,MAT_MISC_MAGIC);
-    SetProp(P_NODROP,1);
-    SetProp(P_NEVERDROP,1); // Wirkt nach Tod weiter
+    SetProp(P_NODROP,1); // Nicht wegwerfbar.
 
-// ---->
+// ----> Dieser Abschnitt sorgt fuer fiese Statabzuege
 
     SetProp(P_X_HEALTH_MOD,
     ([
@@ -58,19 +64,3 @@ create()
     SetProp(P_LEVEL,15);  // Aber nicht ganz so einfach zu entfernen
 }
 
-// Diese Krankheit kann nicht bewegt werden, wenn sie erst einmal im
-// Zielobjekt ist. Das hat den Vorteil *grins*, dass der Spieler sie
-// auch ueber den Tod hinaus behaelt.
-varargs int move(mixed dest,int method) 
-{
-    if (environment())
-        return ME_CANT_LEAVE_ENV;
-    return (int)::move(dest,method);
-}
-
-varargs int remove() 
-{
-    SetProp(P_X_ATTR_MOD,([]));   // Wichtig! Leeres Mapping setzen,
-    SetProp(P_X_HEALTH_MOD,([])); // und nicht 0!
-    return (int)::remove();
-}

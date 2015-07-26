@@ -2,7 +2,7 @@
 //
 // secure/sinmaster.c -- Das Strafregister
 //
-// $Id: sinmaster.c 6081 2006-10-23 14:12:34Z Zesstra $
+// $Id: sinmaster.c 9142 2015-02-04 22:17:29Z Zesstra $
 
 #define SIN_SAVE "/secure/ARCH/sins"
 #define SIN_LOG  "ARCH/sins"
@@ -28,7 +28,7 @@ static void save_me()
     save_object(SIN_SAVE);
 }
 
-private static varargs int is_allowed(int archonly)
+private varargs int is_allowed(int archonly)
 {
   if (previous_object() && geteuid(previous_object())==ROOTID)
     return 1;
@@ -64,7 +64,7 @@ public string ListSins(string who)
     if ( !is_allowed() )
       return "ACCESS DENIED\n";
 
-    if ( !stringp(who) || (strlen(who)<1) )
+    if ( !stringp(who) || (sizeof(who)<1) )
       return "SYNTAX ERROR.\n";
 
     if ( !member(sins,who) || !pointerp(sins[who]) || ((j=sizeof(sins[who]))<1) )
@@ -102,8 +102,8 @@ public string AddSin(string who, string text)
     if ( !is_allowed() )
       return "ACCESS DENIED\n";
 
-    if ( !stringp(who) || (strlen(who)<1)
-        || !stringp(text) || (strlen(text)<1) )
+    if ( !stringp(who) || (sizeof(who)<1)
+        || !stringp(text) || (sizeof(text)<1) )
       return "SYNTAX ERROR.\n";
 
     if ( text[0..2]=="-f " )
@@ -133,7 +133,7 @@ public string RemoveSin(string who, int nr)
     if ( !is_allowed(1) )
       return "ACCESS DENIED\n";
 
-    if ( !intp(nr) || (nr<1) || !stringp(who) || (strlen(who)<1) )
+    if ( !intp(nr) || (nr<1) || !stringp(who) || (sizeof(who)<1) )
       return "SYNTAX ERROR.\n";
 
     if ( !member(sins,who) || !pointerp(sins[who]) || (sizeof(sins[who])<1) )
@@ -156,7 +156,7 @@ public string RemoveSin(string who, int nr)
 
     if ( sizeof(rem)<2 )
     {
-        efun::m_delete(sins,who);
+        m_delete(sins,who);
         save_me();
         return sprintf("Letzten Eintrag von '%s' geloescht.\n",CAP(who));
     }
@@ -190,10 +190,10 @@ public varargs string Dump(int flag)
     {
         j = sizeof(sns=sins[snr[i]]);
         t += (j-1);
-        dump += ((string)sns[0]+"\n\n");
+        dump += (sns[0]+"\n\n");
 
         for ( k=1 ; k<j ; k++ )
-            dump += sprintf("%3d: %s\n",k,(string)sns[k]);       
+            dump += sprintf("%3d: %s\n",k,sns[k]);
 
         dump += sprintf("%'='78.78s\n\n","");
     }

@@ -2,7 +2,7 @@
 //
 // spellbook.h -- Funktions-Prototypen fuer das /std/spellbook.h
 //
-// $Id: spellbook.h 6081 2006-10-23 14:12:34Z Zesstra $
+// $Id: spellbook.h 8822 2014-05-17 09:49:49Z Zesstra $
 
 #ifndef __SPELLBOOK_H__
 #define __SPELLBOOK_H__
@@ -30,9 +30,6 @@ varargs int      TryGlobalAttackSpell(object caster, mapping sinfo, int suc,
 varargs int      UseSpell(object caster, string spell, mapping sinfo);
         mapping  QuerySpell(string spell);
 varargs mixed    FindDistantGroups(object pl, int dist, int dy, int dx);
-private static
-varargs object   DoFindEnemyVictim(string wen, object pl, string msg,
-                                   mixed func, int min, int max);
 varargs object   FindDistantEnemyVictim(string wen, object pl, string msg,
                                         int dist, int dy);
 varargs object  *FindDistantGroup(object pl, int who, int dist, int dy,

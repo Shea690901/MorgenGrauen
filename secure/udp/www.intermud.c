@@ -2,7 +2,7 @@
 //
 // www.who.c
 //
-// $Id: www.intermud.c 6081 2006-10-23 14:12:34Z Zesstra $
+// $Id: www.intermud.c 8103 2012-08-28 19:16:42Z Zesstra $
 
 #pragma strong_types
 #pragma combine_strings
@@ -14,6 +14,7 @@ private int filter_ldfied(string nm, string chars, mapping muds)
 {
   if(nm[0] >= chars[0] && nm[0] <= chars[1])
     return muds[nm][0];
+  return 0;
 }
 
 string Request(mapping cmds)

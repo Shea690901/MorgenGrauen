@@ -1,10 +1,11 @@
 FUNKTION:
-	varargs int log_file(string file, string text, int size_to_break)
+	int log_file(string file, string text)
+  int log_file(string file, string text, int size_to_break)
 
 ARGUMENTE:
 	file - Name der Datei, in die geschrieben werden soll
 	text - Der Text, der geschrieben werden soll
-	size_to_break - Groesse, ab der ein neues File begonnen wird.
+	size_to_break - Groesse, ab der ein neues File begonnen wird (optional)
 
 BESCHREIBUNG:
 	log_file schreibt den Text text in die Datei /log/file.
@@ -26,5 +27,5 @@ BEISPIELE:
 SIEHE AUCH:
 	write_file(E)
 
-16.01.2007, Zesstra
+09.06.2014, Zesstra
 

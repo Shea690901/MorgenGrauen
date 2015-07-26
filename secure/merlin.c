@@ -2,7 +2,7 @@
 //
 // merlin.c -- Unser geliebter Merlin
 //
-// $Id: merlin.c 7447 2010-02-17 20:20:16Z Zesstra $
+// $Id: merlin.c 9018 2015-01-10 20:51:31Z Zesstra $
 #pragma strict_types
 #pragma no_clone
 #pragma no_shadow
@@ -13,6 +13,9 @@
 //#pragma range_check
 #pragma warn_deprecated
 
+// 2014-Mai-10, Arathorn: Er soll ja weiterhin auf tm reagieren.
+inherit "std/npc/comm.c";
+
 #include <config.h>
 #include <properties.h>
 #include <language.h>
@@ -21,6 +24,8 @@
 #include <exploration.h>
 #include <news.h>
 #include <exploration.h>
+#include <events.h>
+#include <daemon/channel.h>
 #include "/secure/wizlevels.h"
 #include "/secure/config.h"
 #include "/secure/questmaster.h"
@@ -68,6 +73,9 @@ void create()
   move("/gilden/abenteurer",0);
   MBanishListe = m_allocate(0,2);
   restore_object(SAVEFILE);
+  EVENTD->RegisterEvent(EVT_LIB_PLAYER_CREATION, "player_change", ME);
+  EVENTD->RegisterEvent(EVT_LIB_LOGIN, "player_change", ME);
+  // absichtlich kein EVT_LIB_LOGOUT, s. Kommentar zu notify_player_leave().
 }
 
 string _query_kill_name()
@@ -107,19 +115,19 @@ mixed QueryProp(string str)
   return call_other(this_object(),"_query_"+str);
 }
 
-int id(string str)
+varargs int id(string str)
 {
   return (str=="merlin");
 }
 
-string name(int casus, int demon)
+varargs string name(int casus, int demon)
 {
   if (casus!=WESSEN)
     return "Merlin";
   return "Merlins";
 }
 
-string Name(int casus, int daemon)
+varargs string Name(int casus, int daemon)
 {
   return name(casus,daemon);
 }
@@ -295,64 +303,69 @@ private void GibFehlerteufel(object wiz) {
     "Fehlerteufel.\n\n");
 }
 
-void notify_player_change(string who,int rein)
+private void notify_player_change(string who,int rein)
 {
-  int i, mag, invis;
-  object *u,ob;
-  string wer;
-
   if (!stringp(who))
     return;
-  wer=capitalize(who);
-  i=0;
+
+  // Max-user festhalten
   if (file_size("/etc/maxusers")<=0)
     maxusers=0;
   if (sizeof(users())>=maxusers)
   {
     maxusers=sizeof(users());
-    catch(rm("etc/maxusers");publish);
     write_file("etc/maxusers",sprintf("%d user: %s (%s)\n",
-          maxusers,dtime(time()),query_load_average()));
+          maxusers,dtime(time()),query_load_average()),1);
   }
-  
-  if(!(ob=find_player(who)) && !(ob=find_netdead(who)))
-    return;
-  
-  mag=IS_LEARNER(ob);
-  invis=(int)ob->QueryProp(P_INVIS);
-  u=users()-({ob,0}); // sich selber nicht melden 
-  if (mag&&invis)   // Invismagier nur Magiern melden
-    u=filter(u,lambda(({'ob}),({#'>=,({#'query_wiz_level,'ob}),LEARNER_LVL})));
-  filter_objects(u,"notify_player_change",wer,rein,invis);
-  
-  if (stringp(wer=(string)ob->QueryProp(P_GUILD)) && (find_object("/gilden/"+wer) 
-        || file_size("/gilden/"+wer+".c")>0))
-    catch(("/gilden/"+wer)->notify_player_change(ob, rein); publish);
 
   // allen Magiern ab Level 20, die keinen Fehlerteufel haben und deren
   // letzter Logout vor "Die, 17. Mar 2009, 23:40:04" => 1237329604 war,
   // einen Fehlerteufel clonen und nen Hiwneis mitteilen.
-  if (mag && rein && IS_WIZARD(ob)
+  object ob = find_player(who);
+  if (ob && rein && IS_WIZARD(ob)
       && !present_clone(FEHLERTEUFEL,ob)
       && ob->QueryProp(P_LAST_LOGOUT) < 1237329604 )
     GibFehlerteufel(ob);
 }
 
+private void AnnounceNewPlayer(object pl) {
+
+  if (!pl || !interactive(pl))
+    return;
+
+  // verzoegern, bis der Spieler wirklich fertig ist.
+  if (pl->QueryProp(P_LEVEL) < 0) {
+    call_out(#'AnnounceNewPlayer,10,pl);
+    return;
+  }
+
+  if (!(int)pl->QueryGuest()) {
+  string plname = (string)pl->Name(WER);
+    CHMASTER->send("Anfaenger", this_object(),
+      sprintf("%s macht nun ebenfalls das Morgengrauen unsicher. "
+              "Herzlich Willkommen %s!", plname, plname)
+      );
+  }
+}
+
 // Kann bei reboot wieder raus... zesstra, 16.03.2007
-#if __BOOT_TIME__ < 1218488483
-#define BUGFIXTIME 1218488483
-void renew_player(object pl, int force) {
-    string plname;
+#if __BOOT_TIME__ < 1318110723
+#define BUGTIME 1318003200 
+#define BUGFIXTIME 1318109421
+void renew_player(string plname, int force) {
+    object pl;
     mixed err;
 
+    pl = find_player(plname);
     if (!objectp(pl) || !query_once_interactive(pl)) return;
 
-    // jung genug, Abbruch. ;-)
-    if ((object_time(pl) > BUGFIXTIME))
+    // jung oder alt genug, Abbruch. ;-)
+    if ((object_time(pl) > BUGFIXTIME)
+        || object_time(pl) < BUGTIME)
         return;
 
     if (get_eval_cost() < 1000000 || !force ) {
-        call_out("renew_player",8,pl,1);
+        call_out("renew_player",8,plname,1);
         tell_object(pl,break_string(sprintf("Huhu %s, um einen Bug in "
                 "Deinem Spielerobjekt zu beheben, wirst Du in ca. 8s "
                 "neugeladen. Bitte warte bis dahin ab und bleibe, wo "
@@ -385,21 +398,25 @@ void renew_player(object pl, int force) {
 }
 #endif
 
-void notify_player_enter(string who)
-{
-  object pl;
-#if __BOOT_TIME__ < 1218488483
-  // Spieler evtl. renewen? Bei reboot raus (16.03.2007)
-  if (objectp(pl=find_player(who)))
-      renew_player(pl,0);
+void player_change(string eid, object trigob, mixed data) {
+
+  if (!trigob || !interactive(trigob))
+    return;
+
+  switch(eid) {
+    case EVT_LIB_PLAYER_CREATION:
+      call_out(#'AnnounceNewPlayer, 5, trigob);
+      break;
+    case EVT_LIB_LOGIN:
+      notify_player_change(data[E_PLNAME],1);
+#if __BOOT_TIME__ < 1318110723
+      // Spieler evtl. renewen? Bei reboot raus (08.10.2011)
+      renew_player(data[E_PLNAME],0);
 #endif
-  notify_player_change(who,1);
+      break;
+  }
 }
 
-void notify_player_leave(string who)
-{
-  notify_player_change(who,0);
-}
 
 //besser P_NO_ATTACK als Defend()...
 mixed _query_no_attack() {
@@ -498,7 +515,7 @@ void shoutansw()
       ans="der Akademie der Zauberer";
       break;
       default:
-      ans="irgend einer Gilde";
+      ans="irgendeiner Gilde";
     }
     ans="ich stehe in "+ans+".\n";
   }
@@ -589,7 +606,7 @@ void catch_tell(string str)
   if (!message || sizeof(message)==0)
     return;
 
-  if (member_array("merlin",message)==-1)
+  if (member(message, "merlin")==-1)
     return;
 
   message-=({"merlin"});
@@ -997,6 +1014,13 @@ void reset()
 {
 }
 
+public int remove(int silent) {
+  EVENTD->UnregisterEvent(EVT_LIB_LOGIN, ME);
+  EVENTD->UnregisterEvent(EVT_LIB_PLAYER_CREATION, ME);
+  destruct(this_object());
+  return 1;
+}
+
 void wandern()
 {
   mapping ex,rooms;
@@ -1287,8 +1311,8 @@ mixed locate_objects(string complex_desc)
 
 void MBanishInsert(string name, string grund, object wer)
 {
-  if ( !name || !stringp(name) || !strlen(name) ||
-       !grund || !stringp(grund) || !strlen(grund) ||
+  if ( !name || !stringp(name) || !sizeof(name) ||
+       !grund || !stringp(grund) || !sizeof(grund) ||
        !wer || !objectp(wer) || getuid(wer) != secure_euid() ||
        !IS_DEPUTY(wer) )
     return;
@@ -1307,10 +1331,10 @@ mapping MBanishList()
 
 void MBanishDelete(string name)
 {
-  if ( !name || !stringp(name) || !strlen(name) || !ARCH_SECURITY )
+  if ( !name || !stringp(name) || !sizeof(name) || !ARCH_SECURITY )
     return 0;
 
-  MBanishListe = m_delete( MBanishListe, name );
+  MBanishListe = m_copy_delete( MBanishListe, name );
   save_object(SAVEFILE);
 }
 

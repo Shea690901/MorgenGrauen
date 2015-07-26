@@ -2,7 +2,7 @@
 //
 // living/team.c
 //
-// $Id: team.c 7521 2010-03-28 19:08:11Z Arathorn $
+// $Id: team.c 9138 2015-02-03 21:46:56Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -17,6 +17,7 @@
 #include <combat.h>
 #include <living/team.h>
 #include <wizlevels.h>
+#include <hook.h>
 
 #define ME this_object()
 #define TP this_player()
@@ -34,6 +35,7 @@ void create() {
   Set(P_TEAM_AUTOFOLLOW,-1,F_SET_METHOD);
   Set(P_TEAM_AUTOFOLLOW,PROTECTED,F_MODE_AS);
   teammove=0;
+  offerHook(H_HOOK_TEAMROWCHANGE, 1);
 }
 
 void add_team_commands() {
@@ -50,7 +52,7 @@ int _query_team_autofollow() {
   return Set(P_TEAM_AUTOFOLLOW,team_autofollow);
 }
 
-private static int team_help() {
+private int team_help() {
   // Syntax-Kompatiblitaet (Avalon) ist ganz nett :-)
   write("\
 (Befehle des Teamleiters sind mit * gekennzeichnet\n\
@@ -105,7 +107,7 @@ string TeamPrefix() {
 }
 
 
-private static int team_aufnahmewunsch(string arg) {
+private int team_aufnahmewunsch(string arg) {
   object pl;
 
   if ((!objectp(pl=find_player(arg)) && !objectp(pl=present(arg,ENV)))
@@ -126,7 +128,7 @@ private static int team_aufnahmewunsch(string arg) {
   return 1;
 }
 
-private static int team_aufnahme(string arg) {
+private int team_aufnahme(string arg) {
   object pl,team;
   int res;
 
@@ -185,7 +187,7 @@ static int DoTeamFollow() {
     return team_follow_todo=0;
 
   do {
-    efun::m_delete(team_follow_todo,ENV);
+    m_delete(team_follow_todo,ENV);
     tell_object(ME,sprintf("Du folgst Deinem Team mit \"%s\".\n",cmd));
     command(cmd);
   } while (get_eval_cost()>900000 && random(1000)>20 && objectp(ME)
@@ -490,11 +492,11 @@ varargs int PresentPosition(mixed pmap) {
 }
 
 #define FILLSTRING "                                        "
-varargs private static string center_string(string str, int w) {
-  return (FILLSTRING[0..((w-strlen(str))/2-1)]+str+FILLSTRING)[0..(w-1)];
+varargs private string center_string(string str, int w) {
+  return (FILLSTRING[0..((w-sizeof(str))/2-1)]+str+FILLSTRING)[0..(w-1)];
 }
 
-private static int ShowTeamRows() {
+private int ShowTeamRows() {
   int i,j,sz;
   mixed *pres_rows;
   object *obs,ob;
@@ -635,11 +637,14 @@ varargs int teamcmd(string arg) {
 }
 
 varargs void InformRowChange(int from, int to, object caster) {
-  mixed gilde;
 
   if (caster) return; // Fuer den Fall, dass Gildenobjekt==ME ist
   if (PO!=Query(P_TEAM)) return;
-  if (!stringp(gilde=QueryProp(P_GUILD))) return;
+#if __BOOT_TIME__ < 1281904437
+  mixed gilde = QueryProp(P_GUILD);
+  if (!stringp(gilde)) return;
   if (!objectp(gilde=find_object("/gilden/"+gilde))) return;
   gilde->InformRowChange(from,to,ME);
+#endif
+  HookFlow(H_HOOK_TEAMROWCHANGE, ({from,to}) );
 }

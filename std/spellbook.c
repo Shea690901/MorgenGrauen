@@ -2,7 +2,7 @@
 //
 // spellbook.c -- Grundlegende Funktionen fuer Zaubersprueche
 //
-// $Id: spellbook.c 7505 2010-03-15 21:23:25Z Zesstra $
+// $Id: spellbook.c 9142 2015-02-04 22:17:29Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma no_shadow
@@ -70,19 +70,17 @@ AddSpell(string verb, int kosten, mixed ski) {
   // SI_SPELL-Submapping hinzufuegen, wenn nicht da.
   if (!member(ski,SI_SPELL))
       ski+=([SI_SPELL:([]) ]);
-  // gleiches SP_NAME in Skillmapping und SI_SPELL-Mapping eintragen. *seufz*
-  // Noetig, weil es in der Vergangenheit offenbar eine grosse Verwirrung
-  // gegeben hat, wo SP_NAME hingehoert (in SI_SPELL) und min. das halbe Mud
-  // falsch prueft. TODO: Wenn der Rest vom mud richtig prueft, sollte
-  // sichergestellt werden, dass SP_NAME nur noch in SI_SPELL drinsteht.
-  if (!stringp(ski[SP_NAME]) && !stringp(ski[SI_SPELL][SP_NAME])) {
-      ski[SP_NAME] = verb;
+  // ski[SI_SPELL][SP_NAME] ergaenzen, ggf. aus ski verschieben
+  if (!stringp(ski[SI_SPELL][SP_NAME]) && stringp(ski[SP_NAME])) {
+      ski[SI_SPELL][SP_NAME] = ski[SP_NAME];
+      m_delete(ski, SP_NAME);
+  }
+  else if (!stringp(ski[SI_SPELL][SP_NAME])) {
       ski[SI_SPELL][SP_NAME] = verb;
   }
-  else if (stringp(ski[SP_NAME]) && !stringp(ski[SI_SPELL][SP_NAME]) )
-      ski[SI_SPELL][SP_NAME] = ski[SP_NAME];
-  else if (stringp(ski[SI_SPELL][SP_NAME]) && !stringp(ski[SP_NAME]) )
-      ski[SP_NAME] = ski[SI_SPELL][SP_NAME];
+  if (stringp(ski[SP_NAME])) {
+      m_delete(ski, SP_NAME);
+  }
 
   if (level)
     ski=AddSkillMappings(ski,([SI_SKILLRESTR_LEARN:([P_LEVEL:level])]));
@@ -123,11 +121,24 @@ TryAttackSpell(object victim, int damage, mixed dtypes,
 
   damage=(damage*(int)caster->QuerySkillAttribute(SA_DAMAGE))/100;
 
-  // ggf. Loggen von PK-Versuchen
-  if (query_once_interactive(caster) && query_once_interactive(victim))
-    CheckPlayerAttack(caster, victim, sprintf("Spellbook: %O, Spell: %O\n",
-	object_name(this_object()),
-	((mappingp(sinfo) && is_spell) ? sinfo[SP_NAME]  : "") ) );
+  // ggf. Loggen von PK-Versuchen und ggf. ausserdem Angriff abbrechen.
+  // BTW: Aufruf von InsertEnemy() gibt 0 zurueck, wenn der Gegner nicht
+  // eingetragen wurde. Allerdings tut es das auch, wenn der Gegner schon
+  // Feind war. Daher muss noch geprueft werden, ob nach dem InsertEnemy() die
+  // beiden Spieler Feinde sind. Wenn nicht, wird der Spell auch abgebrochen
+  // und eine Meldung ausgegeben.
+  if (query_once_interactive(caster) && query_once_interactive(victim)
+      && CheckPlayerAttack(caster, victim, 
+        sprintf("Spellbook: %O, Spell: %O\n",
+                object_name(this_object()),
+                ((mappingp(sinfo) && is_spell) ? sinfo[SP_NAME]  : "")))
+      && !caster->IsEnemy(victim)
+      && !caster->InsertEnemy(victim)
+      )
+  {
+    tell_object(ME, "Ein goettlicher Einfluss schuetzt Deinen Gegner.\n");
+    return 0;
+  }
 
   nomag=(int)victim->QueryProp(P_NOMAGIC);
   if ((sinfo[SI_NOMAGIC] < nomag) &&
@@ -208,8 +219,12 @@ void
 Learn(object caster, string spell, mapping sinfo) {
   int val,diff,attval;
   mapping attr;
-  
-  // Attribut sollte int sein, wenn nicht anders angegeben
+ 
+  // gar nicht lernen?
+  if (sinfo[SI_NO_LEARN])
+    return;
+
+ // Attribut sollte int sein, wenn nicht anders angegeben
  if (mappingp(sinfo[SI_LEARN_ATTRIBUTE]))
  {
 	attr=sinfo[SI_LEARN_ATTRIBUTE];
@@ -276,34 +291,47 @@ UseSpell(object caster, string spell, mapping sinfo) {
 
   if (!caster || !spell)
     return 0;
-  sname=SelectSpell(spell,sinfo);
   // Spell kann in der Gilde anderen Namen haben
+  sname=SelectSpell(spell,sinfo);
   if (!(ski=QuerySpell(sname))) // Existiert dieser Spell?
     return 0;
-  ski=AddSkillMappings(ski,sinfo);
   // Gildeneigenschaften sollen Spelleigenschaften ueberschreiben koennen
-  ski=race_modifier(caster,ski);
+  ski=AddSkillMappings(ski,sinfo);
   // Fuer verschiedene Rassen unterschiedliche Eigenschaften
+  ski=race_modifier(caster,ski);
 
   // printf("Spellinfo: %O\n",ski);
 
   if (!CanTrySpell(caster, ski))
     return 1;
+
   if (caster->QueryProp(P_SP) < (cost=GetFValueO(SI_SPELLCOST,ski,caster))) {
     if(txt=ski[SI_SP_LOW_MSG])write(txt);
     else write("Du hast zu wenig Zauberpunkte fuer diesen Spruch.\n");
     return 1;
   }
   // printf("cost: %d\n",cost);
-#if __BOOT_TIME__ < 1268687556
-  if (time()<caster->QueryProp(P_NEXT_SPELL_TIME)) {
-#else
-  if (caster->CheckSpellFatigue()) {
-#endif
-    if(txt=ski[SI_TIME_MSG]) write(txt);
-    else write("Du bist noch zu erschoepft von Deinem letzten Spruch.\n");
-    return 1;
+
+  if (mappingp(ski[SI_X_SPELLFATIGUE])) {
+    // fuer jeden Key die Spellfatigue pruefen, wenn das Mapping hinterher
+    // nicht leer ist, ist man zu erschoepft.
+    tmp = filter(ski[SI_X_SPELLFATIGUE],
+        function int (string key, int val)
+        { return (int)caster->CheckSpellFatigue(key); } );
+    if (sizeof(tmp)) {
+        write(ski[SI_TIME_MSG] ||
+            "Du bist noch zu erschoepft von Deinem letzten Spruch.\n");
+      return 1;
+    }
   }
+  else {
+    if (caster->CheckSpellFatigue()) {
+        write(ski[SI_TIME_MSG] ||
+            "Du bist noch zu erschoepft von Deinem letzten Spruch.\n");
+      return 1;
+    }
+  }
+
   if (!(ski[SI_NO_ATTACK_BUSY]&NO_ATTACK_BUSY_QUERY) &&
       caster->QueryProp(P_ATTACK_BUSY)) {
     if (txt=ski[SI_ATTACK_BUSY_MSG]) write(txt);
@@ -321,7 +349,8 @@ UseSpell(object caster, string spell, mapping sinfo) {
         write(txt);
         return 1;
       }
-    } else { // Andere Sprueche brechen die Vorbereitung ab
+    }
+    else { // Andere Sprueche brechen die Vorbereitung ab
       if (!mappingp(tmp=QuerySpell(ps[1])) || // richtige Meldung holen...
           !stringp(txt=tmp[SI_PREPARE_ABORT_MSG]))
         txt="Du brichst die Spruchvorbereitung fuer `%s' ab.\n";
@@ -333,7 +362,8 @@ UseSpell(object caster, string spell, mapping sinfo) {
         return 1;
       }
     }
-  } else {
+  }
+  else {
     if (fat=GetValue(SI_PREPARE_TIME,ski,caster)) {
       // Spruch braucht vorbereitungszeit
       caster->SetProp(P_PREPARED_SPELL,({time()+fat,spell,ski[SI_SKILLARG]}));
@@ -343,19 +373,26 @@ UseSpell(object caster, string spell, mapping sinfo) {
   }
   if (ps)
     caster->SetProp(P_PREPARED_SPELL,0);
-
+  
+  // Funktion kann anderen Namen haben als Spell
   if (!(fname=sinfo[SI_SKILLFUNC]))
     fname=sname;
-  // Funktion kann anderen Namen haben als Spell
-  res=0;
+
   if((ski[SI_NOMAGIC] < environment(caster)->QueryProp(P_NOMAGIC)) &&
       random(100) < environment(caster)->QueryProp(P_NOMAGIC)) {
-    if (txt=ski[SI_NOMAGIC_MSG]) write(txt);
-    else write("Dein Zauberspruch verpufft im Nichts.\n");
+    if (txt=ski[SI_NOMAGIC_MSG])
+      write(txt);
+    else
+      write("Dein Zauberspruch verpufft im Nichts.\n");
     res=ABGEWEHRT;
-  } else {
+  }
+  else {
+    // Spruch ausfuehren.
     res=(int)call_other(this_object(),fname,caster,ski);
   }
+  // TODO: Wenn die ausgefuehrte Spellfunktion eine 0 zurueckgibt, sollen jetzt
+  // noch notify_fails zum Zuge kommen koennen. Daher in diesem Fall auch 0
+  // zurueckgeben.
   if (!res || !caster)
     return 1;
 
@@ -366,14 +403,22 @@ UseSpell(object caster, string spell, mapping sinfo) {
 	else
 		caster->SetProp(P_ATTACK_BUSY,ski[SI_ATTACK_BUSY_AMOUNT]);
   	}
-  if ((fat=GetFValueO(SI_SPELLFATIGUE,ski,caster))<0)
-    fat=1;
+
   caster->restore_spell_points(-1*cost);
-#if __BOOT_TIME < 1268687556
-  caster->SetProp(P_NEXT_SPELL_TIME,time()+fat);
-#else
-  caster->SetSpellFatigue(fat);
-#endif
+
+  if (mappingp(ski[SI_X_SPELLFATIGUE])) {
+    // fuer jeden Key die Spellfatigue setzen. Keys mit Dauer 0 loesen keine
+    // Spellfatigue aus.
+    filter(ski[SI_X_SPELLFATIGUE],
+        function int (string key, int val)
+        { return (int)caster->SetSpellFatigue(val, key); } );
+  }
+  else {
+    if ((fat=GetFValueO(SI_SPELLFATIGUE,ski,caster))<0)
+      fat=1;
+    caster->SetSpellFatigue(fat);
+  }
+
 
   if (res==ERFOLG)
     Erfolg(caster,spell,ski);
@@ -441,6 +486,7 @@ FindGroupP(object pl, int who, int pr) {
   return nres;
 }
 
+// Findet feindliche und freundliche GRUPPEN im angegebenen Bereich.
 varargs mixed
 FindDistantGroups(object pl, int dist, int dy, int dx) {
   mapping pos;
@@ -499,7 +545,7 @@ FindDistantGroups(object pl, int dist, int dy, int dx) {
         || (pos[ob]<0 && (funcall(qp,P_NO_GLOBAL_ATTACK) // Nicht angreifen
                           || funcall(qp,P_NO_ATTACK)
                           || (IS_LEARNING(ob) && !funcall(is_enemy,ob)))))
-      efun::m_delete(pos,ob);
+      m_delete(pos,ob);
   }
 
   // Reihen aufstellen
@@ -540,6 +586,8 @@ FindDistantGroups(object pl, int dist, int dy, int dx) {
   return x;
 }
 
+// Findet feindliche oder freundliche Gruppe (oder Summe beider) im
+// angegebenen Bereich.
 varargs object *
 FindDistantGroup(object pl, int who, int dist, int dy, int dx) {
   mixed *x;
@@ -558,7 +606,7 @@ find_victim(string wen, object pl) {
   object victim;
 
   if (!pl) return 0;
-  if (!strlen(wen)) {
+  if (!sizeof(wen)) {
     if (victim = (object)pl->SelectEnemy())
       return victim;
     else
@@ -592,7 +640,7 @@ FindLivingVictim(string wen, object pl, string msg) {
   return vic;
 }
 
-private static varargs object
+private varargs object
 DoFindEnemyVictim(string wen, object pl, string msg,
                   mixed func, int min, int max) {
   object vic;
@@ -667,17 +715,23 @@ FindEnemyVictim(string wen, object pl, string msg) {
   return DoFindEnemyVictim(wen,pl,msg,"SelectEnemy");
 }
 
+// Wie FindEnemyVictim, aber nur im Nahkampf erreichbare Feinde werden
+// gefunden.
 varargs object
 FindNearEnemyVictim(string wen, object pl, string msg) {
   return DoFindEnemyVictim(wen,pl,msg,"SelectNearEnemy");
 }
 
+// Wie FindEnemyVictim, aber nur Feinde im Bereich der angegebenen Reihen
+// (min,max) werden gefunden.
 varargs object
 FindFarEnemyVictim(string wen, object pl, string msg,
                    int min, int max) {
   return DoFindEnemyVictim(wen,pl,msg,"SelectFarEnemy",min,max);
 }
 
+// Wie FindEnemyVictim, findet aber nur Feinde in
+// FindDistantGroup(GEGNER,entfernung,abweichung)
 varargs object
 FindDistantEnemyVictim(string wen, object pl, string msg,
                        int dist, int dy) {

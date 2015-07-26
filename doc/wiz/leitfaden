@@ -1,3 +1,8 @@
+
+
+ACHTUNG: DIESER LEITFADEN IST FURCHTBAR VERALTET! :-(
+
+
 DER LEITFADEN 'WIE SCHLIESSE ICH ERFOLGREICH MEIN GEBIET AN'.
 (in sieben Schritten zum Erfolg, von Tsunami und Feuerwehr)
 -------------------------------------------------------------
@@ -32,10 +37,10 @@ machen, wie die Anschlussraeume ausschauen koennten.
 
 Erstelle sinnvolle Unterverzeichnise: es hat sich folgendes bewaehrt:
 Ein Hauptverzeichnis mit dem Namen des Gebietes (kurz, wenns geht). Dort
-kommen dann die Unterverzeichnise rein: z.B. '+/doc +/log +/mon +/obj +/rooms'. 
+kommen dann die Unterverzeichnise rein: z.B. '+/doc +/mon +/obj +/rooms'. 
 In das '+/doc' kommen dann Deine Karten und Texte. Falls Du mit 
 'NotifyPlayerDeath()' Deine Kerben loggen willst, oder andere wichtige 
-Sachen loggen moechtest, dann schreibe diese Files in Dein '+/log' 
+Sachen loggen moechtest, dann schreibe diese Files in das '/log/<deinname>/' 
 Verzeichnis. 
 In das '+/mon' Verzeichnis kommen alle NPCs usw.
 
@@ -84,7 +89,7 @@ AddDetail( ({"wand","waende"}),BS(
   "Die Waende bestehen wie alles hier aus purem Saphir. In die noerdliche "+
   "Wand wurde ein schrecklich gezacktes und scharfkantiges Loch gesprengt."));
 
-Um dies zu benutzen musst Du allerdings noch #include <defines.h> in das 
+Um dies zu benutzen musst Du allerdings noch #include <break_string.h> in das 
 Headerfile setzen (vor die #define BS(x)...)-Zeile), sonst kennt der 
 Precompiler den Ausdruck BS_LEAVE_MY_LFS nicht.
 

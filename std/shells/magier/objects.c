@@ -1,4 +1,4 @@
-// $Id: objects.c 6371 2007-07-17 22:46:50Z Zesstra $
+// $Id: objects.c 8848 2014-06-11 22:05:04Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma range_check
@@ -20,13 +20,13 @@
 //                        ###################
 
 
-static mixed *_query_localcmds()
+static mixed _query_localcmds()
 {
   return ({({"clone","_clone",0,WIZARD_LVL}),
            ({"setcmsg","_setcmsg",0,WIZARD_LVL}),
            ({"setdmsg","_setdmsg",0,WIZARD_LVL}),
            ({"destruct","_destruct",0,WIZARD_LVL}),
-           ({"Destruct","_destruct",0,WIZARD_LVL})});
+          });
 }
 
 //                              #########
@@ -105,7 +105,7 @@ static int _destruct(string cmdline)
   mixed *args;
   object ob;
 
-  if (!strlen(cmdline=_unparsed_args()))
+  if (!sizeof(cmdline=_unparsed_args()))
     return USAGE(query_verb()+" <objektname>");
   args=find_obs(lower_case(cmdline),PUT_GET_NONE);
   if (!args||!sizeof(args))

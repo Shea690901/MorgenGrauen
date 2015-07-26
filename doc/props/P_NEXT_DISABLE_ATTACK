@@ -1,16 +1,13 @@
 PROPERTY
-
   P_NEXT_DISABLE_ATTACK    "next_diable_attack"
 
 DEFINIERT IN 
-
   combat.h
 
 BESCHREIBUNG
-
   Diese Property gibt an, wann der NPC das naechste Mal paralysiert
   werden kann. Ueblicherweise wird sie automatisch beim Setzen
-  von P_DISABLE_ATTACK gesetzt. Sie gibt eine Zeitpunkt wie
+  von P_DISABLE_ATTACK gesetzt. Sie gibt einen Zeitpunkt wie
   die Funktion time() an, an dem zum ersten Mal wieder Paralyse
   moeglich ist.
 
@@ -23,8 +20,12 @@ BESCHREIBUNG
   Diese Set-Methode verhindert das Setzen von P_NEXT_DISABLE_ATTACK mittels
   eines SetProp-Aufrufes.
 
-SIEHE AUCH
+BEMERKUNGEN:
+  Die Zeit zum Schutz vor erneuter Paralyse existiert absichtlich. Bitte
+  waegt sorgfaeltig ab, bevor ihr diese Property an Gegnern/Spielern
+  manipuliert.
 
+SIEHE AUCH:
   P_DISABLE_ATTACK
 
-17.03.2008, Zesstra
+21.Jul 2014 Gloinson

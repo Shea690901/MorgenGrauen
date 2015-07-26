@@ -17,8 +17,9 @@ FUNKTION:
 	aufgehoben!
 
 HINWEIS:
-	Es ist _nicht_ moeglich ganze Verzeichnisbaeume in ein /secure
-	Verzeichnis abzulegen.
+	Es ist _nicht_ moeglich ganze Verzeichnisbaeume in ein secure/
+	Verzeichnis abzulegen. Anders formuliert:
+  Unterverzeichnisse von secure/ geniessen _keinen_ besonderen Schutz.
 
 BEISPIEL:
 
@@ -26,18 +27,26 @@ BEISPIEL:
 
 	  #define HOME(x)    "/d/region/magiername/meingebiet/"+x
 	  #define NPC(x)     HOME("npc/"+x)
+     -> /d/region/magiername/meingebiet/npc/
 	  #define OBJ(x)     HOME("obj/"+x)
+     -> /d/region/magiername/meingebiet/obj/
 	  #define ROOM(x)    HOME("room/"+x)
+     -> /d/region/magiername/meingebiet/room/
 	  #define SECURE(x)  HOME("secure/"+x)
+     -> /d/region/magiername/meingebiet/secure/
 
 
 	o falscher (wirkungsloser) Einsatz mit einem Verzeichnisbaum:
 
 	  #define HOME(x)    "/d/region/magiername/meingebiet/secure/"+x
 	  #define NPC(x)     HOME("npc/"+x)
+     -> /d/region/magiername/meingebiet/secure/npc/
 	  #define OBJ(x)     HOME("obj/"+x)
+     -> /d/region/magiername/meingebiet/secure/obj/
 	  #define ROOM(x)    HOME("room/"+x)
+     -> /d/region/magiername/meingebiet/secure/room/
 
 
 LETZTE AeNDERUNG:
-	Son, 14. Jan 2001, 19:25:10 von Padreic
+  04.09.2011 Zesstra
+

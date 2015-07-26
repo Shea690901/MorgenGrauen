@@ -2,7 +2,7 @@
 //
 // pub.h -- Headerfile for pubs and pubmaster
 //
-// $Id: pub.h 4494 2006-09-23 10:14:36Z root $
+// $Id: pub.h 7572 2010-06-03 17:41:29Z Zesstra $
 
 #ifndef _PUB_H_
 #define _PUB_H_
@@ -49,6 +49,9 @@
 
 // Meldung, wenn Spieler nicht genug Geld hat
 #define P_PUB_NO_MONEY    "pub_no_money"
+
+// Meldung, wenn der Barkeeper nicht anwesend ist
+#define P_PUB_NO_KEEPER   "pub_no_keeper"
 
 /* Sonstige Defines */
 

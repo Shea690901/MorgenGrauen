@@ -11,10 +11,10 @@
 private int IPv4_addr2int(string addr) {
     int mask;
 
-    if (!stringp(addr) || !strlen(addr))
+    if (!stringp(addr) || !sizeof(addr))
       return 0;
     // irgendwelche Zeichen ausser 0-9, . und / drin?
-    if (strlen(addr-"0123456789./"))
+    if (sizeof(addr-"0123456789./"))
       return 0;
 
     string *parts = explode(addr, "/") - ({""});
@@ -57,10 +57,10 @@ private int IPv4_addr2int(string addr) {
 }
 
 private int IPv4_net_size(string addr) {
-    if (!stringp(addr) || !strlen(addr))
+    if (!stringp(addr) || !sizeof(addr))
       return 0;
     // irgendwelche Zeichen ausser 0-9, . und / drin?
-    if (strlen(addr-"0123456789./"))
+    if (sizeof(addr-"0123456789./"))
       return 0;
 
     string *parts = explode(addr, "/") - ({""});

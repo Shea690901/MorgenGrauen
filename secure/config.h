@@ -11,7 +11,6 @@
 #define MUDHOST "mg"
 #define FTPD_IP "87.79.24.60"
 #define UDPSERV "87.79.24.60"
-#define SSLPORT 4712
 
 // Guess a MUDNAME if none is set.
 #ifndef MUDNAME
@@ -23,11 +22,20 @@
 #  endif
 #endif
 
+#if MUDNAME == "MorgenGrauen"
+#  define SSLPORT 4712
+#else
+#  define SSLPORT 4714
+#endif
+
 // undef to disable MSSP support.
 #define MSSP_SUPPORT "MSSP-Plaintext"
 
+// undef to disable support for pure-ftpd virtual users
+#define _PUREFTPD_
+
 #define _MUDLIB_NAME_ "MorgenGrauen"
-#define _MUDLIB_VERSION_ "3.3.4"
+#define _MUDLIB_VERSION_ "3.3.5"
 
 /* define general pathnames */
 #define MASTER          "secure/master"
@@ -56,6 +64,8 @@
 #define LIBLOGDIR       "log"
 #define NEWSDIR         "news"
 #define SECUREDIR       "secure"
+#define LIBDATADIR      "data"
+#define LIBITEMDIR      "items"
 
 #define NETDEAD_ROOM "/room/netztot"
 #define NETDEAD_CHECK_TIME 5
@@ -70,6 +80,7 @@
 #define POLIZEIID  "polizei"
 #define DOCID      "DOC"
 #define GUILDID    "GUILD"
+#define ITEMID     "ITEMS"
 
 // "Besondere" Magierlevel
 #define WIZLVLS ([ ROOTID: 100,\
@@ -79,6 +90,7 @@
                    NOBODY: 0,\
                    DOCID: 0,\
                    GUILDID: 30,\
+                   ITEMID: 0,\
                  ])
 
 #define MAX_LOG_SIZE 50000
@@ -125,8 +137,12 @@
 #define __MAX_ARRAY_SIZE__ 10000
 #endif
 
-//Haben wir einen Fehlerdaemonen zu Speicher der Daten? Wenn ja, welchen?
+// Haben wir einen Fehlerdaemonen zu Speicher der Daten? Wenn ja, welchen?
+// Der normale braucht Support fuer sqlite. Wenn der nicht existiert, lassen
+// wir das mit dem Errord sein.
+#ifdef __SQLITE__
 #define ERRORD "/secure/errord.c"
+#endif
 
 // Savefile-Version
 #define __LIB__SAVE_FORMAT_VERSION__ 1

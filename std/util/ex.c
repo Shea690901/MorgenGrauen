@@ -2,7 +2,7 @@
 //
 // util/ex.c -- ex compatible editor
 //
-// $Id: ex.c 6371 2007-07-17 22:46:50Z Zesstra $
+// $Id: ex.c 9142 2015-02-04 22:17:29Z Zesstra $
 
 #pragma strong_types
 #pragma save_types
@@ -12,8 +12,8 @@
 
 inherit "/std/util/input";
 
-private static mapping ctrl = ([]);
-private static mixed buf;
+private nosave mapping ctrl = ([]);
+private nosave mixed buf;
 
 #include <sys_debug.h>
 #undef ARGS
@@ -62,10 +62,10 @@ int saveText()
   text = implode(ctrl[buf][TEXT][1..], "\n")+"\n";
   error(sprintf("%O, %d Zeilen, %d Zeichen", 
 	       buf ? buf : "", sizeof(ctrl[buf][TEXT])-1,
-	       strlen(text)));
+	       sizeof(text)));
   if(ctrl[buf][FUNC]) apply(ctrl[buf][FUNC], ctrl[buf][ARGS], text);
-  ctrl = m_delete(ctrl, buf);
-  ctrl = m_delete(ctrl, buf+"!");
+  ctrl = m_copy_delete(ctrl, buf);
+  ctrl = m_copy_delete(ctrl, buf+"!");
   buf = 0;
   return 1;
 }
@@ -150,7 +150,7 @@ int commandMode(string in)
     break;
   case 'q':
     if(ctrl[buf][CHG])
-      if(!(strlen(cmd) > 1 && cmd[1]=='!'))
+      if(!(sizeof(cmd) > 1 && cmd[1]=='!'))
         return error("Datei wurde geaendert! Abbrechen mit q!");
       else ctrl[buf] = ctrl[buf+"!"];
   case 'x':
@@ -207,7 +207,7 @@ int commandMode(string in)
     ctrl[buf][LINE] += this_player()->QueryProp(P_SCREENSIZE);
     break;
   case 'p':
-    if(strlen(cmd) > 1 && cmd[1] == 'u')
+    if(sizeof(cmd) > 1 && cmd[1] == 'u')
     {
       if(!pointerp(ctrl[YANK])) return error("Keine Zeilen im Speicher");
       if(from >= ctrl[buf][LINE]) ctrl[buf][TEXT] += ctrl[YANK];
@@ -283,7 +283,7 @@ varargs int ex(mixed text, closure func, mixed fargs, string buffer)
   int c, l;
   mixed ct;
   if(!text) text = "";
-  c = strlen(text);
+  c = sizeof(text);
   l = sizeof(text = explode(text, "\n")) - 1;
   ct = ({ CMD, text, 0, func, fargs, 0, 0});
   if(!ctrl[buffer]) StartEX(0, ct);

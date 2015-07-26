@@ -2,7 +2,7 @@
 //
 // shells/elf.c -- Elven Shell
 //
-// $Id: elf.c 7423 2010-02-07 22:56:38Z Zesstra $
+// $Id: elf.c 8928 2014-09-08 16:18:41Z Zesstra $
 
 #pragma strong_types,save_types
 
@@ -27,8 +27,8 @@ void create()
   }
 
   base::create();
-  SetDefaultHome("d/wald/room/es_mitte");
-  SetPrayRoom("d/wald/room/es_mitte");
+  SetDefaultHome("/d/wald/room/es_mitte");
+  SetDefaultPrayRoom("/d/wald/room/es_mitte");
   SetProp(P_AVERAGE_SIZE,195);
   SetProp(P_AVERAGE_WEIGHT,70000);
   SetProp(P_SKILL_ATTRIBUTE_OFFSETS,([SA_ENEMY_SAVE:110]));
@@ -51,6 +51,11 @@ void create()
            MT_ANGRIFF : 200,
 	   MT_VERWANDLUNG : 400,
 	   MT_PSYCHO : 500 ]));
+
+  // Elfen kriegen die Ebene der Wipfellaeufer per default. (Zu diesem
+  // Zeitpunkt stehen in P_CHANNELS nur die default channel drin, wird dann
+  // ueber das Einlesen des Savefiles ggf. ueberschrieben.)
+  SetProp(P_CHANNELS, QueryProp(P_CHANNELS) + ({"wipfellaeufer"}));
 
   if(!IS_SEER(this_object())){
     SetProp(P_MSGIN,"wandelt herein");
@@ -93,7 +98,7 @@ string _query_racedescr()
 {
   return 
 "\
-Als Elfen bezeichent man in der Regel jene hageren Hinterwaeldler, deren\n\
+Als Elfen bezeichnet man in der Regel jene hageren Hinterwaeldler, deren\n\
 demonstratives Naturgehabe in der Regel nur durch ihre Liebe zu kitschigen\n\
 Gedichten und ausschweifendem Geschlechtsleben in den Schatten gestellt wird.\n\
 Einen Elf kann man im allgemeinen nicht nur an aeusseren Missbildungen\n\
@@ -131,7 +136,7 @@ int _query_sp_delay(){
 }
 
 string _query_default_guild(){
-  return "abenteurer";
+  return "wipfellaeufer";
 }
 
 static void FinalSetup()

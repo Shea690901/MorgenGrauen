@@ -43,7 +43,6 @@ BEISPIELE:
      Die richtige Frage waere aber: WEN klatscht man? (in die Haende)
 
 SIEHE AUCH:
-     QueryPronoun(), /std/thing/language.c
-
+     QueryOwn(), QueryPronoun(), /std/thing/language.c
 ----------------------------------------------------------------------------
 Last modified: Wed Jan 11 13:13:35 CET 2006 by Rumata

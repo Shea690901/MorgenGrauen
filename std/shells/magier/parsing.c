@@ -1,4 +1,4 @@
-// $Id: parsing.c 7499 2010-03-09 22:08:23Z Zesstra $
+// $Id: parsing.c 9142 2015-02-04 22:17:29Z Zesstra $
 #pragma strict_types
 #pragma save_types
 //#pragma range_check
@@ -8,6 +8,7 @@
 #include <files.h>
 #include <wizlevels.h>
 #include <logging.h>
+#include <regexp.h>
 #define NEED_PROTOTYPES
 #include <magier.h>
 #include <thing/properties.h>
@@ -20,11 +21,10 @@
 
 static string glob2regexp(string str)
 {
-  str=regreplace(str,"([\\.\\^\\$\\[\\]\\(\\)])","\\\\\\1",1);
-  str=regreplace(str,"\\*",".*",1);
-  return sprintf("^%s$",regreplace(str,"?",".",1));
+  str=regreplace(str,"([\\.\\^\\$\\[\\]\\(\\)])","\\\\\\1",RE_TRADITIONAL|1);
+  str=regreplace(str,"\\*",".*",RE_TRADITIONAL|1);
+  return sprintf("^%s$",regreplace(str,"?",".",RE_TRADITIONAL|1));
 }
-
 
 //
 // to_filename: Argument in Dateinamen umwandeln
@@ -39,7 +39,7 @@ static mixed to_filename(string str)
 // Testen ob .. in einem Filenamenabschnitt, falls Version <3.2.5
   tmp=explode(str,"/");
 // Testen auf Pfadvariable
-  if (strlen(tmp[0]) && tmp[0][0]=='$' 
+  if (sizeof(tmp[0]) && tmp[0][0]=='$' 
       && m_contains(&p,QueryProp(P_VARIABLES),tmp[0][1..]))
     tmp[0]=p;
 // Pfad absolut machen (Hat danach noch Wildcards drinnen) oder auch nicht
@@ -56,7 +56,7 @@ static mixed to_filename(string str)
 // build_fn:    Filenamen aendern
 //
 
-private static void _parseargs(string str, string *line,int flags,string opts,
+private void _parseargs(string str, string *line,int flags,string opts,
                      int build_fn )
 {
 
@@ -70,7 +70,7 @@ private static void _parseargs(string str, string *line,int flags,string opts,
   if(str[0] == '-')  
   { 
     int i,j;
-    i=strlen(str);
+    i=sizeof(str);
     while(i--)
       if (str[i]!='-')
       {
@@ -109,8 +109,8 @@ static string *parseargs(string cmdline,int flags, string opts,int build_fn)
   int i;
   string *line;
   line=({});
-  if (!strlen(cmdline)) return ({});
-  map(regexplode(cmdline,"[\"][^\"]*[\"]| ")-({" ", ""}),
+  if (!sizeof(cmdline)) return ({});
+  map(regexplode(cmdline,"[\"][^\"]*[\"]| ", RE_TRADITIONAL)-({" ", ""}),
             #'_parseargs, &line, &flags,opts, build_fn);
   return line - ({""});
 }
@@ -153,7 +153,7 @@ private varargs mixed *_get_files(string dirname,string mask,int mode,string des
     if (base!="."&&base!=".."&&(!(mode==MODE_GREP&&base=="RCS"))&&
         ((data[FILESIZE]==-2&&
        sizeof(tmp=_get_files(fullname+"/",mask,mode,
-      dest+base+"/"))&&mode!=MODE_RM)||!mask||sizeof(regexp(({ base }),mask))))
+      dest+base+"/"))&&mode!=MODE_RM)||!mask||sizeof(regexp(({ base }),mask, RE_TRADITIONAL))))
     {
       //DEBUG("_GF: ADDING FILE " + fullname);
       files+= ({ data[0..2]+({ fullname,dirname,dest+base,
@@ -217,9 +217,9 @@ private mixed *_get_matching(string *pathmask, int depth, string path,
     //DEBUG("DEPTH: " + depth + " : " + sizeof(pathmask));
     if((!filemask&&(depth==sizeof(pathmask)))||
         (filemask&&(depth+2>sizeof(pathmask))&&
-        sizeof(regexp(({ base }),filemask)))||
+        sizeof(regexp(({ base }),filemask,RE_TRADITIONAL)))||
        ((mode==MODE_CP||mode==MODE_MV||(filemask&&
-        (mode==MODE_RM)&&sizeof(regexp(({ base}),filemask))))&&
+        (mode==MODE_RM)&&sizeof(regexp(({ base}),filemask,RE_TRADITIONAL))))&&
         sizeof(tmp)))
     {
       //DEBUG("ADDING: " + base+ " : "+ full );
@@ -293,7 +293,7 @@ static varargs mixed *get_files(string filename, int mode, int recursive, string
         //DEBUG("DEST: " + dest);
         if (recursive&&data[FILESIZE]==-2) // Verzeichnis, Rekursiv
           subfiles=_get_files(full+"/",filemask,mode,dest2+"/");
-        if (!(filemask&&!sizeof(subfiles)&&!sizeof(regexp(({ base }),filemask))))
+        if (!(filemask&&!sizeof(subfiles)&&!sizeof(regexp(({ base }),filemask,RE_TRADITIONAL))))
         {
           if (!filemask||mode!=MODE_RM)
             files+=({ data[0..2]+({ full, path, dest2,sizeof(subfiles)}) });
@@ -342,6 +342,17 @@ static varargs mixed *file_list(string *files, int mode, int recursive, string d
   j=sizeof(files);
   for(i=0;i<j;i++)
   {
+    // Abschliessenden / von Pfadnamen abschneiden, weil in diesem Fall 
+    // die Inhalte der ersten Unterverzeichnisebene mit ausgegeben
+    // wurden. Ursache hierfuer ist ein Fix an full_path_array() im 
+    // Masterobjekt, der dazu fuehrte, dass get_dir() den abschliessenden /
+    // des uebergebenen Pfades jetzt korrekt behandelt. \o/
+    if ( sizeof(files[i]) > 1 && files[i][<1] == '/' )
+    {
+      files[i] = files[i][0..<2];
+      if ( !sizeof(files[i]) )
+        continue;
+    }
     if (err=catch(list+=get_files(files[i],mode,recursive,dest,mask)))
     {
       printf("Fehler aufgetreten: %s\n",err);

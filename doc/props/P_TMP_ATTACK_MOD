@@ -29,8 +29,6 @@ BESCHREIBUNG:
         P_WEAPON_TYPE:       string Waffentyp (combat.h),
         P_WC:		     - oder int WC der Waffe/Hand,
         P_NR_HANDS:	     - oder int Hands der Waffe/Hand,
-        P_BALANCED_WEAPON:   - oder WP_XXX (weapon.h),
-        P_TECHNIQUE:	     - oder TQ_XXX (weapon.h)
      ]);
 
      Gibt die Methode:
@@ -80,7 +78,7 @@ BEISPIELE:
        mapping ret;
 
        // Returnwert ist immer ein Mapping, damit die Attacke weitergeht
-       ret=allocate_mapping(0,1);
+       ret=m_allocate(0,1);
 
        // magische Waffen oder Sprueche werden nicht verbessert
        if(ainfo[P_WEAPON_TYPE]!=WT_MAGIC) {

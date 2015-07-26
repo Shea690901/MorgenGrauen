@@ -5,7 +5,7 @@
      */
 #include "../files.h"
 
-inherit "std/thing";
+inherit "/std/thing";
 
 static int leichen;
 

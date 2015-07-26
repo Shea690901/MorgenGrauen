@@ -2,7 +2,7 @@
 //
 // container/restrictions.c -- container restrictions
 //
-// $Id: restrictions.c 7508 2010-03-25 22:11:33Z Zesstra $
+// $Id: restrictions.c 9020 2015-01-10 21:49:41Z Zesstra $
 
 // This is a simple container to put objects in. It defines all functions
 // which are necessary to describe an object which can be filled with
@@ -174,11 +174,11 @@ int MayAddWeight( int w )
  * a value greater 0 is returned the object ob can't be inserted in the
  * container.
  */
-varargs int PreventInsert( object ob ) { return 0; }
-varargs int PreventLeave( object ob, mixed dest ) { return 0; }
-varargs int PreventInsertLiving( object ob ) { return 0; }
-varargs int PreventLeaveLiving( object ob, mixed dest ) { return 0; }
-
+public int PreventInsert( object ob ) { return 0; }
+public int PreventLeave( object ob, mixed dest ) { return 0; }
+public int PreventInsertLiving( object ob ) { return 0; }
+public int PreventLeaveLiving( object ob, mixed dest ) { return 0; }
+public void NotifyInsert(object ob, object oldenv) { }
 
 // **** local property methods
 static int _query_total_weight() 
@@ -225,7 +225,8 @@ object *present_objects( string complex_desc )
    strlst = explode( complex_desc, " und " );
    erg = ({});
    
-   for ( i = sizeof(strlst); i--; ){
+   for ( i = sizeof(strlst); i--; )
+   {
        complex_desc = strlst[i];
        // auf letzte/letztes/letzten pruefen...
        if ( complex_desc[0..5] == "letzte" ){
@@ -246,15 +247,17 @@ object *present_objects( string complex_desc )
            default:
            }
        }
-       
+
        // auf verneinung pruefen
        if ( complex_desc[0..5] == "nicht " ){
            meth |= POS_INVERS;
            complex_desc = complex_desc[6..];
        }
+
        obs=({});
        // nun nach Main-Ids (Gruppen) suchen...
-       if ( meth & POS_LETZTES ){ // geht es nur um den letzten Gegenstand?
+       if ( meth & POS_LETZTES )
+       { // geht es nur um den letzten Gegenstand?
            switch( complex_desc ){
            case "waffe":
                obs = filter_objects( all_inventory(), "QueryProp",
@@ -265,27 +268,27 @@ object *present_objects( string complex_desc )
                obs = filter_objects( all_inventory(), "QueryProp",
                                      P_ARMOUR_TYPE );
                break;
-	  
-	   case "kleidung":
-	       obs = filter_objects( all_inventory(), "IsClothing");
-	       break;
+          
+           case "kleidung":
+               obs = filter_objects( all_inventory(), "IsClothing");
+               break;
                
            case "verschiedenem":
            case "verschiedenes":
                obs = all_inventory();
                obs -= filter_objects( obs, "QueryProp", P_WEAPON_TYPE );
                obs -= filter_objects( obs, "QueryProp", P_ARMOUR_TYPE );
-	       obs -= filter_objects( obs, "IsClothing");
+               obs -= filter_objects( obs, "IsClothing");
                obs -= filter( obs, #'living/*'*/ );
                break;
         
-	   case "eigenes":
-	   case "meins":
-	       if (objectp(haufen=present("\nhaufen "+
-		     this_player()->name(WEM)))) {
-		  obs = all_inventory(haufen);
-	       }
-	       // kein break;, Fall-through!
+           case "eigenes":
+           case "meins":
+               if (objectp(haufen=present("\nhaufen "+
+                     this_player()->name(WEM)))) {
+                  obs = all_inventory(haufen);
+               }
+               // kein break;, Fall-through!
            case "behaltenem":
            case "behaltenes":
                obs += filter( all_inventory(), "_behalten", ME,
@@ -309,9 +312,11 @@ object *present_objects( string complex_desc )
 
            // letzten Gegenstand raussuchen
            obs = obs[0..0]; 
-       }
-       else { // ganze Gruppen und nicht nur das letzte Objekt
-           switch ( complex_desc ){
+       } // if (letzter Gegenstand)
+       else
+       { // ganze Gruppen und nicht nur das letzte Objekt
+           switch ( complex_desc )
+           {
            case "allem":
            case "alles":
            case "jeden gegenstand":
@@ -344,7 +349,7 @@ object *present_objects( string complex_desc )
                                      P_ARMOUR_TYPE );
                break;
  
-	   case "kleidung":
+           case "kleidung":
            case "jede kleidung":
            case "jeder kleidung":
            case "alle kleidung":
@@ -364,20 +369,20 @@ object *present_objects( string complex_desc )
                obs = all_inventory();
                obs -= filter_objects( obs, "QueryProp", P_WEAPON_TYPE );
                obs -= filter_objects( obs, "QueryProp", P_ARMOUR_TYPE );
-	       obs -= filter_objects( obs, "IsClothing");
+               obs -= filter_objects( obs, "IsClothing");
                obs -= filter( obs, #'living/*'*/ );
                break;
        
-	   case "eigenes":
-	   case "eigenem":
-	   case "eigenen":
-	   case "meins":
-	   case "alles eigene":
-	       if (objectp(haufen=present("\nhaufen "+
-		       this_player()->name(WEM)))) {
-		  obs = all_inventory(haufen);
-	       }
-	       // kein break;, Fall-through!
+           case "eigenes":
+           case "eigenem":
+           case "eigenen":
+           case "meins":
+           case "alles eigene":
+               if (objectp(haufen=present("\nhaufen "+
+                       this_player()->name(WEM)))) {
+                  obs = all_inventory(haufen);
+               }
+               // kein break;, Fall-through!
            case "behaltenem":
            case "behaltenen":
            case "behaltenes":
@@ -391,14 +396,18 @@ object *present_objects( string complex_desc )
                    
            default:
                if ( complex_desc[0..3] == "jede" ||
-                    complex_desc[0..4] == "alle "){
-                   if ( complex_desc[4..4] == " " ){
+                    complex_desc[0..4] == "alle ")
+               {
+                   if ( complex_desc[4..4] == " " )
+                   {
                        obs = filter_objects( all_inventory(), "id",
                                              complex_desc[5..] );
                        break;
                    }
-                   else{
-                       switch( complex_desc[4..5] ){
+                   else
+                   {
+                       switch( complex_desc[4..5] )
+                       {
                        case "m ":
                        case "r ":
                        case "n ":
@@ -414,27 +423,36 @@ object *present_objects( string complex_desc )
                            break;
                    }
                }
+
+               // Der Normalfall: einzelne ID...
                ob = present( complex_desc, ME );
-               
-               if ( meth & POS_INVERS ){
+               // Achtung: dieser Teil setzt das for() fort (continue) und
+               // umgeht dabei die Pruefung auf Sichtbarkeit nach dem Ende vom
+               // switch(). Aus diesem Grunde muss hier selber geprueft
+               // werden.
+               if ( meth & POS_INVERS )
+               {
                    if ( ob && ob != ME )
                        erg += (filter_objects( all_inventory(), "short" )
                                - ({ ob }) );
                    else
                        erg += filter_objects( all_inventory(), "short" );
                }
-               else if ( ob && ob != ME )
-                   erg += ({ ob });
+               else if ( ob && ob != ME && !ob->QueryProp(P_INVIS) )
+                   erg += ({ ob });   //Normalfall: einzelne ID
+
                continue;
-           }
+
+           }  // switch
            // unsichtbare objekte entfernen
            obs = filter_objects( obs, "short" ); 
-       }
+       } // else
+
        if ( meth & POS_INVERS )
            erg += ( filter_objects( all_inventory(), "short" ) - obs );
        else
            erg += obs;
-   }
+   } // for
    return erg;
 }
 

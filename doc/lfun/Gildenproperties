@@ -49,8 +49,10 @@ SA_DAMAGE		Schaden
 SA_SPEED		Geschwindigkeit
 SA_DURATION		Dauer
 SA_EXTENSION		Ausdehnung
-SA_RANGE		Reichweite
-SA_ENEMY_SAVE		Rettungsmoeglichkeit des Gegners
+SA_RANGE		Reichweit
+SA_ENEMY_SAVE: identisch zu SA_SPELL_PENETRATION (OBSOLET!)
+SA_SPELL_PENETRATION: Chance des _Casters_, einen Spell durch ein
+                      P_NOMAGIC durchzukriegen.
 
 Skill-Info:
 FACTOR(x)		Faktor

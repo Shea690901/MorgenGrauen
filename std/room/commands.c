@@ -2,7 +2,7 @@
 //
 // room/commands.c -- room commands handling
 //
-// $Id: commands.c 6371 2007-07-17 22:46:50Z Zesstra $
+// $Id: commands.c 8201 2012-11-07 17:55:12Z Zesstra $
 
 #pragma strong_types
 #pragma save_types
@@ -10,7 +10,7 @@
 #pragma range_check
 #pragma no_clone
 
-inherit "std/thing/commands";
+inherit "/std/thing/commands";
 
 //#define NEED_PROTOTYPES
 
@@ -24,7 +24,6 @@ void init()
 {
   ::init();
 
-  add_action("imposs", "lies");
   add_action("imposs", "such");
   add_action("imposs", "suche");
 }
@@ -33,12 +32,6 @@ void init()
 /* allgemeinen Kommandos.					   */
 int imposs()
 {
-  switch (query_verb())
-  {
-    case "lies":
-    _notify_fail("Was moechtest Du lesen?\n"); break;	
-    case "such": case "suche":
-    _notify_fail("Du suchst, findest aber nichts.\n"); break;
-  }
+  _notify_fail("Du suchst, findest aber nichts.\n");
   return 0;
 }

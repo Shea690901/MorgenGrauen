@@ -1,21 +1,26 @@
-Genehmigungsgrenzen fuer Waffen:
+ GRENZWERTE
 
-Waffen:      Einhaendige Waffen  :    ab P_WC >= 140
-             Zweihaendige Waffen :    ab P_WC >= 175
+    Waffen:
+   
+      Einhaendige Waffen  :    ab P_WC >= 140
+      Zweihaendige Waffen :    ab P_WC >= 175
 
-Fuer Waffen die einen nichtphysikalischen Schadenstyp enthalten:
+      Fuer Waffen die einen nichtphysikalischen Schadenstyp enthalten:
 
-             Einhaendige Waffen  :    ab P_WC >= 120
-             Zweihaendige Waffen :    ab P_WC >= 150
+      Einhaendige Waffen  :    ab P_WC >= 120
+      Zweihaendige Waffen :    ab P_WC >= 150
 
-Alle Waffen mit HitFunc oder entsprechender Funktion muessen genehmigt
-werden (Es sei denn diese wirken nur bei !interactive() oder erhoehen 
-den Schaden nicht).
+      Genehmigungspflichtig sind auch generell Waffen, die als Schadens-
+      typ DT_TERROR, DT_SOUND, DT_AIR oder DT_SQUEEZE enthalten, unabhaengig
+      von der WC.
 
-Die maximale P_WC betraegt fuer Zweihaender 200, fuer
-                                Einhaender  150.
+      Der Schadenstyp DT_EXPLOSION wird nicht mehr genehmigt.
 
-Genehmigungsgrenzen fuer Ruestungen:
+      Alle Waffen mit HitFunc oder entsprechender Funktion muessen genehmigt
+      werden (Es sei denn diese wirken nur bei !interactive() oder erhoehen 
+      den Schaden nicht).
+
+    Ruestungen:
 
       +--------------+--------+----------------------------+
       | Ruestungstyp | MAX_AC | Genehmigungsgrenze (inkl.) |
@@ -36,3 +41,18 @@ Genehmigungsgrenzen fuer Ruestungen:
 
     Ruestungen mit DefendFunc o.ae. muessen generell genehmigt werden 
     (siehe Waffen).
+
+    Ruestungen und Waffen vom Typ AT_MISC oder WT_MISC duerfen keiner-
+    lei positive Veraenderungen im Spieler hervorrufen, keine Stats
+    veraendern oder sonstwie kampfrelevante Bedeutung haben. Die WC/AC
+    solcher Objekte ist immer 0 und wird auch nicht anders genehmigt.
+
+ SIEHE AUCH
+
+     balance, ruestungen, fernwaffen, uniques, npcs, schadenstypen
+     attributsveraenderungen, resistenzen, kampfobjekte
+
+
+------------------------------------------------------------------------------
+ LETZTE AeNDERUNG:
+    Don, 03.01.02, 12:00:00 von Tilly

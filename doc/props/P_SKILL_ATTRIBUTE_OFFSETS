@@ -2,9 +2,9 @@ NAME:
     P_SKILL_ATTRIBUTE_OFFSETS       "skill_attr_offsets"                        
 
 DEFINIERT IN:
-    /sys/new_skills.h
+    /sys/living/skill_attributes.h
 
-BESCHREIBUNG:
+BESHREIBUNG:
 
     Der Wert der Property ist ein Mapping: ([Attributname: Wert])
     In dieser Property stehen permanente Abweichungen der Skillattribute
@@ -19,7 +19,14 @@ BEMERKUNG:
     werden, ohne Ruecksprachen mit allerhoechsten Stellen!
 
 SIEHE AUCH:
-    P_SKILL_ATTRIBUTES, ModifySkillAttribute(), QuerySkillAttribute()
+    Skills Lernen:  LearnSkill, ModifySkill, LimitAbility
+    * Nutzung:      UseSpell, UseSkill
+    * Abfragen:     QuerySkill, QuerySkillAbility
+    * Modifikation: ModifySkillAttribute, QuerySkillAttribute,
+                    QuerySkillAttributeModifier, RemoveSkillAttributeModifier
+      * Properties: P_SKILL_ATTRIBUTES, P_SKILL_ATTRIBUTE_OFFSETS
+    * sonstig:      spruchermuedung, skill_info_liste
+    * Properties:   P_NEWSKILLS
 
--------------------------------------------------------------------------
-Letzte Aenderung: 25.5.2001 von Nonne@mg.mud.de
+31.12.2013, Zesstra
+

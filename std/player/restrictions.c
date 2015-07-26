@@ -2,7 +2,7 @@
 //
 // player/restrictions.c -- container aspect of players
 //
-// $Id: restrictions.c 6813 2008-03-31 21:13:00Z Zesstra $
+// $Id: restrictions.c 9020 2015-01-10 21:49:41Z Zesstra $
 
 // This is a simple container to put objects in. It defines all functions
 // which are necessary to describe an object which can be filled with
@@ -29,15 +29,20 @@
 inherit "/std/container/restrictions";
 
 #define NEED_PROTOTYPES
-
 #include <thing/properties.h>
+#include <hook.h>
 #include <living/skills.h>
+#include <attributes.h>
+#undef NEED_PROTOTYPES
 #include <properties.h>
 #include <wizlevels.h>
 #include <container.h>
-#include <attributes.h>
 #include <defines.h>
 #include <new_skills.h>
+
+//Liste von Objekten, in denen InsertNotify() gerufen wird, wenn etwas in den
+//Spieler bewegt wurde.
+nosave object *InsertHooks=({});
 
 // local properties prototypes
 static int _query_max_weight();
@@ -46,9 +51,10 @@ static mixed _set_frog(mixed arg);
 void create()
 {
   ::create();
-  
+
   Set(P_MAX_WEIGHT, NOSETMETHOD, F_SET_METHOD);
   Set(P_MAX_WEIGHT, SECURED, F_MODE);
+  offerHook(H_HOOK_INSERT, 1);
 }
 
 // **** local property methods
@@ -75,23 +81,34 @@ static int _query_max_weight() {
   return val;
 }
 
-static object *InsertHooks=({});
-
-varargs int PreventInsert(object ob)
-{
-  int i;
+static mixed _set_frog(mixed arg) {
+  mixed res;
   
-  i=sizeof(InsertHooks)-1;
+  res=Set(P_FROG,arg);
+  if (res)
+    SetProp(P_ATTRIBUTES_MODIFIER,({"#frosch",([A_STR:-30])}));
+  else
+    SetProp(P_ATTRIBUTES_MODIFIER,({"#frosch",0 }));
+  return res;
+}
 
-  while (i>=0) {
-    if (!objectp(InsertHooks[i]) || environment(InsertHooks[i])!=ME)
-      InsertHooks[i]=0; // loeschen, s.u.
-    else
-      InsertHooks[i]->InsertNotify(ob);
-    i--;
+public void NotifyInsert(object ob, object oldenv)
+{
+  ::NotifyInsert(ob, oldenv);
+  // Alle Listener im neuen Hooksystem vom InsertHook informieren
+  HookFlow(H_HOOK_INSERT, ob);
+  // Alle Listener im alten InsertHook informieren
+  if (sizeof(InsertHooks))
+  {
+    foreach(object h: &InsertHooks)
+    {
+      if (h && environment(h) == ME)
+        h->InsertNotify(ob);
+      else
+        h=0;
+    }
+    InsertHooks-=({0}); // genullte Elemente loeschen
   }
-  InsertHooks-=({0}); // genullte Elemente loeschen
-  return 0;
 }
 
 void AddInsertHook(object ob)
@@ -111,13 +128,3 @@ object *QueryInsertHooks()
   return InsertHooks;
 }
 
-static mixed _set_frog(mixed arg) {
-  mixed res;
-  
-  res=Set(P_FROG,arg);
-  if (res)
-    SetProp(P_ATTRIBUTES_MODIFIER,({"#frosch",([A_STR:-30])}));
-  else
-    SetProp(P_ATTRIBUTES_MODIFIER,({"#frosch",0 }));
-  return res;
-}

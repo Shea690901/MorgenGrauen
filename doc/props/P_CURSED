@@ -24,6 +24,10 @@ BEMERKUNGEN:
      Ruestung anzieht. Ist dies erst einmal geschehen, helfen nur noch
      Zaubersprueche oder fluchbrechende Institutionen.
 
+     Moechte man, dass der Gegenstand entfluchbar ist, dann sollte er auch
+     ansprechbar sein (gueltige ID, nicht unsichtbar), da das durch derzeitige
+     Entfluchmoeglichkeiten vorausgesetzt wird.
+
 SIEHE AUCH:
      /std/armour.c, /std/weapon.c
 

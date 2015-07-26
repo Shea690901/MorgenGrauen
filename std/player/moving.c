@@ -2,7 +2,7 @@
 //
 // player/moving.c -- player moving
 //
-// $Id: moving.c 7153 2009-02-25 21:15:47Z Zesstra $
+// $Id: moving.c 8755 2014-04-26 13:13:40Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -25,6 +25,7 @@ inherit "std/living/moving";
 #include <moving.h>
 #include <wizlevels.h>
 #include <events.h>
+#include <pathd.h>
 
 private nosave string *connections;
 
@@ -55,8 +56,15 @@ static varargs int remove( int silent )
 {
     mixed dest_obj;
 
+    // Logout-event ausloesen
+    EVENTD->TriggerEvent(EVT_LIB_LOGOUT, ([
+            E_OBJECT: ME,
+            E_PLNAME: getuid(ME),
+            E_ENVIRONMENT: environment() ]) );
+#if __BOOT_TIME__ <= 1295047816
     if ( interactive(ME) )
         catch( "/secure/merlin"->notify_player_leave(getuid(ME));publish );
+#endif
 
     dest_obj = filter( deep_inventory(ME) - ({0}), "_to_remove" );
     filter_objects( dest_obj, "remove" );
@@ -86,7 +94,7 @@ static varargs int remove( int silent )
 	    E_PLNAME: getuid(ME),
 	    E_ENVIRONMENT: environment() ]) );
     
-    return (int)::remove();
+    return ::remove();
 }
 
 public string NotifyDestruct(object caller) {
@@ -116,7 +124,7 @@ protected int PreventMove(object dest, object oldenv, int method) {
   if ( interactive(ME) && (query_hc_play()>1) ) {
     if (objectp(dest))
       hcroom=object_name(dest);
-    if (strlen(hcroom)<7 || hcroom[0..5]!="/room/") { 
+    if (sizeof(hcroom)<7 || hcroom[0..5]!="/room/") { 
       return ME_CANT_BE_INSERTED;
     }
   }
@@ -137,6 +145,8 @@ protected int PreventMove(object dest, object oldenv, int method) {
   return ::PreventMove(dest,oldenv,method);
 }
 
+// Fuck. Ausnahmsweise wegen VC brauch ich nen anderes BLUE_NAME
+#define OLD_BLUE_NAME(ob) (explode(object_name(ob),"#")[0])
 // Krams nach dem Move machen und nebenbei zum Ueberschreiben.
 protected void NotifyMove(object dest, object oldenv, int method) {
 
@@ -151,15 +161,13 @@ protected void NotifyMove(object dest, object oldenv, int method) {
   //dann geerbten Kram machen
   ::NotifyMove(dest,oldenv,method);
 
-  // Schlussnendlich noch fuer den PathD bewegung protokollieren.
+  // Schlussendlich noch fuer den PathD bewegung protokollieren.
   // (dest nicht geprueft, da ein Spieler nicht ausserhalb jedes Env bewegt
   // werden kann)
   if ( interactive() && environment() && query_verb() && objectp(oldenv)) {
-      connections += ({ BLUE_NAME(oldenv) + "#"
-                        + BLUE_NAME(dest)
-                        + "#" + query_verb() + " " + _unparsed_args(2)
-                        + "#" + method + "#" 
-	                + dest->QueryProp(P_PARA) });
+      connections += ({ ({ OLD_BLUE_NAME(oldenv), OLD_BLUE_NAME(dest),
+                        query_verb() + " " + (_unparsed_args(2) || ""),
+                        method, dest->QueryProp(P_PARA) }) });
 
       if ( sizeof(connections) > 50
            && find_call_out("flush_connections") == -1 )
@@ -168,7 +176,7 @@ protected void NotifyMove(object dest, object oldenv, int method) {
 }
 
 public void flush_connections() {
-    catch(call_other( "/p/daemon/pathd", "add_paths", connections );publish);
+    catch(PATHD->add_paths(connections);publish);
     connections = ({});
 }
 

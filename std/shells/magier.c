@@ -2,7 +2,7 @@
 //
 // shells/magier.c -- magier shell
 //
-// $Id: magier.c 7423 2010-02-07 22:56:38Z Zesstra $
+// $Id: magier.c 8675 2014-02-18 20:39:54Z Zesstra $
 
 //
 // Magiershell Basisfile
@@ -171,7 +171,7 @@ static string _query_race()
 }
 
 
-static mixed *_query_localcmds()
+static mixed _query_localcmds()
 {
   return
     base::_query_localcmds()
@@ -196,15 +196,9 @@ static int _query_age()
 
 static int _set_earmuffs(int level)
 {
-  int max;
-
-  max=1+query_wiz_level(this_object());
-  if (max>99) max=99;
-#if __VERSION__ < "3.2.9"
-  return Set(P_EARMUFFS, level > max ? max : level);
-#else
-  return Set(P_EARMUFFS,min(max,level));
-#endif
+  int maxl=1+query_wiz_level(this_object());
+  maxl = max(maxl,99);
+  return Set(P_EARMUFFS,min(maxl,level));
 }
 
 

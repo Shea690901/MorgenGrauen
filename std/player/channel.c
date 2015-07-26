@@ -2,7 +2,7 @@
 //
 // channel.c -- channel client
 //
-// $Id: channel.c 7519 2010-03-28 07:59:44Z Zesstra $
+// $Id: channel.c 9142 2015-02-04 22:17:29Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -12,22 +12,25 @@
 #define NEED_PROTOTYPES
 #include <util.h>
 #include <thing/properties.h>
+#include <living/comm.h>
 #include <player.h>
 #include <player/comm.h>
 #include <daemon.h>
+#include <player/gmcp.h>
 #undef NEED_PROTOTYPES
 
 #include <wizlevels.h>
 #include <defines.h>
 #include <properties.h>
 #include <sys_debug.h>
+#include <regexp.h>
 
 #define P_SWAP_CHANNELS  "swap_channels"
 #define P_CHANNEL_SHORT  "short_channels"
 
 #define CHANNELCMDS      "[#@%$&()<>a-zA-Z0-9\\-]"
 
-#define DEFAULT_CHANNELS ({"Abenteuer", "Anfaenger","Grats","Tod"})
+#define DEFAULT_CHANNELS ({"Abenteuer", "Anfaenger","Grats","Tod", "ZT"})
 #define DEFAULT_SHORTCUTS \
 ([                     \
  "b":"Abenteuer",      \
@@ -50,8 +53,8 @@
 ])
 
 
-private static mapping shortcut;
-private static int c_status;
+private nosave mapping shortcut;
+private nosave int c_status;
 
 void create()
 {
@@ -65,7 +68,7 @@ void create()
       + (IS_LEARNER(this_object()) ? WIZARD_SHORTCUTS : ([])));
 }
 
-static string *_query_localcmds()
+static mixed _query_localcmds()
 {
   return ({({"-","ChannelParser", 1, 0}),
            ({"ebene", "ChannelAdmin", 0, 0}),
@@ -112,12 +115,11 @@ mixed RemoveChannels()
 varargs private string getName(mixed x, int fall) {
   
   mixed o = closurep(x) ? query_closure_object(x) : x;
-  if(stringp(o) && strlen(o) && (x = find_object(o))) 
+  if(stringp(o) && sizeof(o) && (x = find_object(o))) 
     o = x;
   
   // Objekte
   if (objectp(o)) {
-    if (object_name(o) == CHMASTER) return "<MasteR>";
     // Magier sehen unsichtbare nicht nur als "Jemand"
     if (o->QueryProp(P_INVIS) && IS_LEARNING(this_object()))
       return "("+capitalize(getuid(o))+")";
@@ -128,7 +130,7 @@ varargs private string getName(mixed x, int fall) {
     return o->Name(fall, 2)||"<Unbekannt>";
   }
   // Strings
-  else if (stringp(o) && strlen(o)) {
+  else if (stringp(o) && sizeof(o)) {
     if (o[0] == '/') {
       // unsichtbare Objekte...
       int p = strstr(o, "$");
@@ -151,6 +153,8 @@ varargs private string getName(mixed x, int fall) {
   return "<Unbekannt>";
 }
 
+// <nonint> unterdrueckt die AUsgabe an den Spieler und liefert den Text
+// zurueck. Wird nur fuer die Ebenenhistory benutzt. 
 string ChannelMessage(mixed* msg, int nonint)
 {
   string channel_message;
@@ -162,6 +166,7 @@ string ChannelMessage(mixed* msg, int nonint)
   if ( previous_object() != find_object(CHMASTER) &&
        previous_object() != ME )
       return 0;
+
   string sender_name = getName(sender, msg_type == MSG_GEMOTE ? WESSEN : WER);
   int prepend_indent_flag=QueryProp(P_MESSAGE_PREPEND) ? BS_PREPEND_INDENT : 0;
   switch(msg_type) {
@@ -177,13 +182,24 @@ string ChannelMessage(mixed* msg, int nonint)
   case MSG_SAY:
   default:
     string presay=sprintf("[%s:%s] ", channel, sender_name);
-    channel_message = break_string(message, max(78,strlen(presay)+10),
+    channel_message = break_string(message, max(78,sizeof(presay)+10),
                    presay, prepend_indent_flag);
     break;
   }
   if(nonint)
     return channel_message;
-  Message(channel_message, MSGFLAG_CHANNEL, 0, channel, sender);
+
+  // Wenn GMCP sich um Uebertragung der Nachricht kuemmert, wird ReceiveMsg()
+  // nicht mehr aufgerufen.
+  if (GMCP_Channel(channel_message, channel, sender_name) != 1)
+  {
+    // Der Ebenenname muss in Kleinbuchstaben uebergeben werden, damit die
+    // Ignorierepruefung funktioniert. Die ignorierestrings sind naemlich alle
+    // kleingeschrieben.
+    ReceiveMsg(channel_message, 
+               MT_COMM|MT_FAR|MSG_DONT_STORE|MSG_DONT_WRAP,
+               MA_CHANNEL"." + lower_case(channel), 0, sender);
+  }
   return 0;
 }
 
@@ -209,7 +225,7 @@ private void createList(string n, mixed a, mixed m, mixed l)
 private mixed getChannel(string ch)
 {
   mixed ff;
-  if(!strlen(ch)) ch = QueryProp(P_STD_CHANNEL);
+  if(!sizeof(ch)) ch = QueryProp(P_STD_CHANNEL);
   if(shortcut && shortcut[ch]) ch = shortcut[ch];
   return CHMASTER->find(ch, this_object());
 }
@@ -237,7 +253,7 @@ int ChannelParser(string args)
                              "([+-]|\\!|\\?|\\*)*")) > 1)
   {
     //z.B. cmd= ({"","allgemein",":testet"})
-    if(strlen(cmd[1]) > 1 &&
+    if(sizeof(cmd[1]) > 1 &&
        strstr("+-?!*", cmd[1][<1..<1]) > -1)
       tmp = cmd[1][0..<2];
     else
@@ -253,7 +269,7 @@ int ChannelParser(string args)
       else if(!ch) return (notify_fail("Die Ebene '"+tmp
                                        +"' gibt es nicht!\n"), 0);
     //DEBUG(sprintf("ChanCmd: %O\n",cmd));
-    if (strlen(cmd[1])) {
+    if (sizeof(cmd[1])) {
       switch(cmd[1][<1]) {
     case '+':
       switch(CHMASTER->join(ch, this_object()))
@@ -291,7 +307,7 @@ int ChannelParser(string args)
     {
       mapping l;
       if(mappingp(l = CHMASTER->list(this_object())))
-        if(stringp(ch) && strlen(ch) && pointerp(l[ch = lower_case(ch)]))
+        if(stringp(ch) && sizeof(ch) && pointerp(l[ch = lower_case(ch)]))
         {
           int c; object o; string n; string *m;
           m=sort_array(map(l[ch][I_MEMBER],#'getName/*'*/, WER),#'>/*'*/);
@@ -354,13 +370,15 @@ int ChannelParser(string args)
     }
     }
   }
-  if(strlen(cmd = implode(cmd[2..], "")))
-     args = cmd + (strlen(args) ? " " : "") + args;
+  if(sizeof(cmd = implode(cmd[2..], "")))
+     args = cmd + (sizeof(args) ? " " : "") + args;
 
-  if(!strlen(args)) return 0;
+  // KOntrollchars ausfiltern.
+  args = regreplace(args,"[[:cntrl:]]","",RE_PCRE|RE_GLOBAL);
+  if(!sizeof(args)) return 0;
 
   //Wenn cmd leer ist: MSG_SAY
-  if (!strlen(cmd)) type=MSG_SAY;
+  if (!sizeof(cmd)) type=MSG_SAY;
   else {
     switch(cmd[0])
     {
@@ -377,7 +395,7 @@ int ChannelParser(string args)
     default  : type = MSG_SAY; break;
     }
   }
-  if(!ch || !strlen(ch)) ch = QueryProp(P_STD_CHANNEL);
+  if(!ch || !sizeof(ch)) ch = QueryProp(P_STD_CHANNEL);
   if((err = CHMASTER->send(ch, this_object(), args, type)) < 0)
     if(!(err = CHMASTER->join(ch, this_object())))
     {
@@ -414,7 +432,7 @@ int ChannelAdmin(string args)
         +(IS_ARCH(this_object()) ?
           "           ebene kill <Name>\n"
 	  "           ebene clear <Name>\n": ""));
-  if(!args || !strlen(args)) return 0;
+  if(!args || !sizeof(args)) return 0;
   if(sscanf(args, "kill %s", n) && IS_ARCH(this_object()))
   {
     if(!(cn = CHMASTER->find(n, this_object()))) cn = n;
@@ -471,7 +489,7 @@ int ChannelAdmin(string args)
     write("Die Ebene '"+cn+"' hat ab sofort die Beschreibung:\n"+descr+"\n");
     return 1;
   }
-  if(sscanf(args, "%s=%s", sh, n) == 2 && strlen(n))
+  if(sscanf(args, "%s=%s", sh, n) == 2 && sizeof(n))
   {
     mapping sc;
     if(pointerp(tmp = CHMASTER->find(n, this_object())) || !tmp)
@@ -488,7 +506,7 @@ int ChannelAdmin(string args)
   }
   if(sscanf(args, "%s=", sh))
   {
-    SetProp(P_CHANNEL_SHORT, m_delete(QueryProp(P_CHANNEL_SHORT) || ([]), sh));
+    SetProp(P_CHANNEL_SHORT, m_copy_delete(QueryProp(P_CHANNEL_SHORT) || ([]), sh));
     shortcut = QueryProp(P_CHANNEL_SHORT);
     write("Du loeschst die Abkuerzung '"+sh+"'.\n");
     return 1;

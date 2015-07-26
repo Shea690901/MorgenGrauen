@@ -2,7 +2,7 @@
 //
 // admin.c
 //
-// $Id: admin.c 7407 2010-02-06 00:24:48Z Zesstra $
+// $Id: admin.c 8755 2014-04-26 13:13:40Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma range_check
@@ -11,13 +11,15 @@
 
 #include <udp.h>
 #include <wizlevels.h>
+#include <input_to.h>
+
 #define NEED_PROTOTYPES
 #include <magier.h>
 #include <player.h>
 
 inherit "/std/util/cidr";
 
-mixed *_query_localcmds()
+mixed _query_localcmds()
 {
   return ({({"udpq","_udpq",0,LEARNER_LVL}),
            ({"shutdown","shut_down_game",0,ARCH_LVL}),
@@ -57,8 +59,8 @@ static int shut_down_game(string str)
     return 0;
   _notify_fail("Du musst einen Grund dafuer angeben.\n");
   if (!str) return 0;
-  write( "Direkter shutdown mit Grund \""+str+"\" (ja/nein) :" );
-  input_to("shut_down_game_2",0,str);
+  write( "Direkter shutdown mit Grund \""+str+"\"?\n" );
+  input_to("shut_down_game_2",INPUT_PROMPT, "(ja/nein) :", str);
   return 1;
 }
 
@@ -173,7 +175,7 @@ static int sinners(string arg)
         "        suender !              => Alle Eintraege dumpen\n"+
         "        suender *              => Alle Eintraege anzeigen\n");
 
-    if ( !stringp(arg) || (strlen(arg)<1) )
+    if ( !stringp(arg) || (sizeof(arg)<1) )
       return 0;
 
     if ( arg=="?" )
@@ -229,7 +231,7 @@ static int banish(string str)
   if ( !LORD_SECURITY && !IS_DEPUTY(secure_euid()) )
       return 0;
 
-  if ( !str || !stringp(str) || !strlen(str) ) {
+  if ( !str || !stringp(str) || !sizeof(str) ) {
       write("Syntax: banish [-f] <name> [<grund>]\n");
       return 1;
   }
@@ -244,7 +246,7 @@ static int banish(string str)
   if ( sscanf( str, "%s %s", name, grund ) != 2 )
       name=str;
 
-  if ( !name || !strlen(name) ){
+  if ( !name || !sizeof(name) ){
     write("Syntax: banish [-f] <name> [<grund>]\n");
     return 1;
   }
@@ -265,7 +267,7 @@ static int mbanish(string str)
 
     _notify_fail( "Syntax: mbanish <name> [<grund>]\n" );
 
-    if ( !str || !stringp(str) || !strlen(str) ){
+    if ( !str || !stringp(str) || !sizeof(str) ){
         if ( !mappingp(list = (mapping)"/secure/merlin"->MBanishList()) ||
              !(i = sizeof(list)) ){
             write( "Momentan ist kein Spieler auf der mbanish-Liste.\n" );
@@ -298,7 +300,7 @@ static int mbanish(string str)
     if ( sscanf( str, "%s %s", name, grund ) !=2 )
         name = str;
 
-    if ( !name || !strlen(name) )
+    if ( !name || !sizeof(name) )
         return 0;
 
     name = lower_case(name);
@@ -330,13 +332,13 @@ static int tbanish( string str )
 
   _notify_fail("Syntax: tbanish <name> <tage>\n");
 
-  if ( !str || !stringp(str) || !strlen(str) )
+  if ( !str || !stringp(str) || !sizeof(str) )
     return 0;
 
   if ( sscanf(str,"%s %d",name,days) != 2 )
       return 0;
 
-  if ( !name || !strlen(name) )
+  if ( !name || !sizeof(name) )
     return 0;
 
   name = lower_case(name);
@@ -362,7 +364,7 @@ static int sbanish( string str )
     if ( secure_level() <= DOMAINMEMBER_LVL )
         return 0;
 
-    if ( !str || !stringp(str) || !strlen(str) ){
+    if ( !str || !stringp(str) || !sizeof(str) ){
         if ( !sizeof(sites = (mapping)MASTER->SiteBanish( 0, 0 )) ){
             write( "Es sind zur Zeit keine Adressen gesperrt!\n" );
             return 1;
@@ -390,7 +392,7 @@ static int sbanish( string str )
     if ( sscanf( this_player()->_unparsed_args(), "%s %d", ip, days ) != 2 )
         return 0;
 
-    if ( !ip || !strlen(ip) )
+    if ( !ip || !sizeof(ip) )
         return 0;
 
 //    _notify_fail( "Ungueltiges Adress-Format!\n" );

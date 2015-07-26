@@ -4,13 +4,13 @@
 //
 // Zook
 
-// $Id: brett.h 7495 2010-03-08 19:21:11Z Zesstra $ 
+// $Id: brett.h 8755 2014-04-26 13:13:40Z Zesstra $ 
 
 #ifndef PARTYDIR
 #include "party.h"
 #endif
 
-#define ORGANISATOR "mesirii"
+#define ORGANISATOR "humni"
 
 #define INFOFILE       (PARTYDIR+"info.txt")
 #define MOREINFOFILE   (PARTYDIR+"moreinfo.txt")
@@ -43,10 +43,13 @@ mapping *Fragen() {
 
     ([Q_KEY:"ankunft",
       Q_TEXT:"Ankunft",
-      Q_CHOICES:(["9":"Freitag",
-                  "10":"Samstag",
-                  "11":"Sonntag"]),
-      Q_DEFAULT:"9"]),
+      Q_CHOICES:(["21":"Montag",
+                  "22":"Dienstag",
+                  "23":"Mittwoch",
+                  "24":"Donnerstag",
+                  "25":"Freitag",
+                  "26":"Samstag"]),
+      Q_DEFAULT:"21"]),
 
 /*    ([Q_KEY:"verpflegung",
       Q_TEXT:"Verpflegung (momentan wird HP fuer alle erwogen).",
@@ -55,9 +58,9 @@ mapping *Fragen() {
       Q_DEFAULT:"hp"]),
 */
     ([Q_KEY:"uebernachtung",
-      Q_TEXT:"Uebernachtungswunsch (Blaues Haus, Dresdner, Hotel, selbstorganisiert)",
-      Q_CHOICES:({"blaues haus","dresdner","hotel", "selbstorganisiert"}),
-      Q_DEFAULT:"blaues haus"]),
+      Q_TEXT:"Wie wirst Du wohl uebernachten ?",
+      Q_CHOICES:({"zelt","wohnwagen","wohnmobil", "ausserhalb"}),
+      Q_DEFAULT:"zelt"]),
 
      ([Q_KEY:"vegetarier",
       Q_TEXT:"Vegetarier:",
@@ -71,7 +74,7 @@ mapping *Fragen() {
       Q_BOOLEAN:1]),
 
         ([Q_KEY:"sonntagessen",
-        Q_TEXT:"Moechtest Du am Sonntag zu einem Abschieds-Mittagessen?",
+        Q_TEXT:"Moechtest Du am Sonntag zu einem Abschieds-Mittagessen beim Japaner/Chinesen/Mongolen?",
         Q_DEFAULT:"ja",
         Q_BOOLEAN:1]),
 

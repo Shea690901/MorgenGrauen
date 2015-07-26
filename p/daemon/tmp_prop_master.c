@@ -109,7 +109,7 @@ static void do_update()
 
         if ( !pointerp(val = in_progress[index]) || !objectp(val[0]) )
 	{
-            efun::m_delete( in_progress ,index );
+            m_delete( in_progress ,index );
             continue;
         }
 
@@ -133,7 +133,7 @@ static void do_update()
             }
         }
 
-        efun::m_delete( in_progress ,index );
+        m_delete( in_progress ,index );
     }
     
     reset_times = reset_times[i..];
@@ -208,7 +208,7 @@ public void RemoveTmpProp( string prop )
         }
     
     DBG( "Eintrag entfernt!\n" );
-    efun::m_delete( in_progress, index );
+    m_delete( in_progress, index );
 }
 
 

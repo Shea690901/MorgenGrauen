@@ -54,15 +54,19 @@ schau (an)
     'schau -k' oder 'schau kurz' geben die Kurzbeschreibung der aktuellen
     Umgebung aus, wie sie auch bei Bewegungen im Kurz-Modus erscheint.
 
+    'schau' ohne ein Argument loescht das sog. Bezugsobjekt.
+
  ACHTUNG:
     Manche Raeume definieren ihr eigenes Verb: `untersuche'. Hier koennen
-    `unt' und `untersuche' zu *verschiedenen* Ergebnissen fuehren.
-
-    Meistens ergibt sich aus dem Kontext, ob man etwas untersuchen soll - dann
-    sollte man besser `untersuche' als `unt' verwenden.
+    `unt' und `untersuche' zu *verschiedenen* Ergebnissen fuehren. Sollte euch
+    das auffallen, setzt bitte mit "fehler" einen Fehler in diesem Raum / an
+    dem Objekt ab.
 
  SIEHE AUCH:
-    rieche, lausche, kurz, ausgaenge
+    bezugspunkt
+    rieche, lausche, taste, lies
+    kurz, ausgaenge
 
  LETZTE AeNDERUNG:
-    Mon, 07.08.2000, 23:00:00 von Silvana
+   20.02.2013, Zesstra
+

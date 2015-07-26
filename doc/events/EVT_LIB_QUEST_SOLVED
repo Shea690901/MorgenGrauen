@@ -1,5 +1,5 @@
 EVENT: 
-   EVT_LIB_ADVANCE
+   EVT_LIB_QUEST_SOLVED
 
 DEFINIERT IN:
    /sys/events.h
@@ -26,5 +26,5 @@ SIEHE AUCH:
    events, RegisterEvent(), UnregisterEvent(), TriggerEvent(), eventd
 
 -----------------------------------------------------------------------------
-16.08.2007, Zesstra
+2014-Feb-03, Arathorn
 

@@ -16,12 +16,13 @@ BESCHREIBUNG:
         angegriffen.
         
 RUECKGABEWERT:
-        0, falls der Feind nicht existiert, ein Geist ist, oder im Gegner
-           P_NO_ATTACK gesetzt ist, oder schon angegegriffen wurde
+        0, falls der Feind nicht existiert, kein Lebewesen ist, ein Geist ist, 
+           oder im Gegner P_NO_ATTACK gesetzt ist, oder schon angegegriffen 
+           wurde
         1  sonst
         
 SIEHE AUCH:
         Kill, IsEnemy, StopHuntFor, P_NO_ATTACK
 
 LETZTE AENDERUNG:
-	Wed, 05.04.2000, 11:45:00 von Amaryllis
+26.08.2010, Zesstra

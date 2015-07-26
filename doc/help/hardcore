@@ -1,9 +1,6 @@
 Der Hardcoremodus
 ======================
 
-    Wenn ein Spieler sich zum ersten Mal in das MorgenGrauen 
-    einloggt, wird er gefragt ob er nur ein Leben wuenscht oder
-    mehrere.
     Entscheidet sich der Spieler fuer nur ein einziges Leben, so 
     spielt er im Hardcoremodus.
 
@@ -16,6 +13,11 @@ Der Hardcoremodus
     Die Hardcorespieler unterliegen den Regeln wie ganz normale 
     Spieler.
 
+    Wenn ein Spieler wuenscht, im Hardcoremodus zu spielen, kann er/sie vor
+    Erreichen der zweiten Stufe (d.h. bevor man das erste Mal erhoehen kann)
+    und vor dem ersten Tod einen Erzmagier ansprechen, welcher den HC-Modus
+    aktiviert. Dies ist endgueltig und wird nicht rueckgaengig gemacht.
+
     Eine Warnung: Ein gestorbener Spieler wird unter gar keinen Umstaenden
     wieder in das Leben zurueckgeholt.
 
@@ -23,4 +25,5 @@ Der Hardcoremodus
     rufe, ebenen, tod, regeln 
 
  LETZTE AeNDERUNG:
-    Mon, 25.04.2005, 12:50:00 von Muadib
+    22.8.2011, Zesstra
+

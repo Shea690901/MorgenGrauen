@@ -29,7 +29,7 @@ public void create()
    SetProp( P_SHORT, "Ein Vertrag" );
    SetProp( P_LONG, "@@unterschrieben@@" );
    SetProp( P_NAME, "Vertrag" );
-   SetProp(P_READ_MSG, #'text /*'*/); 
+   Set(P_READ_MSG, #'text, F_QUERY_METHOD); 
    SetProp( P_GENDER, MALE );
    SetProp( P_ARTICLE, 1 );
    AddId("vertrag");

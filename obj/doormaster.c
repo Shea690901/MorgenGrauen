@@ -25,7 +25,7 @@ int QueryDoorStatus(string dest) {
   if (!dest) return 0;
   if (!objectp(env=previous_object())) return 0;
   source=object_name(env);
-  dkey=((string)((source<dest)?(source+":"+dest):(dest+":"+source)));
+  dkey=(source<dest)?(source+":"+dest):(dest+":"+source);
   return door_status[dkey];
 }
 
@@ -36,11 +36,11 @@ void SetDoorStatus(string dest, int x) {
   if (!dest) return;
   if (!objectp(env=previous_object())) return;
   source=object_name(env);
-  dkey=((string)((source<dest)?(source+":"+dest):(dest+":"+source)));
+  dkey=(source<dest)?(source+":"+dest):(dest+":"+source);
   door_status[dkey]=x;
 }
 
-void create() {
+protected void create() {
   door_status=([]);
   id_zaehler=0;
   if (IS_CLONE(this_object())) remove();
@@ -48,7 +48,9 @@ void create() {
 
 varargs int remove(int silent) {return 0;}
 
-varargs int NewDoor(mixed cmds, string dest, mixed ids, mixed props) {
+varargs int NewDoor(string|string* cmds, string dest, string|string* ids,
+                    mapping|<int|string|string*>* props)
+{
   object env;
   string source,dkey,sec_id;
   mixed *info2,zw;
@@ -74,7 +76,7 @@ varargs int NewDoor(mixed cmds, string dest, mixed ids, mixed props) {
 	 D_NAME   : "Tuer",
 	 D_GENDER : FEMALE]);
   source=object_name(env);
-  dkey=((string)((source<dest)?(source+":"+dest):(dest+":"+source)));
+  dkey=(source<dest)?(source+":"+dest):(dest+":"+source);
 
   if (pointerp(props)) {
     for (i=0;i<sizeof(props)-1;i+=2)
@@ -88,9 +90,10 @@ varargs int NewDoor(mixed cmds, string dest, mixed ids, mixed props) {
   if (!door_status[dkey]) {
     // Nur initialisieren, wenn Tuer noch nicht existiert.
     if (info[D_FLAGS] & DOOR_OPEN)
-	  door_status[dkey]=1;
+        door_status[dkey]=D_STATUS_OPEN;
     if (info[D_FLAGS] & DOOR_CLOSED)
-	  door_status[dkey]=((info[D_FLAGS] & DOOR_NEEDKEY)?-2:-1);
+        door_status[dkey]=
+          ((info[D_FLAGS] & DOOR_NEEDKEY) ? D_STATUS_LOCKED : D_STATUS_CLOSED);
   }
   info2=env->QueryProp(P_DOOR_INFOS);
   if (!pointerp(info2))
@@ -122,7 +125,7 @@ void init_doors () {
   for (i=sizeof(info)-1;i>=0;i--) {
     if (!mappingp(info[i])) continue;
     dest=info[i][D_DEST];
-    dkey=((string)((source<dest)?(source+":"+dest):(dest+":"+source)));
+    dkey=(source<dest)?(source+":"+dest):(dest+":"+source);
     env->set_doors(info[i][D_CMDS],(door_status[dkey]>0));
   }
 }
@@ -142,20 +145,21 @@ string look_doors () {
   for (i=sizeof(info)-1;i>=0;i--) {
     if (!mappingp(info[i])) continue;
     dest=info[i][D_DEST];
-    dkey=((string)((source<dest)?(source+":"+dest):(dest+":"+source)));
+    dkey=(source<dest)?(source+":"+dest):(dest+":"+source);
     if (stringp(info[i][D_SHORT])) {
       res+=sprintf(info[i][D_SHORT],
-		    ((string)((door_status[dkey]>0)?"geoeffnet":
-			 (((string)((door_status[dkey]!=-1)?"ab":""))+"geschlossen"))));
-	  if (strlen(res) && res[<1]!='\n')
+		    ((door_status[dkey]>=D_STATUS_OPEN)?"geoeffnet":
+			 ((door_status[dkey]!=D_STATUS_CLOSED)?"ab":"")+"geschlossen"));
+	  if (sizeof(res) && res[<1]!='\n')
 		res+=" ";
 	}
     else if(mappingp(ds=info[i][D_SHORT])){
       st=door_status[dkey];
-      if((st==-2) && !ds[st])st=-1;
+      if((st==D_STATUS_LOCKED) && !ds[D_STATUS_LOCKED])
+        st=D_STATUS_CLOSED;
       if(stringp(ds[st])){
         res += ds[st];
-        if(strlen(ds[st]) && res[<1]!='\n')res+=" ";
+        if(sizeof(ds[st]) && res[<1]!='\n')res+=" ";
       }
     }
   }
@@ -206,7 +210,7 @@ void reset_doors () {
   for (i=sizeof(info)-1;i>=0;i--) {
     if (!mappingp(info[i])) continue;
     dest=info[i][D_DEST];
-    dkey=((string)((source<dest)?(source+":"+dest):(dest+":"+source)));
+    dkey=(source<dest)?(source+":"+dest):(dest+":"+source);
 
 // 	if (door_status[dkey]>-2 && door_status[dkey]<2) {
 // 	  if (door_status[dkey]>0)
@@ -218,22 +222,23 @@ void reset_doors () {
 
     if (info[i][D_FLAGS] & DOOR_RESET_CL) {
       // Tuer muss bei Reset geschlossen werden
-      if (door_status[dkey]>0) {
+      if (door_status[dkey] >= D_STATUS_OPEN) {
         if(!msg=info[i][D_RESET_MSG])msg=" schliesst sich.";
         door_message(env,info[i][D_NAME],info[i][D_GENDER],msg);
         door_message_other(source,dest,msg);
       }
-	  if (door_status[dkey]!=-2)
-		door_status[dkey]=((info[i][D_FLAGS] & DOOR_NEEDKEY)?-2:-1);
+	  if (door_status[dkey]!=D_STATUS_LOCKED)
+		door_status[dkey]=
+      ((info[i][D_FLAGS] & DOOR_NEEDKEY) ? D_STATUS_LOCKED : D_STATUS_CLOSED);
     }
     if (info[i][D_FLAGS] & DOOR_RESET_OP) {
       // Tuer muss bei Reset geoeffnet werden
-      if (door_status[dkey]<=0) {
+      if (door_status[dkey] < D_STATUS_OPEN) {
         if(!msg=info[i][D_RESET_MSG])msg=" oeffnet sich.";
         door_message(env,info[i][D_NAME],info[i][D_GENDER],msg);
         door_message_other(source,dest,msg);
       }
-      door_status[dkey]=1;
+      door_status[dkey]=D_STATUS_OPEN;
     }
   }
   init_doors();
@@ -262,9 +267,9 @@ varargs int go_door (string str) {
   ob->SetProp(P_ARTICLE,1);
   for (i=sizeof(info)-1;i>=0;i--) {
     if (!mappingp(info[i])) continue;
-    if (member_array(str,info[i][D_CMDS])<0) continue;
+    if (member(info[i][D_CMDS],str)<0) continue;
     dest=info[i][D_DEST];
-    dkey=((string)((source<dest)?(source+":"+dest):(dest+":"+source)));
+    dkey=(source<dest)?(source+":"+dest):(dest+":"+source);
     ob->SetProp(P_NAME,info[i][D_NAME]);
     ob->SetProp(P_GENDER,info[i][D_GENDER]);
     notify_fail(capitalize(ob->name(WER,1))+" ist geschlossen.\n");
@@ -332,16 +337,16 @@ int oeffnen (string str) {
   ob->SetProp(P_ARTICLE,1);
   for (i=sizeof(info)-1;i>=0;i--) {
     if (!mappingp(info[i])) continue;
-    if (member_array(s1,info[i][D_IDS])<0) continue; // Falsche Tuer
+    if (member(info[i][D_IDS],s1)<0) continue; // Falsche Tuer
     ob->SetProp(P_NAME,info[i][D_NAME]);
     ob->SetProp(P_GENDER,info[i][D_GENDER]);
     dest=info[i][D_DEST];
-    dkey=((string)((source<dest)?(source+":"+dest):(dest+":"+source)));
+    dkey=(source<dest)?(source+":"+dest):(dest+":"+source);
     notify_fail(capitalize(ob->name(WER,1))+" ist doch schon geoeffnet!\n");
     if (door_status[dkey]>0)
       continue; // Eine andere Tuer koennte gemeint sein.
-    if ((info[i][D_FLAGS] & DOOR_NEEDKEY) &&
-		door_status[dkey]!=-1) { // abgeschlossen
+    if ((info[i][D_FLAGS] & DOOR_NEEDKEY)
+        && door_status[dkey] == D_STATUS_LOCKED) { // abgeschlossen
       notify_fail("Du brauchst einen Schluessel, um "+ob->name(WEN,1)+" zu oeffnen.\n");
       if (!schl) continue; // Eine andere Tuer koennte gemeint sein.
       notify_fail(capitalize(schl->name(WER))+" passt nicht!\n");
@@ -391,42 +396,46 @@ int schliessen (string str) {
   abg=0;
   for (i=sizeof(info)-1;i>=0;i--) {
     if (!mappingp(info[i])) continue;
-    if (member_array(s1,info[i][D_IDS])<0) continue; // Falsche Tuer
+    if (member(info[i][D_IDS],s1)<0) continue; // Falsche Tuer
     ob->SetProp(P_NAME,info[i][D_NAME]);
     ob->SetProp(P_GENDER,info[i][D_GENDER]);
     dest=info[i][D_DEST];
-    dkey=((string)((source<dest)?(source+":"+dest):(dest+":"+source)));
+    dkey=(source<dest)?(source+":"+dest):(dest+":"+source);
 	if (schl) {
 	  notify_fail(capitalize(ob->name(WER,1))+" ist doch schon abgeschlossen!\n");
-	  if (door_status[dkey]<=0 && door_status[dkey]!=-1)
-		continue; // Eine andere Tuer koennte gemeint sein.
+	  if (door_status[dkey]<=0
+        && door_status[dkey] == D_STATUS_LOCKED)
+      continue; // Eine andere Tuer koennte gemeint sein.
 	  if (info[i][D_FLAGS] & DOOR_CLOSEKEY) { // Schluessel noetig?
-		notify_fail(capitalize(schl->name(WER))+" passt nicht!\n");
-		if (!pointerp(s2)) continue;
-		if (member(s2,dkey)<0) continue; // Koennte an einer anderen passen.
-		door_status[dkey]=-2;
-		abg=1;  // Tuer wird richtig abgeschlossen
-	  } else {
-		door_status[dkey]=((info[i][D_FLAGS] & DOOR_NEEDKEY)?-2:-1);
-		// ohne Schluessel abschliessbar
+		  notify_fail(capitalize(schl->name(WER))+" passt nicht!\n");
+		  if (!pointerp(s2)) continue;
+		  if (member(s2,dkey)<0) continue; // Koennte an einer anderen passen.
+		  door_status[dkey]=D_STATUS_LOCKED;
+		  abg=1;  // Tuer wird richtig abgeschlossen
 	  }
-	} else {
+    else {
+		  // ohne Schluessel abschliessbar
+		  door_status[dkey]=
+        ((info[i][D_FLAGS] & DOOR_NEEDKEY) ? D_STATUS_LOCKED : D_STATUS_CLOSED);
+	  }
+	}
+  else {
 	  notify_fail(capitalize(ob->name(WER,1))+" ist doch schon geschlossen!\n");
-	  if (door_status[dkey]<=0)
-		continue; // Eine andere Tuer koennte gemeint sein.
-	  if ((info[i][D_FLAGS] & DOOR_NEEDKEY) &&
-		  !(info[i][D_FLAGS] & DOOR_CLOSEKEY))
-		door_status[dkey]=-2; // Abschliessbar, aber dazu schluessel unnoetig
+	  if (door_status[dkey] < D_STATUS_OPEN)
+		  continue; // Eine andere Tuer koennte gemeint sein.
+	  if ((info[i][D_FLAGS] & DOOR_NEEDKEY) && 
+        !(info[i][D_FLAGS] & DOOR_CLOSEKEY))
+		  door_status[dkey]=D_STATUS_LOCKED; // Abschliessbar, aber dazu schluessel unnoetig
 	  else
-		door_status[dkey]=-1;
+		  door_status[dkey]=D_STATUS_CLOSED;
 	}
 	init_doors();
 	write("Du schliesst "+ob->name(WEN)+
-		  ((string)(abg?" ab":""))+".\n");
+		  (abg?" ab":"")+".\n");
 	say(capitalize(ob->name(WER))+" wird von "+this_player()->name(WEM)+
-		((string)(abg?" ab":" "))+"geschlossen.\n");
+		(abg?" ab":" ")+"geschlossen.\n");
 	door_message_other(source,dest," wird von der anderen Seite "+
-					   ((string)(abg?"ab":""))+"geschlossen.");
+					   (abg?"ab":"")+"geschlossen.");
     return 1;
   }
   return 0;
@@ -449,10 +458,11 @@ string special_detail_doors(string key){
     if(!mappingp(info[i][D_LONG]))continue;
     dl=info[i][D_LONG];
     dest=info[i][D_DEST];
-    dkey=((string)((source<dest)?(source+":"+dest):(dest+":"+source)));
+    dkey=(source<dest)?(source+":"+dest):(dest+":"+source);
     st=door_status[dkey];
-    if((st==-2) && !dl[-2])st=-1; /* Falls keine eigene Beschreibung
-                                   * fuer abgeschlossene Tuer vorhanden */
+    if((st==D_STATUS_LOCKED) && !dl[D_STATUS_LOCKED])
+        st=D_STATUS_CLOSED; /* Falls keine eigene Beschreibung
+                             * fuer abgeschlossene Tuer vorhanden */
     return dl[st];
   }
   return 0;

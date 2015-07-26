@@ -21,7 +21,7 @@
 /secure/questmaster
 /secure/lepmaster
 /secure/potionmaster
-/obj/money
+/items/money
 /obj/tools/xtool
 /obj/tools/lupe
 /secure/udp_mail
@@ -32,3 +32,4 @@
 /p/daemon/svn2news
 /p/daemon/moneylog
 /p/daemon/uptime_master
+/secure/zweities

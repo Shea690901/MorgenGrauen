@@ -14,7 +14,8 @@ BEMERKUNGEN:
      Darf nur ueber UseHands() und FreeHands() manipuliert werden.
 
 SIEHE AUCH:
-     P_HANDS, P_USED_HANDS, P_MAX_HANDS
+     P_HANDS
+     P_MAX_HANDS, P_USED_HANDS, P_FREE_HANDS
      UseHands, FreeHands
 
 1.Feb.2004 Gloinson

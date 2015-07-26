@@ -12,9 +12,14 @@ private nosave mapping peers = ([:1]);
    http://tintin.sourceforge.net/mssp/
    */
 
+#define MSSP_VAR 1
+#define MSSP_VAL 2
+
+public string convert_tn(mapping ldata);
+
 protected string list_ports() {
   int ports = query_mud_port(-1) - 1;
-  string res="992\t23";
+  string res="23";
   for(; ports>=0 ; --ports)
     res += "\t" + to_string(query_mud_port(ports));
 
@@ -24,12 +29,12 @@ protected string list_ports() {
 #define DESCRIPTION \
     MUDNAME" is a native German LPmud. It was founded in 1992 and has "\
     "been prospering since. The world features an original fantasy setting "\
-    "with many facets. The 13 domains form a big world with 15000 rooms to "\
+    "with many facets. The 13 domains form a big world with 18000 rooms to "\
     "explore and several thousand NPCs. You can choose between 7 races and "\
-    "8 classes (guilds). Advancing is done through a combination of "\
+    "10 classes (guilds). Advancing is done through a combination of "\
     "exploration points, experience points, class skills, finished "\
     "adventures and some more. The levels are not limited, current maximum "\
-    "is about 170. After becoming a high level player it's possible to "\
+    "is about 200. After becoming a high level player it's possible to "\
     "become a wizard and add your own imagination to the game. We are "\
     "especially proud of attracting a number of visually impaired players "\
     "who very much enjoy playing a text based online RPG. Thats why we have "\
@@ -48,7 +53,7 @@ private nosave mapping data = mindata + ([
 #if MUDHOST == __HOST_NAME__
 // diese Angaben sollen nur gesendet werden, wenn das Mud wirklich auf dem
 // MG-Rechner laeuft und kein Homemud ist.
-    "CRAWL DELAY"      : "10",
+    "CRAWL DELAY"      : "1",
     "DESCRIPTION"      : DESCRIPTION,
     "CREATED"          : "1992",
     "ICON"             : "http://mg.mud.de/newweb/img/icon.gif",
@@ -60,7 +65,7 @@ private nosave mapping data = mindata + ([
     "OBJECTS"          : "4000",
     "ROOMS"            : "18000",
     "CLASSES"          : "10",
-    "LEVELS"           : "180",
+    "LEVELS"           : "200",
     "RACES"            : "7",
     "SKILLS"           : "140",
     "MULTICLASSING"    : "0",
@@ -69,10 +74,10 @@ private nosave mapping data = mindata + ([
     "ROLEPLAYING"      : "Accepted",
     "WORLD ORIGINALITY": "Mostly Original",
     "MINIMUM AGE"      : "6",
-    "SSL"              : "992",
+    "SSL"              : "4712",
     "STATUS"           : "Live",
     "STATUS-NOTES"     : "live and running",
-    "PORT-NOTES"       : "player ports are 23 and 4711, SSL port is 992",
+    "PORT-NOTES"       : "player ports are 23 and 4711, SSL port is 4712",
     "QUEST-NOTES"      : "We have about 200 Quests and MiniQuests and "
                          "they play an important role in gaining "
                          "levels and skills.",
@@ -96,6 +101,7 @@ private nosave mapping data = mindata + ([
     "QUEST SYSTEM"     : "Integrated",
     "ZMP"              : "0",
     "ANSI"             : "1",
+    "GMCP"             : "1",
     "MCCP"             : "0",
     "MCP"              : "0",
     "MSP"              : "0",
@@ -107,17 +113,11 @@ private nosave mapping data = mindata + ([
     "PAY FOR PERKS"    : "0",
     "HIRING BUILDERS"  : "1",
     "HIRING CODERS"    : "1",
-    "RESETS"           : "N/A",
-    "MUDPROGS"         : "N/A",
-    "MUDTRIGS"         : "N/A",
-    "DBSIZE"           : "N/A",
-    "EXITS"            : "N/A",
-    "EXTRA DESCRIPTIONS" : "N/A",
     "CODEBASE-NOTES"         : "download daily snapshot of our public base "
                                "mudlib at ftp://mg.mud.de/Software/MudLib/, "
                                "get our driver at http://www.ldmud.eu/",
     "FAMILY-NOTES"           : "Descendant of Nightfall, base for several "
-                               "german MUDs, uses LDMud-3.3.x", 
+                               "german MUDs, uses LDMud-3.5.x", 
     "HELPFILES-NOTES"        : "each basic command, and hundreds of other docs",
     "MOBILES-NOTES"          : "npc's can be cloned, so there can be thousands",
     "OBJECTS-NOTES"          : "objects can be cloned, so there can be thousands",
@@ -136,6 +136,22 @@ private nosave mapping data = mindata + ([
     "ROOMS-NOTES"            : "areas have generated rooms, could be millions",
  */
     ]);
+
+
+// cache fuer die telnetneg-basierte variante
+private nosave string tn_result_min = convert_tn(mindata);
+private nosave string tn_result = convert_tn(data);
+
+
+// converts into the array to be sent via telnet suboption negotiation.
+public string convert_tn(mapping ldata) {
+  string res="";
+  foreach(string key, string value: ldata) {
+    res += sprintf("%c%s%c%s", MSSP_VAR, key, MSSP_VAL, value);
+  }
+  return res;
+}
+
 
 public void print_mssp_response() {
  string ip = query_ip_number(previous_object());
@@ -171,5 +187,28 @@ public void print_mssp_response() {
 
   reply += "MSSP-REPLY-END\r\n";
   write(reply);
+}
+
+public string get_telnegs_str() {
+  string ip = query_ip_number(previous_object());
+  string res;
+
+  if (stringp(ip)) {
+    // Vollen Datensatz alle ("CRAWL DELAY" / 2) h, daher * 1800.
+    if (peers[ip] > (time() - (to_int(data["CRAWL DELAY"]) || 1) * 1800)) {
+       // this peers asks to often and gets only the minimal dataset
+       res = tn_result_min;
+    }
+    else {
+        res = tn_result;
+        peers[ip] = time(); // record timestamp
+    }
+  }
+  else
+    res = tn_result;
+
+  res += convert_tn( (["PLAYERS": to_string(sizeof(users())-1) ]) );
+   
+  return res;
 }
 

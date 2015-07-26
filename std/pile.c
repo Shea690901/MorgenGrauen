@@ -62,9 +62,9 @@ protected int PreventMove(object dest, object oldenv, int method) {
     if( !objectp(dest) ) return 0;
     if( method & M_NOCHECK ) return 0;
     if( query_once_interactive(dest) ) {
-	return ME_NOT_ALLOWED;
-	// default meldung in put_and_get:pick
-	// IDEE: im spieler per hook eine andere meldung unterbringen
+      return ME_NOT_ALLOWED;
+    // default meldung in put_and_get:pick
+    // IDEE: im spieler per hook eine andere meldung unterbringen
     }
     return ::PreventMove(dest, oldenv, method);
 }
@@ -85,14 +85,14 @@ protected void NotifyMove(object dest, object oldenv, int method) {
 }
 
 // wenn nur noch ein Objekt im Haufen ist, soll dieser zerstoert werden.
-varargs void NotifyLeave( object ob ) {
+public void NotifyLeave( object ob, object dest ) {
 	if( sizeof(all_inventory())>1 ) return;
 	call_out( "remove", 0, 1 ); // verzoegern, um prepare_destruct gnaedig zu stimmen
 }
 
 // dito fuers loeschen
-varargs void NotifyRemove( object ob ) {
-	NotifyLeave( ob );
+public void NotifyRemove( object ob ) {
+    NotifyLeave( ob, 0);
 }
 
 // Haufen, die von zweimal dem selben NPC kommen, werden
@@ -117,7 +117,7 @@ void reset() {
   ::reset();
   // wenn nur noch unsichtbare items im Haufen: aufloesen
   if (!sizeof(filter(all_inventory(), function int (object o)
-          { return !o->QueryProp(P_INVIS);} )))
+          { return !o->short();} )))
     remove(1);
 
 }

@@ -14,7 +14,7 @@ mixed *erwarte;
 
 
 // als Funktion statt als define, da als lfun-Closure genutzt
-private static int is_alph_greater( object a, object b )
+private int is_alph_greater( object a, object b )
 {
     return geteuid(a) > geteuid(b);
 }
@@ -22,7 +22,7 @@ private static int is_alph_greater( object a, object b )
 
 // keine Ahnung, wer sich _die_ Berechnungsgrundlage ausgedacht hat.
 // Aber da sie schon uralt ist, bleibt sie auch drin ;-)
-private static int is_greater( object a, object b )
+private int is_greater( object a, object b )
 {
     int a1, b1;
     
@@ -36,7 +36,7 @@ private static int is_greater( object a, object b )
 }
 
 
-private static string stat( object ob, int ist_magier )
+private string stat( object ob, int ist_magier )
 {
     int l;
   
@@ -77,19 +77,20 @@ private static string stat( object ob, int ist_magier )
         return "H";
     case DOMAINMEMBER_LVL .. SPECIAL_LVL-1:
         return "M";
-    case WIZARD_LVL .. DOMAINMEMBER_LVL-1:
+    case WIZARD_LVL+1 .. DOMAINMEMBER_LVL-1:
         return "m";
-    case LEARNER_LVL .. WIZARD_LVL-1:
+    case LEARNER_LVL .. WIZARD_LVL:
         return "L";
     case SEER_LVL .. LEARNER_LVL-1:
         return "S";
     default:
         return "s";
     }
+    return "s";
 }
 
 
-private static string idlestat( object ob )
+private string idlestat( object ob )
 {
     switch( query_idle(ob) ){
     case 1800 .. 7199:
@@ -103,10 +104,11 @@ private static string idlestat( object ob )
     default:
         return "J";
     }
+    return ".";
 }
 
 
-private static string wegstat( object ob )
+private string wegstat( object ob )
 {
     if ( ob->QueryProp(P_AWAY) )
         return "w";
@@ -115,7 +117,7 @@ private static string wegstat( object ob )
 }
 
 
-private static string hcstat( object ob )
+private string hcstat( object ob )
 {
     int hcstat;
     
@@ -134,7 +136,7 @@ private static string hcstat( object ob )
 }
 
 
-private static string get_location( object ob )
+private string get_location( object ob )
 {
     string res;
 
@@ -147,7 +149,7 @@ private static string get_location( object ob )
 }
 
 
-varargs private static mixed
+varargs private mixed
 QueryView( object ob, int ist_magier, int sh,
            int obs, string tty, string opt )
 {
@@ -240,7 +242,7 @@ QueryView( object ob, int ist_magier, int sh,
 }
 
 
-private static object *make_unique( object* arr )
+private object *make_unique( object* arr )
 {
     int i;
 
@@ -288,7 +290,7 @@ public varargs string
         opt = arg;
         arg = 0;
     }
-    else if ( strlen(arg) == 1 ) // (noch) unbekannte Option
+    else if ( sizeof(arg) == 1 ) // (noch) unbekannte Option
         arg = 0;
   
     pl = filter_users(arg);

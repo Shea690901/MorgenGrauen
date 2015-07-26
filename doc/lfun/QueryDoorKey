@@ -1,10 +1,8 @@
-QueryDoorKey()
-
 FUNKTION:
      mixed QueryDoorKey();
 
 DEFINIERT IN:
-     eigenen Objekten, fuer/std/room/doors.c
+     versch. Schluesseln
 
 ARGUMENTE:
      keine
@@ -12,21 +10,15 @@ ARGUMENTE:
 BESCHREIBUNG:
      Diese Funktion wird in einem Schluessel aufgerufen, wenn man mit diesem
      eine Tuer auf- oder abschliessen will. Anhand des Rueckgabewertes wird
-     entschieden, ob der Schluessel "passt" oder nicht.
+     entschieden, ob der Schluessel passt oder nicht.
 
-RUeCKGABEWERT:
-     String oder Array von Strings mit einer Beschreibung der Tueren, die
-     sich mit diesem Schluessel auf- bzw. abschliessen lassen.
-
-     Diese Strings muessen folgendes Format haben:
+RUECKGABEWERT:
+     String oder Array von Strings der Raumpfade, deren gemeinsame Tueren
+     sich mit diesem Schluessel auf- bzw. abschliessen lassen. Die Keys sind
+     dabei die Raumpfade, getrennt durch ein ":". Dabei muessen die Pfade
+     in lexikographischer (alphabetischer) Reihenfolge sortiert sein:
 
      "<name_raum_1>:<name_raum_2>"
-
-     Die Namen sind dabei die Dateinamen der Raeume, die durch die Tuer
-     verbunden werden.
-
-     Die Raumnamen muessen dazu noch in alphabetischer Reihenfolge sortiert
-     sein.
 
 BEISPIELE:
      Ein Schluessel, mit dem sich eine einzige Tuer oeffnen laesst (falls es
@@ -39,16 +31,18 @@ BEISPIELE:
 
      Ein Schluessel, der in mehreren Tueren passt:
 
-     string *QueryDoorKey()
+     string* QueryDoorKey()
      {
        return ({ "/gilden/abenteurer:/players/wargon/workroom",
-                 "/gilden/karate:/gilden/abenteurer",
+                 "/gilden/abenteurer:/gilden/karate",
                  "/players/jof/workroom:/players/wargon/workroom"
               });
      }
 
-SIEHE AUCH:
-     NewDoor(), /std/room/doors.c
 
-----------------------------------------------------------------------------
-Last modified: Wed May 8 10:22:17 1996 by Wargon
+SIEHE AUCH:
+    NewDoor(), QueryDoorStatus(), SetDoorStatus(), P_DOOR_INFOS,
+    /std/room/doors.c, /obj/doormaster.c, GetPhiolenInfos(), QueryAllDoors()
+
+-----------------------------------------------------------------------------
+Letzte Aenderung: Don, 08.05.2014, Gabylon

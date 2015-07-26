@@ -1,12 +1,19 @@
 // (c) by Padreic (Padreic@mg.mud.de)
 
+// Anmerkung: Heutzutage gibt es fuer Lebensmittel (bzw. alle Dinge, die
+// man essen oder trinken kann) ein Standardobjekt namens /std/food,
+// welches viele Funktionalitaet mitbringt, die man ansonsten selber
+// muehsam basteln muss. Die Verwendung ist dringend empfohlen.
+
 #include <properties.h> // wieder unsere allgemeinen Properties
 
-inherit "std/thing";
+inherit "/std/thing";
 
-static int menge; // globale Variable die angibt, wie voll die Flasche ist
+// globale Variable, die angibt, wie voll die Flasche ist. Es sind 5
+// Portionen enthalten.
+int menge = 5;
 
-void create()
+protected void create()
 {
    ::create();
    // Objekt ueber seine Properties beschreiben...
@@ -15,16 +22,16 @@ void create()
    SetProp(P_GENDER, FEMALE);
    SetProp(P_VALUE, 80);
    SetProp(P_WEIGHT, 1000);
-   menge=5; // 5 Schluck Milch sind enthalten...
    AddId(({"flasche", "milchflasche"}));
    AddCmd(({"trink", "trinke"}), "_trinken");
 }
 
 // Anstelle von P_SHORT Kurzbeschreibung ueber Funktion short().
 // Dies ist nicht immer moeglich, da nicht zwangslaeufig zu jeder Propertie
-// eine gleichnamige Funktion existiert. Was jedoch immer moeglich waere,
-// ist eine Funktion _query_propertyname() (siehe dazu <man QueryProp>).
-string short()
+// eine gleichnamige Funktion existiert.
+// Es ist allerdings noch sog. Querymethoden (siehe dazu <man QueryProp> und
+// <man Query> bei Bedarf).
+public string short()
 {
    string str;
    switch(menge) {
@@ -38,15 +45,16 @@ string short()
    return str;
 }
 
-string long()
+public string long()
 {
    if (menge>1)
       return "Eine Flasche mit leckerer Vollmilch.\n";
-   else return "Die Milchflasche ist bald leider schon alle, Du solltest "
-              +"Dich vielleicht mal\nnach Nachschub umsehn.\n";
+   else
+      return "Die Milchflasche ist bald leider schon alle, Du solltest "
+             "Dich vielleicht mal\nnach Nachschub umsehn.\n";
 }
 
-static int _trinken(string str)
+public int _trinken(string str)
 {
    notify_fail("Syntax: trinke aus milchflasche\n");
 
@@ -54,13 +62,13 @@ static int _trinken(string str)
    // "aus " sind, dann fuehlt sich das Objekt nicht angesprochen, kann das
    // Verb also nicht komplett abarbeiten und gibt deshalb eine 0 zurueck.
    if (str[0..3]!="aus ") return 0;
-   
+
    // Ich benutze nun alles ab dem vierten Zeichen und pruefe, ob sich das
    // Objekt davon angesprochen fuehlt. Hierzu dient die Funktion id().
    // Grosser Vorteil: Uebersichtlich und spaeteres Ergaenzen von Ids bzw.
    // Adjektiven geht sehr einfach und erspart lange if()-Abfragen.
    if ( !id(str[4..]) ) return 0;
-   
+
    if (menge<=0) {
      write("Die Milchflasche ist leider schon leer :(.\n");
    }
@@ -69,7 +77,7 @@ static int _trinken(string str)
      // Morgengrauen definiert ist und ueber die man sowohl Abfragen als
      // auch hochsetzen von P_DRINK vornehmen sollte.
      if (this_player()->drink_soft(10)) {
-     
+
        // heal_self() ist auch in allen Lebewesen definiert und heilt bei
        // dem Lebewesen Lebens- und Konzentrationspunkte.
        this_player()->heal_self(10);

@@ -2,12 +2,12 @@
 //
 // thing/description.h -- header
 //
-// $Id: description.h 6308 2007-05-20 11:58:33Z Zesstra $
+// $Id: description.h 9208 2015-05-10 20:54:06Z Zesstra $
 // MorgenGrauen MUDlib
 //
 // thing/description.h -- header
 //
-// $Id: description.h 6308 2007-05-20 11:58:33Z Zesstra $
+// $Id: description.h 9208 2015-05-10 20:54:06Z Zesstra $
  
 #ifndef __THING_DESCRIPTION_H__
 #define __THING_DESCRIPTION_H__
@@ -53,6 +53,7 @@
 #define P_READ_DETAILS       "read_details"
 #define P_SMELLS             "smell_details"
 #define P_SOUNDS             "sound_details"
+#define P_TOUCH_DETAILS      "p_lib_touch_details"
 #ifndef P_INVIS
 #define P_INVIS              "invis"
 #endif
@@ -61,6 +62,8 @@
 #define SENSE_VIEW  0
 #define SENSE_SMELL 1
 #define SENSE_SOUND 2
+#define SENSE_TOUCH 3
+#define SENSE_READ  4
 
 #endif // __THING_DESCRIPTION_H__
 
@@ -77,41 +80,46 @@ varargs int id(string str, int lvl);
 int match_ids(string *list);
 
 // add an id to the current object
-void AddId(mixed str);
+void AddId(string|string* str);
 
 // remove an id from the object
-void RemoveId(mixed str);
+void RemoveId(string|string* str);
 
 // add an adjective to describe the object
-void AddAdjective(mixed str);
+void AddAdjective(string|string* str);
 
 // remove an adjective from the object
-void RemoveAdjective(mixed str);
+void RemoveAdjective(string|string* str);
 
 // get the name with casus and demonstrative
 varargs string name(int casus, int demon);
 varargs string Name(int casus, int demon);
 
 // check if object is member of a class
-int is_class_member(string str);
+int is_class_member(string|string* str);
 
 // add object to a class
 void AddToClass(string str);
 
 // add a detail to object
-void AddDetail( mixed *keys, mixed descr );
-void AddReadDetail( mixed keys, mixed descr );
-void AddSmells( mixed keys, mixed descr );
-void AddSounds( mixed keys, mixed descr );
+public void AddDetail( string|string* keys, string|string*|mapping|closure descr );
+public void AddReadDetail( string|string* keys, string|string*|mapping|closure descr );
+public void AddSmells( string|string* keys, string|string*|mapping|closure descr );
+public void AddSounds( string|string* keys, string|string*|mapping|closure descr );
+public void AddTouchDetail( string|string* keys, string|string*|mapping|closure descr );
 
 // remove a detail from object
-varargs void RemoveDetail( mixed *keys );
+public varargs void RemoveDetail( string|string* keys );
+public varargs void RemoveSmells( string|string* keys );
+public varargs void RemoveSounds( string|string* keys );
+public varargs void RemoveReadDetail( string|string* keys );
+public varargs void RemoveTouchDetail( string|string* keys );
 
 // add a special detail to object
-void AddSpecialDetail( mixed keys, string functionname );
+void AddSpecialDetail(string|string* keys, string functionname );
 
 // remove a special detail to object
-void RemoveSpecialDetail( mixed keys );
+void RemoveSpecialDetail( string|string* keys );
 
 static void GiveEP(int type, string key);
 

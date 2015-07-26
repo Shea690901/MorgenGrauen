@@ -25,43 +25,45 @@ Zu 2) und 3): Das ist nicht so einfach, sondern muss ueber den Raum, in
 Folgende Dinge stehen natuerlich schon im Raum, sonst liesse er sich
 nicht laden :-)              
 */
-inherit "std/room";
+
+#pragma strong_types, save_types, rtt_checks
+
+inherit "/std/room";
 
 #include <properties.h>
 #include <language.h>
 #include <moving.h>
 
 /*
-Damit die Funktionsaufrufe des Seherhaus nicht buggen, muss man 
-natuerlich dessen defines laden
+   Fuer properties und sonstige Definitionen zum Seherhaus.
 */
 #include "/d/seher/haeuser/haus.h"
 
 /*
-Damit man eigene Funktionen fuer das Haus basteln kann, ist es meist
-besser, dies ueber ein extra-create() zu erledigen. Wieso? Folgt als
-Kommentar weiter unten :)
+   Aus Gruenden der Uebersichtlichkeit ziehen viele Magier vor, den Hauskrams
+   in eine separate Funktion zusammenzufassen.
 */
-private static void additional_create();
+private void haus_create();
 
 /*
 Es folgt nun das normale create() eines Raumes
 */
 void create(){
   ::create();
+  /* ... div. Konfiguration des Raum ... */
+
   /*
   Das extra-create() muss natuerlich aufgerufen werden
   */  
-  additional_create();
+  haus_create();
 }      
 
 /*
 Hier kommen wir nun zu der Fkt, die alles am Seherhaus verwaltet
 */
-private static void additional_create()
+private void haus_create()
 {
-  object ob;
-  ob = find_object(HAUSNAME("tilly"));
+  object ob = find_object(HAUSNAME("tilly")); // findet Haus von Tilly
 
   /*
   Wenn das Haus im Raum steht. Hat den Vorteil, dass bei einem Verlegen
@@ -84,10 +86,9 @@ private static void additional_create()
   }
 }
 
-static int kletter_cmd(string str)
+public int kletter_cmd(string str)
 {
-  object ob;
-  ob = find_object(HAUSNAME("tilly"));
+  object ob = find_object(HAUSNAME("tilly"));
 
   _notify_fail("Wo moechtest Du hinklettern?\n");
 
@@ -96,28 +97,29 @@ static int kletter_cmd(string str)
   if(str=="auf haufen" || str=="auf steinhaufen")
   {
     if(objectp(ob))
+    {
       /*
       Das ist die Meldung, die ein Spieler bekommt, wenn das Seherhaus
       abgeschlossen ist und er versucht, es zu 'betreten'.
       */
       notify_fail("Du kletterst auf den Haufen, doch der Spalt ist zu "
-       +"schmal fuer Dich.\n");
+       "schmal fuer Dich.\n");
        
-    if(!(ob->QueryProp(H_DOORSTAT) & D_CLOSED))
-    {
-      write("Du kletterst auf den Steinhaufen, rutschst den Spalt runter "
-       +"und findest Dich urploetzlich in einer schummrigen Hoehle.\n");
-      tell_room(this_object(),this_player()->name()+" klettert auf einen "
-       +"Steinhaufen und ist ploetzlich verschwunden.",({this_player()}));
-      tell_room(RAUMNAME("tilly",0),this_player()->name()+
-       " faellt fluchend herein.\n");
-      this_player()->move(RAUMNAME("tilly",0),M_GO|M_SILENT,0);
-      return 1;
+      if(!(ob->QueryProp(H_DOORSTAT) & D_CLOSED))
+      {
+        tell_object(this_player(),
+            "Du kletterst auf den Steinhaufen, rutschst den Spalt runter "
+             "und findest Dich urploetzlich in einer schummrigen Hoehle.\n");
+        tell_room(this_object(),this_player()->name()+" klettert auf einen "
+          "Steinhaufen und ist ploetzlich verschwunden.",({this_player()}));
+        tell_room(RAUMNAME("tilly",0),this_player()->name()+
+          " faellt fluchend herein.\n");
+        this_player()->move(RAUMNAME("tilly",0),M_GO|M_SILENT,0);
+        return 1;
+      }
     }
-
-    return 0;
   }
-
+  return 0;
 }
   
 /*

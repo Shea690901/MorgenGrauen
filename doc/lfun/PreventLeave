@@ -1,7 +1,7 @@
 PreventLeave()
 
 FUNKTION:
-     varargs int PreventLeave(object ob, mixed dest);
+     int PreventLeave(object ob, mixed dest);
 
 DEFINIERT IN:
      /std/container/restrictions.c

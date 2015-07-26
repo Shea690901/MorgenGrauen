@@ -85,7 +85,7 @@ BEISPIELE:
               // Zerfall alle 3h
               SetProp(P_UNIT_DECAY_INTERVAL, 3*3600);
               // es zerfallen jeweils 10%
-              SetProp(P_UNIT_DECAY_QUOTA, 10);
+              SetProp(P_UNIT_DECAY_QUOTA, 1000);
               // es sollen min. 10 Einheiten jeweils uebrigbleiben
               SetProp(P_UNIT_DECAY_MIN, 10);
             }

@@ -1,42 +1,52 @@
 sell_obj()
 
-FUNKTION:
-	static string sell_obj(object ob, int short);
+Funktion:
+    static string sell_obj(object ob, int short)
 
-DEFINIERT IN:
-	/std/shop.c
+Definiert in:
+    /std/room/shop
 
-ARGUMENTE:
-	ob - der Gegenstand bei dem geprueft werden soll, ob der Laden ihn
-	     von this_player() ankaufen soll.
-        short - Wenn dieses Flag gesetzt ist, sollte der Rueckgabestring
-             moeglichst kurz gehalten werden um den Scroll bei einem
-             verkaufe alles klein zu halten. Ideal sind Strings die nicht
-             laenger als 40-60 Zeichen lang sind, da dann pro Gegenstand
-             mit einer Zeile ausgekommen wird.
+Argumente:
+    ob:
+      Das anzukaufende Objekt
+    short:
+      Gibt an, ob der Verkaeufer nur ein Objekt (0) oder mehrere (1) 
+      verkauft. (Verkaufe alles etc.)
 
-RUeCKGABEWERT:
-        Ein String was der Haendler sagen soll wieso der Gegenstand nicht
-	angekauft wird. Der String wird dabei wie folgt umgebrochen:       
-        break_string(str, 78, Name(WER, 1)+" sagt: ") oder bei verkaufe alles
-        break_string(ob->Name(WER)+": "+str, 78)
+Beschreibung:
+    Ermittelt ob der Laden bereit ist, <ob> anzukaufen.
 
-BESCHREIBUNG:
-	Durch ueberschreiben dieser Funktion ist es relativ einfach zu
-	bestimmen was fuer Objekte ein Laden fuehrt. Aber auch abfragen
-	ob der Laden ueberhaupt mit this_player() handelt, sind moeglich.
+Rueckgabewert:
+    Meldung die ausgegeben wird, wenn ein Objekt abgelehnt wird oder 0.
 
-BEISPIELE:
-	static string sell_obj(object ob, int short)
-	{
-	   if (ob->QueryProp(P_WEAPON_TYPE))
-	      return "Wir kaufen keine Waffen!";
-	   return ::sell_obj(ob, short);
-	}
+Bemerkung:
+    Man sollte im normalfall _niemals_ einfach 0 zurueckgeben, sondern das 
+    geerbte sell_obj() aus /std/room/shop, damit beispielsweise P_NOBUY 
+    beachtet wird.
 
-SIEHE AUCH:
-	buy_obj(), AddFixedObject(), RemoveFixedObject(), SetStorageRoom(),
-        /std/shop.c
+Beispiel:
+    Ein Schmied, der nur Waffen ankauft:
+    
+    protected void create()
+    {
+      ...
+    }
+    
+    static string sell_obj(object ob, int short)
+    {
+      if(!ob->QueryProp(P_WEAPON_TYPE))
+      {
+        return "Ich bin nur an Waffen interessiert.";
+      }
+      return ::sell_obj(ob,short);
+    }
 
-----------------------------------------------------------------------------
-Last modified: Thu Mar 4 15:26:13 1999 by Padreic
+Siehe auch:
+    Funktionen:
+      AddFixedObject(), RemoveFixedObject(), SetStorageRoom(), 
+      QueryStorageRoom(), QueryBuyValue(), QueryBuyFact(), buy_obj()
+    Properties:
+      P_KEEPER, P_MIN_STOCK, P_STORE_CONSUME
+
+------------------------------------------------------------------------------
+Letzte Aenderung: 21.05.2014, Bugfix

@@ -7,9 +7,10 @@ Materialien
      sollten diese auch benutzt werden, es werden Defaultmaterialien 
      gesetzt, diese entsprechen aber selten eurer Realitaet.
 
-     Die Materialiendatenbank /p/daemon/materialdb haelt saemtliche 
+     Die Materialiendatenbank /secure/materialdb.c haelt saemtliche 
      Informationen ueber die verwendbaren Materialien, die unter 
-     /sys/thing/material.h aufgefuehrt sind.
+     /sys/thing/material.h aufgefuehrt sind. Es empfiehlt sich SEHR, Verweise
+     auf die MatDB nur in Form von MATERIALDB zu formulieren.
      Sie verwaltet auch die Eigenschaften einzelner Materialien. Es gibt 
      diverse Materialiengruppen wie "entflammbar", "Metall", "biologisches 
      Material", denen die Materialien entsprechend zugeordnet sind. Diese 

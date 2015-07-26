@@ -1,7 +1,7 @@
 AddAdjective()
 
 FUNKTION:
-     void AddAdjective(mixed adj);
+     void AddAdjective(string|string* adj);
 
 DEFINIERT IN:
      /std/thing/description.c
@@ -35,4 +35,5 @@ SIEHE AUCH:
      AddId(), RemoveAdjective() id(), present(), /std/thing/description.c
 
 ----------------------------------------------------------------------------
-Last modified: Wed May 8 10:15:43 1996 by Wargon
+20.01.2015, Zesstra
+

@@ -1,6 +1,6 @@
 // MorgenGrauen MUDlib
 //
-// $Id: sperrer.c 7446 2010-02-16 22:56:34Z Zesstra $
+// $Id: sperrer.c 8747 2014-04-26 13:08:47Z Zesstra $
 
 #include <properties.h>
 #include <moving.h>
@@ -47,7 +47,7 @@ debug(what,arg)
   {
     log_file("NDEAD",sprintf("DELETED %O\n",PO));
     catch(PO->remove());
-    if (PO && !PO==this_object() && object_name(PO)!="/secure/simul_efun")
+    if (PO && !(PO==this_object()) && object_name(PO)!="/secure/simul_efun")
       destruct(PO);
     if (TI && IS_LEARNER(TI))
     {

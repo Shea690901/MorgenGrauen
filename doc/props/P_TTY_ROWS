@@ -2,7 +2,7 @@ NAME:
     P_TTY_ROWS                                  "tty_rows"
 
 DEFINIERT IN:
-    /sys/properties.h
+    /secure/telnetneg.h
 
 BESCHREIBUNG:
     In dieser Properties steht die Anzahl der Zeilen, die das

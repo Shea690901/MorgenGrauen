@@ -1,4 +1,3 @@
-
 Das Postsystem
 ==============
 
@@ -24,6 +23,7 @@ Das Postsystem
     5. Ordner (folders)
     6. Nachsendeauftraege (.forward)
     7. Paketpost
+    8. Absender ignorieren
 
  1. Mail schreiben:
     Grundsaetzlich gibt es zwei Moeglichkeiten: Entweder innerhalb des
@@ -56,33 +56,18 @@ Das Postsystem
     darf keine BCC sein.
 
  2. Mail nach und von ausserhalb
-    Mail nach aussen:
-    Es ist moeglich Post nach Aussen zu schicken. Man muss nur in der Post
-    anstatt des Namens die E-Mail-Adresse des Empfaengers eingeben. Also zum
-    Beispiel:
+    
+    a) Mail in andere Muds ((Inter-)Mudmail)
+      Es ist moeglich, Mails in eine Reihe von anderen Muds zu schicken und
+      welche von dort zu empfangen.
+      Zum Empfangen muss man nix tun.
+      Zum Versenden gibt man den Charnamen des Empfaenger gefolgt von einem @
+      und dem Mudnamen des Empfaengers an, z.B. 'bla@unitopia'.
 
-    > m erika_mustermann@musterstadt.musteruni.de
-
-    Dann wird durch das Morgengrauen-Postsystem die Mail an die genannte
-    E-Mail-Adresse geschickt.
-
-    Andere an das intermud-System angeschlossene Muds lassen sich ebenfalls
-    erreichen: Man adressiert einfach an `spieler@mudname'.
-
-    Mail von aussen ins MUD:
-    Umgekehrt ist es genauso moeglich E-Mails von Aussen in das MUD zu
-    schicken. Man adressiert einfach an `<spielername>@mg.mud.de',
-    also z.B. `jof@mg.mud.de'.
-
-    Dann wird die E-Mail an die betreffende Person in das MUD weitergeleitet.
-
-    Aus anderen an das intermud-System angeschlossenen Muds funktioniert i.A.
-    ebenfalls eine Adresse wie `spieler@morgengrauen'. Genaueres findet man in
-    den dortigen Hilfsseiten.
-
-    *HINWEIS:* Leider ist Mail ins Mud manchmal etwas unzuverlaessig, man
-    sollte also immer eine Kopie speichern und sich vergewissern, dass der
-    Brief angekommen ist.
+    b) Mail in den Rest des Internets
+      
+      Achtung: Politische Vorgaben und das Anwachsen von Spam haben zur
+               Abschaltung dieser Funktionen gefuehrt.
 
  3. Mailaliase:
     Mailaliase koennen wie Namen verwendet werden. Es gibt eine Anzahl
@@ -160,25 +145,30 @@ Das Postsystem
     nachfolgenden und jede eindeutige Abkuerzung.
 
  6. Nachsendeauftraege
-    Will man seine Post lieber an eine andere Adresse ausgeliefert bekommen,
-    so geht das auch. Zur Zeit allerdings ausschliesslich an diejenige
-    Adresse, die man als Emailadresse angegeben hat. (Natuerlich kann man
-    diese jederzeit aendern; dafuer gibt es den Befehl `email').
+    Will man seine Post lieber an einen anderen Charakter ausgeliefert
+    bekommen, so geht das auch. Hierzu muss man aber als Emailadresse den
+    anderen Char in dieser Form angeben: 'neuer_empfaenger@morgengrauen' 
+    (siehe auch Befehl 'email') hat.
 
     Um einen solchen Nachsendeauftrag zu stellen, geht man zu irgendeinem
     Postamt mit Paketschalter. Genaueres erzaehlt der Postbeamte auf
     Nachfrage.
 
-    Die Emailadresse muss hierbei keine *echte* Emailadresse sein, vielmehr
-    darf es jede beliebige gueltige Adresse der MG-Post sein. Nur Mailaliase
-    sind verboten. Damit gibt es weitere Anwendungen, z.B. fuer Zweities und
-    Testies: Gibt man den Namen des Ersties als Emailadresse an und stellt
-    einen Nachsendeauftrag, so bekommt man alle Post, die an den Zweitie
-    adressiert ist, selber.
+    Man sollte sich dieses aber gut ueberlegen: hat ein Charakter keine
+    gueltige eMail-Adresse eingetragen, ist das Zuruecksetzen des Passwortes
+    erheblich komplizierter oder sogar unmoeglich.
+
+    Es ist NICHT moeglich, eine eMail-Adresse ausserhalb des Morgengrauens
+    anzugeben.
 
  7. Paketpost
     Im MorgenGrauen gibt es eine Paketpost. Informationen erteilt der
     Postbeamte an jedem Paketschalter.
+
+ 8. Absender ignorieren
+    Sollte man von einem bestimmten Absender ueberhaupt keine Post empfangen
+    wollen, so kann dies durch "ignoriere name.mail" erreicht werden, wobei
+    "name" natuerlich durch den konkreten Spielernamen zu ersetzen ist.
 
 ------------------------------------------------------------------------------
 
@@ -187,5 +177,6 @@ Abteilung Technik, Loco (Abteilungsleiter)
 Anregungen, Fehlermeldungen und Fragen bitte direkt an Loco,
 Flames direkt nach /dev/null.
 
- LETZTE AeNDERUNG:
-    Thu, 24.07.1997, 09:00:00 von Wargon
+LETZTE AeNDERUNG:
+   28.10.2013, Zesstra
+

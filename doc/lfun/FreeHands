@@ -7,7 +7,7 @@ DEFINIERT IN:
 
 ARGUMENTE:
      ob - das Objekt, dessen Handnutzung vorbei ist
-	  - kann 0 sein, dann wird PO benutzt
+        - kann 0 sein, dann wird PO benutzt
 
 RUECKGABEWERT:
      0, wenn kein Objekt uebergeben wurde oder kein PO existiert
@@ -29,7 +29,8 @@ BEISPIELE:
      ...
 
 SIEHE AUCH:
-     P_HANDS, P_USED_HANDS, P_HANDS_USED_BY, P_MAX_HANDS
+     P_HANDS, P_HANDS_USED_BY
+     P_MAX_HANDS, P_USED_HANDS, P_FREE_HANDS
      UseHands
 
 1.Feb.2004 Gloinson

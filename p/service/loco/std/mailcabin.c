@@ -24,12 +24,12 @@
 #include <moving.h>
 
 inherit STDPOST;
-inherit "std/thing/moving";
-inherit "std/thing/commands";
+inherit "/std/thing/moving";
+inherit "/std/thing/commands";
 
 void create() {
-  (post::create());
-  (commands::create());
+  post::create();
+  commands::create();
   SetProp(P_NAME,"Schreibkabine");
   SetProp(P_GENDER,FEMALE);
   SetProp(P_SHORT,"Eine Schreibkabine");
@@ -103,6 +103,3 @@ int rein(string str) {
   return 1;
 }
 
-int clean_up(int arg) {
-  return 1;
-}

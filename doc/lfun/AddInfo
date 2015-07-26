@@ -16,7 +16,7 @@ ARGUMENTE:
      int/string silent
 	Ist silent gesetzt, so erfolgt Antwort nur an Fragenden.
      string/closure casebased
-	Funktionsname oder Closure mit Returnwert string oder int.
+	Closure mit Returnwert string oder int.
 
 BESCHREIBUNG:
      Wenn ein Spieler ein NPC mittels "frage <monstername> nach <frage>" nach
@@ -45,8 +45,8 @@ BESCHREIBUNG:
       dem Fragesteller im Raum ausgegeben.
 
      Casebased:
-      Die mit ihrem Namen oder als closure angegebene Methode entscheidet,
-      ob oder wie der NPC auf diese Frage antworten soll:
+      Die als Closure angegebene Methode entscheidet, ob oder wie der NPC 
+      auf diese Frage antworten soll:
       - return 0:	normale Antwort mit "meldung"
       - return 1:	keine Antwort/Antwort mit DEFAULT_NOINFO
       - return string:	Antwort mit string unter Beruecksichtigung eines

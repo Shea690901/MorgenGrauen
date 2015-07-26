@@ -2,7 +2,7 @@
 //
 // tray.c -- container standard object
 //
-// $Id: tray.c 6930 2008-08-09 09:20:16Z Zesstra $
+// $Id: tray.c 7804 2011-07-10 20:37:52Z Zesstra $
 
 // The most general object class. It defines the really basic functions.
 //
@@ -17,13 +17,14 @@
 #pragma pedantic
 #pragma range_check
 
-inherit "std/thing/properties";
-inherit "std/thing/moving";
-inherit "std/thing/commands";
-inherit "std/tray/description";
-inherit "std/thing/language";
-inherit "std/container/restrictions";
-inherit "std/thing/envchk";
+inherit "/std/thing/properties";
+inherit "/std/thing/moving";
+inherit "/std/thing/commands";
+inherit "/std/thing/language";
+inherit "/std/container/light";
+inherit "/std/container/restrictions";
+inherit "/std/tray/description";
+inherit "/std/thing/envchk";
 
 #include <properties.h>
 #include <wizlevels.h>
@@ -33,6 +34,7 @@ protected void create()
 {
   properties::create();
   commands::create();
+  light::create();
   description::create();
   restrictions::create();
   envchk::create();

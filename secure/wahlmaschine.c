@@ -14,7 +14,7 @@ string *ergebnis;
 
 #undef SAY
 
-private static void SAY( string str )
+private void SAY( string str )
 {
   write ( str );
   write_file("/log/WAHL", str);
@@ -145,7 +145,7 @@ static int waehle()
   return 1;
 }
 
-private static int falsch()
+private int falsch()
 {
   write("Diese Auswahl ist ungueltig. Versuchs bitte gleich nochmal.\n");
   say(in_use+" hat ausgewaehlt.\n");

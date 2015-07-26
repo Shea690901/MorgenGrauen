@@ -1,7 +1,7 @@
 // MorgenGrauen MUDlib
 //
 // zentralbank.c -- Zentrale Geld-Verwaltung der Haendler im MG
-// $Id: zentralbank.c 7421 2010-02-07 21:10:32Z Zesstra $
+// $Id: zentralbank.c 8966 2014-11-19 21:41:12Z Zesstra $
 //
 /*
  * $Log: zentralbank.c,v $
@@ -30,6 +30,7 @@
 
 #include <wizlevels.h>
 #include <properties.h>
+#include <money.h>
 
 #define NEED_PROTOTYPES
 #include <bank.h>
@@ -109,12 +110,9 @@ private void real_log()
 
 private void log_state()
 {
-  // nur alle 5min nen Status-Logeintrag. Reicht voellig.
-  if (find_call_out(#'real_log) == -1);
-    call_out(#'real_log,300);
-  // und alle 20min speichern.
-  if (time()-last_save>1200)
-    save_me();
+  // nur alle 15min nen Status-Logeintrag. Reicht voellig.
+  if (find_call_out(#'real_log) == -1)
+    call_out(#'real_log,900);
 }
 
 public varargs void PayIn(int amount, int percent)
@@ -179,14 +177,15 @@ public int *geldmenge() {
   if (summen[5] > time()-3600 || !IS_ELDER(this_player()))
       return summen;
 
-  object *geld = clones("/obj/money",2);
+  summen = allocate(6);
+  object *geld = clones(GELD,2);
   foreach(object ob: geld) {
     if (!environment(ob) || IS_LEARNER(environment(ob)))
       continue;
     if (environment(ob)->QueryProp(P_NPC))
       // in NPC
       summen[0]+=ob->QueryProp(P_AMOUNT);
-    else if (load_name(environment(ob)) == "/obj/boerse")
+    else if (load_name(environment(ob)) == BOERSE)
       // in boersen
       summen[1]+=ob->QueryProp(P_AMOUNT);
     else
@@ -194,7 +193,7 @@ public int *geldmenge() {
       summen[2]+=ob->QueryProp(P_AMOUNT);
   }
   // Seherkarten
-  geld = clones("/obj/seercard",2);
+  geld = clones(SEHERKARTE,2);
   mapping cards=m_allocate(sizeof(geld),1);
   foreach(object ob: geld) {
     cards[ob->query_owner()] = ob->QueryProp(P_AMOUNT);
@@ -206,7 +205,18 @@ public int *geldmenge() {
   return summen;
 }
 
-int set_percents(int store,int shop,int bank)
+public void PrintGeldmenge() {
+  int *sum = geldmenge();
+  printf("NPC: %d\n"
+         "Boersen: %d\n"
+         "rumliegend: %d\n"
+         "Seherkarten: %d\n"
+         "Gesamt: %d\n"
+         "Zeit: %s\n",
+         sum[0],sum[1],sum[2],sum[3],sum[4],strftime(sum[5]));
+}
+
+void set_percents(int store,int shop,int bank)
 {
   store_default_percent=store;
   shop_default_percent=shop;
@@ -221,5 +231,6 @@ int remove()
 {
   save_me();
   destruct(this_object());
+  return 1;
 }
    

@@ -2,7 +2,7 @@
 //
 // player/description.c -- player description handling
 //
-// $Id: description.c 7123 2009-02-14 22:13:54Z Zesstra $
+// $Id: description.c 8755 2014-04-26 13:13:40Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -18,10 +18,12 @@ inherit "/std/living/description";
 #include <wizlevels.h>
 #include <defines.h>
 #include <combat.h>
-
 #include <sys_debug.h>
 
-void create()
+#define NEED_PROTOTYPES
+#include <player/command.h>
+
+protected void create()
 {
   ::create();
   Set(P_NAME, NOSETMETHOD, F_SET_METHOD);
@@ -31,6 +33,8 @@ void create()
   Set(P_GENDER, SAVE, F_MODE_AS);
   Set(P_SIZE, SAVE, F_MODE_AS);
   Set(P_INFO, NOSETMETHOD, F_SET_METHOD);
+  // Avatar-URIs speichern. Ausserdem hat an denen keiner rumzufummeln.
+  Set(P_AVATAR_URI, SAVE|SECURED, F_MODE_AS);
 }
 
 string _query_info()
@@ -77,7 +81,7 @@ string short()
     if(interactive(previous_object()) && IS_LEARNING(previous_object()))
       return "("+QueryProp(P_NAME)+") \n";
     else
-      return (string)0;
+      return 0;
 
   if(QueryProp(P_GHOST))
   {
@@ -254,5 +258,35 @@ static string _query_name()
 }
 // ****
 
+// Local commands
+static mixed _query_localcmds() {
+  return
+    ({
+      ({"avatar","set_avataruri",0,0}),
+    });
+}
 
+int set_avataruri(string arg) {
+  arg = _unparsed_args(0);
+  if (!arg || !sizeof(arg)) {
+    string uri = QueryProp(P_AVATAR_URI);
+    if (stringp(uri))
+      tell_object(ME,
+          "Aktuelle Avatar-URI: " + uri + "\n");
+    else
+      tell_object(ME, "Du hast keine Avatar-URI eingestellt.\n");
+  }
+  else if (arg == "keine") {
+      SetProp(P_AVATAR_URI, 0);
+      tell_object(ME, "Deine Avatar-URI wurde geloescht.\n");
+  }
+  else if (sizeof(arg) > 512)
+      tell_object(ME, "Deine neue Avatar-URI ist zu lang!\n");
+  else {
+      SetProp(P_AVATAR_URI, arg);
+      tell_object(ME,
+          "Aktuelle Avatar-URI: " + arg + "\n");
+  }
+  return 1;
+}
 

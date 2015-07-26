@@ -53,10 +53,7 @@ int   HaveRights();
 varargs int RereadProgramLists(int silent);
 
 // Debugging Interface
-void ShowData();
-
-/* Function declaration - private interface */
-private string allowed();
+varargs void ShowData(string user, string key);
 
 /* Function definition */ 
 /*! Objekt initialisieren */
@@ -251,26 +248,37 @@ varargs int Remove(string key) {
     if(!member(memory[who],key)) return 0;
 
     // Wert unter Key fuer das File loeschen
-    efun::m_delete(memory[who], key);
+    m_delete(memory[who], key);
 
   } else {
     // Alles fuer das File loeschen
-    efun::m_delete(memory, who);
+    m_delete(memory, who);
   }
 
   return 1; 
 }
 
-varargs void ShowData(int verbose){
+varargs void ShowData(string user, string key)
+{
   // Bekannte Objekte
   if (!ELDER_SECURITY )
     printf("I'm fine. Thanks for asking.\n");
   else {
     printf("known_programs:\n%O\n\n", known_programs);
     // EM duerfen sich auch noch zuscrollen lassen, wenn sie wollen
-    if (ARCH_SECURITY && verbose)
-      printf("memory: (Verbose)\n%O\n", get_memory_pointer()); 
-    else {
+    if (ARCH_SECURITY && user)
+    {
+      mapping data = get_memory_pointer();
+      if (!member(data,user))
+        printf("memory: Keine Daten fuer %s vorhanden.\n",user);
+      else if (user && key)
+        printf("memory: Daten fuer User %s, Key %s:\n%O\n",user, key,
+                  data[user][key]);
+      else
+        printf("memory: Daten fuer User %s:\n%O\n",user,data[user]);
+    }
+    else
+    {
       mapping memory;
       memory = get_memory_pointer();
       // Andere bekommen eine anonymisierte Version
@@ -288,5 +296,4 @@ varargs void ShowData(int verbose){
   }
   return;
 }
-
 

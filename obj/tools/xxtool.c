@@ -37,5 +37,5 @@ string name( int d1, int d2 )
 int id( string str )
 {
   ::id(str);
-  return member_array( str, ({"ankh","xxtool"}) ) != -1;
+  return member( ({"ankh","xxtool"}),str ) != -1;
 }

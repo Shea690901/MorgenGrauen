@@ -1,7 +1,7 @@
 RemoveClass()
 
 FUNKTION:
-     void RemoveClass(mixed class);
+     void RemoveClass(string|string* class);
 
 DEFINIERT IN:
      /std/thing/description.c
@@ -19,4 +19,5 @@ SIEHE AUCH:
      P_CLASS
 
 ----------------------------------------------------------------------------
-Last modified: Sun May 19 15:52:39 1996 by Wargon
+20.01.2015, Zesstra
+

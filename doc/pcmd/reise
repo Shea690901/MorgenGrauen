@@ -1,7 +1,7 @@
 KOMMANDO:
         reise
         reise route
-        reise mit (transportmittel) nach|zu|zum|zur|ins|ans (zielort)
+        reise [mit transportmittel] nach|zu|zum|zur|ins|ans (zielort)
         reise aus|nicht
 
 ARGUMENTE:
@@ -73,18 +73,23 @@ BEMERKUNGEN:
        ueberall zu funktionieren hat.
 
 BEISPIELE:
-       Was geht und was geht nicht? Nun, hier einige Antworten.
-
-       Was geht      :  reise ins verlorene land
-       Was geht nicht:  reise ins vland
-       Was geht nicht:  reise zum verlorenen land 
-
-       Was geht      :  reise ans ende der welt
-       Was geht      :  reise zum ende der welt
-       Was geht nicht:  reise zum weltende
+       reise ins verlorene land
        
-       Was geht      :  reise nach port vain
- 
+       reise ans ende der welt
+       reise zum ende der welt
+       
+       reise nach port vain
+  
+       Einige Zielorte sind auch per Kuerzel zu erreichen:
+       - Verlorenes Land: vland
+       - Werwolfinsel: wwi
+       - Port Vain: pv
+       - Akhar Nth'tar: ti
+       - Insel am Ende der Welt: edw, iaedw, weltende
+       - Feuerinsel: fi
+       - Magieinsel: minsel
+       - Insel der Toten: idt, toteninsel
+
        Generell sollten die Namen als Reiseziele verwendet werden, die
        auch bei 'reise route' angezeigt werden. Gleiches gilt natuerlich
        auch fuer die Namen der Transporter. So ist eine zielgenaue und 
@@ -94,6 +99,5 @@ BEISPIELE:
        bekommen, wie Du welchem Befehl einsetzen musst um an Dein Ziel 
        zu gelangen.
      
-LETZTER AENDERUNG:
-       Mon, 22.01.02, 14:03:00h von Tilly
- 
+LETZTE AENDERUNG:
+       2015-Jan-18, Arathorn 

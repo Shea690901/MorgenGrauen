@@ -10,6 +10,7 @@
 #pragma no_clone,no_shadow
 
 #include <wizlevels.h>
+#include <money.h>
 
 #define LOGNAME "ADDMONEY"
 #define SAVEFILE "/p/daemon/save/moneylog"
@@ -127,7 +128,7 @@ public void AddMoney( object ob, int amount )
     // keine Manipulationen per Hand bitte
     if ( !objectp(ob) || amount < 0 || !previous_object() ||
          (!query_once_interactive(previous_object()) &&
-          explode(object_name(previous_object()), "#")[0] != "/obj/money")
+          load_name(previous_object()) != GELD)
          || IS_LEARNER(previous_object()) )
         return;
 
@@ -160,7 +161,7 @@ public varargs int modify_threshold( string fn, int amount1, int amount2 )
         return -2;
 
     if ( !amount1 && !amount2 ){
-        efun::m_delete( grenzen, fn );
+        m_delete( grenzen, fn );
         write( "Eintrag " + fn + " geloescht.\n" );
         return 1;
     }

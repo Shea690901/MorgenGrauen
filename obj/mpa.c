@@ -34,7 +34,7 @@
    08.10.96           Kleinigkeiten
    05.12.96           antworte auf artikel <nr>, reply <neuer titel>,
                       versende artikel, Abkuerzungen fuer Rubrikennamen,
-		      Layoutaenderungen,
+                      Layoutaenderungen,
                       Herkunft bei verlegten Artikeln in Statuszeile
 
    Letzte Aenderung: 
@@ -47,24 +47,46 @@
 #include <news.h>
 #include <wizlevels.h>
 #include <ansi.h>
+#include <input_to.h>
 #include "/mail/post.h"
 
-inherit "std/thing";
+inherit "/std/thing";
 inherit NEDIT;
+/*
+#define DEBUG(x)        if (funcall(symbol_function('find_player),"zesstra"))\
+          tell_object(funcall(symbol_function('find_player),"zesstra"),\
+                      "MPA: "+x+"\n")
+#define DEBUGVAR(x) DEBUG(sprintf(x+":\n%O\n",x))
+*/
+#define DEBUGVAR(x)
 
 // Konfiguration, ggf mudabhaengig
-
 #define DEFAULTGROUP "allgemeines"
+#define MINIHELPPAGE "p/service/loco/doc/mini-mpa.txt"
 #define HELPPAGE     "/p/service/loco/doc/mpa"
 #define WIZHELPPAGE  "/p/service/loco/doc/mpa.wiz"
 #define SAVEMSGPATH(pl) ("/open/News/"+(geteuid(pl))+".news")
 #define IS_POST(r)  (member(inherit_list(r),STDPOST+".c")>=0)
+#define INITIAL_SUBSCRIPTIONS \
+  ({  "bekanntmachungen", \
+      "d.ebene", \
+      "d.wueste", \
+      "d.inseln", \
+      "d.unterwelt", \
+      "d.dschungel", \
+      "d.gebirge", \
+      "d.polar", \
+      "d.wald", \
+      "d.fernwest", \
+      "d.vland", \
+      "d.anfaenger", \
+      "entwicklung", \
+   })
 
 // Makros etc.
 
 #define TP          this_player()
 #define TI          this_interactive()
-#define abs(x)      (((x)>=0) ? (x) : -(x))
 #define STATUSESCAPE "~#!" 
 #define IS_STATUSLINE(s) ((s[0..1]=="#!")||(s[0..2]=="~#!"))
 //#define IS_STATUSLINE(s) (s[0..2]=="~#!")
@@ -90,13 +112,6 @@ inherit NEDIT;
 #define LAST_NR      5
 #define LAST_SIZEOF  6
 
-#undef DEBUG
-#ifdef DEBUG
-#define DEBUGVAR(x) tell_object(find_player("loco"),sprintf("Value of x is %O\n",x))
-#else
-#define DEBUGVAR(x)
-#endif
-
 
 mapping read_until;
 mixed   lasttitle; // Aufbau s.o.
@@ -105,25 +120,27 @@ int     deadTID;
 string  GROUP;
 
 int GetTID(mixed message);
+private void InitialSubscriptions();
 
 create()
 {
   ::create();
   seteuid(getuid());
-  GROUP="allgemeines";
+  GROUP="bekanntmachungen";
   SetProp(P_SHORT,"Die Zeitung");
   SetProp(P_NAME,"Zeitung");
-  if (!read_until) read_until=(["dwnews":-1,"muell":-1]);
+  SetProp(P_WEIGHT, 50);
+  SetProp(P_SIZE, 35);
+  SetProp(P_MATERIAL, ([MAT_PAPER: 100]) );
+  SetProp(P_GENDER, FEMALE);
+  AddId(({"nn","zeitung","servicepaket","mpa"}));
+  SetProp(P_NODROP,
+    "Das persoenliche Servicepaket der MPA kann man nicht wegwerfen.\n");
+  SetProp(P_NEVERDROP, 1);
+
+  if (!read_until) read_until=(["muell":-1]);
 }
 
-// THIS is a hack BUT saves memory (CODE once in BP, VARS in every clone)
-// Jof
-
-static mapping _query_material() { return ([MAT_PAPER:100]); }
-static int _query_gender() { return FEMALE; }
-static mixed _query_ids() { return ({"nn","zeitung","servicepaket","mpa"}); }
-static mixed _query_nodrop() { return "Das persoenliche Servicepaket der mpa kann man nicht wegwerfen.\n"; }
-static mixed _query_neverdrop() { return _query_nodrop(); }
 static mixed _query_read_msg() { return long(); }
 
 long() {
@@ -159,7 +176,7 @@ Aktuelle Rubrik: "+GROUP+"\n\
 init()
 {
   ::init();
-  remove_action("lies"); /* von /std/thing, damit das lies() nicht buggt. */
+
   add_action("schreib","schreib");
   add_action("schreib","schreibe");
   add_action("schreib","note");
@@ -214,7 +231,9 @@ init()
 verbrennen(str) {
   if (!str || !id(str)) return 0;
   write("Du verbrennst Deine Zeitung mit groesstem Vergnuegen.\n");
-  say(TP->Name(WER)+" verbrennt seine Zeitung in einem Freudenfeuer.\n"); 
+  say(TP->Name(WER)+" verbrennt "+
+    TP->QueryPossPronoun(FEMALE, WEN, SINGULAR)+" Zeitung in einem "
+    "Freudenfeuer.\n");
   remove(1);
   return 1;
 }
@@ -223,7 +242,7 @@ verbrennen(str) {
 // Aufruf aus rubriken() und ReadNextUnread(), wenn die gueltige
 // Rubrikenliste sowieso schon abgerufen wurde.
 
-static KillGroup(name) { read_until=m_delete(read_until,name); }
+static KillGroup(name) { read_until=m_copy_delete(read_until,name); }
 
 /* RebuildGroupList() - tut doch nicht so, weil /secure/news anders arbeitet.
  * Bleibt vorerst zum Nachschlagen.
@@ -244,18 +263,18 @@ _set_autoloadobj(mixed arg) {
   if (pointerp(arg) && sizeof(arg)>=2)
   {
     read_until=arg[1];
-  } else
+  }
+  else {
     if (TP)
        read_until=((TP->QueryProp(P_READ_NEWS))||([]));
+  }
 
   if (TP) TP->SetProp(P_READ_NEWS,read_until);
 }
 
 _query_autoloadobj() {
-  //  tell_object(find_player("loco"),sprintf("*** <query:%O> TI= %O\n",this_object(),TI));
   return 1;
 }
-
 
 static Mail(str) {
   object mailer;
@@ -265,14 +284,178 @@ static Mail(str) {
   mailer->do_mail( ((!str)||(str=="mail")) ? 0 : TP->_unparsed_args() );
   return 1;
 }
-  
 
-//static // non static to allow aliasing *Rumata* 5/8/96
+static varargs string Message2string(mixed msg,mixed messages,int flag,string group) {
+  // Aufrufe: (Nummer,Notes[,flag[,group]]) oder (Note,Notes[,flag[,group]])
+  // flag: M2S_VT100 : ggf ANSI-Codes verwenden
+  //       M2S_REMOTE: Rubrik und Artikelnummer ausgeben (speichern, versenden)
+  // Achtung: Wenn flag&M2S_REMOTE, muss msg int sein
+  // group: Name der Rubrik, wenn nicht aktuelle Rubrik. Nur bei M2S_REMOTE
+
+  string txt,hs,s,*m,s2;
+  int i,hi,thisnr,ansiflag;
+
+  if (flag&M2S_REMOTE) txt="Rubrik: "+(group?group:GROUP)+", Artikel: "+
+    (intp(msg)?to_string(msg+1):"???")+" von "+sizeof(messages)+"\n";
+  else txt="";
+
+  if (intp(msg)) {
+    thisnr=msg;
+    msg=messages[msg];
+  } else thisnr=-1;
+  if (!msg) return 0;
+
+  ansiflag=(flag&M2S_VT100)&&(this_player()->QueryProp(P_TTY)!="dumb");
+
+  txt += (ansiflag?ANSI_BOLD:"")+ msg[M_TITLE]+(ansiflag?ANSI_NORMAL:"")+
+    " ("+msg[M_WRITER]+", "+
+    dtime(msg[M_TIME])[5..26]+"):\n";
+//  if (geteuid(TP)=="sitopanaki") txt+="TID="+GetTID(msg)+"\n"; // Debug
+  if (!IS_STATUSLINE(msg[M_MESSAGE]))
+    return txt+"\n"+msg[M_MESSAGE];
+  m=explode(msg[M_MESSAGE],"\n");
+  while (IS_STATUSLINE(m[0])) {
+//    txt+=m[0]+"\n"; // ###
+    if (sscanf(m[0],"%s rn=%s rt=%d rg=%s",hs,s,hi,hs)==4 ||
+        sscanf(m[0],"%s rn=%s rt=%d",hs,s,hi)==3)
+    {
+      int nr,h;
+      nr=-1;
+      if (pointerp(messages))
+      {
+        for (h=((thisnr>=0) ? thisnr-1 : sizeof(messages)-1);
+             (h>=0 && messages[h][M_TIME]>=hi);h--) 
+          if (messages[h][M_TIME]==hi &&
+              lower_case(messages[h][M_WRITER])==lower_case(s))
+            nr=h;
+      }
+      txt+="[Bezug: Artikel "+((nr>=0) ? (nr+1) : 
+         (hs==STATUSESCAPE||hs==(group?group:GROUP)?"(geloescht?)":"in "+hs))+
+         " von "+capitalize(s)+" vom "+dtime(hi)[5..26]+"]\n";
+    }
+    if (sscanf(m[0],"%s on=%s ot=%d og=%s",hs,s,hi,hs)==4) {
+      txt+="[Autor: "+s+", "+dtime(hi)[5..26]+", verlegt von "+hs+"]\n";
+    }
+    m=m[1..];
+  }
+  return txt+"\n"+implode(m,"\n");
+}
+
+static varargs lies(mixed str) {
+  mixed num;
+  mixed *messages;
+  int tid;
+
+  if (str=="?"||str=="-?") return 
+    write("Syntax: lies <nr>\n"
+          "        artikel <nr>\n"
+          "Siehe auch: nn\n"),1;
+
+  if (intp(str)) num=str;
+  if ((!num && (!str || str=="" || sscanf(str,"%d",num)!=1)) || num<=0) {
+    notify_fail("WELCHE Nachricht willst Du lesen?\n");
+    return 0;
+  }
+  if (!pointerp(messages=NEWSSERVER->GetNotes(GROUP)))
+    return notify_fail("Seltsam, die Rubrik '"+GROUP+
+        "' gibt es nicht mehr...\n"), 0;
+  num--;
+  if (sizeof(messages)<=num) {
+    notify_fail("So viele Artikel sind da nicht!\n");
+    return 0;
+  }
+  
+  lasttitle=({messages[num][M_TITLE],messages[num][M_WRITER],
+      messages[num][M_TIME],GetTID(messages[num]),GROUP,num});
+  this_player()->More(Message2string(messages[num],messages,M2S_VT100));
+  if (this_player() && IS_LEARNER(this_player()))
+    this_player()->save_me(1);
+  return 1;
+}
+
+static varargs mixed GetGroupName(mixed g,mixed groups) {
+  /* Name einer Rubrik. g ist int oder string, enthaelt Name oder Nummer
+     (ab 1 numeriert) */
+  mixed i,expr,gg;
+  if (!g) return write("Du solltest schon die Rubrik angeben.\n"),0;
+  if (!groups) groups=NEWSSERVER->GetGroups();
+  if (intp(i=g) || sscanf(g,"%d",i)) {
+    if (i>0 && i<=sizeof(groups)) return groups[i-1];
+    write("Eine Rubrik mit der Nummer "+i+" gibt es leider nicht.\n");
+    return 0;
+  }
+  g=lower_case(g);
+  switch(g){
+  case ".": return GROUP;
+  case "+": return groups[(member(groups,GROUP)+1)%sizeof(groups)];
+  case "-": 
+    return groups[(member(groups,GROUP)-1+sizeof(groups))%sizeof(groups)];
+  }
+
+  // Existiert die Rubrik genau so?
+  if (member(groups,g)>-1) return g;
+
+  g = regreplace(g,"[[\\]\\*()?]","",1);
+  // haerteres Kriterium: Alle Abschnitte angegeben
+  expr="^"+implode(explode(g,"."),"[^\\.]*\\.")+"[^\\.]*$";
+//  write("REGEXP="+expr+"\n");
+  gg=regexp(groups,expr);
+  if (sizeof(gg)==1) return gg[0];
+
+  // weicheres Kriterium: Nicht alle Abschnitte angegeben
+  expr="^(.*\\.)*"+implode(explode(g,"."),".*\\.")+".*$";
+//  write("REGEXP="+expr+"\n");
+  gg=regexp(groups,expr);
+
+  if (!sizeof(gg)) {
+    write("Eine Rubrik '"+g+"' gibt es hier leider nicht.\n");
+    return 0;
+  }
+
+  if (sizeof(gg)==1) return gg[0];
+  
+  write(break_string("Die Rubrik "+g+" ist nicht eindeutig. Wahrscheinlich "
+        "meinst Du eine der folgenden: "+implode(gg,", ")+".\n",78));
+  return 0;
+}
+
+static rubrik(str)
+{
+  mixed *gruppen;
+  mixed news;
+  int anz,i;
+  
+  if (str=="?"||str=="-?") return
+    write("Syntax: rubrik <rubrik>\n"
+          "  wechselt die aktuelle Rubrik. Es wird die Nummer der Rubrik,\n"
+          "  ihr Name oder jede eindeutige Abkuerzung akzeptiert.\n"),1;
+
+  if (!str || str==0) {
+      if (!pointerp(news=NEWSSERVER->GetNotes(GROUP))){
+      GROUP=DEFAULTGROUP;
+    if (!pointerp(news=NEWSSERVER->GetNotes(GROUP)))
+      return notify_fail("Seltsam, irgendwie geht hier einiges schief...\n"),0;
+      }
+    return write("Aktuelle Rubrik: "+GROUP+" ("+sizeof(news)+" Artikel).\n"),1;
+  }
+  str=GetGroupName(str);
+  if (!str) return 1;
+  GROUP=str;
+  news=NEWSSERVER->GetNotes(GROUP);
+  write(break_string("Ok, Du hast die Rubrik "+GROUP+" mit "+sizeof(news)+
+                     " Artikel"+(sizeof(news)==1?"":"n")+" aufgeschlagen.\n",
+                     78));
+  return 1;
+}
+
 LiesArtikel(str) {
   string s1;
+  int i1;
   if ( !str ) return 0;
   if (sscanf(str,"rubrik %s",s1))
     return rubrik(s1);
+   if (sscanf(str,"%d",i1))
+    return lies(to_int(i1));
   if (sscanf(str,"artikel %s",s1))
     return lies(s1);
 }
@@ -300,6 +483,55 @@ static int CheckThreads(string rubrik,int timeout) {
   return 1;
 }  
 
+static int rubriken(mixed arg)
+{
+  mixed *gruppen, *messages;
+  mixed news;
+  int anz,i,lasttime,timeout,foundone;
+  string s;
+  
+  if (arg=="?"||arg=="-?") return
+    write("Syntax: rubriken        listet alle Rubriken\n"
+          "        rubriken neu    nur Rubriken mit ungelesenen Artikeln\n"),1;
+
+  gruppen=NEWSSERVER->GetGroups();
+  map(m_indices(read_until)-gruppen-SYSTEMGROUPS,#'KillGroup); // ');
+  s="\nEs gibt zur Zeit ";
+  anz=sizeof(gruppen);
+  if (anz==0) {
+    write(s+"keine Rubriken (wie seltsam ...)\n");
+    return 1;
+  }
+  s+=anz+" Rubrik"+(anz==1 ? "" : "en")+".";
+  if (arg=="neu") s+="\nDavon enthalten neue Artikel:\n\n";
+  else s+="\n(* oder x: enthaelt neue Artikel, x oder -: abbestellt, "
+    ">: aktuelle Rubrik)\n\n";
+  for (i=0;i<anz;i++) {
+    timeout=read_until[gruppen[i]];
+    /* GetNewsTime lieferte leider manchmal was falsches :-(  */
+    /* jetzt hoffentlich richtig? Wenn nicht, das if ausklammern */
+    if ( arg!="neu" || (lasttime=NEWSSERVER->GetNewsTime(gruppen[i])) > timeout) {
+      messages=NEWSSERVER->GetNotes(gruppen[i]);
+      if (!messages || !sizeof(messages)) lasttime=0;
+      else lasttime=messages[sizeof(messages)-1][M_TIME];
+      foundone=1;
+    }
+    if (arg!="neu" || (timeout>=0 && lasttime>abs(timeout)))
+      s+=sprintf("%s%s%3d\. %-39.39s: ",
+                 ((gruppen[i]==GROUP)?">":" "),
+                 ((lasttime>abs(timeout)) ? ((timeout<0) ? "x" : "*")
+                                          : ((timeout<0) ? "-" : " ") ),
+                 i+1,gruppen[i])+ 
+         (lasttime ? sprintf("%3d Artikel (%s)\n",
+                             sizeof(messages),
+                             // ((sizeof(messages)==1) ? ".  " : "en."),
+                             dtime(lasttime)[5..12]+ctime(lasttime)[<2..]) :
+                             "        - leer -\n");
+  }
+  if (arg=="neu"&&!foundone) s+="Keine Rubrik enthaelt neue Artikel.\n";
+  this_player()->More(s);
+  return 1;
+}
 
 #define M_READNEXT  1
 #define M_LISTNEW   2
@@ -316,9 +548,9 @@ static ReadNextUnread(str)
 
   if (str=="?"||str=="-?") return
     write("Syntax: nn             naechster neuer Artikel\n"
-	  "        nn <rubrik>    in entspr. Rubrik, wenn da was neu ist\n"
-	  "        nn rubriken    Liste der Rubriken mit neuen Artikeln\n"
-	  "        nn liste       Liste der ungelesenen Artikel\n"),1;
+          "        nn <rubrik>    in entspr. Rubrik, wenn da was neu ist\n"
+          "        nn rubriken    Liste der Rubriken mit neuen Artikeln\n"
+          "        nn liste       Liste der ungelesenen Artikel\n"),1;
 
   groups=NEWSSERVER->GetGroups();
   deadTID=0;
@@ -348,7 +580,7 @@ Diesen Parameter verstehe ich nicht. Entweder gar nichts, \"liste\"\n\
 \"rubriken\", oder Name bzw. Nummer einer Rubrik.\n");
       return 0;
     }
-    curgr=member_array(GROUP,groups);
+    curgr=member(groups,GROUP);
     start=curgr+nrgroups;
   }
   if (!pointerp(messages=NEWSSERVER->GetNotes(GROUP))){
@@ -363,57 +595,57 @@ Diesen Parameter verstehe ich nicht. Entweder gar nichts, \"liste\"\n\
     ++curmsg;
     if (curmsg>sog) {
       if (deadTID)
-	read_until[IGNOREGROUP][GROUP]=
-	  m_delete(read_until[IGNOREGROUP][GROUP],deadTID);
+        read_until[IGNOREGROUP][GROUP]=
+          m_copy_delete(read_until[IGNOREGROUP][GROUP],deadTID);
       ++curgr;
       deadTID=0;
       if (mode!=M_READGR) {
-	GROUP=groups[curgr%nrgroups];
-	timeout=read_until[GROUP];
-	if (!timeout) read_until[GROUP]=1;  // Nimm neue Gruppen in Liste auf
-	if (timeout<0 || timeout>=NEWSSERVER->GetNewsTime(GROUP)) {
-	  sog=0;    /* Ueberlistung: Gruppe hat nix neues oder */
-	  curmsg=1; /* ist unsubscribed */
-	}
-	else {
-	  messages=NEWSSERVER->GetNotes(GROUP);
-	  curmsg=0;
-	  sog=sizeof(messages);
-	}
+        GROUP=groups[curgr%nrgroups];
+        timeout=read_until[GROUP];
+        if (!timeout) read_until[GROUP]=1;  // Nimm neue Gruppen in Liste auf
+        if (timeout<0 || timeout>=NEWSSERVER->GetNewsTime(GROUP)) {
+          sog=0;    /* Ueberlistung: Gruppe hat nix neues oder */
+          curmsg=1; /* ist unsubscribed */
+        }
+        else {
+          messages=NEWSSERVER->GetNotes(GROUP);
+          curmsg=0;
+          sog=sizeof(messages);
+        }
       }
     } else {
       if ((timeout>=0 || mode==M_READGR) && messages[curmsg-1][M_TIME] > abs(timeout)) {
-	if (pointerp(this_player()->QueryProp(P_IGNORE)) &&
-	    member(this_player()->QueryProp(P_IGNORE),
-		   lower_case(messages[curmsg-1][M_WRITER])+".news") != -1) {
-	  printf("Uebergehe ignorierten Artikel %d von %s in Rubrik %s.\n",
-		 curmsg,messages[curmsg-1][M_WRITER],GROUP);
-	  read_until[GROUP]=messages[curmsg-1][M_TIME];
-	  if (TP) TP->SetProp(P_READ_NEWS,read_until);
-	} else if 
-	  (read_until[IGNOREGROUP]&&
-	   read_until[IGNOREGROUP][GROUP]&&
-	   CheckThreads(GROUP,messages[0][M_TIME])&& /* Tote threads weg */
-	   read_until[IGNOREGROUP][GROUP][GetTID(messages[curmsg-1])]) {
-	    printf("Uebergehe Artikel %d aus ignoriertem Thread.\n",curmsg);
-	    read_until[IGNOREGROUP][GROUP][GetTID(messages[curmsg-1])]=
-	      messages[curmsg-1][M_TIME];
-	    if (deadTID&&deadTID==GetTID(messages[curmsg-1])) deadTID=0;
-	    read_until[GROUP]=messages[curmsg-1][M_TIME];
-	    if (TP) TP->SetProp(P_READ_NEWS,read_until);
-	} else {
-	  write("\nRubrik "+(curgr%nrgroups+1)+": "+GROUP+", Artikel: "+curmsg+" von "+sog+"\n");
-	  if (mode==M_LISTNEW) {
-	    write(sprintf("  %-45s [%-11s] %s\n",messages[curmsg-1][M_TITLE],
-			  messages[curmsg-1][M_WRITER],
-			  dtime(messages[curmsg-1][M_TIME])[5..16]));
-	  } else { /* mode == M_READNEXT || mode==M_READGR */
-	    if (timeout>=0) read_until[GROUP]=messages[curmsg-1][M_TIME];
-	    else read_until[GROUP]=-messages[curmsg-1][M_TIME];
-	    if (TP) TP->SetProp(P_READ_NEWS,read_until);
-	    return (lies(""+curmsg));
-	  }
-	}
+        if (pointerp(this_player()->QueryProp(P_IGNORE)) &&
+            member(this_player()->QueryProp(P_IGNORE),
+                   lower_case(messages[curmsg-1][M_WRITER])+".news") != -1) {
+          printf("Uebergehe ignorierten Artikel %d von %s in Rubrik %s.\n",
+                 curmsg,messages[curmsg-1][M_WRITER],GROUP);
+          read_until[GROUP]=messages[curmsg-1][M_TIME];
+          if (TP) TP->SetProp(P_READ_NEWS,read_until);
+        } else if 
+          (read_until[IGNOREGROUP]&&
+           read_until[IGNOREGROUP][GROUP]&&
+           CheckThreads(GROUP,messages[0][M_TIME])&& /* Tote threads weg */
+           read_until[IGNOREGROUP][GROUP][GetTID(messages[curmsg-1])]) {
+            printf("Uebergehe Artikel %d aus ignoriertem Thread.\n",curmsg);
+            read_until[IGNOREGROUP][GROUP][GetTID(messages[curmsg-1])]=
+              messages[curmsg-1][M_TIME];
+            if (deadTID&&deadTID==GetTID(messages[curmsg-1])) deadTID=0;
+            read_until[GROUP]=messages[curmsg-1][M_TIME];
+            if (TP) TP->SetProp(P_READ_NEWS,read_until);
+        } else {
+          write("\nRubrik "+(curgr%nrgroups+1)+": "+GROUP+", Artikel: "+curmsg+" von "+sog+"\n");
+          if (mode==M_LISTNEW) {
+            write(sprintf("  %-45s [%-11s] %s\n",messages[curmsg-1][M_TITLE],
+                          messages[curmsg-1][M_WRITER],
+                          dtime(messages[curmsg-1][M_TIME])[5..16]));
+          } else { /* mode == M_READNEXT || mode==M_READGR */
+            if (timeout>=0) read_until[GROUP]=messages[curmsg-1][M_TIME];
+            else read_until[GROUP]=-messages[curmsg-1][M_TIME];
+            if (TP) TP->SetProp(P_READ_NEWS,read_until);
+            return (lies(""+curmsg));
+          }
+        }
       }
       /* sonst mach einfach garnix. Schleife laeuft weiter. */
     }
@@ -421,7 +653,7 @@ Diesen Parameter verstehe ich nicht. Entweder gar nichts, \"liste\"\n\
   switch(mode) {
     case M_LISTNEW:  return 1;
     case M_READNEXT: write((read_until[NNADWMSG]||"Nix Neues auf der Welt.")
-			   +"\n"); break;
+                           +"\n"); break;
     case M_READGR:   write("Nix Neues in dieser Rubrik.\n"); break;
   }
   return 1;
@@ -431,14 +663,14 @@ Diesen Parameter verstehe ich nicht. Entweder gar nichts, \"liste\"\n\
 static SetNNADWMSG(str) {
   if (str=="?"||str=="-?") return
     write("Syntax: zeitungsmeldung <neue Meldung>    setzt Meldung\n"
-	  "        zeitungsmeldung                   loescht Meldung\n"),1;
+          "        zeitungsmeldung                   loescht Meldung\n"),1;
   if (!read_until[NNADWMSG]) {
     write("Du hast zur Zeit keine eigene NNADW-Meldung definiert.\n");
     if (!str) return 1;
   }
   else write("Deine alte NNADW-Meldung war:\n"+read_until[NNADWMSG]+"\n");
   if (!str) {
-    read_until=m_delete(read_until,NNADWMSG);
+    read_until=m_copy_delete(read_until,NNADWMSG);
     write("Meldung ist geloescht, es gilt wieder die Standardmeldung.\n");
   } else {
     read_until[NNADWMSG]=this_player()->_unparsed_args();
@@ -448,10 +680,76 @@ static SetNNADWMSG(str) {
   return 1;
 }    
 
+varargs int InterpretTime(mixed a,int flag) {
+  // string oder string *
+  // akzeptiert folgende Formate:
+  //   dd.mm.jj     (Rueckgabe: 0:00 des entsprechenden Tages)
+  //   vor [<anz> d|tagen] [<anz> h|stunden] [<anz> m|minuten]
+  // flag=1: "inklusive": bei dd.mm.jj-Format 23:59:59 statt 0:00 Uhr
 
-static Ignore(str) {
-  if (str=="thread"||str=="antworten") return Catchup(str);
-  return 0;
+  int i,j,k,t,nrargs;
+  string s;
+  if (stringp(a)) a=explode(a," ");
+
+//  printf("%O\n",a);
+
+  if ((nrargs=sscanf(a[0],"%d.%d.%d",i,j,k))==3 || 
+      (nrargs=sscanf(a[0],"%d.%d.",i,j))==2) {
+    // Datum -> Zeit: Funktioniert im Zeitraum 1973 - ca. 2090
+    //                in Zeitzonen mit ganzen Stunden ggue Rechneruhr.
+    if (nrargs==2) 
+      k=70+time()/31536000;
+    if (k<70) k+=100;
+    if (k>1970) k-=1900;
+    if (k<70||k>150) return
+      write("Unzulaessiges Jahr (erlaubt: 70-heute).\n"),0;
+    t=(k-70)*31536000;
+
+    if (i<1||i>31) return write("Unzulaessiger Tag (erlaubt: 1-31).\n"),0;
+    if (j<1||j>12) return write("Unzulaessiger Monat (erlaubt: 1-12).\n"),0;
+//    printf("%d.%d.%d\n",i,j,k);
+    s=ctime(t);
+    if ((j>2) && !(k%4)) t+=86400;    // Schaltjahrkorrektur fuer Monate>=3
+    t+=({        0,  2678400,  5097600,  7776000,
+          10368000, 13046400, 15638400, 18316800,
+          20995200, 23587200, 26265600, 28857600})[j-1];
+    t+=86400*(i-1);
+    t+=86400*(32-to_int(s[8..9]));  // Schaltjahrkorrektur
+    t-=3600*to_int(s[11..12]);      // Zeitzonenkorrektur
+    t-=3600*to_int(ctime(t)[11..12]);      // Sommerzeitkorrektur
+//    write("Kontrolle: "+dtime(t)+"\n");
+    if (nrargs==2 && t>time()) t-=31536000;
+    return (flag?t+86399:t);
+  }
+
+  t=0;
+  if (a[0]=="vor") for (i=sizeof(a)-1;i>0;i--) {
+    switch (a[i]) {
+    case "m": 
+    case "minuten": 
+    case "min": 
+    case "minute":
+      t+=60*to_int(a[i-1]);
+      break;
+    case "h": 
+    case "stunde": 
+    case "stunden": 
+    case "s":
+      t+=3600*to_int(a[i-1]);
+      break;
+    case "d": 
+    case "tag": 
+    case "tage": 
+    case "t":
+      t+=86400*to_int(a[i-1]);
+      break;
+    default: 
+      if (!to_int(a[i]))
+        write("Argumentfehler: Kann nichts mit '"+a[i]+"' anfangen.\n");
+    }
+    return time()-t;
+  }
+  else return write("Argumentfehler.\n"),0;
 }
 
 static Catchup(string str)
@@ -477,7 +775,7 @@ static Catchup(string str)
     if (!read_until[IGNOREGROUP]) read_until[IGNOREGROUP]=([]);
     if (!read_until[IGNOREGROUP][GROUP]) read_until[IGNOREGROUP][GROUP]=([]);
     if (read_until[IGNOREGROUP][GROUP][lasttitle[3]]) {
-      read_until[IGNOREGROUP][GROUP]=m_delete(read_until[IGNOREGROUP][GROUP],lasttitle[3]);
+      read_until[IGNOREGROUP][GROUP]=m_copy_delete(read_until[IGNOREGROUP][GROUP],lasttitle[3]);
       write("Dieser Thread wird jetzt nicht mehr uebergangen.\n");
     } else {
       read_until[IGNOREGROUP][GROUP][lasttitle[3]]=lasttitle[2];
@@ -505,7 +803,7 @@ static Catchup(string str)
       gr=groups[welche];
 //      zeit=NEWSSERVER->GetNewsTime(gr);
       if (abs(read_until[gr])<zeit) 
-	read_until[gr]=(read_until[gr]>=0)?zeit:-zeit;
+        read_until[gr]=(read_until[gr]>=0)?zeit:-zeit;
       if (TP) TP->SetProp(P_READ_NEWS,read_until);
     }
     return 1;
@@ -553,15 +851,20 @@ static Catchup(string str)
 }
 
 
+static Ignore(str) {
+  if (str=="thread"||str=="antworten") return Catchup(str);
+  return 0;
+}
+
 static CatchupSyntax() {
   write("Syntax des Befehls uebergehe (oder catchup):\n"
-	"  uebergehe [rubrik]              (default: aktuelle Rubrik)\n"
-	"  uebergehe alles                 (in allen Rubriken)\n"
-	"  uebergehe <anz> artikel         (in akt. Rubrik)\n"
-	"  uebergehe [rubrik]|alles bis <tag>.<monat>.[<jahr>]\n"
-	"  uebergehe [rubrik]|alles bis vor <zeit>        wobei\n"
-	"      <zeit> = [<n> d|tage] [<n> h|stunden] [<n> m|min|minuten]\n"
-	"  uebergehe thread|antworten      (entspr. 'ignoriere thread')\n");
+        "  uebergehe [rubrik]              (default: aktuelle Rubrik)\n"
+        "  uebergehe alles                 (in allen Rubriken)\n"
+        "  uebergehe <anz> artikel         (in akt. Rubrik)\n"
+        "  uebergehe [rubrik]|alles bis <tag>.<monat>.[<jahr>]\n"
+        "  uebergehe [rubrik]|alles bis vor <zeit>        wobei\n"
+        "      <zeit> = [<n> d|tage] [<n> h|stunden] [<n> m|min|minuten]\n"
+        "  uebergehe thread|antworten      (entspr. 'ignoriere thread')\n");
 
   return 1;
 }
@@ -608,10 +911,10 @@ static Uncatchup(string str)
       case "alles":
       case "alle":
       case "all":
-	if (mode&&mode!=3) return
+        if (mode&&mode!=3) return
           notify_fail("Bitte nur Zeit ODER alles ODER Anzahl angeben!\n"),0;
-	mode=3;
-	break;
+        mode=3;
+        break;
       case "minuten":
       case "minute":
       case "m":
@@ -621,36 +924,36 @@ static Uncatchup(string str)
       case "tage":
       case "tag":
       case "d":
-	if (mode&&mode!=2) return
-	  notify_fail("Bitte nur Zeit/Datum ODER alles ODER "
+        if (mode&&mode!=2) return
+          notify_fail("Bitte nur Zeit/Datum ODER alles ODER "
               "Anzahl angeben!\n"),0;
-	mode=2;
-	zeit-=(((args[i][0]=='m') ? 60 :
-		((args[i][0]=='s' || args[i][0]=='h') ? 3600 : 86400))
-	       *to_int(args[i-1]));
-	i--;
-	break;
+        mode=2;
+        zeit-=(((args[i][0]=='m') ? 60 :
+                ((args[i][0]=='s' || args[i][0]=='h') ? 3600 : 86400))
+               *to_int(args[i-1]));
+        i--;
+        break;
       case "artikel":
-	if (mode&&mode!=1) return 
-	  notify_fail("Bitte nur Zeit/Datum ODER alles ODER "
+        if (mode&&mode!=1) return 
+          notify_fail("Bitte nur Zeit/Datum ODER alles ODER "
               "Anzahl angeben!\n"),0;
-	mode=1;
-	zeit=to_int(args[i-1]);
-	i--;
-	break;
+        mode=1;
+        zeit=to_int(args[i-1]);
+        i--;
+        break;
       case "ab":
-	return 
-	  notify_fail("Bitte nur Zeit/Datum ODER alles ODER "
+        return 
+          notify_fail("Bitte nur Zeit/Datum ODER alles ODER "
               "Anzahl angeben!\n"),0;
       default:
-	if (!to_int(args[i])) 
-	  return notify_fail("Unbekanntes Argument '"+args[i]+
-			     "'! Aktion abgebrochen.\n"),0;
-	if (mode&&mode!=1) return 
-	  notify_fail("Bitte nur Zeit/Datum ODER alles ODER "
+        if (!to_int(args[i])) 
+          return notify_fail("Unbekanntes Argument '"+args[i]+
+                             "'! Aktion abgebrochen.\n"),0;
+        if (mode&&mode!=1) return 
+          notify_fail("Bitte nur Zeit/Datum ODER alles ODER "
               "Anzahl angeben!\n"),0;
-	mode=1;
-	zeit=to_int(args[i]);
+        mode=1;
+        zeit=to_int(args[i]);
       }
     }
   }
@@ -675,15 +978,15 @@ static Uncatchup(string str)
       notes=NEWSSERVER->GetNotes(GROUP);
       h=sizeof(notes)-1;
       while ( (h>=0) && (abs(read_until[GROUP]) < notes[h][M_TIME]) ) {
-	h--;
+        h--;
       }
       if (h==-1||h<zeit)
-	read_until[GROUP]=
-	  (read_until[GROUP]>=0)?1:-1;
+        read_until[GROUP]=
+          (read_until[GROUP]>=0)?1:-1;
       else
-	read_until[GROUP]=(
-	  (read_until[GROUP]>=0)?notes[h-zeit][M_TIME]
-	    :-notes[h-zeit][M_TIME]);
+        read_until[GROUP]=(
+          (read_until[GROUP]>=0)?notes[h-zeit][M_TIME]
+            :-notes[h-zeit][M_TIME]);
     }
   }
   write("Ok. Du kannst die als ungelesen markierten Artikel "
@@ -698,13 +1001,22 @@ QueryRead() {
   return read_until; 
 }
 
+static CatchNewsError(int err,string text4minus3) {
+  switch (err) {
+    case  1: return 1;
+    case -1: write("Du darfst in dieser Rubrik nicht schreiben!\n"); return 0;
+    case -2: write("Die Rubrik gibt es nicht mehr, sehr seltsam...\n"); return 0;
+    case -3: write(text4minus3+"\n"); return 0;
+    default: write("Interner Fehler "+err+", Erzmagier verstaendigen!\n"); return 0;
+  }
+}
 
 static varargs schreib(str,pretext,called_by_itself,statuslines) {
   int err;
 
   if (str=="?"||str=="-?") {
     write("Syntax: schreib <Titel>\n"
-	  "  beginnt einen neuen Artikel in der Zeitung.\n");
+          "  beginnt einen neuen Artikel in der Zeitung.\n");
     return 1;
   }
   
@@ -716,13 +1028,12 @@ static varargs schreib(str,pretext,called_by_itself,statuslines) {
     return 1;
   }
   if (!CatchNewsError(
-		      NEWSSERVER->AskAllowedWrite(GROUP),
-		      "Diese Rubrik ist leider schon randvoll!")) return 1;
+                      NEWSSERVER->AskAllowedWrite(GROUP),
+                      "Diese Rubrik ist leider schon randvoll!")) return 1;
   if (!called_by_itself)
     write("Neuer Artikel in Rubrik "+GROUP+":\n");
   if (!str || str=="" || str=="artikel") {
-    write("Titel des Artikels: ");
-    input_to("schreib",0,pretext,1);
+    input_to("schreib", INPUT_PROMPT, "Titel des Artikels: ", pretext,1);
     return 1;
   }
   // writer=this_interactive()->query_real_name();
@@ -737,53 +1048,44 @@ Gib jetzt Deinen Text ein,\n\
   return 1;
 }
 
-
-static Reply2(str) {
-  str = this_player()->_unparsed_args();
-  if (!str||str[0..11]=="auf artikel "||str[0..7]=="to note ")
-    return Reply(str);
-  return Reply(0,str);
-}
-
-
 static varargs Reply(string str,string newtitle) {
   mixed dummy,replytitle,s;
   int nr;
 
   if ((dummy=(str||newtitle))=="?"||dummy=="-?") {
     write("Der Antworte-Befehl ist doppelt belegt.\n"
-	  "1. (Zeitung): Schreibe Antwort auf einen Artikel in der Zeitung.\n"
-	  "   Syntax: antworte\n"
-	  "           antworte auf artikel <nr> [neuer Titel]\n"
-	  "           reply [auf artikel <nr> | to note <nr>] [neuer Titel]\n"
-	  "2. aehnlich 'sage':\n"
-	  "   Du tippst zum Beispiel:\n"
-	  "     antworte ja, das weiss ich\n"
-	  "   Alle Spieler im Raum sehen dann:\n"
-	  "     <Dein Name> antwortet: ja, das weiss ich.\n"
-	  "Bitte beachte, dass jede Syntax, die auf den antworte-Befehl der "
+          "1. (Zeitung): Schreibe Antwort auf einen Artikel in der Zeitung.\n"
+          "   Syntax: antworte\n"
+          "           antworte auf artikel <nr> [neuer Titel]\n"
+          "           reply [auf artikel <nr> | to note <nr>] [neuer Titel]\n"
+          "2. aehnlich 'sage':\n"
+          "   Du tippst zum Beispiel:\n"
+          "     antworte ja, das weiss ich\n"
+          "   Alle Spieler im Raum sehen dann:\n"
+          "     <Dein Name> antwortet: ja, das weiss ich.\n"
+          "Bitte beachte, dass jede Syntax, die auf den antworte-Befehl der "
           "Zeitung\npasst, auch von der Zeitung ausgewertet wird.\n");
     return 1;
   }
 
   if (str&&
       ((sscanf(lower_case(str),"auf artikel %d",dummy)==1 && 
-	str=this_player()->_unparsed_args()[12..])||
+        str=this_player()->_unparsed_args()[12..])||
        (sscanf(lower_case(str),"to note %d",dummy)==1 && 
-	str=this_player()->_unparsed_args()[8..]))) {
+        str=this_player()->_unparsed_args()[8..]))) {
     mixed notes;
     notes=NEWSSERVER->GetNotes(GROUP);
     if (dummy<1||dummy>sizeof(notes))
       return write("Einen Artikel mit der Nummer "+dummy+
-		   " gibt es in dieser Rubrik nicht.\n"),1;
+                   " gibt es in dieser Rubrik nicht.\n"),1;
     dummy--;
     replytitle=({notes[dummy][M_TITLE],notes[dummy][M_WRITER],
-		   notes[dummy][M_TIME],GetTID(notes[dummy]),GROUP});
+                   notes[dummy][M_TIME],GetTID(notes[dummy]),GROUP});
     DEBUGVAR(str);
-    if (!newtitle&&str&&strlen(str)&&sscanf(str,"%d %s",dummy,str)==2)
+    if (!newtitle&&str&&sizeof(str)&&sscanf(str,"%d %s",dummy,str)==2)
       newtitle=str;
   }
-  else if (!str||!strlen(str)) {
+  else if (!str||!sizeof(str)) {
     if (!lasttitle) return
       write("Du hast noch gar nichts gelesen, worauf Du "
           "antworten koenntest.\n"),1;
@@ -804,12 +1106,40 @@ static varargs Reply(string str,string newtitle) {
     else newtitle="Re: "+replytitle[0];
   }
   return schreib(newtitle,0,0,
-		 STATUSESCAPE+" rn="+replytitle[LAST_WRITER]+
-		              " rt="+replytitle[LAST_TIME]+
-		              " rg="+replytitle[LAST_GROUP]+"\n"+
-		 STATUSESCAPE+" tid="+replytitle[LAST_TID]+"\n");
+                 STATUSESCAPE+" rn="+replytitle[LAST_WRITER]+
+                              " rt="+replytitle[LAST_TIME]+
+                              " rg="+replytitle[LAST_GROUP]+"\n"+
+                 STATUSESCAPE+" tid="+replytitle[LAST_TID]+"\n");
 }
 
+static Reply2(str) {
+  str = this_player()->_unparsed_args();
+  if (!str||str[0..11]=="auf artikel "||str[0..7]=="to note ")
+    return Reply(str);
+  return Reply(0,str);
+}
+
+static void InformPlayers(string group,string player,string text)
+{
+  object *players;
+  int i;
+  mixed data;
+  string ig;
+
+  players=users();
+  ig=lower_case(player)+".news";
+  for (i=sizeof(players)-1;i>=0;i--) {
+    data=players[i]->QueryProp(P_WAITFOR);
+    if (pointerp(data)&&(member(data,"Mpa")>-1)) {
+      data=players[i]->QueryProp(P_READ_NEWS);
+      if (mappingp(data)&&(data[group]>0)) {
+        data=players[i]->QueryProp(P_IGNORE);
+        if ((!pointerp(data))||(member(data,ig)==-1))
+          tell_object(players[i],text);
+      }
+    }
+  }
+}
 
 static PostNote(text) {
   int err;
@@ -820,8 +1150,8 @@ static PostNote(text) {
     return 1;
   }
   if (!sizeof(old_explode(text,"\n")-
-	      ({"q","quit"," **","** ","ende","","exit"," "}) 
-	      ) )
+              ({"q","quit"," **","** ","ende","","exit"," "}) 
+              ) )
     return write("\
 ACHTUNG: Wolltest Du wirklich einen Artikel ohne Inhalt in die mpa setzen?\n\
 Artikel ohne erkennbaren Inhalt werden NICHT veroeffentlicht. Bitte ueber-\n\
@@ -844,9 +1174,9 @@ Artikel landet im Reisswolf.\n"),1;
       " hat einen Artikel in der Zeitung veroeffentlicht.\n");
   if (geteuid(TP)!="sitopanaki")
     InformPlayers(message[M_BOARD],geteuid(this_interactive()),
-		"* MPA: Neuer Artikel von "+
-		capitalize(geteuid(this_interactive()))+
-		" in Rubrik \""+message[M_BOARD]+"\".\n");
+                "* MPA: Neuer Artikel von "+
+                capitalize(geteuid(this_interactive()))+
+                " in Rubrik \""+message[M_BOARD]+"\".\n");
   message=0; /* Platz sparen! */
   return 1;
 }
@@ -907,95 +1237,14 @@ inhalt(str) {
     txt=sprintf("%2d.%s%-48s%4d (%-11s) %s\n",i+1,
                 (((timeout>=0) && timeout<messages[i][M_TIME] )?
                  ( (timeout=-1),"*"):" "),messages[i][M_TITLE],
-	        sizeof(explode(messages[i][M_MESSAGE],"\n")),
-	        messages[i][M_WRITER],
-	        dtime(messages[i][M_TIME])[5..11]);
+                sizeof(explode(messages[i][M_MESSAGE],"\n")),
+                messages[i][M_WRITER],
+                dtime(messages[i][M_TIME])[5..11]);
     if (!suche || (strstr(lower_case(txt), suche) != -1))
       s+=txt;
   }
   if (endflag) write(s);
   else this_player()->More(s);
-  return 1;
-}
-
-
-static rubriken(mixed arg)
-{
-  mixed *gruppen, *messages;
-  mixed news;
-  int anz,i,lasttime,timeout,foundone;
-  string s;
-  
-  if (arg=="?"||arg=="-?") return
-    write("Syntax: rubriken        listet alle Rubriken\n"
-	  "        rubriken neu    nur Rubriken mit ungelesenen Artikeln\n"),1;
-
-  gruppen=NEWSSERVER->GetGroups();
-  map(m_indices(read_until)-gruppen-SYSTEMGROUPS,#'KillGroup); // ');
-  s="\nEs gibt zur Zeit ";
-  anz=sizeof(gruppen);
-  if (anz==0) {
-    write(s+"keine Rubriken (wie seltsam ...)\n");
-    return 1;
-  }
-  s+=anz+" Rubrik"+(anz==1 ? "" : "en")+".";
-  if (arg=="neu") s+="\nDavon enthalten neue Artikel:\n\n";
-  else s+="\n(* oder x: enthaelt neue Artikel, x oder -: abbestellt, "
-    ">: aktuelle Rubrik)\n\n";
-  for (i=0;i<anz;i++) {
-    timeout=read_until[gruppen[i]];
-    /* GetNewsTime lieferte leider manchmal was falsches :-(  */
-    /* jetzt hoffentlich richtig? Wenn nicht, das if ausklammern */
-    if ( arg!="neu" || (lasttime=NEWSSERVER->GetNewsTime(gruppen[i])) > timeout) {
-      messages=NEWSSERVER->GetNotes(gruppen[i]);
-      if (!messages || !sizeof(messages)) lasttime=0;
-      else lasttime=messages[sizeof(messages)-1][M_TIME];
-      foundone=1;
-    }
-    if (arg!="neu" || (timeout>=0 && lasttime>abs(timeout)))
-      s+=sprintf("%s%s%3d\. %-39.39s: ",
-                 ((gruppen[i]==GROUP)?">":" "),
-		 ((lasttime>abs(timeout)) ? ((timeout<0) ? "x" : "*")
-		                          : ((timeout<0) ? "-" : " ") ),
-		 i+1,gruppen[i])+ 
-	 (lasttime ? sprintf("%3d Artikel (%s)\n",
-			     sizeof(messages),
-			     // ((sizeof(messages)==1) ? ".  " : "en."),
-			     dtime(lasttime)[5..12]+ctime(lasttime)[<2..]) :
-	                     "        - leer -\n");
-  }
-  if (arg=="neu"&&!foundone) s+="Keine Rubrik enthaelt neue Artikel.\n";
-  this_player()->More(s);
-  return 1;
-}
-
-
-static rubrik(str)
-{
-  mixed *gruppen;
-  mixed news;
-  int anz,i;
-  
-  if (str=="?"||str=="-?") return
-    write("Syntax: rubrik <rubrik>\n"
-	  "  wechselt die aktuelle Rubrik. Es wird die Nummer der Rubrik,\n"
-          "  ihr Name oder jede eindeutige Abkuerzung akzeptiert.\n"),1;
-
-  if (!str || str==0) {
-      if (!pointerp(news=NEWSSERVER->GetNotes(GROUP))){
-      GROUP=DEFAULTGROUP;
-    if (!pointerp(news=NEWSSERVER->GetNotes(GROUP)))
-      return notify_fail("Seltsam, irgendwie geht hier einiges schief...\n"),0;
-      }
-    return write("Aktuelle Rubrik: "+GROUP+" ("+sizeof(news)+" Artikel).\n"),1;
-  }
-  str=GetGroupName(str);
-  if (!str) return 1;
-  GROUP=str;
-  news=NEWSSERVER->GetNotes(GROUP);
-  write(break_string("Ok, Du hast die Rubrik "+GROUP+" mit "+sizeof(news)+
-                     " Artikel"+(sizeof(news)==1?"":"n")+" aufgeschlagen.\n",
-                     78));
   return 1;
 }
 
@@ -1011,7 +1260,7 @@ static loesche(str) {
 
   if (str=="?"||str=="-?") return 
     write("Syntax: loesche artikel <nr>\n"
-	  "  (bezieht sich immer auf die aktuelle Rubrik.\n"),1;
+          "  (bezieht sich immer auf die aktuelle Rubrik.\n"),1;
 
   if (!str || sscanf(str,"artikel %d",num)!=1 || num<=0) 
    return notify_fail("WELCHEN Artikel willst Du loeschen ?\n"),0;
@@ -1021,15 +1270,15 @@ static loesche(str) {
     notify_fail("So viele Artikel sind da nicht!\n"),0;
   
   write("Rubrik "+GROUP+", Artikel "+(num+1)+
-	" von "+capitalize(messages[num][M_WRITER])+
-	" vom "+dtime(messages[num][M_TIME])[5..26]+
-	",\nTitel: "+messages[num][M_TITLE]+",\n\n");
+        " von "+capitalize(messages[num][M_WRITER])+
+        " vom "+dtime(messages[num][M_TIME])[5..26]+
+        ",\nTitel: "+messages[num][M_TITLE]+",\n\n");
 
   /* (ueberfluessige Abfrage, macht schon /secure/news)
   if (!IS_LEARNER(TI) && lower_case(messages[num][M_WRITER])!=geteuid(TI)) 
     return 
       write("Nicht geloescht - du darfst nur eigene Artikel loeschen.\n"),1;
-	  */
+          */
 
   switch (NEWSSERVER->RemoveNote(GROUP, num)){
   case 1: write("Artikel ist geloescht.\n");
@@ -1045,53 +1294,47 @@ static loesche(str) {
   }  
 }
 
+// Low-level Funktion zum Abonnieren/Abbestellen von Rubriken
+// bestellen==0 -> abbestellen, bestellen!=0 -> bestellen
+// Rueckgabe: 0, wenn der gewuenschte Zustand schon eingestellt war, sonst 1
+private int _subscribe(string groupname, int bestellen) {
 
-static varargs lies(mixed str) {
-  mixed num;
-  mixed *messages;
-  int tid;
-
-  if (str=="?"||str=="-?") return 
-    write("Syntax: lies <nr>\n"
-	  "        artikel <nr>\n"
-	  "Siehe auch: nn\n"),1;
-
-  if (intp(str)) num=str;
-  if ((!num && (!str || str=="" || sscanf(str,"%d",num)!=1)) || num<=0) {
-    notify_fail("WELCHE Nachricht willst Du lesen?\n");
+  int timeout = read_until[groupname];
+  // gar nicht abonniert/abbestellt?
+  if (!bestellen && timeout < 0)
     return 0;
-  }
-  if (!pointerp(messages=NEWSSERVER->GetNotes(GROUP)))
-    return notify_fail("Seltsam, die Rubrik '"+GROUP+
-        "' gibt es nicht mehr...\n"), 0;
-  num--;
-  if (sizeof(messages)<=num) {
-    notify_fail("So viele Artikel sind da nicht!\n");
+  else if (bestellen && timeout > 0)
     return 0;
-  }
-  
-  lasttitle=({messages[num][M_TITLE],messages[num][M_WRITER],
-      messages[num][M_TIME],GetTID(messages[num]),GROUP,num});
-  this_player()->More(Message2string(messages[num],messages,M2S_VT100));
-  if (this_player() && IS_LEARNER(this_player()))
-    this_player()->save_me(1);
+
+  // wenn noch kein timeout, erstmal auf 1 setzen
+  timeout ||= 1;
+
+  // -1 fuer abbestellen, +1 fuer bestellen
+  if (bestellen)
+    read_until[groupname] = abs(timeout);
+  else
+    read_until[groupname] = -timeout;
+
+  if (environment())
+    environment()->SetProp(P_READ_NEWS, read_until);
+
   return 1;
 }
-
 
 static Unsubscribe(str) {
   int timeout;
   if (str=="?"||str=="-?") return
     write("Syntax: unsubscribe <rubrik>"
-	  "  oder: bestelle <rubrik> ab\n"),1;
+          "  oder: bestelle <rubrik> ab\n"),1;
   str=GetGroupName(str);
   if (!str) return 1;
-  timeout=read_until[str];
-  if (timeout<0) return (int)notify_fail(
-       "Die Rubrik hast Du gar nicht abonniert!\n");
-  read_until[str]=(timeout ? -timeout : -1);
-  if (TP) TP->SetProp(P_READ_NEWS,read_until);
-  write("Rubrik "+str+" abbestellt.\n");
+  if (!_subscribe(str,0)) {
+    notify_fail("Die Rubrik hast Du gar nicht abonniert!\n");
+    return 0;
+  }
+  else {
+    write("Rubrik "+str+" abbestellt.\n");
+  }
   return 1;
 }
 
@@ -1103,33 +1346,47 @@ static Bestelle(str) { /* ab ! */
   return Unsubscribe(str);
 }
 
-
 static Subscribe(str) {
   int timeout;
   if (str=="?"||str=="-?") return
     write("Syntax: abonniere <rubrik>\n"
-	  "  oder: subscribe <rubrik>\n"),1;
+          "  oder: subscribe <rubrik>\n"),1;
   str=GetGroupName(str);
   if (!str) return 1;
-  timeout=read_until[str];
-  if (timeout>=0) return (int)notify_fail(
-       "Die Rubrik hast Du doch schon abonniert!\n");
-  read_until[str]=abs(timeout);
-  if (TP) TP->SetProp(P_READ_NEWS,read_until);
-  write("Rubrik "+str+" abonniert.\n");
+  if (!_subscribe(str,1)) {
+    notify_fail("Die Rubrik hast Du doch schon abonniert!\n");
+    return 0;
+  }
+  else {
+    write("Rubrik "+str+" abonniert.\n");
+  }
   return 1;
 }
 
+// Legt die anfaenglichen Abonnements eines Neulesers fest und bestellt alle
+// anderen ab.
+private void InitialSubscriptions() {
+  // alle abbestellen. ;-)
+  // Alternative: fuer alle _subscribe(,0) rufen
+  if (!query_once_interactive(environment()))
+    return;
+  string *gruppen = NEWSSERVER->GetGroups();
+  int *vals = allocate(sizeof(gruppen),-1);
+  read_until = mkmapping(gruppen,vals);
 
-static MoveTrash()
-{
-  if (!pointerp(lasttitle)||sizeof(lasttitle)<LAST_SIZEOF) return
-    write("Was denn bitte? Du hast noch gar nichts gelesen!\n"),1;
-  if (lasttitle[LAST_GROUP]!=GROUP) return
-    write("Nix gibts! Du hast die Rubrik gewechselt!\n"),1;
-  return MoveMessage(sprintf("artikel %d nach muell",lasttitle[LAST_NR]+1));
+  // jetzt die vorausgewaehlten bestellen
+  foreach(string gruppe : INITIAL_SUBSCRIPTIONS) {
+    if (member(gruppen, gruppe) > -1)
+      _subscribe(gruppe,1);
+  }
+  // und ggf. noch die eigene Gildenrubrik
+  string gilde = environment()->QueryProp(P_GUILD);
+  if (stringp(gilde)
+      && member(gruppen, "gilden."+gilde) > -1)
+    _subscribe("gilden."+gilde,1);
+
+  environment()->SetProp(P_READ_NEWS, read_until);
 }
-
 
 static MoveMessage(str) {
   int num,i;
@@ -1137,9 +1394,9 @@ static MoveMessage(str) {
   string gr;
   if (str=="?"||str=="-?") return
     write("Syntax: verlege artikel <nr> nach <rubrik>\n"
-	  "  Artikel und Rubrik muessen explizit angegeben werden.\n"),1;
+          "  Artikel und Rubrik muessen explizit angegeben werden.\n"),1;
   if (!str || sscanf(str,"artikel %d nach %s",num,gr)!=2) return (int)notify_fail(
-	"verlege artikel <nr> nach <rubrik>, oder was?\n");
+        "verlege artikel <nr> nach <rubrik>, oder was?\n");
   if (!(gr=GetGroupName(gr))) return 1;
   if (!(CatchNewsError(NEWSSERVER->AskAllowedWrite(gr),"Die Rubrik ist leider voll.\n"))) return 1;
 
@@ -1163,7 +1420,7 @@ static MoveMessage(str) {
 
   msg[M_MESSAGE]=
     sprintf("%s on=%s ot=%d og=%s\n",
-	    STATUSESCAPE,msg[M_WRITER],msg[M_TIME],msg[M_BOARD])
+            STATUSESCAPE,msg[M_WRITER],msg[M_TIME],msg[M_BOARD])
       +msg[M_MESSAGE];
 
 /*
@@ -1181,6 +1438,14 @@ static MoveMessage(str) {
   return 1;
 }
 
+static MoveTrash()
+{
+  if (!pointerp(lasttitle)||sizeof(lasttitle)<LAST_SIZEOF) return
+    write("Was denn bitte? Du hast noch gar nichts gelesen!\n"),1;
+  if (lasttitle[LAST_GROUP]!=GROUP) return
+    write("Nix gibts! Du hast die Rubrik gewechselt!\n"),1;
+  return MoveMessage(sprintf("artikel %d nach muell",lasttitle[LAST_NR]+1));
+}
 
 static SaveMessage(str) {
   mixed num;
@@ -1230,9 +1495,9 @@ static MailMessage(str) {
   num=0;
   
   if (!str || (sscanf(str,"artikel %d an %s",num,rec)!=2 &&
-	       sscanf(str,"note %d to %s",num,rec)!=2 &&
-	       sscanf(str,"note to %s",rec)!=1 &&
-	       sscanf(str,"artikel an %s",rec)!=1)){
+               sscanf(str,"note %d to %s",num,rec)!=2 &&
+               sscanf(str,"note to %s",rec)!=1 &&
+               sscanf(str,"artikel an %s",rec)!=1)){
      if (!str || str[0..6]=="artikel"||str[0..3]=="note") return 
       write("Welchen Artikel willst Du versenden, und wohin?\n"),1;
     else return 
@@ -1260,9 +1525,9 @@ static MailMessage(str) {
     num=-1;
     if (pointerp(messages)) {
       for (h=sizeof(messages)-1;
-	   (h>=0 && messages[h][M_TIME]>=lasttitle[LAST_TIME]);h--) 
-	if (messages[h][M_TIME]==lasttitle[LAST_TIME] && 
-	    lower_case(messages[h][M_WRITER])==
+           (h>=0 && messages[h][M_TIME]>=lasttitle[LAST_TIME]);h--) 
+        if (messages[h][M_TIME]==lasttitle[LAST_TIME] && 
+            lower_case(messages[h][M_WRITER])==
             lower_case(lasttitle[LAST_WRITER]))
           num=h;
     }
@@ -1287,149 +1552,16 @@ HelpPage(str) {
 
 /*--------------------------------------------------------------------------*/
 
-static void InformPlayers(string group,string player,string text)
-{
-  object *players;
-  int i;
-  mixed data;
-  string ig;
-
-  players=users();
-  ig=lower_case(player)+".news";
-  for (i=sizeof(players)-1;i>=0;i--) {
-    data=players[i]->QueryProp(P_WAITFOR);
-    if (pointerp(data)&&(member(data,"Mpa")>-1)) {
-      data=players[i]->QueryProp(P_READ_NEWS);
-      if (mappingp(data)&&(data[group]>0)) {
-	data=players[i]->QueryProp(P_IGNORE);
-	if ((!pointerp(data))||(member(data,ig)==-1))
-	  tell_object(players[i],text);
-      }
-    }
-  }
-}
-
-
-static varargs string Message2string(mixed msg,mixed messages,int flag,string group) {
-  // Aufrufe: (Nummer,Notes[,flag[,group]]) oder (Note,Notes[,flag[,group]])
-  // flag: M2S_VT100 : ggf ANSI-Codes verwenden
-  //       M2S_REMOTE: Rubrik und Artikelnummer ausgeben (speichern, versenden)
-  // Achtung: Wenn flag&M2S_REMOTE, muss msg int sein
-  // group: Name der Rubrik, wenn nicht aktuelle Rubrik. Nur bei M2S_REMOTE
-
-  string txt,hs,s,*m,s2;
-  int i,hi,thisnr,ansiflag;
-
-  if (flag&M2S_REMOTE) txt="Rubrik: "+(group?group:GROUP)+", Artikel: "+
-    (intp(msg)?to_string(msg+1):"???")+" von "+sizeof(messages)+"\n";
-  else txt="";
-
-  if (intp(msg)) {
-    thisnr=msg;
-    msg=messages[msg];
-  } else thisnr=-1;
-  if (!msg) return 0;
-
-  ansiflag=(flag&M2S_VT100)&&(this_player()->QueryProp(P_TTY)!="dumb");
-
-  txt += (ansiflag?ANSI_BOLD:"")+ msg[M_TITLE]+(ansiflag?ANSI_NORMAL:"")+
-    " ("+msg[M_WRITER]+", "+
-    dtime(msg[M_TIME])[5..26]+"):\n";
-//  if (geteuid(TP)=="sitopanaki") txt+="TID="+GetTID(msg)+"\n"; // Debug
-  if (!IS_STATUSLINE(msg[M_MESSAGE]))
-    return txt+"\n"+msg[M_MESSAGE];
-  m=explode(msg[M_MESSAGE],"\n");
-  while (IS_STATUSLINE(m[0])) {
-//    txt+=m[0]+"\n"; // ###
-    if (sscanf(m[0],"%s rn=%s rt=%d rg=%s",hs,s,hi,hs)==4 ||
-	sscanf(m[0],"%s rn=%s rt=%d",hs,s,hi)==3)
-    {
-      int nr,h;
-      nr=-1;
-      if (pointerp(messages))
-      {
-	for (h=((thisnr>=0) ? thisnr-1 : sizeof(messages)-1);
-	     (h>=0 && messages[h][M_TIME]>=hi);h--) 
-	  if (messages[h][M_TIME]==hi &&
-              lower_case(messages[h][M_WRITER])==lower_case(s))
-            nr=h;
-      }
-      txt+="[Bezug: Artikel "+((nr>=0) ? (nr+1) : 
-	 (hs==STATUSESCAPE||hs==(group?group:GROUP)?"(geloescht?)":"in "+hs))+
-         " von "+capitalize(s)+" vom "+dtime(hi)[5..26]+"]\n";
-    }
-    if (sscanf(m[0],"%s on=%s ot=%d og=%s",hs,s,hi,hs)==4) {
-      txt+="[Autor: "+s+", "+dtime(hi)[5..26]+", verlegt von "+hs+"]\n";
-    }
-    m=m[1..];
-  }
-  return txt+"\n"+implode(m,"\n");
-}
-
-static varargs mixed GetGroupName(mixed g,mixed groups) {
-  /* Name einer Rubrik. g ist int oder string, enthaelt Name oder Nummer
-     (ab 1 numeriert) */
-  mixed i,expr,gg;
-  if (!g) return write("Du solltest schon die Rubrik angeben.\n"),0;
-  if (!groups) groups=NEWSSERVER->GetGroups();
-  if (intp(i=g) || sscanf(g,"%d",i)) {
-    if (i>0 && i<=sizeof(groups)) return groups[i-1];
-    write("Eine Rubrik mit der Nummer "+i+" gibt es leider nicht.\n");
-    return 0;
-  }
-  g=lower_case(g);
-  switch(g){
-  case ".": return GROUP;
-  case "+": return groups[(member(groups,GROUP)+1)%sizeof(groups)];
-  case "-": 
-    return groups[(member(groups,GROUP)-1+sizeof(groups))%sizeof(groups)];
-  }
-
-  // Existiert die Rubrik genau so?
-  if (member(groups,g)>-1) return g;
-
-  g = regreplace(g,"[[\\]\\*()?]","",1);
-  // haerteres Kriterium: Alle Abschnitte angegeben
-  expr="^"+implode(explode(g,"."),"[^\\.]*\\.")+"[^\\.]*$";
-//  write("REGEXP="+expr+"\n");
-  gg=regexp(groups,expr);
-  if (sizeof(gg)==1) return gg[0];
-
-  // weicheres Kriterium: Nicht alle Abschnitte angegeben
-  expr="^(.*\\.)*"+implode(explode(g,"."),".*\\.")+".*$";
-//  write("REGEXP="+expr+"\n");
-  gg=regexp(groups,expr);
-
-  if (!sizeof(gg)) {
-    write("Eine Rubrik '"+g+"' gibt es hier leider nicht.\n");
-    return 0;
-  }
-
-  if (sizeof(gg)==1) return gg[0];
-  
-  write(break_string("Die Rubrik "+g+" ist nicht eindeutig. Wahrscheinlich "
-        "meinst Du eine der folgenden: "+implode(gg,", ")+".\n",78));
-  return 0;
-}
-
-
-static CatchNewsError(int err,string text4minus3) {
-  switch (err) {
-    case  1: return 1;
-    case -1: write("Du darfst in dieser Rubrik nicht schreiben!\n"); return 0;
-    case -2: write("Die Rubrik gibt es nicht mehr, sehr seltsam...\n"); return 0;
-    case -3: write(text4minus3+"\n"); return 0;
-    default: write("Interner Fehler "+err+", Erzmagier verstaendigen!\n"); return 0;
-  }
-}
-
 protected void NotifyMove(object dest, object oldenv, int method) {
   ::NotifyMove(dest, oldenv, method);
-  if (objectp(environment()) && query_once_interactive(environment()) &&
-      (!mappingp(read_until)||(sizeof(read_until)))) {
-    read_until=((environment()->QueryProp(P_READ_NEWS))||([]));
-//    if ((TP==TI)&&(TP==environment())) RebuildGroupList();
+
+  // P_READ_NEWS aus dem Spieler holen.
+  if (objectp(environment()) && query_once_interactive(environment())) {
+    read_until=environment()->QueryProp(P_READ_NEWS);
   }
+
+  if (!mappingp(read_until) || !sizeof(read_until))
+    InitialSubscriptions();
 }
 
 int GetTID(mixed message) {
@@ -1439,75 +1571,3 @@ int GetTID(mixed message) {
     ? tid : message[M_TIME];
 }
 
-
-varargs int InterpretTime(mixed a,int flag) {
-  // string oder string *
-  // akzeptiert folgende Formate:
-  //   dd.mm.jj     (Rueckgabe: 0:00 des entsprechenden Tages)
-  //   vor [<anz> d|tagen] [<anz> h|stunden] [<anz> m|minuten]
-  // flag=1: "inklusive": bei dd.mm.jj-Format 23:59:59 statt 0:00 Uhr
-
-  int i,j,k,t,nrargs;
-  string s;
-  if (stringp(a)) a=explode(a," ");
-
-//  printf("%O\n",a);
-
-  if ((nrargs=sscanf(a[0],"%d.%d.%d",i,j,k))==3 || 
-      (nrargs=sscanf(a[0],"%d.%d.",i,j))==2) {
-    // Datum -> Zeit: Funktioniert im Zeitraum 1973 - ca. 2090
-    //                in Zeitzonen mit ganzen Stunden ggue Rechneruhr.
-    if (nrargs==2) 
-      k=70+time()/31536000;
-    if (k<70) k+=100;
-    if (k>1970) k-=1900;
-    if (k<70||k>150) return
-      write("Unzulaessiges Jahr (erlaubt: 70-heute).\n"),0;
-    t=(k-70)*31536000;
-
-    if (i<1||i>31) return write("Unzulaessiger Tag (erlaubt: 1-31).\n"),0;
-    if (j<1||j>12) return write("Unzulaessiger Monat (erlaubt: 1-12).\n"),0;
-//    printf("%d.%d.%d\n",i,j,k);
-    s=ctime(t);
-    if ((j>2) && !(k%4)) t+=86400;    // Schaltjahrkorrektur fuer Monate>=3
-    t+=({        0,  2678400,  5097600,  7776000,
-	  10368000, 13046400, 15638400, 18316800,
-	  20995200, 23587200, 26265600, 28857600})[j-1];
-    t+=86400*(i-1);
-    t+=86400*(32-to_int(s[8..9]));  // Schaltjahrkorrektur
-    t-=3600*to_int(s[11..12]);      // Zeitzonenkorrektur
-    t-=3600*to_int(ctime(t)[11..12]);      // Sommerzeitkorrektur
-//    write("Kontrolle: "+dtime(t)+"\n");
-    if (nrargs==2 && t>time()) t-=31536000;
-    return (flag?t+86399:t);
-  }
-
-  t=0;
-  if (a[0]=="vor") for (i=sizeof(a)-1;i>0;i--) {
-    switch (a[i]) {
-    case "m": 
-    case "minuten": 
-    case "min": 
-    case "minute":
-      t+=60*to_int(a[i-1]);
-      break;
-    case "h": 
-    case "stunde": 
-    case "stunden": 
-    case "s":
-      t+=3600*to_int(a[i-1]);
-      break;
-    case "d": 
-    case "tag": 
-    case "tage": 
-    case "t":
-      t+=86400*to_int(a[i-1]);
-      break;
-    default: 
-      if (!to_int(a[i]))
-        write("Argumentfehler: Kann nichts mit '"+a[i]+"' anfangen.\n");
-    }
-    return time()-t;
-  }
-  else return write("Argumentfehler.\n"),0;
-}

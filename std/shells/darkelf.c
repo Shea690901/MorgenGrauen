@@ -2,11 +2,11 @@
 //
 // shells/darkelf.c -- Darkelf Shell
 //
-// $Id: darkelf.c 7423 2010-02-07 22:56:38Z Zesstra $
+// $Id: darkelf.c 8675 2014-02-18 20:39:54Z Zesstra $
 
 #pragma strong_types,save_types
 
-inherit "std/player/base";
+inherit "/std/player/base";
 
 #include <properties.h>
 #include <attributes.h>
@@ -17,7 +17,7 @@ inherit "std/player/base";
 #include <defines.h>
 #include <combat.h>
 #include <defuel.h>
-
+#include <errord.h>
 
 
 protected void create()
@@ -27,8 +27,8 @@ protected void create()
     return;
   }
   base::create();
-  SetDefaultHome("gilden/dunkelelfen");
-  SetPrayRoom("d/unterwelt/cadra/room/town/templemain");
+  SetDefaultHome("/gilden/dunkelelfen");
+  SetDefaultPrayRoom("/d/unterwelt/cadra/room/town/templemain");
   SetProp(P_AVERAGE_SIZE,175);
   SetProp(P_AVERAGE_WEIGHT,70000);
   SetProp(P_ALIGN, -500);
@@ -129,16 +129,14 @@ static string _query_default_guild()
 
 static int sun_in_room(object room)
 {
-  int lt;
-  closure qp;
   if (!room) return 0;
-  qp=symbol_function("QueryProp", room);
-  lt=funcall(qp, P_LIGHT_TYPE);
+  closure qp=symbol_function("QueryProp", room);
+  int lt=funcall(qp, P_LIGHT_TYPE);
   // (lt & LT_SUN) ist hier zunaechst _testweise_ drin. Die Rasse wurde
   // anders genehmigt. Sollte das im MG ueberhand nehmen und jeder Keller
   // nun sonnendurchflutet sein, dann wird das wieder ausgebaut!
   // 27.06.04 Padreic
-  return (room && (funcall(qp, P_INT_LIGHT)>0) &&
+  return ( (funcall(qp, P_INT_LIGHT)>0) &&
           ((lt & LT_SUN) || ((lt==LT_MISC) && !funcall(qp, P_INDOORS))));
 }
 
@@ -205,6 +203,7 @@ int StdSkill_Nightvision(object me, string sname, mixed sinfo)
     }
     return sinfo[SI_SKILLABILITY]+1;
   }
+  return 0;
 }
 
 varargs int CannotSee(int silent)
@@ -247,18 +246,25 @@ varargs int CannotSee(int silent)
 
 static int _indoorbug(string key)
 {
-	if (!stringp(key)) key= "";
-	   log_file("DARKELF_INDOOR", sprintf("%s : %s, %s: %s\n",
-				                              object_name(environment(this_object())),
-							                                 dtime(time()), getuid(this_object()), key ));
-	      write("Du hast einen fehlerhaften Innen-/Aussen-/Sonnenlichtraum gemeldet.\n"
-		   );
-	         return 1;
+  if (!stringp(key))
+    key= "";
+
+  ERRORD->LogReportedError(
+      ([ F_PROG: "unbekannt",
+         F_LINE: 0,
+         F_MSG: "Sonnenfehler: " + key,
+         F_OBJ: environment(this_object())
+      ])
+      );
+
+  write("Du hast einen fehlerhaften Innen-/Aussen-/Sonnenlichtraum gemeldet.\n");
+
+  return 1;
 }
 
-static string *_query_localcmds()
+static mixed _query_localcmds()
 {
-	  return ({ ({"sonnenfehler", "_indoorbug", 0, 0 }) })
-		            + base::_query_localcmds();
+  return ({ ({"sonnenfehler", "_indoorbug", 0, 0 }) })
+            + base::_query_localcmds();
 }
 

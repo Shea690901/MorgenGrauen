@@ -4,7 +4,7 @@ FUNKTION:
      varargs int CannotSee(int silent);
 
 DEFINIERT IN:
-     /std/living/description.c
+     /std/living/light.c
 
 ARGUMENTE:
      silent - Soll an das Lebewesen direkt automatisch eine Meldung
@@ -19,8 +19,9 @@ BESCHREIBUNG:
      Abfragen nicht selbst implementieren.
 
 RUeCKGABEWERT:
-     0, wenn der Spieler etwas sehen kann.
-     !=0, wenn der Spieler aus irgendeinem Grund nicht sehen kann.
+     0, wenn der Spieler etwas sehen kann
+     1, wenn der Spieler nichts sehen kann: Blindheit
+     2, wenn der Spieler nichts sehen kann: zu wenig Licht/keine Nachtsicht
 
 SIEHE AUCH:
      P_BLIND, P_LIGHT_MODIFIER, P_PLAYER_LIGHT

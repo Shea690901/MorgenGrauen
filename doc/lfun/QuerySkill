@@ -1,37 +1,35 @@
 QuerySkill()
-
 FUNKTION:
-    public varargs mapping QuerySkill(string skill, string gilde)
+    public varargs mapping QuerySkill(string sname, string gilde)
 
 DEFINIERT IN:
     /std/living/skills.c
-	
+    
 ARGUMENTE:
-    <skill> STRING
-            Name des abzufragenden Skill
-    <gilde> STRING
-            Name der Gilde, unter der der Skill gesucht werden soll
-	
+    string sname    Name des abzufragenden Skill
+    string gilde    Name der Gilde, unter der der Skill gesucht werden soll
+
 BESCHREIBUNG:
-    Diese Funktion liefert das Skillmappings des Skills <skills> im Lebewesen
-    zuruck.
-    Solange diese Manpage dies nicht beschreibt, schaut euch bitte
-    /sys/new_skills.h sowie die Manpage 'gildendoku' an, welche Keys in diesem
-    Mappings vorkommen koennen.
-    Falls <gilde> nicht angebeben wird, wird der Skill in der Gilde P_GUILD
-    des Lebewesens gesucht.
-    Sollte <gilde> nicht angebenen sein und der Skill nicht unter der in
-    P_GUILD angegebenen Gilde bekannt sein, wird geguckt, ob er
-    gildenunabhaengig gelernt wurde.
+    Diese Funktion liefert das Skillmappings des Skills 'snme' im Lebewesen
+    zurueck. Diese enthaelt Eintraege, die in der Man-Page skill_info_liste
+    beschrieben sind.
+
+    Falls 'gilde' nicht angegeben wird, wird der Skill zuerst fuer die Gilde
+    P_GUILD des Lebewesens gesucht, ansonsten in den allgemeinen Skills
+    "ANY" (es wird NICHT in Gildenobjekt oder Spellbook etwas abgefragt).
 
 RUECKGABEWERT:
-    Ein Mapping mit Skillinfos.
-    Sollte kein Skill mit dem Namen <skill> gefunden werden, wird 0
-    zurueckgeliefert.
+    Ein Mapping mit Skillinfos oder 0, falls der Skill nicht vorhanden ist.
+    Das Mapping ist eine Kopie.
 
 SIEHE AUCH:
-    /sys/new_skills.h, /std/living/skills.c
-    ModfiySkill(), QuerySkillAbility()
+    Skills Lernen:  LearnSkill, ModifySkill, LimitAbility
+    * Nutzung:      UseSpell, UseSkill
+    * Abfragen:     QuerySkillAbility
+    * Modifikation: ModifySkillAttribute, QuerySkillAttribute,
+                    QuerySkillAttributeModifier, RemoveSkillAttributeModifier
+      * Properties: P_SKILL_ATTRIBUTES, P_SKILL_ATTRIBUTE_OFFSETS
+    * sonstig:      spruchermuedung, skill_info_liste
+    * Properties:   P_NEWSKILLS
 
------------------------------------------------------------------------------
-02.09.2008, Zesstra
+5. Okt 2011 Gloinson

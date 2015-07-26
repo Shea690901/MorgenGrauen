@@ -2,17 +2,18 @@
 //
 // inpc/nobank.c -- Nieder mit Bankzweities!
 //
-// $Id: nobank.c 6371 2007-07-17 22:46:50Z Zesstra $
+// $Id: nobank.c 8966 2014-11-19 21:41:12Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
 #pragma no_clone
 #pragma pedantic
 
-inherit "/std/player/moneyhandler";
+inherit "/std/living/moneyhandler";
 
 #include <properties.h>
 #include <attributes.h>
+#include <money.h>
 #define ME this_object()
 
 int DeepQueryMoney(object ob) {
@@ -22,7 +23,7 @@ int DeepQueryMoney(object ob) {
   if (!ob) return 0;
   res=0;obs=deep_inventory(ob);
   for (i=sizeof(obs)-1;i>=0;i--)
-    if ((ob=obs[i]) && object_name(ob)[0..10]=="/obj/money#")
+    if ((ob=obs[i]) && load_name(ob)==GELD)
       res+=ob->QueryProp(P_AMOUNT);
   return res;
 }
@@ -60,7 +61,7 @@ int DeepTransferMoney(object pl, int amount) {
   } else {
     obs=deep_inventory(pl);trans=0;
     for (i=sizeof(obs)-1;i>=0;i--) {
-      if ((ob=obs[i]) && object_name(ob)[0..11]=="/obj/money#") {
+      if ((ob=obs[i]) && load_name(ob)==GELD) {
 	act=ob->QueryProp(P_AMOUNT);
 	if (act<=0) continue;
 	if (act>=amount) { // mehr Geld als benoetigt?

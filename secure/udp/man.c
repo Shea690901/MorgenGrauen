@@ -32,7 +32,8 @@ void udp_man(mapping data)
 {
   mapping pages;
   int index;
-  string manpage,*tmp,ret;
+  string manpage,ret;
+  string|string* tmp;
 
   if (previous_object()!=find_object(INETD))
   {

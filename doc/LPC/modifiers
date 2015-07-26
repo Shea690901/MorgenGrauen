@@ -16,7 +16,8 @@ DESCRIPTION
         private   -- such functions can only be called with an internal
                      call from within this file. Not even inheriting
                      objects can call these functions. You can nevertheless
-                     build an lfun-closure with #' out of a private function.
+                     build an lfun-closure with #' out of a private function
+                     (but you cannot save and restore it).
         protected -- such functions can be called from within the object,
                      or from inheriting objects; but in neither case
                      with call_other(). It is possible to create #' closures
@@ -27,6 +28,7 @@ DESCRIPTION
                      Inheriting objects can call such functions.
                      But it is not possible to call static functions from
                      other objects via call_other().
+                     The use of 'static' in new code is not recommended.
                      Note that an add_action() is treated like a call
                      from within the object except the player who got the
                      add_action() was forced (thus it is a simple way to
@@ -62,6 +64,9 @@ DESCRIPTION
                      function to be declared varargs to omit any arguments,
                      but it is good style to use this modifier to document
                      the code by this.
+        deprecated - Whenever this function is called, a warning is issued.
+                     Usually this is done at compile-time. Exceptions are
+                     call_others and symbol_function() which warn at run-time.
 
         For object-global variables:
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -85,6 +90,9 @@ DESCRIPTION
                      private or static by inheriting. No error will occur,
                      only the type will not be modified by the inherit
                      statement.
+        deprecated - Whenever this variable is used, a warning is issue.
+                     Usually this is done at compile-time, but
+                     symbol_variable() warns at run-time.
 
         It is no good style to let inheriting objects have access to
         internal variables so declare them as private and offer functions

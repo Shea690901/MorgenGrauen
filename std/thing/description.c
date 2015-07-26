@@ -2,7 +2,7 @@
 //
 // thing/description.c -- description handling for standard objects
 //
-// $Id: description.c 7343 2009-11-23 20:22:45Z Zesstra $
+// $Id: description.c 9183 2015-03-25 19:37:39Z Arathorn $
 
 #pragma strict_types
 #pragma save_types
@@ -10,6 +10,7 @@
 #pragma no_clone
 #pragma pedantic
 
+#include <tls.h>
 #include <thing/description.h>
 #include <thing/material.h>
 #include <thing/lighttypes.h>
@@ -27,7 +28,7 @@
 private nosave mixed *explore;
 
 // Prototypen
-public mixed short();
+public string short();
 public varargs string long(int mode);
 
 //                       #####################
@@ -39,7 +40,7 @@ protected void create()
 {
   string poid, tpid;
   object tp;
-    
+
   SetProp( P_NAME, "Ding" );
   SetProp( P_SHORT, "Nichts besonderes" );
   SetProp( P_LONG, 0 );
@@ -48,20 +49,21 @@ protected void create()
   Set( P_NAME_ADJ, ({}) );
   Set( P_IDS, ({}) );
   Set( P_CLASS, ({}) );
-  Set( P_LIGHT, 0 );
-  Set( P_LIGHT_TYPE, LT_MISC);
-  
+
   Set( P_READ_DETAILS, ([]), F_VALUE);
   Set( P_READ_DETAILS, SECURED|NOSETMETHOD, F_MODE_AS);
-  
+
   Set( P_DETAILS, ([]), F_VALUE);
   Set( P_DETAILS, SECURED|NOSETMETHOD, F_MODE_AS );
-  
+
   Set( P_SMELLS, ([]), F_VALUE);
   Set( P_SMELLS, SECURED|NOSETMETHOD, F_MODE_AS );
-  
+
   Set( P_SOUNDS, ([]), F_VALUE);
   Set( P_SOUNDS, SECURED|NOSETMETHOD, F_MODE_AS );
+
+  Set( P_TOUCH_DETAILS, ([]), F_VALUE);
+  Set( P_TOUCH_DETAILS, SECURED|NOSETMETHOD, F_MODE_AS );
 
   // Aenderungen an dieser Prop sind tabu.
   Set( P_CLONE_TIME, NOSETMETHOD|SECURED, F_MODE_AS );
@@ -74,7 +76,7 @@ protected void create()
   }
   else
     tpid="UNKNOWN";
-  
+
   if (previous_object())
   {
     if (!(poid = geteuid(previous_object())))
@@ -82,21 +84,19 @@ protected void create()
   }
   else
     poid="UNKNOWN";
-  
+
   Set( P_CLONER, (poid != tpid ? poid+":"+tpid: tpid) );
   Set( P_CLONER, NOSETMETHOD|SECURED, F_MODE_AS );
-  
+
   // Gibt es FPs ?
   explore = (mixed *)EPMASTER->QueryExplore();
 
-  // call_other, weil Npcs und Spieler kein AddCmd besitzen
-  this_object()->AddCmd(({"lies","lese","les"}),"lies");
   return;
 }
 
 protected void create_super() {
   set_next_reset(-1);
-}     
+}
 
 //                        ##################
 //######################### Forscherpunkte ##############################
@@ -133,7 +133,7 @@ void __reload_explore()
 // Gibt eine ID zurueck, die den Ladenamen, die aktuelle Kurzbeschreibung und
 // die aktuelle Langbeschreibung beruecksichtigt. Diese ID ist ein Hashwert.
 public string description_id() {
-  return md5(load_name() + short() + long());
+  return hash(TLS_HASH_MD5, load_name() + short() + long());
 }
 
 /* Ids muessen uebergeben werden, da unit machmal mit plural-Ids, */
@@ -173,7 +173,7 @@ varargs int id( string str, int lvl )
 { 
   string str2, tmp;
   int count;	
-  mixed ids;
+  string|string* ids;
 
   // Kein Argument? Dann passt es nicht ...
   if (!stringp(str)) return 0;
@@ -192,7 +192,7 @@ varargs int id( string str, int lvl )
   // dann gucken, ob man selber das nte Element ist.
   if (sscanf( str, "%s %d%s", str2, count, tmp)<2) return 0;
   if (count<1) return 0;
-  if (strlen(tmp)) return 0;
+  if (sizeof(tmp)) return 0;
   if (!match_item( str2, ids )) return 0;
   if (!environment()) return 0;
   return present(str2,count,environment())==this_object();
@@ -214,7 +214,7 @@ int match_ids(string *list)
 }
 
 // ID hinzufuegen
-void AddId( mixed str )
+void AddId( string|string* str )
 {
   if (stringp(str)) str = ({ str });
   if (pointerp(str))
@@ -224,7 +224,7 @@ void AddId( mixed str )
 }
 
 // ID entfernen
-void RemoveId(mixed str)
+void RemoveId(string|string* str)
 {
   if (stringp(str)) str = ({ str });
   if (pointerp(str))
@@ -233,7 +233,7 @@ void RemoveId(mixed str)
 }
 
 // Alle Ids auf einmal setzen
-static mixed _set_ids( mixed ids )
+static string* _set_ids( string* ids )
 {
     Set( P_IDS,({}));
     AddId(ids);
@@ -241,7 +241,7 @@ static mixed _set_ids( mixed ids )
 }
 
 // Adjektiv hinzufuegen
-void AddAdjective(mixed str)
+void AddAdjective(string|string* str)
 {
   if (stringp(str)) str = ({ str });
   if (pointerp(str))
@@ -251,7 +251,7 @@ void AddAdjective(mixed str)
 }
 
 // Adjektiv entfernen
-void RemoveAdjective(mixed str)
+void RemoveAdjective(string|string* str)
 {
   if (stringp(str)) str = ({ str });
   if (pointerp(str))
@@ -260,7 +260,7 @@ void RemoveAdjective(mixed str)
 }
 
 // Alle Adjektive auf einmal setzen
-static mixed _set_adjectives(mixed adjectives)
+static string* _set_adjectives(string* adjectives)
 {
   Set( P_ADJECTIVES,({}), F_VALUE);
   AddAdjective(adjectives);
@@ -275,7 +275,7 @@ static mixed _set_adjectives(mixed adjectives)
 // Im Fall von mehreren Adjektiven muessen diese mit komma
 // zusamengebaut werden, dazu muss ich das leerzeichen aber erstmal
 // abschneiden und so weiter ...
-private string depointer_adj( mixed adj, int casus, int demon ) {
+private string depointer_adj( string* adj, int casus, int demon ) {
   string msg;
   int start;
   string res,a;
@@ -311,7 +311,7 @@ varargs string name(int casus,int demon)
 
   // Kein Name? Schade ...
   if (!(sh=QueryProp(P_NAME)) ||
-      (stringp(sh) && !strlen(sh))) return 0;
+      (stringp(sh) && !sizeof(sh))) return 0;
 
   // P_NAME pruefen.
   if (pointerp(sh) && sizeof(sh) != 4)
@@ -431,7 +431,7 @@ public varargs string long(int mode)
 }
 
 // Kurzbeschreibung anzeigen, falls nicht unsichtbar
-public mixed short()
+public string short()
 {
   string sh;
 
@@ -443,7 +443,7 @@ public mixed short()
 }
 
 // Namens-Adjektive setzen
-static mixed _set_name_adj(mixed adjectives)
+static string* _set_name_adj(string|string* adjectives)
 {
   if (!adjectives)
       adjectives=({});
@@ -457,48 +457,62 @@ static mixed _set_name_adj(mixed adjectives)
 //#################### Details, Gerueche, Laerm #########################
 //                   ############################
 
+// Low-level Funktion zum Ergaenzen von Details, wird von den div. Add...()
+// gerufen, die das richtige Mapping uebergeben.
+// Aendert das Mapping <details> direkt.
+private void _add_details(string|string* keys,
+                          string|string*|mapping|closure descr,
+                          mapping details )
+{
+  if (stringp(keys))
+    details[keys]=descr;
+  else if (pointerp(keys))
+  {
+    foreach(string key : keys)
+      details[lower_case(key)]=descr;
+  }
+  else
+    raise_error("Wrong type to argument 1, expected string|string*.\n");
+}
+
+// Low-level Funktion zum Entfernen von Details, wird von den div. Remove...()
+// gerufen, die das richtige Mapping uebergeben.
+// Aendert das Mapping <details> direkt.
+private void _remove_details(string|string* keys, mapping details )
+{
+  if (stringp(keys))
+    details -= ([keys]);
+  else if (pointerp(keys))
+    details -= mkmapping(keys);
+  else
+    raise_error("Wrong type to argument 1, expected string|string*.\n");
+}
+
 // Detail(s) hinzufuegen
-void AddDetail(mixed keys,mixed descr)
+void AddDetail(string|string* keys, string|string*|mapping|closure descr)
 {
     int i;
     mapping details;
 
     details = Query(P_DETAILS, F_VALUE);
-    
-    if (!pointerp(keys))
-      details[lower_case((string)keys)]=descr;
-    else
-    {
-      i=sizeof(keys);
-      while(i--) details[lower_case((string)keys[i])]= descr;
-    }
-    
-    // Set( P_DETAILS, details ); ueberfluessig, weil Mapping
-    return;
+
+    // _add_details() aendern das Mapping direkt, Set etc. nicht noetig.
+    return _add_details(keys, descr, details);
 }
 
 // Detail(s) entfernen
-varargs void RemoveDetail( mixed keys )
+varargs void RemoveDetail(string|string* keys )
 {
-    int i;
-    mapping details;
-    
-    details = Query(P_DETAILS), F_VALUE;
-
-    // Alle loeschen geht direkt ...
-    if (!keys )
-      Set(P_DETAILS, ([]), F_VALUE);
-    else if (!pointerp(keys))
-        details-=([(string)keys]);
-    else
-        details-=mkmapping(keys);
-    
-    // Set( P_DETAILS, details ); ueberfluessig, weil Mapping
-    return;
+  // Alle loeschen geht direkt ...
+  if (!keys )
+    Set(P_DETAILS, ([]), F_VALUE);
+  else
+    // _remove_details() aendern das Mapping direkt, Set etc. nicht noetig.
+    _remove_details(keys, Query(P_DETAILS, F_VALUE));
 }
 
 // SpecialDetail hinzufuegen
-void AddSpecialDetail( mixed keys, string functionname )
+void AddSpecialDetail(string|string* keys, string functionname )
 {
     closure cl;
 
@@ -520,7 +534,7 @@ void AddSpecialDetail( mixed keys, string functionname )
 }
 
 // SpecialDetail(s) entfernen
-void RemoveSpecialDetail( mixed keys )
+void RemoveSpecialDetail(string|string* keys )
 {
   // RemoveSpecialDetail(0) wuerde sonst ALLE Details (auch die
   // 'normalen') loeschen
@@ -530,138 +544,103 @@ void RemoveSpecialDetail( mixed keys )
 }
 
 // Lesbares Detail einfuegen
-void AddReadDetail( mixed keys, mixed descr )
+void AddReadDetail(string|string* keys,
+                   string|string*|mapping|closure descr )
 {
-  int i;
-  mapping details;
-  
-  details = Query(P_READ_DETAILS, F_VALUE);
-  
-  if (!pointerp(keys))
-    details[(string)keys]=descr;
-  else
-  {
-    i=sizeof(keys);
-    while(i--) details[lower_case((string)keys[i])]=descr;
-  }
-  
-  // Set(P_READ_DETAILS,details); ueberfluessig, weil Mapping
-  return;
+  // _add_details() aendern das Mapping direkt, Set etc. nicht noetig.
+  return _add_details(keys, descr, Query(P_READ_DETAILS, F_VALUE));
 }
 
 // Lesbare(s) Detail(s) entfernen
-varargs void RemoveReadDetail( mixed keys )
+varargs void RemoveReadDetail(string|string* keys )
 {
-  int i;
-  mapping details;
-  
-  details = Query(P_READ_DETAILS, F_VALUE);
-  
-  if (!keys)
+  // Alle loeschen geht direkt ...
+  if (!keys )
     Set(P_READ_DETAILS, ([]), F_VALUE);
-  else if (!pointerp(keys))
-    details-=([(string)keys]);
   else
-    details-= mkmapping(keys);
-  
-  // Set(P_READ_DETAILS,details); ueberfluessig, weil Mapping
-  return;
+    // _remove_details() aendern das Mapping direkt, Set etc. nicht noetig.
+    _remove_details(keys, Query(P_READ_DETAILS, F_VALUE));
 }
 
 // Geraeusch(e) dazufuegen
-void AddSounds( mixed keys, mixed descr )
+void AddSounds(string|string* keys,
+               string|string*|mapping|closure descr )
 {
-  int i;
-  mapping details;
-  
-  details = Query(P_SOUNDS, F_VALUE);
-  
-  if (!pointerp(keys))
-    details[(string)keys]=descr;
-  else
-  {
-    i=sizeof(keys);
-    while(i--) details[lower_case((string)keys[i])]=descr;
-  }
-  
-  // Set(P_SOUNDS,details); ueberfluessig, weil Mapping
-  return;
+  // _add_details() aendern das Mapping direkt, Set etc. nicht noetig.
+  return _add_details(keys, descr, Query(P_SOUNDS, F_VALUE));
 }
 
 // Geraeusch(e) entfernen
-varargs void RemoveSounds( mixed keys )
+varargs void RemoveSounds(string|string* keys )
 {
-  int i;
-  mapping details;
-  
-  details = Query(P_SOUNDS), F_VALUE;
-  
-  if (!keys)
+  // Alle loeschen geht direkt ...
+  if (!keys )
     Set(P_SOUNDS, ([]), F_VALUE);
-  else if (!pointerp(keys))
-    details-=([(string)keys]);
   else
-    details-= mkmapping(keys);
-
-  // Set(P_SOUNDS,details); ueberfluessig, weil Mapping
-  return;
+    // _remove_details() aendern das Mapping direkt, Set etc. nicht noetig.
+    _remove_details(keys, Query(P_SOUNDS, F_VALUE));
 }
 
 // Geru(e)ch(e) hinzufuegen
-void AddSmells( mixed keys, mixed descr )
+void AddSmells(string|string* keys,
+               string|string*|mapping|closure descr )
 {
-  int i;
-  mapping details;
-  
-  details = Query(P_SMELLS, F_VALUE);
-  
-  if (!pointerp(keys))
-    details[(string)keys]=descr;
-  else
-  {
-    i=sizeof(keys);
-    while(i--) details[lower_case((string)keys[i])]=descr;
-  }
-  
-  // Set(P_SMELLS,details); ueberfluessig, weil Mapping
-  return;
+  // _add_details() aendern das Mapping direkt, Set etc. nicht noetig.
+  return _add_details(keys, descr, Query(P_SMELLS, F_VALUE));
 }
 
 // Geru(e)ch(e) entfernen
-varargs void RemoveSmells( mixed keys )
+varargs void RemoveSmells(string|string* keys )
 {
-  int i;
-  mapping details;
-  
-  details = Query(P_SMELLS, F_VALUE);
-  
-  if (!keys)
+  // Alle loeschen geht direkt ...
+  if (!keys )
     Set(P_SMELLS, ([]), F_VALUE);
-  else if (!pointerp(keys))
-    details-=([(string)keys]);
   else
-    details-= mkmapping(keys);
-  
-  // Set(P_SMELLS,details); ueberfluessig, weil Mapping
-  return;
+    // _remove_details() aendern das Mapping direkt, Set etc. nicht noetig.
+    _remove_details(keys, Query(P_SMELLS, F_VALUE));
+}
+
+// Tastbare(s) Detail(s) hinzufuegen
+void AddTouchDetail(string|string* keys,
+                    string|string*|mapping|closure descr )
+{
+  // _add_details() aendern das Mapping direkt, Set etc. nicht noetig.
+  return _add_details(keys, descr, Query(P_TOUCH_DETAILS, F_VALUE));
+}
+
+// Tastbare(s) Detail(s) entfernen
+varargs void RemoveTouchDetails(string|string* keys )
+{
+  // Alle loeschen geht direkt ...
+  if (!keys )
+    Set(P_TOUCH_DETAILS, ([]), F_VALUE);
+  else
+    // _remove_details() aendern das Mapping direkt, Set etc. nicht noetig.
+    _remove_details(keys, Query(P_TOUCH_DETAILS, F_VALUE));
 }
 
 // Detailinfos fuer Detail key, Spieler hat die Rasse race
 // und benutzt seinen Sinn sense
-varargs mixed GetDetail(mixed key,mixed race,int sense)
+varargs string GetDetail(string key, string race, int sense)
 {
-  mixed detail;
+  string|string*|mapping|closure detail;
   
   if (stringp(race)) race = lower_case(race);
   
   switch(sense)
   {
-  case SENSE_SMELL: detail=Query(P_SMELLS, F_VALUE)[key];
-                    sense=EP_SMELL; break;
-  case SENSE_SOUND: detail=Query(P_SOUNDS, F_VALUE)[key];
-                    sense=EP_SOUND; break;
-  default:          detail=Query(P_DETAILS, F_VALUE)[key];
-                    sense=EP_DETAIL; break;
+    case SENSE_SMELL: detail=Query(P_SMELLS, F_VALUE)[key];
+                      sense=EP_SMELL; break;
+    case SENSE_SOUND: detail=Query(P_SOUNDS, F_VALUE)[key];
+                      sense=EP_SOUND; break;
+    case SENSE_TOUCH: detail=Query(P_TOUCH_DETAILS, F_VALUE)[key];
+                      sense=EP_TOUCH; break;
+    case SENSE_READ:  detail=Query(P_READ_DETAILS, F_VALUE)[key];
+                      sense=EP_RDET;
+                      break;
+
+    default:          detail=Query(P_DETAILS, F_VALUE)[key];
+                      sense=EP_DETAIL; break;
   }
 
   if (!stringp(detail))
@@ -673,45 +652,24 @@ varargs mixed GetDetail(mixed key,mixed race,int sense)
     else if (pointerp(detail))
       detail = (string)(detail[random(sizeof(detail))]);
   }
+  // TODO:: remove me - for hysterical raisins
+  if (sense==EP_RDET && stringp(detail)
+      && strstr(detail, "@@", 0) > -1 ) {
+    catch(raise_error(
+          "Use of process_string() is obsoleted in read details.\n");publish);
+    detail = process_string(detail);
+  }
 
   // FP vergeben (so vorhanden ;-) )
   if (detail) GiveEP(sense,key);
-  
+
   return detail;
 }
 
-// Lesen eines Details
-int lies(string str)
-{
-  mixed detail;
-  
-  _notify_fail( "Was moechtest Du lesen?\n" );
-  
-  // Nur mit Argument und Spieler
-  if (!str||!this_player()) return 0;
-  
-  // Nur wenn man etwas sieht ...
-  if (this_player()->CannotSee()) return 1;
-  
-  // Objekt muss angesprochen sein und P_READ_MSG definieren
-  if (id(str)&&(detail=QueryProp(P_READ_MSG)))
-  {
-    this_player()->More(process_string(detail));
-    return 1;
-  }
-  
-  // Vielleicht ein Detail?
-  if (detail=QueryProp(P_READ_DETAILS)[str])
-  {
-    this_player()->More( process_string(detail) );
-    GiveEP(EP_RDET,str);
-    return 1;
-  }
-  return 0;
-}
-
 // TODO: OBSOLET (Libgrep notwendig)
-void read( string str ) { lies(str); }
+void read( string str ) {
+  raise_error("Diese Funktion existiert nicht mehr.\n");
+}
 
 
 //                      ######################
@@ -724,7 +682,7 @@ void read( string str ) { lies(str); }
 // erstellt ausserdem ne Kopie vom Mapping. (Wichtig!)
 // Wird vor allem benoetigt, um P_DETAILS in P_DETAILS und 
 // P_SPECIAL_DETAILS zu treffen.
-private int _closures( mixed x, mapping details, int yes ) 
+private int _closures(string x, mapping details, int yes ) 
 { 
     return yes ? closurep(details[x]) : !closurep(details[x]); 
 }
@@ -754,36 +712,13 @@ static mapping _query_smell_details() {
 }
 
 
-// Lichtsy ... sys ...
-static int _query_total_light() { return QueryProp(P_LIGHT); }
-
-static int _set_light( int light )
-{
-    object env;
-    
-    env = this_object();
-    
-    while ( objectp(env = environment(env)) )
-        // Ja. Man ruft die _set_xxx()-Funktionen eigentlich nicht direkt auf.
-        // Aber das Lichtsystem ist schon *so* rechenintensiv und gerade der
-        // P_LAST_CONTENT_CHANGE-Cache wird *so* oft benoetigt, dass es mir
-        // da um jedes bisschen Rechenzeit geht.
-        // Der Zweck heiligt ja bekanntlich die Mittel. ;-)
-        //
-        // Tiamak
-        env->_set_last_content_change();
-    
-    return Set( P_LIGHT, light, F_VALUE);
-}
-
 //                    ##########################
 //##################### Klassen-Mitgliedschaft ##########################
 //                    ##########################
 
 // Klasse hinzufuegen
-public void AddClass(mixed str)
+public void AddClass(string|string* str)
 {
-  if (!stringp(str) && !pointerp(str)) return;
   if (stringp(str)) 
       str = ({ str });
   // Aliase aufloesen und implizite Klassen addieren.
@@ -796,11 +731,9 @@ public void AddClass(mixed str)
 }
 
 // Klasse entfernen
-void RemoveClass(mixed str)
+void RemoveClass(string|string* str)
 {
-  if (!stringp(str) && !pointerp(str))
-      return;
-  if (stringp(str)) 
+ if (stringp(str)) 
       str = ({ str });
 
   // Aliase aufloesen und implizite Klassen addieren.
@@ -814,13 +747,10 @@ void RemoveClass(mixed str)
 }
 
 // Ist das Objekt Mitglied der Klasse str?
-int is_class_member(mixed str)
+int is_class_member(string|string* str)
 {
-  mixed cl, cl2;
-  int i;
-
   // Keine Klasse, keine Mitgliedschaft ...
-  if (!str || (!stringp(str) && !pointerp(str)) || str=="") 
+  if (!str || str=="") 
       return 0;
 
   // Es sollte schon ein Array sein
@@ -828,23 +758,23 @@ int is_class_member(mixed str)
       str = ({ str });
 
   // Klassen und Ids ins Array
-  // TODO: Pruefen, ob das Einschliessen von IDs  unbedingt hart-kodiert sein
-  // TODO::muss.
-  if (!pointerp(cl=QueryProp(P_IDS))) cl=({});
-  if (pointerp(cl2=QueryProp(P_CLASS))) cl+=cl2;
+  string *classes=QueryProp(P_CLASS);
+  if (!pointerp(classes))
+    return 0;
 
   // .. und testen
-  foreach(string cls : str)
-    if (member(cl,cls) > -1 ) return 1;
+  foreach(string class : str)
+    if (member(classes,class) > -1 ) return 1;
 
   return 0;
 }
 
 // Klasse direkt setzen abfangen
-static mixed _set_class( mixed classes )
+static string* _set_class(string* classes )
 {
   Set( P_CLASS, ({}), F_VALUE );
-  return AddClass(classes);
+  AddClass(classes);
+  return QueryProp(P_CLASS);
 }
 
 //                       #####################
@@ -852,12 +782,19 @@ static mixed _set_class( mixed classes )
 //                       #####################
 
 // Material setzen
-static mapping _set_material( mixed mat )
+static mapping _set_material(mapping|string|string* mat )
 {
   int i, sz;
   mapping mats;
   
-  if (mappingp(mat)) mats = mat;
+  if (mappingp(mat)) 
+  {
+    if( !sizeof(mat) || !widthof(mat) )
+      raise_error(sprintf("P_MATERIAL: expected mapping with at least one "
+        "key and one value, got %.50O\n",mat));
+    else 
+      mats = mat;
+  }
   else
   {
     mats = ([]);
@@ -904,33 +841,6 @@ string MaterialList( int casus, mixed idinf )
 {
   return (string)call_other( MATERIALDB, "ConvMaterialList",
                              QueryProp(P_MATERIAL), casus, idinf );
-}
-
-// Pruefen, ob ein bestimmter Lichttyp gesetzt ist.
-varargs int CheckLightType(int lighttype, int mode)
-{
-  switch (mode) {
-    case LT_CHECK_ALL:
-      // Wahr, wenn alle Lichttypen die abgefragt werden
-      // auch gesetzt sind. Es koennen aber auch mehr ge-
-      // setzt sein
-      return ((QueryProp(P_LIGHT_TYPE)&lighttype)==lighttype);
-    case LT_CHECK_MATCH:
-      // Wahr wenn die uebergebenen Lichttypen genau dem
-      // im Objekt gesetzten Wert entsprechen
-      return (QueryProp(P_LIGHT_TYPE)==lighttype);
-    case LT_CHECK_NONE:
-      // Es wird geprueft, ob keiner der angegeben Licht-
-      // typen im Objekt gesetzt ist.
-      return ((~QueryProp(P_LIGHT_TYPE)&lighttype)==lighttype);
-    case LT_CHECK_ANY:
-    default: 		    
-      // Wahr wenn mindestens einer der uebergebene Licht-
-      // typen im Objekt gesetzt ist. Es muessen nicht alle
-      // Typen, die uebergeben sind, gesetzt sein.
-      return ((QueryProp(P_LIGHT_TYPE)&lighttype)!=0);
-  }
-  return(0); //non-void funktion, Zesstra (impliziten Standard ergaenzt)
 }
 
 static int _set_size(int sz) {

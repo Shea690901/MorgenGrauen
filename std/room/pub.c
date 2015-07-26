@@ -1,7 +1,7 @@
 //
 // pub.c -- Alles, was eine Kneipe braucht.
 //
-// $Id: pub.c 7437 2010-02-13 01:21:48Z Zesstra $
+// $Id: pub.c 8778 2014-04-30 23:04:06Z Zesstra $
 // spendiere ueberarbeitet, 22.05.2007 - Miril
 #pragma strong_types
 #pragma save_types
@@ -22,11 +22,6 @@
 #include <wizlevels.h>
 #include <pub.h>
 
-// TODO nach Reboot entfernen
-#if __BOOT_TIME__ < 1256677992
-#define LEGACY
-#endif
-
 // Alle nicht-privaten werden in erbenen Objekten verwendet.
 private nosave int     max_list;
 private nosave int     refresh_count;
@@ -35,7 +30,6 @@ private nosave mapping refresh_list;
 nosave mapping id_list;
 nosave mapping menu_list;
 nosave object  *waiting;
-nosave string  *dr, *fo;
 
 #define PM_RATE_PUBMASTER  "rate"
 #define PM_DELAY_PUBMASTER "delay"
@@ -52,6 +46,8 @@ protected void create()
     "Davon ist leider nichts mehr da.\n" );
   SetProp(P_PUB_NO_MONEY,
     "Das kostet %d Goldstuecke, und Du hast nicht so viel!\n" );
+  SetProp(P_PUB_NO_KEEPER,
+    "Es ist niemand anwesend, der Dich bedienen koennte.\n");
 
   AddCmd( "menue","menue" );
   AddCmd( ({"kauf","kaufe","bestell","bestelle"}),"bestelle" );
@@ -60,8 +56,6 @@ protected void create()
 
   max_list=0;
   refresh_count=0;
-  fo=({ });
-  dr=({ });
   waiting = ({ });
   id_list=([]);
   menu_list=([]);
@@ -138,12 +132,6 @@ varargs string AddToMenu(string menuetext, mixed ids, mapping minfo,
   ident = sprintf("menuentry%d",max_list);
   max_list++;
 
-  /* Fuers Menue entscheiden ob Drink oder Food */
-  if (minfo[P_FOOD])
-    fo+=({ ident });
-  else
-    dr+=({ ident });
-
   /* Fuer schnelles Nachschlagen ein eigenes Mapping fuer Ids */
   for( i=sizeof(ids)-1;i>=0;i-- )
     id_list += ([ ids[i] : ident ]);
@@ -158,6 +146,8 @@ varargs string AddToMenu(string menuetext, mixed ids, mapping minfo,
   return ident;
 }
 
+// Diese Methode ist nur noch aus Kompatibilitaetsgruenden vorhanden und darf
+// nicht mehr verwendet werden!!!
 void AddFood(string nameOfFood, mixed ids, int price, int heal,
              mixed myFunction)
 {
@@ -169,6 +159,8 @@ void AddFood(string nameOfFood, mixed ids, int price, int heal,
              ((heal>5)?5:heal), myFunction, 0,0,0);
 }
 
+// Diese Methode ist nur noch aus Kompatibilitaetsgruenden vorhanden und darf
+// nicht mehr verwendet werden!!!
 void AddDrink(string nameOfDrink, mixed ids, int price, int heal,
               int strength, int soak, mixed myFunction)
 {
@@ -194,22 +186,18 @@ int RemoveFromMenu(mixed ids) {
       // look if the id has a matching ident
       string ident = id_list[id];
       if (stringp(ident)) {
-        // just remove the ident, it is not important where it is defined
-        fo -= ({ident});
-        dr -= ({ident});
-
         // remove this ident-entry from the id-list ...
-        efun::m_delete(id_list, id);
+        m_delete(id_list, id);
         // ... and remove all others now too (so it won't bug later, if
         //     the wizard calling this method forgot an id)
         foreach (string listid: m_indices(id_list))
           if (id_list[listid] == ident)
-            efun::m_delete(id_list, listid);
+            m_delete(id_list, listid);
 
         // now remove the ident from the menu_list
         if (member(menu_list, ident)) {
           ret++;
-          efun::m_delete(menu_list, ident);
+          m_delete(menu_list, ident);
 
           // decrease the ident-counter, if this entry was the last one
           int oldnum;
@@ -386,12 +374,22 @@ mixed DBG(mixed o) {
 string menue_text(string str)
 { int i,sdr,sfo;
   string ident,res;
+  string *fo=({}),*dr=({});
 
   if ( !max_list )
     return "Hier scheint es derzeit nichts zu geben.\n";
 
   if ( !stringp(str) || str=="" )
     str="alles";
+
+  /* Fuers Menue entscheiden ob Drink oder Food */
+  foreach(string id, string menuetext, mapping minfo: menu_list)
+  {
+    if (eval_anything(minfo[P_FOOD],this_player()))
+      fo+=({ id });
+    else
+      dr+=({ id });
+  }
 
   sdr = sizeof(dr);
   sfo = sizeof(fo);
@@ -447,7 +445,7 @@ string menue_text(string str)
     {
       ident = dr[i];
 
-      if ( !menu_list[ident,PM_INFO][P_FOOD] )
+      if ( !eval_anything(menu_list[ident,PM_INFO][P_FOOD], PL) )
         res += sprintf("%-29.29s%5.5d  %c%s",
                  menu_list[ident,PM_TEXT],
                  eval_anything(menu_list[ident,PM_INFO][P_VALUE],PL),
@@ -475,7 +473,7 @@ string menue_text(string str)
     for ( i=0 ; i<sfo ; i++ )
     {
       ident = fo[i];
-      if (menu_list[ident,PM_INFO][P_FOOD] )
+      if (eval_anything(menu_list[ident,PM_INFO][P_FOOD],PL) )
         res += sprintf("%-33.33s%5.5d%s",
                  menu_list[ident,PM_TEXT],
                  eval_anything(menu_list[ident,PM_INFO][P_VALUE],PL),
@@ -495,7 +493,7 @@ int menue(string str)
 { string txt;
 
   _notify_fail("Welchen Teil des Menues moechtest Du sehen?\n");
-  if ( !stringp(txt=menue_text(str)) || strlen(txt)<1 )
+  if ( !stringp(txt=menue_text(str)) || sizeof(txt)<1 )
     return 0;
   write(txt);
   return 1;
@@ -599,20 +597,6 @@ int do_deliver(string ident, object zahler, object empfaenger,
      return -4;
   }
 
-#ifdef LEGACY
-  if ( QueryProp(P_NPC_FASTHEAL) && !query_once_interactive(empfaenger) )
-  {
-    /* Direkte Heilung fuer NPCs, wenn P_NPC_FASTHEAL gesetzt */
-    empfaenger->reduce_hit_points(-entryinfo[P_HP]);
-    empfaenger->restore_spell_points(entryinfo[P_SP]);
-  }
-  else
-  {
-    /* Heilung in Buffer eintragen */
-    empfaenger->buffer_hp(entryinfo[P_HP], entryinfo[PM_RATE_PUBMASTER]);
-    empfaenger->buffer_sp(entryinfo[P_SP], entryinfo[PM_RATE_PUBMASTER]);
-  }
-#else
   if ( QueryProp(P_NPC_FASTHEAL) && !query_once_interactive(empfaenger) ) {
     entryinfo[H_DISTRIBUTION] = HD_INSTANT;
   }
@@ -620,7 +604,6 @@ int do_deliver(string ident, object zahler, object empfaenger,
     entryinfo[H_DISTRIBUTION] = entryinfo[PM_RATE_PUBMASTER];
   }
   empfaenger->consume(entryinfo);
-#endif
 
   /* Meldung ausgeben */
   /* Hinweis: Da die ausfuehrenden Funktionen auch ident und minfo
@@ -636,17 +619,53 @@ int do_deliver(string ident, object zahler, object empfaenger,
   else if (pointerp(entryinfo[PM_SERVE_MSG]) &&
            sizeof(entryinfo[PM_SERVE_MSG])>=2)  {
     if (stringp(entryinfo[PM_SERVE_MSG][0]) &&
-        strlen(entryinfo[PM_SERVE_MSG][0]))
+        sizeof(entryinfo[PM_SERVE_MSG][0]))
       tell_object(empfaenger,
         mess(entryinfo[PM_SERVE_MSG][0]+"\n", empfaenger));
     if (stringp(entryinfo[PM_SERVE_MSG][1]) &&
-        strlen(entryinfo[PM_SERVE_MSG][1]))
+        sizeof(entryinfo[PM_SERVE_MSG][1]))
       tell_room(environment(empfaenger)||ME,
         mess(entryinfo[PM_SERVE_MSG][1]+"\n",empfaenger),
         ({empfaenger}) );
   }
 
   return 1;
+}
+
+/* Testet, ob genug Geld zur Verfuegung steht.
+ * Falls die Bonitaet anderen Beschraenkungen unterliegt, als
+ * dass der Zahler genug Geld dabei hat, muss diese Methode
+ * ueberschrieben werden.
+ * Rueckgabewerte:
+ * -2 : Out of Money
+ *  0 : Alles OK.
+ * Rueckgabewerte != 0 fuehren zu einem Abbruch der Bestellung
+ */
+int CheckSolvency(string ident, object zahler, object empfaenger,
+                   mapping entryinfo)
+{
+  if ( (zahler->QueryMoney())<entryinfo[P_VALUE] )
+  {
+    string res;
+    if ( !stringp(res=QueryProp(P_PUB_NO_MONEY)) )
+      res = "Das kostet %d Goldstuecke, und Du hast nicht so viel!\n";
+    tell_object(zahler,sprintf(res, entryinfo[P_VALUE]));
+    return -2;
+  }
+  return 0;
+}
+
+/* Fuehrt die Bezahlung durch.
+ * Falls die Bezahlung anders erfolgt, als durch Abzug des Geldes vom Zahler,
+ * muss diese Methode ueberschrieben werden
+ * Rueckgabewerte:
+ * Anzahl der Muenzen, die im Pub landen und bei Reset in die Zentralbank
+ * eingezahlt werden
+ */
+int DoPay(string ident, object zahler, object empfaenger, mapping entryinfo)
+{
+  zahler->AddMoney(-entryinfo[P_VALUE]);
+  return entryinfo[P_VALUE];
 }
 
 /* Rueckgabewerte:
@@ -672,8 +691,11 @@ int consume_something(string ident, object zahler, object empfaenger) {
   /* Bestellung und Lieferung den Wirt meuchelt.                         */
   if ( stringp(QueryProp(P_KEEPER)) && !present(QueryProp(P_KEEPER), ME))
   {
-    tell_object(zahler,
-      "Es ist niemand anwesend, der Dich bedienen koennte.\n");
+    string res = QueryProp(P_PUB_NO_KEEPER);
+    if ( !stringp(res) ) {
+      res = "Es ist niemand anwesend, der Dich bedienen koennte.\n";
+    }
+    tell_object(zahler,res);
     return -5;
   }
 
@@ -681,13 +703,13 @@ int consume_something(string ident, object zahler, object empfaenger) {
   if ( zahler!=empfaenger )
   {
     mixed res = ({"spendiere"});
-    if ( menu_list[ident,PM_INFO][P_DRINK] )
+    if ( eval_anything(menu_list[ident,PM_INFO][P_DRINK],empfaenger) )
       res += ({"spendiere.getraenke"});
-    if ( menu_list[ident,PM_INFO][P_FOOD] )
+    if ( eval_anything(menu_list[ident,PM_INFO][P_FOOD],empfaenger) )
       res += ({"spendiere.essen"});
-    if ( menu_list[ident,PM_INFO][P_ALCOHOL] )
+    if ( eval_anything(menu_list[ident,PM_INFO][P_ALCOHOL],empfaenger) )
       res += ({"spendiere.alkohol"});
-    if ( empfaenger->TestIgnore(res) )
+    if ( empfaenger->TestIgnoreSimple(res) )
     {
       tell_object(zahler,
         empfaenger->Name(WER)+" will das nicht.\n");
@@ -704,21 +726,16 @@ int consume_something(string ident, object zahler, object empfaenger) {
 
   /* Genug Geld vorhanden? */
   entryinfo[P_VALUE] = eval_anything(entryinfo[P_VALUE], zahler);
-
-  if ( (zahler->QueryMoney())<entryinfo[P_VALUE] )
   {
-    string res;
-    if ( !stringp(res=QueryProp(P_PUB_NO_MONEY)) )
-      res = "Das kostet %d Goldstuecke, und Du hast nicht so viel!\n";
-    tell_object(zahler,sprintf(res, entryinfo[P_VALUE]));
-    return -2;
+    int res = CheckSolvency(ident, zahler, empfaenger, entryinfo);
+    if (res != 0) return res;
   }
 
   string avb;
   if ( !stringp(avb=CheckAvailability(ident, zahler)) )
   {
-    string res;
-    if ( !stringp(res=QueryProp(P_PUB_UNAVAILABLE)) )
+    string res = QueryProp(P_PUB_UNAVAILABLE);
+    if ( !stringp(res) )
       res = "Davon ist leider nichts mehr da.\n";
     tell_object(zahler,res);
     return -6;
@@ -743,25 +760,6 @@ int consume_something(string ident, object zahler, object empfaenger) {
   entryinfo[P_ALCOHOL] = eval_anything(entryinfo[P_ALCOHOL],empfaenger);
   entryinfo[P_DRINK]   = eval_anything(entryinfo[P_DRINK],  empfaenger);
 
-#ifdef LEGACY
-  /* Dieser Umweg ist leider noetig, da der Genuss an drei verschiedenen */
-  /* Abfragen scheitern kann.                                            */
-  if (entryinfo[P_FOOD] && !empfaenger->eat_food(entryinfo[P_FOOD], 1)) {
-    tell_object(empfaenger,
-      "Du bist zu satt, das schaffst Du nicht mehr.\n");
-    return -3;
-  }
-
-  if (entryinfo[P_DRINK] && !empfaenger->drink_soft(entryinfo[P_DRINK], 1)) {
-    tell_object(empfaenger,
-      "So viel kannst Du im Moment nicht trinken.\n");
-    return -3;
-  }
-  /* Auch bei Delay wird sofort getrunken/gegessen */
-  if (entryinfo[P_ALCOHOL] &&
-      !empfaenger->drink_alcohol(entryinfo[P_ALCOHOL]) )
-    return -3;
-#else
   int result = empfaenger->consume(entryinfo, 1);
   if (result < 0) {
     if (result & HC_MAX_FOOD_REACHED)
@@ -775,18 +773,9 @@ int consume_something(string ident, object zahler, object empfaenger) {
                   "Soviel Alkohol vertraegst Du nicht mehr.\n");
     return -3;
   }
-#endif
-
-#ifdef LEGACY
-  if (entryinfo[P_FOOD])
-    empfaenger->eat_food(entryinfo[P_FOOD]);
-  if (entryinfo[P_DRINK])
-    empfaenger->drink_soft(entryinfo[P_DRINK]);
-#endif
 
   /* Gezahlt wird auch sofort */
-  zahler->AddMoney(-entryinfo[P_VALUE]);
-  sum+=entryinfo[P_VALUE];
+  sum += DoPay(ident, zahler, empfaenger, entryinfo);
 
   /* FPs gibts auch sofort */
   if (zahler == empfaenger)
@@ -794,7 +783,7 @@ int consume_something(string ident, object zahler, object empfaenger) {
 
   /* Falls die Anzahl des Bestellten beschraenkt ist, muss diese natuerlich
    * angepasst werden.
-  */
+   */
   if ( avb!=PR_NONE )
     DecreaseAvailability(ident,avb);
 
@@ -817,11 +806,11 @@ int consume_something(string ident, object zahler, object empfaenger) {
   else if (pointerp(entryinfo[PM_DELAY_MSG]) &&
            sizeof(entryinfo[PM_DELAY_MSG])>=2) {
     if (stringp(entryinfo[PM_DELAY_MSG][0]) &&
-       strlen(entryinfo[PM_DELAY_MSG][0]))
+       sizeof(entryinfo[PM_DELAY_MSG][0]))
       tell_object(empfaenger,
         mess(entryinfo[PM_DELAY_MSG][0]+"\n",empfaenger));
     if (stringp(entryinfo[PM_DELAY_MSG][1]) &&
-        strlen(entryinfo[PM_DELAY_MSG][1]))
+        sizeof(entryinfo[PM_DELAY_MSG][1]))
       tell_room(environment(empfaenger)||ME,
         mess(entryinfo[PM_DELAY_MSG][1]+"\n",empfaenger),
         ({empfaenger}) );
@@ -856,37 +845,7 @@ int search_what(string str,object zahler,object empfaenger)
 
   return 0;
 }
-/*
-int spendiere(string str)
-{ string *tmp;
-  object pl;
-  int i,found;
 
-  _notify_fail("spendiere <spieler> <drink>\n");
-
-  if ( !stringp(str) || str=="" )
-    return 0;
-
-  tmp=old_explode(str," ");
-
-  if ( sizeof(tmp)<2 )
-    return 0;
-
-  if ( ( !(pl=present(tmp[0],ME))
-        && !(pl=present(tmp[0],PL)) )
-      || !living(pl) )
-  {
-    write("Das Lebewesen ist nicht hier...\n");
-    return 1;
-  }
-
-  str=lower_case(implode(tmp[1..]," "));
-
-  notify_fail((string)QueryProp(P_PUB_NOT_ON_MENU));
-
-  return search_what(str,PL,pl);
-}
-*/
 // Neue Version von Mesi:
 int spendiere(string str)
 {
@@ -901,9 +860,9 @@ int spendiere(string str)
    if (sscanf(str,"%s %d %s",who,whoidx,what)!=3
     && sscanf(str,"%s %s",who,what)!=2)
       return 0;
-   object target;
-   if ( ( !(target=present(who,whoidx,ME))
-       && !(target=present(who,whoidx,PL)) ) || !living(target))
+  object target=present(who, whoidx);
+  if(!target && this_player()) target=present(who, whoidx, this_player());
+   if ( !target || !living(target) )
    {
      write("Das Lebewesen ist nicht hier...\n");
      return 1;
@@ -1006,15 +965,25 @@ void add_std_drinks()
 
 mapping query_menulist()
 {
-  return menu_list;
+  return deep_copy(menu_list);
 }
 
-mixed query_drinks()
+string *query_drinks()
 {
+  string *dr=({});
+  foreach( string ident, string menuetext, mapping minfo: menu_list) {
+    if (eval_anything(minfo[P_DRINK], 0))
+      dr += ({ ident });
+  }
   return dr;
 }
 
-mixed query_food()
+string *query_food()
 {
+  string *fo=({});
+  foreach( string ident, string menuetext, mapping minfo: menu_list) {
+    if (eval_anything(minfo[P_FOOD], 0))
+      fo += ({ ident });
+  }
   return fo;
 }

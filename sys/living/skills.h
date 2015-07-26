@@ -2,13 +2,16 @@
 //
 // skills.h -- Defines and prototypes for /std/living/skills.c
 //
-// $Id: skills.h 6776 2008-03-15 18:12:42Z Zesstra $
+// $Id: skills.h 8694 2014-02-20 23:06:50Z Zesstra $
 
 #ifndef _LIVING_SKILLS_H_
 #define _LIVING_SKILLS_H_
 
-#ifdef NEED_PROTOTYPES
+#endif // _LIVING_SKILLS_H_
 
+#ifdef NEED_PROTOTYPES
+#ifndef _LIVING_SKILLS_H_PROTO_
+#define _LIVING_SKILLS_H_PROTO_
 public    varargs int     UseSpell(string str, string spell);
 
 public    varargs mapping QuerySkill(string sname, string gilde);
@@ -20,23 +23,11 @@ public    varargs mixed   UseSkill(string skill, mapping args);
 public    varargs void    LearnSkill(string sname, int add, int diff);
 public    varargs void    ModifySkill(string sname, mixed val, int diff, 
                                       string gilde);
+public    varargs int     SetSpellFatigue(int duration, string key);
+public    varargs int     CheckSpellFatigue(string key);
+public            void    DeleteSpellFatigue(string key);
 
-// _set- und _query-Funktionen
+#endif // _LIVING_SKILLS_H_PROTO_
 
-static  int     _query_guild_level();
-static  int     _set_guild_level(int num);
-
-static  varargs mapping _query_newskills(string gilde);
-static  varargs mapping _set_newskills(mapping value, string gilde);
-
-static  string  _query_guild();
-static  string  _query_guild_title();
-static  string  _query_title();
-static  string  _query_visible_guild();
-static  string  _set_guild(string gildenname);
-static  string  _set_guild_title(string t);
-
-#endif
-
-#endif
+#endif // NEED_PROTOTYPES
 

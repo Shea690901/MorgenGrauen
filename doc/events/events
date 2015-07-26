@@ -32,6 +32,7 @@ Basis-Mudlib mit den entsprechenden Daten ausgeloest (s. jew. Event):
 - EVT_LIB_CLOCK: Die volle Stunde ist erreicht
 - EVT_LIB_DATECHANGE: Ein neuer Tag ist angebrochen. ;-)
 - EVT_LIB_QUEST_SOLVED: Ein Spieler hat eine Quest geloest
+- EVT_LIB_MINIQUEST_SOLVED: Ein Spieler hat eine Miniquest geloest
 
 Gilden muessen definieren (ggf. via /std/gilden_ob.c):
 - EVT_GUILD_CHANGE: Spieler hat seine Gilde gewechselt.

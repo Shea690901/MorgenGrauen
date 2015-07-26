@@ -28,6 +28,8 @@
 #define P_WIMPY                   "wimpy"
 #define P_WIMPY_DIRECTION         "wimpy_dir"
 
+#define P_AVATAR_URI              "p_lib_avataruri"
+
 #endif // __LIVING_DESCRIPTION_H__
 
 

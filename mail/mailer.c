@@ -75,6 +75,7 @@ inherit NEDIT;
 #include <wizlevels.h>
 #include <moving.h>
 #include <defines.h>
+#include <input_to.h>
 
 #undef DEBUG
 
@@ -207,11 +208,14 @@ static varargs void write_mail(mixed str, string std_subject, string text) {
     return SendMail(text,1);  // flag 1: keine CC's bitte.
   }
 
-  write("Titel");
-  if (std_subject) write(" ("+std_subject+")");
-  write(": ");
+  //write("Titel");
+  //if (std_subject) write(" ("+std_subject+")");
+  //write(": ");
+  string pr;
+  if (std_subject) pr = "Titel ("+std_subject+"): ";
+  else pr = "Titel: ";
   subject=std_subject;
-  input_to("get_subject");
+  input_to("get_subject",INPUT_PROMPT,pr);
   return;
 }
 
@@ -219,16 +223,16 @@ static varargs void write_mail(mixed str, string std_subject, string text) {
 static varargs void get_subject(string str,string pretext) {
   DEBUGVAR(str);
   DEBUGVAR(subject);
-  if ((!str||str=="") && !subject) {
-    write("Titel (Abbrechen mit ~q): ");
-    return input_to("get_subject");
+  if ((!str||str=="") && !subject)
+  {
+    input_to("get_subject",INPUT_PROMPT,"Titel (Abbrechen mit ~q): ");
+    return;
   }
   if (str=="~q"||str=="~Q") return SendMail(0); // entspricht Abbruch im Editor.
   if (str && str!="") subject=str;
   write("Bitte gib jetzt Deine Nachricht an:\n\
 ** oder . wenn fertig, ~q fuer Abbruch, ~h fuer eine Hilfsseite\n");
   nedit("SendMail",pretext);
-//  return 1;
 }
 
 
@@ -244,8 +248,8 @@ static varargs void SendMail(string text,int flag) {
   }
   message=text;
   if (flag) return get_carbon_copy(0);
-  write("Cc: ");
-  input_to("get_carbon_copy");
+  //write("Cc: ");
+  input_to("get_carbon_copy",INPUT_PROMPT, "Cc: ");
   return;
 }
 
@@ -570,12 +574,12 @@ static varargs void update(int directflag,int nocondflag) {
   DEBUGVAR(akt_folder);
 
   if (akt_folder>=sizeof(folders[0]) || akt_folder<0) {
-    akt_folder=member_array("newmail",folders[0]);
+    akt_folder=member(folders[0], "newmail");
     if (akt_folder==-1) {
       MAILDEMON->MakeFolder("newmail",name);
       GetFolders(1);
       DEBUGVAR(folders[0]);
-      akt_folder=member_array("newmail",folders[0]);
+      akt_folder=member(folders[0], "newmail");
     }
     if (!directflag && akt_folder!=-1) write("Ordner 'newmail' aufgeschlagen.\n");
   }
@@ -583,7 +587,7 @@ static varargs void update(int directflag,int nocondflag) {
 //  if (!pointerp(folders)) return write("ERROR: folders no array in update\n"); // Kann eigentlich nicht vorkommen
   if (sizeof(folders[0]) && akt_nr>sizeof(folders[1][akt_folder]))
     akt_nr=sizeof(folders[1][akt_folder]);
-  j=member_array("unread",folders[0]);
+  j=member(folders[0], "unread");
   if (j==-1) return;
   newletters=0;
 
@@ -1169,7 +1173,7 @@ static void mail_cmds(string str) {
 
 /*------------------------------------------------------------------------*/
 
-static void prompt() {
+static string prompt() {
   string path;
   
   update();
@@ -1181,13 +1185,13 @@ static void prompt() {
       ( sizeof(folders[1][akt_folder]) ?
        akt_nr + "/" + sizeof(folders[1][akt_folder]) :
        "leer") + ")";
-  write(path + " [Hilfe mit h] => ");
+  return(path + " [Hilfe mit h] => ");
 }
 
 
 static void input() {
-  prompt();
-  input_to("mail_cmds");
+  //prompt();
+  input_to("mail_cmds", INPUT_PROMPT, prompt());
   return;
 }
 

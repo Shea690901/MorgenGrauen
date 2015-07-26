@@ -2,7 +2,7 @@
 //
 // tell.c
 //
-// $Id: tell.c 7391 2010-01-25 22:52:51Z Zesstra $
+// $Id: tell.c 8755 2014-04-26 13:13:40Z Zesstra $
 
 #include <config.h>
 #include <udp.h>
@@ -26,9 +26,9 @@ void udp_tell(mapping data) {
        (ob = find_player(lower_case(data[RECIPIENT]))) &&
        interactive(ob)) {
     
-    if (!stringp(data[SENDER]) || !strlen(data[SENDER]))
+    if (!stringp(data[SENDER]) || !sizeof(data[SENDER]))
 	data[SENDER]="<Unknown>";
-    if (!stringp(data[DATA]) || !strlen(data[DATA]))
+    if (!stringp(data[DATA]) || !sizeof(data[DATA]))
 	data[DATA]="<Nichts>";
    
     data[SENDER]=

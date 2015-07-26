@@ -2,7 +2,7 @@
 //
 // /std/hook_provider.c  - Hooksystem
 //
-// $Id: hook_provider.c 6365 2007-07-15 21:05:18Z Zesstra $
+// $Id: hook_provider.c 8954 2014-10-06 20:44:15Z Zesstra $
 
 #pragma strong_types
 #pragma save_types
@@ -14,469 +14,467 @@
 #include <hook.h>
 #undef NEED_PROTOTYPES
 
+// get the object fur closure <cl> (where the code is!)
+#define GET_OBJECT(cl) get_type_info(cl,2)
+
+// Struct describing one hook consumer. <cl> will be called when the hook is
+// triggered. The lower <prio>, the earlier the consumer will be called.
+// <type> is a consumertype, e.g. surveyor, listener etc. (see hook.h)
+struct hook_entry_s {
+  closure cl;
+  int prio;
+  int endtime;
+  int type;
+};
+
+// Struct holding the consumers of one specific hook.
+// the value arrays are guarenteed to exist, but may be empty.
+struct hook_s {
+  struct hook_entry_s *surveyors;
+  struct hook_entry_s *hmods;
+  struct hook_entry_s *dmods;
+  struct hook_entry_s *listeners;
+};
+
 /* hook mapping
-   the list of all consumers in the following structure:
-   ([hookid:
-            ([
-                H_HOOK_SURVEYOR:    ({({object,prio,time})}),
-                H_HOOK_MODIFICATOR: ({({object,prio,time})}),
-                H_DATA_MODIFICATOR: ({({object,prio,time})}),
-                H_LISTENER:         ({({object,prio,time})}),
-            )]
+   the list of all offered hooks in the following structure:
+   ([hookid: (<hook_s>), ...
    )]
 */
-nosave mapping hookMapping=([]);
+private nosave mapping hookMapping=([]);
 
-/* Interfaces */
-// in /sys/hooks.h
-
-/* implementation */
+protected void CleanHookMapping(int *hookids);
 
 // Debugging - ggf. ueberschreiben
-protected status h_dbg() {return 0;}
+protected int h_dbg() {return 0;}
 
-void testOffer(int id,status stat){
-    if(h_dbg()) {
-        offerHook(id,stat);
-    }
+void HookTestOffer(int id, int stat){
+  if(h_dbg()) {
+      offerHook(id,stat);
+  }
 }
 
-void testTrigger(int id,mixed data){
-    if(h_dbg()) {
-        HookFlow(id,data);
-    }
+void HookTestTrigger(int id, mixed data){
+  if(h_dbg()) {
+      HookFlow(id,data);
+  }
 }
 
-nomask mapping HCopyHookMapping(){
-    cleanHookMapping();
-    return deep_copy(hookMapping);
+// NOTE: if you have the closure, you can call the lfun, even if it is
+// private. Therefore access to this data should be restricted to
+// this_object().
+// These two functions should be used for debugging purposes.
+protected mapping HCopyHookMapping(){
+  return deep_copy(hookMapping);
 }
 
-nomask protected void cleanHookMapping(){
-    int* hooks; // Die verschiedenen Sorten von Hooks
-    int i; // Die Anzahl Hooktypen (Defend/DIE/MOVE/...)
-    int k; // Zaehlvariable ueber die vier Sorten von Hooks
-    int j; // Die Anzahl Hooks einer Sorte eines Typs.
-    int* ar; // Die Infos eines (!) Hooks
-    int stime;
-
-    stime=time();
-    hooks=m_indices(hookMapping);
-    i=sizeof(hooks);
-    i--;
-
-    for(i;i>=0;i--){
-        for(k=H_LISTENER;k>=H_HOOK_SURVEYOR;k--){
-            j=sizeof(hookMapping[hooks[i]][k]);
-            j--;
-            for(j;j>=0;j--){
-                ar=hookMapping[hooks[i]][k][j];
-                if(pointerp(ar) 
-		    && (!objectp(ar[H_OBJECT])
-		      || (ar[H_TIME]>0 && ar[H_TIME]<stime))){
-                    ar=hookMapping[hooks[i]][k][j]=0;
-                }
-            }
-
-            // Bambi, Bereinigung der Hookliste von 0-Eintraegen, die sonst
-            // in HookFlow() buggen.
-            hookMapping[hooks[i]][k] -= ({0});
-        }
-    }
+protected mapping HCopyHookConsumers(int hookid){
+  if(member(hookMapping,hookid)) {
+      CleanHookMapping(({hookid}));
+      return deep_copy(hookMapping[hookid]);
+  }
+  return 0;
 }
 
-nomask protected void offerHook(int hookid, status offerstate)
-{
-    H_DMSG(sprintf("offerHook hookid %d offerstate %d\n",hookid,offerstate));
-    if(hookid>0)
+// Ggf. zum Ueberschreiben.
+int HConsumerTypeIsAllowed(int type, object consumer){
+  return 1;
+}
+
+int HPriorityIsAllowed(int prio, object consumer){
+  return 1;
+}
+
+// clean internal hook data structures of stale hook consumers.
+protected void CleanHookMapping(int *hookids){
+  // hooks enthaelt die aufzuraeumenden Hooks. Wenn kein Array -> alle Hooks
+  if (!pointerp(hookids))
+    hookids=m_indices(hookMapping);
+
+  foreach(int hookid : hookids) { // alle Hooks
+    struct hook_s hooks = hookMapping[hookid];
+    if (!structp(hooks))
+      continue;
+    // ueber alle Consumertypen laufen
+    foreach (string consumertype: H_CONSUMERNAMES)
     {
-        if(offerstate){
-            if(!member(hookMapping,hookid)){
-                hookMapping+=([hookid:([
-                    H_HOOK_SURVEYOR:    allocate(MAX_SURVEYOR),
-                    H_HOOK_MODIFICATOR: allocate(MAX_HOOK_MODIFICATOR),
-                    H_DATA_MODIFICATOR: allocate(MAX_DATA_MODIFICATOR),
-                    H_LISTENER:         allocate(MAX_LISTENER),
-                ])]);
-            }
-        }
-        else{
-            if(member(hookMapping,hookid)){
-                hookMapping-=([hookid]);
-            }
-        }
+      // Yeah - compute struct lookup at runtime... ;-)
+      struct hook_entry_s *consumers = hooks->(consumertype);
+      // Hookeintraege / Consumer
+      foreach(struct hook_entry_s h : &consumers) {
+        // alle abgelaufenen Eintraege oder solche mit zerstoerten Objekten
+        // nullen
+        if (!h->cl || h->endtime < time() )
+            h = 0;
+      }
+      // 0 noch rauswerfen.
+      hooks->(consumertype) -= ({0});
     }
-    H_DMSG(sprintf("  result %O\n",hookMapping));
+  }
 }
 
-status HConsumerTypeIsAllowed(int type, object consumer){
-    return 1;
-}
-
-status HPriorityIsAllowed(int prio, object consumer){
-    return 1;
-}
-
-nomask protected int findObjectInTypeArr(mixed ar, object ob)
+protected void offerHook(int hookid, int offerstate)
 {
-    int i,stime;
-
-    stime=time();
-    i=sizeof(ar)-1;
-
-    for(i;i>=0;i--) {
-        if(pointerp(ar[i]) && ar[i][H_OBJECT]==ob &&
-	    (ar[i][H_TIME]<0 || ar[i][H_TIME]>stime)) {
-	    return i;
-        }
-    }
-
-    return -1;
+  H_DMSG(sprintf("offerHook hookid %d offerstate %d\n",hookid,offerstate));
+  if (hookid>0)
+  {
+      if (offerstate) {
+          if (!member(hookMapping,hookid)) {
+              struct hook_s hook = (<hook_s>
+                  surveyors: ({}),
+                  hmods: ({}),
+                  dmods: ({}),
+                  listeners: ({}) );
+              hookMapping[hookid] = hook;
+          }
+      }
+      else {
+          if (member(hookMapping,hookid)) {
+            m_delete(hookMapping,hookid);
+          }
+      }
+  }
+  H_DMSG(sprintf("  result %O\n",hookMapping));
 }
 
-
-nomask status HIsHookConsumer(int hookid, object consumer) {
-    cleanHookMapping();
-    if(hookConsumerInfo(hookid,consumer)!=0){
-        return 1;
-    }
-
-    return 0;
-}
-
-nomask protected int* hookConsumerInfo(int hookid, object consumer)
+// hookConsumerInfo() liefert Array von hook_entry_s zurueck. D.h. bei Abfrage
+// von Objekten alle Closures dieses Objekts und jede davon erzeugt ein
+// Element hook_entry_s im Ergebnisarray. Bei Abfrage von Closures hat das
+// Array immer genau 1 oder kein Element.
+// WARNING: whoever has a hook_entry_s can change/delete the hook!
+//          NEVER return the original to an external caller!
+// NOTE: whoever has the cl from hook_entry_s can call it, even if the lfun
+//       is private (and this object the only one knowing it).
+protected mixed * hookConsumerInfo(int hookid, object|closure consumer)
 {
-    int* ret;
-    int index;
-    ret=0;
+  closure filter_cl;
 
-    H_DMSG(sprintf("hookConsumerInfo hookid %d consumer %O\n",hookid,consumer));
-
-    if(consumer!=0 && member(hookMapping,hookid)){
-        index=findObjectInTypeArr(hookMapping[hookid][H_HOOK_SURVEYOR],
-	    consumer);
-        if(index!=-1 && hookMapping[hookid][H_HOOK_SURVEYOR]){
-            ret=({H_HOOK_SURVEYOR,index});
-        }
-        else{
-            index=findObjectInTypeArr(hookMapping[hookid][H_HOOK_MODIFICATOR],
-		consumer);
-            if(index!=-1){
-                ret=({H_HOOK_MODIFICATOR,index});
-            }
-            else{
-                index=findObjectInTypeArr(hookMapping[hookid][H_DATA_MODIFICATOR],
-		    consumer);
-                if(index!=-1){
-                    ret=({H_DATA_MODIFICATOR,index});
-                }
-                else{
-                    // Bambi: hookMapping[hookid][H_LISTENER][H_OBJECT]
-                    //        =>
-                    //        hookMapping[hookid][H_LISTENER]
-                    index=findObjectInTypeArr(hookMapping[hookid][H_LISTENER],
-			consumer);
-                    if(index!=-1){
-                        ret=({H_LISTENER,index});
-                    }
-                }
-            }
-        }
-    }
-    H_DMSG(sprintf("  result %O\n",ret));
-    return ret;
-}
-
-nomask mapping HListHookConsumer(int hookid){
-
-    cleanHookMapping();
-
-    if(member(hookMapping,hookid)) {
-        return deep_copy(hookMapping[hookid]);
-    }
-
-    return 0;
-}
-
-nomask int* HListHooks(){
-
-    cleanHookMapping();
-    if(sizeof(hookMapping)) {
-        return m_indices(hookMapping);
-    }
+  if (!member(hookMapping,hookid))
     return ({});
+
+  // Closure zum Filtern bestimmen - je nachdem, was gesucht wird.
+  if (closurep(consumer))
+  {
+    filter_cl = function int (struct hook_entry_s h)
+                { return h->cl == consumer
+                         && h->endtime >= time(); };
+  }
+  else if (objectp(consumer))
+  {
+    filter_cl = function int (struct hook_entry_s h)
+                { return GET_OBJECT(h->cl) == consumer
+                         && h->endtime >= time(); };
+  }
+  else
+  {
+    return ({});
+  }
+
+  struct hook_s hook = hookMapping[hookid];
+  struct hook_entry_s *result = ({});
+  foreach (string consumertype: H_CONSUMERNAMES )
+  {
+    result += filter(hook->(consumertype), filter_cl);
+  }
+  return result;
 }
 
-status HUnregisterFromHook(int hookid, object consumer){
-    int* info;
-    status ret=0;
-
-    H_DMSG(sprintf("HUnregisterFromHook hookid %d consumer %O\n",hookid,consumer));
-    info=hookConsumerInfo(hookid,consumer);
-    if(pointerp(info)) {
-        hookMapping[hookid][info[H_TYPE]][info[H_INDEX]]=0;
-	ret=1;
-    }
-    cleanHookMapping();
-    H_DMSG(sprintf("  result %O\n",hookMapping));
-    return ret;
+int HIsHookConsumer(int hookid, mixed consumer) {
+  return sizeof(hookConsumerInfo(hookid,consumer)) != 0;
 }
 
-nomask protected status askSurveyorsForRegistrationAllowance(mixed* surveyors,
-    object consumer,int hookid,int hookprio,int consumertype) {
-    int i;
-    status tmp;
-
-    H_DMSG(sprintf("askSurveyorsForRegistrationAllowance surveyors %O, "
-	  "consumer %O, hookid %d, hookprio %d, consumertype %d\n",
-	  surveyors,consumer,hookid,hookprio,consumertype));
-    
-    foreach(mixed surveyor: surveyors) {
-        if (objectp(surveyor[H_OBJECT])) {
-            H_DMSG(sprintf("Calling surveyor %O\n",surveyor[H_OBJECT]));
-            tmp=surveyor[H_OBJECT]->HookRegistrationCallback(consumer, 
-		hookid, this_object(), hookprio, consumertype);
-            H_DMSG(sprintf("Result is %d\n",tmp));
-            if(tmp==0){
-                return 0;
-            }
-        }
-    }
-    return 1;
+int* HListHooks() {
+  return m_indices(hookMapping);
 }
 
-status HRegisterToHook(int hookid,object consumer, int hookprio, 
-    int consumertype, int timeInSeconds) {
-    status ret;
-    mixed ar;
-    mixed sortedSurveyors;
-    int superseedeInd;
-    int superseedePrio;
-    int i;
-    int stime;
-    int regtime;
-    stime=time();
+int HUnregisterFromHook(int hookid, mixed consumer) {
 
-    if(timeInSeconds>0){
-        regtime=stime+timeInSeconds;
-    }
-    else{
-        regtime=-1;
-    }
-    superseedePrio=hookprio;
-    superseedeInd=-1;
-    ret=0;
+  H_DMSG(sprintf("HUnregisterFromHook hookid %d consumer %O\n",hookid,consumer));
+  if (objectp(consumer))
+    consumer = symbol_function("HookCallback", consumer);
+  if (!closurep(consumer))
+    return 0;
 
-    H_DMSG(sprintf("HRegisterToHook hookid %d consumer %O\n hookprio %d "
-	  "consumertype %d\n",hookid,consumer,hookprio,consumertype));
-    
-    cleanHookMapping();
-    
-    if(member(hookMapping,hookid) && consumer!=0 && 
-	!HIsHookConsumer(hookid,consumer)) {
-        H_DMSG("First barrier\n");
-        if(H_CONSUMERCHECK(consumertype)!=-1 && 
-	    HConsumerTypeIsAllowed(consumertype,consumer)){
-            H_DMSG("Second barrier\n");
-            if(H_HOOK_VALIDPRIO(hookprio)!=-1 && 
-		HPriorityIsAllowed(hookprio,consumer)){
-                H_DMSG("Third barrier\n");
-                sortedSurveyors=
-		  sort_array(hookMapping[hookid][H_HOOK_SURVEYOR],#'internalEntrySort)
-		  -({0});
-                if(askSurveyorsForRegistrationAllowance(sortedSurveyors,
-		      consumer,hookid,hookprio,consumertype)){
-                    H_DMSG("Fourth barrier\n");
+  struct hook_entry_s *info = hookConsumerInfo(hookid,consumer);
 
-                    ar=hookMapping[hookid][consumertype];
-                    i=sizeof(ar)-1;
-                    // Bambi: Bei einem leeren Mapping direkt eintragen.
-                    if (i < 0)
-                    {
-                      ar = ({({consumer,hookprio,regtime})});
-                      hookMapping[hookid][consumertype]=ar;
-                      ret=1;
-                    }
-                    else
-                    for(i;i>=0;i--){
-                        // Ersetzbarer Eintrag in der Hook-Liste.
-                        if(ar[i]==0 || !pointerp(ar[i][H_OBJECT]) 
-			    || (ar[i][H_TIME]>0 && ar[i][H_TIME]<stime)){
-                            H_DMSG("Found empty entry\n");
-                            ar[i]=({consumer,hookprio,regtime});
-                            // nicht noetig, wegen Array->Referenz
-			    //hookMapping[hookid][consumertype]=ar;
-                            ret=1;
-                            break;
-                        }
-                        else if(ar[i][H_PRIO]>superseedePrio) {
-                                superseedePrio=ar[i][H_PRIO];
-                                superseedeInd=i;
-                        }
-                    }
-                    if(ret==0 && superseedeInd!=-1) {
-                        H_DMSG("Found superseedable entry\n");
-                        ar[superseedeInd][H_OBJECT]->superseededHook(hookid,
-			    this_object());
-                        ar[superseedeInd]=({consumer,hookprio,regtime});
-                        // nicht noetig, wegen Array -> Referenz
-			//hookMapping[hookid][consumertype]=ar;
-                        ret=1;
-                    }
-
-                }
-
-            }
-        }
-    }
-    H_DMSG(sprintf("  result %O\n",hookMapping));
-    return ret;
+  // it should never happen that a closure is registered more than once, i.e.
+  // the result contains more than one element.
+  if (sizeof(info)) {
+      struct hook_entry_s h = info[0];
+      h->cl = 0;
+      H_DMSG(sprintf("  result %O\n", hookMapping));
+      // the now invalid h will be cleaned up later.
+      return 1;
+  }
+  return 0;
 }
 
-nomask int internalEntrySort(mixed a, mixed b){
-    int ret;
+// surveyors are asked for registration permittance
+protected int askSurveyorsForRegistrationAllowance(
+                  struct hook_entry_s *surveyors, object consumer,int hookid,
+                  int hookprio,int consumertype)
+{
+  H_DMSG(sprintf("askSurveyorsForRegistrationAllowance surveyors %O, "
+        "consumer %O, hookid %d, hookprio %d, consumertype %d\n",
+        surveyors,consumer,hookid,hookprio,consumertype));
 
-    if(a==0 && b!=0){
-        ret=1;
-    }
-    else if(a==0 && b==0){
-        ret=0;
-    }
-    else if(a!=0 && b==0){
-        ret=0;
-    }
-    else if(a[H_PRIO]<=b[H_PRIO]){    
-	ret=0;    
-    }    
-    else {    
-	ret=1;    
-    }
-    return ret;
-}
-
-nomask protected status askSurveyorsForCancelAllowance(mixed surveyors,
-    object modifiyingOb,mixed data,int hookid,int prio,object hookOb){
-
-  foreach(mixed surveyor: surveyors) {
-    if(objectp(surveyor[H_OBJECT]) &&     
-	surveyor[H_OBJECT]->HookCancelAllowanceCallback(modifiyingOb,
-	      hookid,hookOb,prio,data)==0) {
+  foreach(struct hook_entry_s surveyor : surveyors) {
+    if (closurep(surveyor->cl) && surveyor->endtime >= time())
+    {
+      // surveyor hook gueltig.
+      object sob = GET_OBJECT(surveyor->cl);
+      if (!sob->HookRegistrationCallback(consumer, hookid,
+                        this_object(), hookprio, consumertype))
         return 0;
     }
   }
   return 1;
 }
 
-nomask protected status askSurveyorsForModificationAllowance(mixed surveyors,
-    object modifiyingOb,mixed data,int hookid,int prio,object hookOb){
-  
-  foreach(mixed surveyor: surveyors) {
-    if(objectp(surveyor[H_OBJECT]) &&     
-	surveyor[H_OBJECT]->HookModificationAllowanceCallback(modifiyingOb,
-	      hookid,hookOb,prio,data)==0){
+int HRegisterToHook(int hookid, mixed consumer, int hookprio,
+                       int consumertype, int timeInSeconds) {
+  int ret, regtime;
+
+  if (!closurep(consumer) && !objectp(consumer))
+    raise_error(sprintf("Wrong argument %.50O to HRegisterToHook(): consumer "
+          "must be closure or object.\n",consumer));
+
+  if (!member(hookMapping, hookid))
+    return -1;
+
+  if (objectp(consumer)) {
+    consumer = symbol_function("HookCallback", consumer);
+    if (!closurep(consumer))
+      return -2;
+  }
+
+  if (timeInSeconds > 0) {
+      regtime=time() + timeInSeconds;
+  }
+  else {
+      regtime=__INT_MAX__;
+  }
+
+  H_DMSG(sprintf("HRegisterToHook hookid %d consumer %O\n hookprio %d "
+        "consumertype %d\n",hookid,consumer,hookprio,consumertype));
+
+  CleanHookMapping(({hookid})); // entfernt ungueltige/abgelaufene Eintraege
+
+  // nur einmal pro closure registrieren!
+  if (HIsHookConsumer(hookid, consumer))
+    return -3;
+
+  // Consumertyp erlaubt?
+  if (H_CONSUMERCHECK(consumertype) == -1
+      || !HConsumerTypeIsAllowed(consumertype,GET_OBJECT(consumer)))
+    return -4;
+
+  // Prioritaet erlaubt?
+  if (H_HOOK_VALIDPRIO(hookprio) == -1
+      || !HPriorityIsAllowed(hookprio, GET_OBJECT(consumer)))
+    return -5;
+
+  struct hook_s hook = hookMapping[hookid];
+
+  // Und surveyors erlauben die Registierung?
+  if (!askSurveyorsForRegistrationAllowance(hook->surveyors,
+                    GET_OBJECT(consumer),hookid,
+                    hookprio,consumertype))
+    return -6;
+
+  string ctypename = H_CONSUMERNAMES[consumertype];
+
+  // get the consumer array
+  struct hook_entry_s *consumers = hook->(ctypename);
+
+  // assemble new hook consumer struct
+  struct hook_entry_s newconsumer = (<hook_entry_s>
+                      cl : consumer,
+                      prio : hookprio,
+                      endtime : regtime,
+                      type : consumertype );
+
+  // consumers enthaelt die Hookeintraege
+  if (sizeof(consumers) < MAX_HOOK_COUNTS[consumertype]) {
+    // max. Anzahl an Eintraegen fuer diesen Typ noch nicht
+    // erreicht, direkt anhaengen.
+    consumers += ({ newconsumer });
+    hook->(ctypename) = consumers;
+    ret=1;
+  }
+  else {
+    // gibt es einen Eintrag mit hoeherem Priowert (niedrigere
+    // Prioritaet), den man ersetzen koennte?
+    // Das Array ist sortiert, mit hoechsten Priowerten am
+    // Ende. Ersetzt werden soll der Eintrag mit dem hoechsten
+    // Zahlenwert, falls der neue Eintrag einen niedrigeren Wert
+    // hat, d.h. es muss nur er letzte Consumer im Array geprueft werden.
+    // Pruefung auf Closureexistenz, falls der Surveyor Objekte
+    // zerstoert (hat)...
+    struct hook_entry_s oh = consumers[<1];
+    if (!oh->cl || oh->prio > newconsumer->prio) {
+      // Found superseedable entry - replace it, but inform the object.
+      H_DMSG("Found superseedable entry\n");
+      consumers[<1] = newconsumer;
+      GET_OBJECT(oh->cl)->superseededHook(hookid, this_object());
+      ret = 1;
+      // nicht noetig, consumers wieder in sein hook_s zu haenngen wegen Array
+      // -> Referenz
+    }
+  }
+
+  // wenn ein Eintrag hinzugefuegt wurde, muss neu sortiert werden
+  if (ret) {
+    hook->(ctypename) = sort_array(consumers,
+        function int (struct hook_entry_s a, struct hook_entry_s b) {
+            return a->prio > b->prio; } );
+  }
+
+  H_DMSG(sprintf("  result %O\n",hookMapping));
+
+  // -7, wenn kein Eintrag mehr frei / zuviele Hooks
+  return (ret > 0 ? 1 : -7);
+}
+
+// surveyors are asked for cancellation permittance
+protected int askSurveyorsForCancelAllowance(mixed surveyors,
+  object modifiyingOb,mixed data,int hookid,int prio,object hookOb){
+
+  foreach(struct hook_entry_s surveyor : surveyors) {
+    if (closurep(surveyor->cl) && surveyor->endtime >= time())
+    {
+      // surveyor hook gueltig.
+      object sob = GET_OBJECT(surveyor->cl);
+      if (!sob->HookCancelAllowanceCallback(modifiyingOb, hookid,
+                        hookOb, prio, data))
         return 0;
     }
   }
   return 1;
 }
 
-nomask protected mixed HookFlow(int hookid, mixed hookdata){
-    mixed sortedSurveyors;
-    mixed sortedHMods;
-    mixed sortedDMods;
-    mixed sortedListener;
-    status wasCancelled;
-    mixed tmp;
-    mixed ret;
+// surveyors are asked for data change permittance
+protected int askSurveyorsForModificationAllowance(mixed surveyors,
+  object modifiyingOb,mixed data,int hookid,int prio,object hookOb){
 
-    wasCancelled=0;
-    ret=({H_NO_MOD,hookdata});
-
-    // Bambi: Um die 0-Objekt-Eintraege rauszuwerfen.
-    //cleanHookMapping();
-
-    H_DMSG(sprintf("HookFlow hookid %d hookdate %O\n",hookid,hookdata));
-    if(member(hookMapping,hookid)) {
-        sortedSurveyors=
-	  sort_array(hookMapping[hookid][H_HOOK_SURVEYOR],#'internalEntrySort)
-	  -({0});
-
-        sortedHMods=
-	  sort_array(hookMapping[hookid][H_HOOK_MODIFICATOR],#'internalEntrySort)
-	  -({0});
-
-        sortedDMods=
-	  sort_array(hookMapping[hookid][H_DATA_MODIFICATOR],#'internalEntrySort)
-	  -({0});
-
-	sortedListener=
-	  sort_array(hookMapping[hookid][H_LISTENER],#'internalEntrySort) - ({0});
-
-        // notify surveyors
-	foreach(mixed surv: sortedSurveyors) {
-	    if (!objectp(surv[H_OBJECT])) continue;
-            tmp=surv[H_OBJECT]->HookCallback(this_object(),
-		hookid,ret[H_RETDATA]);
-            if(tmp[H_RETCODE]==H_CANCELLED){
-                wasCancelled=1;
-                ret[H_RETCODE]=H_CANCELLED;
-            }
-            else if(tmp[H_RETCODE]==H_ALTERED){
-                    ret[H_RETCODE]=H_ALTERED;
-                    ret[H_RETDATA]=tmp[H_RETDATA];
-            }
-	    if (wasCancelled) return ret;
-        }
-
-        // notify hmods
-	foreach(mixed hmod: sortedHMods) {
-	    if (!objectp(hmod[H_OBJECT])) continue;
-            tmp=hmod[H_OBJECT]->HookCallback(this_object(),hookid,
-		ret[H_RETDATA]);
-            if(tmp[H_RETCODE]==H_CANCELLED) {
-                if(askSurveyorsForCancelAllowance(sortedSurveyors,
-		      hmod[H_OBJECT],hookdata,hookid,
-		      hmod[H_PRIO],this_object())) {
-                    // ask allowance in surveyors
-                    wasCancelled=1;
-                    ret[H_RETCODE]=H_CANCELLED;
-                }
-            }
-            else if(tmp[H_RETCODE]==H_ALTERED) {
-                    // ask allowance in surveyors
-                if(askSurveyorsForModificationAllowance(sortedSurveyors,
-		      hmod[H_OBJECT],hookdata,hookid,
-		      hmod[H_PRIO],this_object())) {
-                    ret[H_RETCODE]=H_ALTERED;
-                    ret[H_RETDATA]=tmp[H_RETDATA];
-                }
-            }
-	    if (wasCancelled) return ret;
-        }
-
-        // notify dmods
-	foreach(mixed dmod: sortedDMods) {
-	    if (!objectp(dmod[H_OBJECT])) continue;
-            tmp=dmod[H_OBJECT]->HookCallback(this_object(),hookid,
-		ret[H_RETDATA]);
-            if(tmp[H_RETCODE]==H_ALTERED){
-                // ask allowance in surveyors
-                if(askSurveyorsForModificationAllowance(sortedSurveyors,
-		      dmod[H_OBJECT],hookdata,hookid,
-		      dmod[H_PRIO],this_object())){
-                    ret[H_RETCODE]=H_ALTERED;
-                    ret[H_RETDATA]=tmp[H_RETDATA];
-                }
-            }
-        }
-
-        // notify listener
-	foreach(mixed listener: sortedListener) {
-	  if (!objectp(listener[H_OBJECT])) continue;
-          listener[H_OBJECT]->HookCallback(this_object(),hookid,ret[H_RETDATA]);
-        }
+  foreach(struct hook_entry_s surveyor : surveyors) {
+    if (closurep(surveyor->cl) && surveyor->endtime >= time())
+    {
+      // surveyor hook gueltig.
+      object sob = GET_OBJECT(surveyor->cl);
+      if (!sob->HookModificationAllowanceCallback(modifiyingOb,
+                        hookid, hookOb, prio, data))
+        return 0;
     }
+  }
+  return 1;
+}
 
+protected mixed HookFlow(int hookid, mixed hookdata){
+  mixed tmp, ret;
+
+  ret=({H_NO_MOD,hookdata});
+
+  H_DMSG(sprintf("HookFlow hookid %d hookdata %O\n",hookid,hookdata));
+
+  if (!member(hookMapping, hookid))
     return ret;
+
+  struct hook_s hook = hookMapping[hookid];
+
+  // notify surveyors
+  foreach(struct hook_entry_s h : hook->surveyors) {
+    if (closurep(h->cl) && h->endtime >= time())
+    {
+      // Hook gueltig
+      tmp = funcall(h->cl, this_object(), hookid, ret[H_RETDATA]);
+      if(tmp[H_RETCODE]==H_CANCELLED) {
+        ret[H_RETCODE]=H_CANCELLED;
+        return ret;  // und weg...
+      }
+      else if(tmp[H_RETCODE]==H_ALTERED){
+        ret[H_RETCODE]=H_ALTERED;
+        ret[H_RETDATA]=tmp[H_RETDATA];
+      }
+    }
+    // ungueltige/abgelaufene Eintraege -> Aufraeumen, aber nicht jetzt.
+    else if (find_call_out(#'CleanHookMapping) == -1) {
+      call_out(#'CleanHookMapping, 0, ({hookid}));
+    }
+  } // surveyors fertig
+
+  // notify hmods
+  foreach(struct hook_entry_s h : hook->hmods) {
+    if (closurep(h->cl) && h->endtime >= time())
+    {
+      // Hook gueltig
+      tmp = funcall(h->cl, this_object(), hookid, ret[H_RETDATA]);
+      if(tmp[H_RETCODE]==H_CANCELLED) {
+        // ask allowance in surveyors
+        if(h->cl &&
+           askSurveyorsForCancelAllowance(hook->surveyors,
+              GET_OBJECT(h->cl), hookdata, hookid,
+              h->prio, this_object()))
+        {
+            ret[H_RETCODE] = H_CANCELLED;
+            return ret; // und raus...
+        }
+      }
+      else if(tmp[H_RETCODE]==H_ALTERED) {
+        // ask allowance in surveyors
+        if(h->cl &&
+           askSurveyorsForModificationAllowance(hook->surveyors,
+              GET_OBJECT(h->cl),hookdata, hookid,
+              h->prio,this_object()))
+        {
+            ret[H_RETCODE] = H_ALTERED;
+            ret[H_RETDATA] = tmp[H_RETDATA];
+        }
+      }
+    }
+    // ungueltige/abgelaufene Eintraege -> Aufraeumen, aber nicht jetzt.
+    else if (find_call_out(#'CleanHookMapping) == -1) {
+      call_out(#'CleanHookMapping, 0, ({hookid}));
+    }
+  } // hmods fertig
+
+  // notify dmods
+  foreach(struct hook_entry_s h : hook->dmods) {
+    if (closurep(h->cl) && h->endtime >= time())
+    {
+      // Hook gueltig
+      tmp = funcall(h->cl, this_object(), hookid, ret[H_RETDATA]);
+      if(tmp[H_RETCODE]==H_ALTERED) {
+        // ask allowance in surveyors
+        if (h->cl &&
+            askSurveyorsForModificationAllowance(hook->surveyors,
+              GET_OBJECT(h->cl),hookdata, hookid,
+              h->prio,this_object()))
+        {
+            ret[H_RETCODE] = H_ALTERED;
+            ret[H_RETDATA] = tmp[H_RETDATA];
+        }
+      }
+    }
+    // ungueltige/abgelaufene Eintraege -> Aufraeumen, aber nicht jetzt.
+    else if (find_call_out(#'CleanHookMapping) == -1) {
+      call_out(#'CleanHookMapping, 0, ({hookid}));
+    }
+  } // dmods fertig
+
+  // notify listener
+  foreach(struct hook_entry_s h : hook->listeners) {
+    if (closurep(h->cl) && h->endtime >= time())
+    {
+      // Hook gueltig
+      funcall(h->cl, this_object(), hookid, ret[H_RETDATA]);
+    }
+    // ungueltige/abgelaufene Eintraege -> Aufraeumen, aber nicht jetzt.
+    else if (find_call_out(#'CleanHookMapping) == -1) {
+      call_out(#'CleanHookMapping, 0, ({hookid}));
+    }
+  } // listener fertig
+
+  return ret;
 }
 

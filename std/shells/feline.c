@@ -2,7 +2,7 @@
 //
 // shells/feline.c -- Feline Shell
 //
-// $Id: feline.c 7423 2010-02-07 22:56:38Z Zesstra $
+// $Id: feline.c 8487 2013-05-21 19:15:52Z Zesstra $
 
 #pragma strong_types,save_types
 
@@ -32,7 +32,7 @@ void create()
 
 // Startraum/Kapelle setzen
     SetDefaultHome("/d/dschungel/paracelsus/room/fkapelle");
-    SetPrayRoom("/d/dschungel/paracelsus/room/fkapelle");
+    SetDefaultPrayRoom("/d/dschungel/paracelsus/room/fkapelle");
 
 // Besondere rassenspezifische Properties (bei denen es nichts macht, wenn
 // sie nach jedem Einloggen neu gesetzt werden):
@@ -122,15 +122,15 @@ void create()
                 SetProp(P_MSGOUT,"schleicht");
                 SetProp(P_MMSGIN,"erscheint mit einem grellen Blitz");
                 SetProp(P_MMSGOUT,"verschwindet mit einem grellen Blitz");
-                SetProp(P_HANDS,({" mit scharfen Krallen",40,DT_RIP}));
+                SetProp(P_HANDS,({" mit scharfen Krallen",40, ({DT_RIP}) }));
             }
             else
             {
                 if ( !pointerp(h=QueryProp(P_HANDS)) || (sizeof(h)<1) )
-                    h = ({" mit scharfen Krallen",40,DT_RIP});
+                    h = ({" mit scharfen Krallen",40, ({DT_RIP}) });
                 else
-                    h = ({h[0],40,DT_RIP});
-                SetProp(P_HANDS,h);
+                    h = ({h[0],40, ({DT_RIP}) });
+                SetProp(P_HANDS, h);
             }
 
             if ( !pointerp(h=QueryProp(P_CHANNELS)) )
@@ -251,7 +251,7 @@ mixed RaceDefault(string arg)
     switch(arg)
     {
         case P_HANDS :
-            return ({" mit scharfen Krallen",40,DT_RIP});
+            return ({" mit scharfen Krallen",40, ({DT_RIP}) });
         case P_BODY :
             return 15;
     }

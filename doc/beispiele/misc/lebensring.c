@@ -7,17 +7,21 @@
 **    um 5 erniedrigt werden.
 */
 
+// Diese Pragmas sorgen dafuer, dass der Driver darauf achtet, dass bei
+// Funktionsargumenten, -Rueckgabewerten und teilweise bei Zuweisung von
+// Werten an Variablen der richtige Datentyp verwendet wird (z.b. kein string
+// anstelle eines int verwendet wird). Sollte in keinem Objekt fehlen.
+#pragma strong_types, save_types, rtt_checks
+
+inherit "/std/armour";
+
 #include <properties.h>
 #include <armour.h>
 #include <language.h>
 #include <combat.h>
 
-inherit "/std/armour";
-
-create()
+protected void create()
 {
-    if (!clonep(this_object())) 
-        return;
     ::create();
 
     SetProp(P_SHORT,"Ein Lebensring");
@@ -31,7 +35,7 @@ create()
     SetProp(P_WEIGHT,80);
     SetProp(P_VALUE,2000+random(501));
     SetProp(P_ARMOUR_TYPE,AT_RING);
-    SetProp(P_AC,0);
+    SetProp(P_AC,0); // keine Schutzwirkung im Kampf
     SetProp(P_MATERIAL,MAT_MISC_MAGIC);
 
 // ---->
@@ -49,3 +53,4 @@ create()
     AddDetail( "material",
         "Es ist gruen.\n");
 }
+

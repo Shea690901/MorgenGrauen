@@ -1,4 +1,3 @@
-
 typo
 ----
 
@@ -8,10 +7,10 @@ KOMMANDO:
 
 ARGUMENTE:
 
-     <text>
+    <text>
         Eine Mitteilung
-     <objekt>
-        Ein Objekt, das neben Dir liegt oder in Deinem Inventar ist
+    <objekt>
+        Ein Referenzobjekt, das neben Dir liegt oder in Deinem Inventar ist
 
 BESCHREIBUNG:
     In den Beschreibungen von Raeumen und Objekten kommt es immer wieder mal
@@ -21,24 +20,29 @@ BESCHREIBUNG:
     Wenn Du einen Tippfehler gefunden hast, so kannst Du den Verantwortlichen
     mit diesem Befehl davon unterrichten.
 
-    Wenn der Tippfehler in einem Objekt auftaucht, das im Raum liegt oder sich
-    in Deinem Inventar befindet, so kannst Du den Tippfehler mit der zweiten
-    Variante melden. Ansonsten wird der Programmierer des Raumes
-    benachrichtigt, in dem Du gerade stehst.
-
-    Aus diesem Grund solltest Du einen Tippfehler immer sofort melden, wenn Du
-    ihn gefunden hast, und nicht erst, nachdem Du schon drei Raeume weiter
-    gegangen bist.
-
-    Fuer den Programmierer sehr hilfreich ist es uebrigens, wenn Du bei der
-    Meldung noch mit angibst, wo genau der Tippfehler zu finden ist (also z.B,
-    welches Detail Du gerade untersuchst hast o.ae.).
+    Fuer den Magier ist es sehr hilfreich, wenn Du bei in Meldung angibst,
+    wo genau der Tippfehler zu finden ist (also z.B, welches Detail den
+    Fehler enthaelt).
 
     Zoegere nicht, wenn Du einen Tippfehler findest; Fehlermitteilungen sind
     *sehr* willkommen!
 
+    Wenn Du einen Typo an einem bestimmten Objekt oder NPC entdeckst, kannst
+    Du dieses/diesen hinter einem Doppelpunkt angeben, damit der fuer das
+    Objekt verantwortliche Magier die Meldung bekommt.
+    Wenn das Objekt nicht zu finden ist, wird die ganze Eingabe als
+    Meldung aufgefasst.
+
+BEMERKUNG:
+    Der Befehl 'typo' bezieht sich bei Nichtangabe eines Bezugsobjekts
+    auf das letzte betrachtete Objekt. Hast Du also ein Objekt untersucht,
+    dann wird die Meldung fuer diese Objekt abgegeben. Hast Du aber den
+    Raum untersucht oder 'schau' eingegeben, wird die Meldung fuer Deinen
+    momentanen Raum abgesetzt.
+
 SIEHE AUCH:
-    fehler, idee, detail
+    bug, idee, detail, bezugsobjekt
 
 LETZTE AeNDERUNG:
-    Mo, Jan 28.01.02 2002, 23:14:10h von Tilly 
+    03.06.2013, Zesstra
+

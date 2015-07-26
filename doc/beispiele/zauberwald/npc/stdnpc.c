@@ -2,8 +2,8 @@
 
 #include "../files.h"
 
-inherit "std/npc";
-inherit "p/service/mupfel/getkill";
+inherit "/std/npc";
+inherit "/p/service/mupfel/getkill";
 
 void create()
 {

@@ -2,26 +2,28 @@
 //
 // thing.c -- standard object
 //
-// $Id: thing.c 6571 2007-10-21 14:41:10Z Zesstra $                      
+// $Id: thing.c 7804 2011-07-10 20:37:52Z Zesstra $                      
 
 #pragma strict_types
 #pragma save_types
-#pragma pedantic                                                                          
-#pragma range_check                                                                       
-//#pragma no_clone                                                                        
+#pragma pedantic
+#pragma range_check
+//#pragma no_clone
 
-inherit "std/thing/properties";
-inherit "std/thing/description";
-inherit "std/thing/moving";
-inherit "std/thing/language";
-inherit "std/thing/commands";
-inherit "std/thing/restrictions";
-inherit "std/thing/envchk";
+inherit "/std/thing/properties";
+inherit "/std/thing/light";
+inherit "/std/thing/description";
+inherit "/std/thing/moving";
+inherit "/std/thing/language";
+inherit "/std/thing/commands";
+inherit "/std/thing/restrictions";
+inherit "/std/thing/envchk";
 
 protected void create()
 {
   seteuid(getuid());
   properties::create();
+  light::create();
   commands::create();
   description::create();
   restrictions::create();
@@ -38,6 +40,6 @@ protected void create_super() {
   set_next_reset(-1);
 }
 
-// Damit Man kann in ALLEN Standardobjekten ::reset aufrufen kann.
+// Damit man in ALLEN Standardobjekten ::reset aufrufen kann.
 void reset() {}
 

@@ -3,16 +3,10 @@
 // simul_efun.c -- simul efun's
 //
 // $Id: simul_efun.c 7408 2010-02-06 00:27:25Z Zesstra $
-
-#pragma strict_types
-#pragma no_clone
-#pragma no_shadow
-#pragma no_inherit
-#pragma verbose_errors
-#pragma combine_strings
-#pragma pedantic
-//#pragma range_check
-#pragma warn_deprecated
+#pragma strict_types,save_types,rtt_checks
+#pragma no_clone,no_shadow,no_inherit
+#pragma pedantic,range_check,warn_deprecated
+#pragma warn_empty_casts,warn_missing_return,warn_function_inconsistent
 
 // Absolute Pfade erforderlich - zum Zeitpunkt, wo der Master geladen
 // wird, sind noch keine Include-Pfade da ...
@@ -42,13 +36,12 @@
 #include "/sys/lpctypes.h"
 #include "/sys/notify_fail.h"
 #include "/sys/tls.h"
-
+#include "/sys/input_to.h"
+#include "/sys/objectinfo.h"
 
 // Include the different sub 'modules' of the simul_efun
 #include __DIR__"livings.c"
-
-#define IP_VALID_CACHE 86400 // Eintraege im IP-Name-Cache nach 24h erneuern
-#define IP_RETRY 28800            // Retry after 8 hours if name not found
+#include __DIR__"comm.c"
 
 #define TO        efun::this_object()
 #define TI        efun::this_interactive()
@@ -65,7 +58,6 @@
 string dtime(int wann);
 varargs int log_file(string file, string txt, int size_to_break);
 int query_wiz_level(mixed player);
-mixed *remove_alist(mixed key, mixed *alist);
 nomask varargs int snoop(object me, object you);
 nomask object query_snoop(object who);
 varargs string country(mixed ip, string num);
@@ -83,57 +75,41 @@ varargs string replace_personal(string str, mixed *obs, int caps);
 varargs string extract(string str, int from, int to);
 #endif
 #if !__EFUN_DEFINED__(slice_array)
-varargs mixed *slice_array(mixed *array, int from, int to);
+varargs mixed slice_array(mixed array, int from, int to);
 #endif
 #if !__EFUN_DEFINED__(member_array)
 int member_array(mixed item, mixed arraystring);
 #endif
 
-#undef SOMMERZEIT
-#ifdef SOMMERZEIT
-string ctime(int t);
-#endif
-
 mixed dtime_cache = ({-1,""});
 
-#if __BOOT_TIME__ < 1234125656
-nomask void destruct(mixed ob)
-{
-  string fname;
-  object tmp;
+#ifdef IOSTATS
+struct iostat_s {
+  string oname;
+  int time;
+  int size;
+};
+mixed saveo_stat = ({ 0,allocate(200, 0) });
+mixed restoreo_stat = ({ 0,allocate(200,0) });
+//mixed writefile_stat = ({ 0,allocate(100,(<iostat_s>)) });
+//mixed readfile_stat = ({ 0,allocate(100,(<iostat_s>)) });
+//mixed log_stat = ({ 0,allocate(100,(<iostat_s>)) });
 
-  if ( !objectp(ob) && !objectp(ob = find_object(ob)) )
-      return;
-
-  //bestimmte Objekte duerfen nicht so ohne weiteres zerstoert werden.
-  fname = object_name(ob);
-  if( member(({ "/secure/master", "/secure/simul_efun", "/obj/shut",
-       "/secure/shut", "/room/void", "/room/netztot", "/secure/errord",
-       "/secure/spare_simul_efun", "/secure/explorationmaster", }), 
-       fname ) >= 0 ) {
-    if( previous_object()!=ob && !ARCH_SECURITY || process_call() ) {
-      write("You have no permission to destruct the specified object!\n");
-      return;
-    }
+mixed ___iostats(int type) {
+  switch(type) {
+    case 1:
+      return saveo_stat;
+    case 2:
+      return restoreo_stat;
+/*    case 3:
+      return writefile_stat;
+    case 4:
+      return readfile_stat;
+    case 5:
+      return log_stat;
+      */
   }
-  
-  // Nicht-EMs sollen keine EMs zerstoeren koennen, woraufhin auch evtl.
-  // EM-Tools rumliegen koennten.
-  if ( query_once_interactive(ob) && IS_ARCH(ob) && previous_object()!=ob &&
-      (process_call() || !ARCH_SECURITY) )
-    return;
-
-  // Das Zerstoeren von Spielern wird ggf. geloggt.
-  if ( query_once_interactive(ob) && previous_object() != ob
-       && previous_object()
-       && object_name(previous_object())[0..7] != "/secure/" )
-      log_file( "PLAYERDEST",
-              sprintf( "%s: %O VERNICHTET von PO %O, TI %O, TP %O\n",
-                      dtime(time()), ob, previous_object(),
-                      this_interactive(), this_player() ) );
-
-  set_this_object(previous_object());
-  efun::destruct(ob);
+  return 0;
 }
 #endif
 
@@ -142,6 +118,7 @@ string NotifyDestruct(object caller) {
     if( (caller!=this_object() && !ARCH_SECURITY) || process_call() ) {
       return "Du darfst das simul_efun Objekt nicht zerstoeren!\n";
     }
+    return 0;
 }
 
 public nomask void remove_interactive( object ob )
@@ -224,7 +201,7 @@ static object find_snooped(object who)
   return 0;
 }
 
-private static string Lcut(string str) {
+private string Lcut(string str) {
   return str[5..11]+str[18..];
 }
 
@@ -376,6 +353,7 @@ nomask varargs int snoop( object me, object you )
             return efun::snoop(me);
         }
      }
+     return 0;
 }
 
 nomask object query_snoop(object who) {
@@ -445,6 +423,7 @@ int query_wiz_level(mixed player) {
   return (int)"/secure/master"->query_wiz_level(player);
 }
 
+#ifdef __ALISTS__
 // * Element aus Alist loeschen (by key)
 mixed *remove_alist(mixed key,mixed *alist)
 {
@@ -480,6 +459,7 @@ mixed *exclude_alist(int i,mixed *alist)
     alist[j]=alist[j][0..i-1]+alist[j][i+1..];
   return alist; /* order_alist is NOT necessary - see /doc/LPC/alist */
 }
+#endif // __ALISTS__
 
 // * German version of ctime()
 #define TAGE ({"Son","Mon","Die","Mit","Don","Fre","Sam"})
@@ -566,7 +546,7 @@ string upperstring(string s)
 #else
   int i;
   if (!stringp(s)) return 0;
-  for (i=strlen(s)-1;i>=0;i--) s[i]=((s[i]<'a'||s[i]>'z')?s[i]:s[i]-32);
+  for (i=sizeof(s)-1;i>=0;i--) s[i]=((s[i]<'a'||s[i]>'z')?s[i]:s[i]-32);
   return s;
 #endif
 }
@@ -587,15 +567,15 @@ string version()
 }
 
 // * break_string
-// stretch() -- stretch a line to fill a given width
+// stretch() -- stretch a line to fill a given width 
 private string stretch(string s, int width) {
-  int len=strlen(s);
+  int len=sizeof(s);
   if (len==width) return s;
 
   // reine Leerzeilen, direkt zurueckgeben
   string trimmed=trim(s,TRIM_LEFT," ");
   if (trimmed=="") return s; 
-  int start_spaces = len - strlen(trimmed);
+  int start_spaces = len - sizeof(trimmed);
 
   string* words = explode(trimmed, " ");
   // der letzte kriegt keine Spaces
@@ -617,17 +597,34 @@ private string stretch(string s, int width) {
 // aus Geschwindigkeitsgruenden hat der Blocksatz fuer break_string eine
 // eigene Funktion bekommen:
 private varargs string block_string(string s, int width, int flags) {
-  if (!(flags & BS_NO_PARINDENT)) {
-    if (flags & BS_LEAVE_MY_LFS)
+  // wenn BS_LEAVE_MY_LFS, aber kein BS_NO_PARINDENT, dann werden Zeilen mit
+  // einem Leerzeichen begonnen.
+  // BTW: Wenn !BS_LEAVE_MY_LFS, hat der Aufrufer bereits alle \n durch " "
+  // ersetzt.
+  if ( (flags & BS_LEAVE_MY_LFS)
+      && !(flags & BS_NO_PARINDENT))
+  {
       s = " "+regreplace(s,"\n","\n ",1);
-    else s=" "+s;
- }
+  }
 
+  // sprintf fuellt die letzte Zeile auf die Feldbreite (hier also
+  // Zeilenbreite) mit Fuellzeichen auf, wenn sie NICHT mit \n umgebrochen
+  // ist. Es wird an die letzte Zeile aber kein Zeilenumbruch angehaengt.
+  // Eigentlich ist das Auffuellen doof, aber vermutlich ist es unnoetig, es
+  // wieder rueckgaengig zu machen.
   s = sprintf( "%-*=s", width, s);
 
   string *tmp=explode(s, "\n");
-  return implode( map( tmp[0..<2], #'stretch/*'*/, width ), "\n" ) 
-    + "\n" + tmp[<1];
+  // Nur wenn s mehrzeilig ist, Blocksatz draus machen. Die letzte Zeile wird
+  // natuerlich nicht gedehnt. Sie ist dafuer schon von sprintf() aufgefuellt
+  // worden. BTW: Die letzte Zeile endet u.U. noch nicht mit einem \n (bzw.
+  // nur dann, wenn BS_LEAVE_MY_LFS und der uebergebene Text schon nen \n am
+  // Ende der letzten Zeile hat), das macht der Aufrufer...
+  if (sizeof(tmp) > 1)
+    return implode( map( tmp[0..<2], #'stretch/*'*/, width ), "\n" ) 
+      + "\n" + tmp[<1];
+
+  return s;
 }
 
 public varargs string break_string(string s, int w, mixed indent, int flags)
@@ -639,7 +636,7 @@ public varargs string break_string(string s, int w, mixed indent, int flags)
     if( intp(indent) )
        indent = indent ? " "*indent : "";
 
-    int indentlen=stringp(indent) ? strlen(indent) : 0;
+    int indentlen=stringp(indent) ? sizeof(indent) : 0;
 
     if (indentlen>w) {
       set_this_object(previous_object());
@@ -656,11 +653,11 @@ public varargs string break_string(string s, int w, mixed indent, int flags)
  
     string prefix="";
     if (indentlen && flags & BS_PREPEND_INDENT) {
-      if (indentlen+strlen(s) > w || 
+      if (indentlen+sizeof(s) > w || 
          (flags & BS_LEAVE_MY_LFS) && strstr(s,"\n")>-1) {
        prefix=indent+"\n";
        indent=(flags & BS_NO_PARINDENT) ? "" : " ";
-       indentlen=strlen(indent);
+       indentlen=sizeof(indent);
       }
     }
 
@@ -693,15 +690,9 @@ public varargs string break_string(string s, int w, mixed indent, int flags)
 
 // * Elemente aus mapping loeschen - mapping vorher kopieren
 
-mapping m_delete(mapping m, mixed key) {
-  return efun::m_delete(copy(m), key);
+mapping m_copy_delete(mapping m, mixed key) {
+  return m_delete(copy(m), key);
 }
-
-// * die Breite eines Mappings bestimmen, also die Anzahl der Values pro Key
-int m_width(mapping m) {
-  return(widthof(m));
-}
-
 
 // * times
 int last_reboot_time()
@@ -754,20 +745,11 @@ nomask void set_this_player(object pl) {
   raise_error("Available only for root\n");
 }
 
-// * actions auf den neusten Stand bringen
-public void update_actions()
-{
-  int objs;
-
-  if (environment(previous_object()))
-    previous_object()->move(environment(previous_object()),1);
-  filter(all_inventory(previous_object()),"move_inv",previous_object());
+#if __EFUN_DEFINED__(export_uid)
+nomask void export_uid(object ob) {
+  raise_error("Available only for root\n");
 }
-
-static void move_inv(object ob)
-{
-  if (living(ob)) ob->move(previous_object(),1);
-}
+#endif
 
 // * Jetzt auch closures
 int process_flag;
@@ -815,6 +797,41 @@ nomask string process_string( mixed str )
   return tmp;
 }
 
+// 'mkdir -p' - erzeugt eine komplette Hierarchie von Verzeichnissen.
+// wenn das Verzeichnis angelegt wurde oder schon existiert, wird 1
+// zurueckgeliefert, sonst 0.
+// Wirft einen Fehler, wenn das angebene Verzeichnis nicht absolut ist!
+public int mkdirp(string dir) {
+  // wenn es nur keinen fuehrenden / gibt, ist das ein Fehler.
+  if (strstr(dir, "/") != 0)
+    raise_error("mkdirp(): Pfad ist nicht absolute.\n");
+  // cut off trailing /...
+  if (dir[<1]=='/')
+      dir = dir[0..<2];
+
+  int fstat = file_size(dir);
+  // wenn es schon existiert, tun wir einfach so, als haetten wir es angelegt.
+  if (fstat == FSIZE_DIR)
+    return 1;
+  // wenn schon ne Datei existiert, geht es nicht.
+  if (fstat != FSIZE_NOFILE)
+    return 0;
+  // wenn es nur einen / gibt (den fuehrenden), dann ist es ein
+  // toplevel-verzeichnis, was direkt angelegt wird.
+  if (strrstr(dir,"/")==0) {
+    return funcall(bind_lambda(#'efun::mkdir, previous_object()), dir);
+  }
+
+  // mkdir() nicht direkt rufen, sondern vorher als closure ans aufrufende
+  // Objekt binden. Sonst laeuft die Rechtepruefung in valid_write() im Master
+  // unter der Annahme, dass die simul_efun.c mit ihrer root id was will.
+
+  // jetzt rekursiv die Verzeichnishierarchie anlegen. Wenn das erfolgreich
+  // ist, dann koennen wir jetzt mit mkdir das tiefste Verzeichnis anlegen
+  if (mkdirp(dir[0..strrstr(dir,"/")-1]) == 1)
+    return funcall(bind_lambda(#'efun::mkdir, previous_object()), dir);
+}
+
 
 // * Properties ggfs. mitspeichern
 mixed save_object(mixed name)
@@ -825,13 +842,14 @@ mixed save_object(mixed name)
   int i;
 
   // nur Strings und 0 zulassen
-  if ((!stringp(name) || !strlen(name)) && 
+  if ((!stringp(name) || !sizeof(name)) && 
       (!intp(name) || name!=0)) {
       set_this_object(previous_object());
       raise_error(sprintf(
          "Only non-empty strings and 0 may be used as filename in "
          "sefun::save_object()! Argument was %O\n",name));
   }
+
   save = m_allocate(0, 2);
   properties = (mapping)previous_object()->QueryProperties();
 
@@ -862,6 +880,23 @@ mixed save_object(mixed name)
     res = funcall(bind_lambda(#'efun::save_object, previous_object()),
        __LIB__SAVE_FORMAT_VERSION__);
   previous_object()->_set_save_data(0);
+
+#ifdef IOSTATS
+  // Stats...
+  struct iostat_s stat = (<iostat_s>);
+  stat->oname = object_name(previous_object());
+  stat->time = time();
+  //stat->size = (int)object_info(previous_object(),OINFO_MEMORY,
+  //    OIM_TOTAL_DATA_SIZE);
+  if (stringp(name))
+      stat->size = file_size(name + ".o");
+  else
+      stat->sizeof(res);
+  //debug_message("saveo: "+saveo_stat[0]+"\n");
+  saveo_stat[1][saveo_stat[0]] = stat;
+  saveo_stat[0] = (saveo_stat[0] + 1) % sizeof(saveo_stat[1]);
+  //debug_message("saveo 2: "+saveo_stat[0]+"\n");
+#endif
 
   return res;
 }
@@ -899,13 +934,28 @@ int restore_object(string name)
   else properties = ([]);
 
   // restore properties
-  (void)funcall(
-              bind_lambda(
-                         unbound_lambda(({'arg}), //'})
-                                      ({#'call_other,({#'this_object}),
-                                      "SetProperties",'arg})),//')
-                         previous_object()),properties);
+  funcall(
+          bind_lambda(
+                     unbound_lambda(({'arg}), //'})
+                                  ({#'call_other,({#'this_object}),
+                                  "SetProperties",'arg})),//')
+                     previous_object()),properties);
   previous_object()->_set_save_data(0);
+
+#ifdef IOSTATS
+  // Stats...
+  //debug_message("restoreo: "+restoreo_stat[0]+"\n");
+  struct iostat_s stat = (<iostat_s>);
+  stat->oname = object_name(previous_object());
+  stat->time = time();
+  //stat->size = (int)object_info(previous_object(),OINFO_MEMORY,
+  //    OIM_TOTAL_DATA_SIZE);
+  stat->size = file_size(name + ".o");
+  restoreo_stat[1][restoreo_stat[0]] = stat;
+
+  restoreo_stat[0] = (restoreo_stat[0] + 1) % sizeof(restoreo_stat[1]);
+#endif
+
   return result;
 }
 
@@ -943,74 +993,73 @@ mixed *wizlist_info()
 
 // * wizlist ausgeben
 varargs void wizlist(string name, int sortkey ) {
-  int i, pos, total_cmd;
-  int *cmds;
-  mixed *a;
-  mixed *b;
 
-  if (!name) {
+  if (!name)
+  {
     if (this_player())
-                     name = getuid(this_player());
+      name = getuid(this_player());
     if (!name)
       return;
   }
 
   // Schluessel darf nur in einem gueltigen Bereich sein
-  if (sortkey<=WL_NAME||sortkey>WL_EXTRA) sortkey=WL_COMMANDS;
+  if (sortkey<WL_NAME || sortkey>=WL_SIZE) sortkey=WL_COST;
 
-  a = transpose_array(wizlist_info());
+  mixed** wl = efun::wizlist_info();
+  // nach <sortkey> sortieren
+  wl = sort_array(wl, function int (mixed a, mixed b)
+      {return a[sortkey] < b[sortkey]; } );
 
-  // Sortieren der Liste nach dem sortierschluessel
-  if (sortkey==0)
+  // Summe ueber alle Kommandos ermitteln.
+  int total_cmd, i;
+  int pos=-1;
+  foreach(mixed entry : wl)
   {
-    a = order_alist(a);
-  } else {
-    cmds = a[sortkey];
-    a[sortkey] = a[0];
-    a[0] = cmds;
-    a = order_alist(a);
-    cmds = a[0];
-    a[0] = a[sortkey];
-    a[sortkey] = cmds;
+    total_cmd += entry[WL_COMMANDS];
+    if (entry[WL_NAME] == name)
+      pos = i;
+    ++i;
   }
 
-  // cmds wurde missbraucht - wieder zuruecksetzen
-  cmds = a[WL_COMMANDS];
-
-  if ((pos = member(a[WL_NAME], name)) < 0 && name != "ALL")
+  if (pos < 0 && name != "ALL" && name != "TOP100")
     return;
-  b = allocate(sizeof(cmds));
-  for (i = sizeof(cmds); i;) {
-    b[<i] = i;
-    total_cmd += cmds[--i];
+
+  if (name == "TOP100")
+  {
+    if (sizeof(wl) > 100)
+      wl = wl[0..100];
+    else
+      wl = wl;
   }
-  a = transpose_array(a + ({b}) );
-  if (name != "ALL") {
-    if (pos + 18 < sizeof(cmds)) {
-      a = a[pos-2..pos+2]+a[<15..];
-    } else if (pos < sizeof(cmds) - 13) {
-      a = a[pos-2..];
-    } else {
-      a = a[<15..];
-    }
+  // um name herum schneiden
+  else if (name != "ALL")
+  {
+    if (sizeof(wl) <= 21)
+      wl = wl;
+    else if (pos + 10 < sizeof(wl) && pos - 10 > 0)
+      wl = wl[pos-10..pos+10];
+    else if (pos <=21)
+      wl = wl[0..20];
+    else if (pos >= sizeof(wl) - 21)
+      wl = wl[<21..];
+    else
+      wl = wl;
   }
+
   write("\nWizard top score list\n\n");
   if (total_cmd == 0)
     total_cmd = 1;
-  for (i = sizeof(a); i; ) {
-    b = a[<i--];
-    printf("%-20s %6d %2d%% %6s [%6dk,%6d] %6d %d\n",
-          b[WL_NAME], b[WL_COMMANDS], b[WL_COMMANDS] * 100 / total_cmd,
-     "("+(string)b[<1]+")", b[WL_TOTAL_COST] / 1000,
-          b[WL_HEART_BEATS], b[WL_EXTRA], b[WL_ARRAY_TOTAL]
+  printf("%-20s %-6s %-3s %-17s %-6s %-6s %-6s\n",
+         "EUID", "cmds", "%", "Costs", "HB", "Arrays","Mapp.");
+  foreach(mixed e: wl)
+  {
+    printf("%-:20s %:6d %:2d%% [%:6dk,%:6dG] %:6d %:6d %:6d\n",
+          e[WL_NAME], e[WL_COMMANDS], e[WL_COMMANDS] * 100 / total_cmd,
+          e[WL_COST] / 1000, e[WL_TOTAL_GIGACOST],
+          e[WL_HEART_BEATS], e[WL_ARRAY_TOTAL], e[WL_MAPPING_TOTAL]
           );
   }
-  printf("\nTotal         %7d         (%d)\n\n", total_cmd, sizeof(cmds));
-}
-
-static int _cost_sort(mixed *a, mixed *b)
-{
-  return a[WL_TOTAL_COST]<b[WL_TOTAL_COST];
+  printf("\nTotal         %7d         (%d)\n\n", total_cmd, sizeof(wl));
 }
 
 #ifndef TESTMUD
@@ -1068,7 +1117,7 @@ protected int _too_many( mixed key, mapping m, int i ) {
 // alle Objekte in obs zerstoeren und Fehlermeldung ausgeben. ACHTUNG: Die
 // Objekte werden idR zu einer BP gehoeren, muessen aber nicht! In dem Fall
 // wird auf der Ebene aber nur ein Objekt in der Fehlermeldung erwaehnt.
-protected void _destroy( string key, object *obs, string text, int uid ) {
+protected void _destroy( mixed key, object *obs, string text, int uid ) {
     if (!pointerp(obs)) return;
     // Array mit unique Eintraege erzeugen.
     obs = m_indices( mkmapping(obs) );
@@ -1078,7 +1127,7 @@ protected void _destroy( string key, object *obs, string text, int uid ) {
     // laeuft.
     catch( efun::raise_error(           
          sprintf( text,                   
-           uid ? (string)"/secure/master"->creator_file(key) : key,                   
+           uid ? (string)master()->creator_file(key) : key,                   
            sizeof(obs), object_name(obs[<1]) ) );publish);
     // Und weg mit dem Kram...
     filter( obs, #'efun::destruct/*'*/ );
@@ -1302,54 +1351,11 @@ varargs void move_object(mixed what, mixed where)
       //
       // Tiamak
     tmp->_set_last_content_change();
-  (void)funcall(bind_lambda(#'efun::move_object,po),what,where);
+  funcall(bind_lambda(#'efun::move_object,po),what,where);
   if (tmp=what)
     while (tmp=environment(tmp))
       tmp->_set_last_content_change();
 }
-
-// * additional message handling
-private int living_or_interactive(object o)
-{
-  return (living(o) || query_once_interactive(o));
-}
-
-static int _shout_filter( object ob, string pat )
-{
-    string *ignore;
-
-    if ( !environment(ob) )
-       return 0;
-
-    // shout may be ignored
-    if ( member(ob->QueryProp(P_IGNORE)||({}),"shout")!=-1)
-           return 0;
-
-    return sizeof( regexp( ({ object_name( environment(ob) ) }), pat ) );
-}
-
-varargs void shout( string s, mixed where ){
-    object *u;
-    string *pfade;
-
-    if ( !sizeof( u = users() - ({ this_player(), 0 }) ) )
-       return;
-
-    if ( !where )
-       pfade = ({ "/" });
-    else if ( intp(where) )
-       pfade =
-           ({ implode( efun::explode( object_name( environment(this_player()) ),
-                                   "/" )[0..2], "/" ) + "/" });
-    else if ( stringp(where) )
-       pfade = ({ where });
-    else
-       pfade = where;
-
-    filter( filter( u, "_shout_filter", ME, implode( pfade, "|" ) ),
-                #'tell_object/*'*/, to_string(s) );
-}
-
 
 
 void start_simul_efun() {
@@ -1364,63 +1370,10 @@ void start_simul_efun() {
   set_next_reset(10); // direkt mal aufraeumen
 }
 
-void __clear_ip_map()
-{
-}
-
 protected void reset() {
   set_next_reset(7200);
   CleanLivingData();
 }
-
-//TODO: nach Reboot die beiden da entfernen.
-#if __BOOT_TIME__ < 1233606680
-#if __EFUN_DEFINED__(send_udp)
-int send_udp(string host, int port, string message) {
-  return efun::send_udp(host,port,message);
-}
-#endif
-
-#if __EFUN_DEFINED__(send_erq)
-void cindent(string name)
-{
-    string valid;
-
-    valid = funcall(
-      bind_lambda(#'call_other, previous_object()),
-      __MASTER_OBJECT__,
-      "valid_write",
-      name,
-#if __EFUN_DEFINED__(geteuid)
-      geteuid(previous_object()),
-#else
-      0,
-#endif
-      "cindent", previous_object()
-    );
-    if (valid)
-      send_erq(ERQ_FORK, "indent_wrapper " + (stringp(valid) ? valid : name));
-}
-#else
-void cindent(string name)
-{
-  set_this_object(previous_object());
-  raise_error("Sorry, no CINDENT available.\n");
-}
-#endif
-#endif //__BOOT_TIME__
-
-#if !__EFUN_DEFINED__(query_comm_stat)
-mixed *query_comm_stat()
-{
-  return ({0,0});
-}
-#endif
-
-#if !__EFUN_DEFINED__(set_next_reset)
-void set_next_reset(int time)
-{    }
-#endif
 
 #if !__EFUN_DEFINED__(absolute_hb_count)
 int absolute_hb_count() {
@@ -1526,6 +1479,11 @@ nomask void swap(object obj)
 
 nomask varargs void garbage_collection(string str)
 {
+#if __BOOT_TIME__ < 1423255563
+  write("Der GC hat diese UPtime einen Fehler und darf nicht \n"
+        "werden (ausser der Driver ruft ihn automatisch).\n");
+  return;
+#else
   if(previous_object()==0 || !IS_ARCH(geteuid(previous_object())) 
       || !ARCH_SECURITY)
   {
@@ -1538,6 +1496,7 @@ nomask varargs void garbage_collection(string str)
   }
   else 
     return efun::garbage_collection();
+#endif
 }
 
 varargs void notify_fail(mixed nf, int prio) {
@@ -1627,20 +1586,21 @@ public void unshadow() {
 }
 
 
-string time2string( string format, int time )
+string time2string( string format, int zeit )
 {
-  int days,hours,mins,secs,i,ch,max,abbr,dummy;
+  int i,ch,maxunit,dummy;
   string *parts, fmt;
 
-  secs = time;
-  mins = (time/60);
-  hours = (time/3600);
-  days = (time/86400);
-  abbr = 0;
+  int secs = zeit;
+  int mins = (zeit/60);
+  int hours = (zeit/3600);
+  int days = (zeit/86400);
+  int weeks =  (zeit/604800);
+  int months = (zeit/2419200);
+  int abbr = 0;
 
-  parts = regexplode( format, "\(%\(-|\)[0-9]*[dhmsxDHMSX]\)|\(%%\)" );
+  parts = regexplode( format, "\(%\(-|\)[0-9]*[nwdhmsxNWDHMSX]\)|\(%%\)" );
 
-  max = 0;
   for( i=1; i<sizeof(parts); i+=2 )
   {
     ch = parts[i][<1];
@@ -1649,20 +1609,28 @@ string time2string( string format, int time )
     case 'x': case 'X':
        abbr = sscanf( parts[i], "%%%d", dummy ) && dummy==0;
        // NO break !
+    case 'n': case 'N':
+       maxunit |= 31;
+       break;
+    case 'w': case 'W':
+       maxunit |= 15;
+       break;
     case 'd': case 'D':
-       max |= 7;
+       maxunit |= 7;
        break;
     case 'h': case 'H':
-       max |= 3;
+       maxunit |= 3;
        break;
     case 'm': case 'M':
-       max |= 1;
+       maxunit |= 1;
        break;
     }
   }
-  if( max & 4 ) hours %= 24;
-  if( max & 2 ) mins %= 60;
-  if( max ) secs %= 60;
+  if( maxunit & 16 ) weeks %= 4;
+  if( maxunit & 8 ) days %= 7;
+  if( maxunit & 4 ) hours %= 24;
+  if( maxunit & 2 ) mins %= 60;
+  if( maxunit ) secs %= 60;
 
   for( i=1; i<sizeof(parts); i+=2 )
   {
@@ -1670,19 +1638,39 @@ string time2string( string format, int time )
     ch = parts[i][<1];
     if( ch=='x' )
     {
-      if( days>0 ) ch='d';
-      else if( hours>0 ) ch='h'; else ch = (mins>0) ? 'm' : 's';
-    } else if( ch=='X' )
-    {
-      if( days>0 ) ch='D';
-      else if( hours>0 ) ch='H'; else ch = (mins>0) ? 'M' : 'S';
+      if (months > 0) ch='n';
+      else if( weeks>0 ) ch='w';
+      else if( days>0 ) ch='d';
+      else if( hours>0 ) ch='h'; 
+      else if(mins > 0) ch = 'm';
+      else ch = 's';
     }
+    else if( ch=='X' )
+    {
+      if (months > 0) ch='N';
+      else if( weeks>0 ) ch='W';
+      else if( days>0 ) ch='D';
+      else if( hours>0 ) ch='H'; 
+      else if(mins > 0) ch = 'M';
+      else ch = 'S';
+    }
+    
     switch( ch )
     {
+      case 'n': parts[i] = sprintf( fmt+"d", months ); break;
+      case 'w': parts[i] = sprintf( fmt+"d", weeks ); break;
       case 'd': parts[i] = sprintf( fmt+"d", days ); break;
       case 'h': parts[i] = sprintf( fmt+"d", hours ); break;
       case 'm': parts[i] = sprintf( fmt+"d", mins ); break;
       case 's': parts[i] = sprintf( fmt+"d", secs ); break;
+      case 'N':
+       if(abbr) parts[i] = "M";
+       else parts[i] = sprintf( fmt+"s", (months==1) ? "Monat" : "Monate" );
+       break;
+      case 'W':
+       if(abbr) parts[i] = "w"; else
+       parts[i] = sprintf( fmt+"s", (weeks==1) ? "Woche" : "Wochen" );
+       break;
       case 'D':
        if(abbr) parts[i] = "d"; else
        parts[i] = sprintf( fmt+"s", (days==1) ? "Tag" : "Tage" );
@@ -1714,18 +1702,15 @@ nomask varargs int query_ip_port(object pl)
 }
 #endif
 
-nomask mixed debug_info(int flag, varargs int * args) {
+#if __BOOT_TIME__ < 1399061476
+// TODO: sefun eigentlich voellig unnuetz so. -> entfernen nach Reboot
+nomask mixed debug_info(int flag, varargs mixed args) {
 
 //  if ( (flag == 2) &&
 //       (!this_player() || !IS_ARCH(this_player()) || process_call()) ) return;
 
   set_this_object(previous_object());
   return(apply(#'efun::debug_info,flag, args));
-}
-
-#ifdef SOMMERZEIT
-string ctime(int t) {
-       return efun::ctime(t);
 }
 #endif
 
@@ -1783,32 +1768,38 @@ nomask string secure_euid()
   return euid; // 'sichere' euid zurueckgeben
 }
 
-varargs void input_to( mixed fun, int onoff, varargs mixed *args )
+// INPUT_PROMPT und nen Leerprompt hinzufuegen, wenn keins uebergeben wird.
+// Das soll dazu dienen, dass alle ggf. ein EOR am Promptende kriegen...
+//#if __BOOT_TIME__ < 1360017213
+varargs void input_to( mixed fun, int flags, varargs mixed *args )
 {
     mixed *arr;
-    mapping TN;
     int i;
 
     if ( !this_player() || !previous_object() )
        return;
 
-    arr = ({ fun, onoff }) + args;
+    // TODO: input_to(...,INPUT_PROMPT, "", ...), wenn kein INPUT_PROMPT
+    // vorkommt...
+    if ( flags&INPUT_PROMPT ) {    
+        arr = ({ fun, flags }) + args;
+    }
+    else {
+        // ggf. ein INPUT_PROMPT hinzufuegen und nen Leerstring als Prompt.
+        flags |= INPUT_PROMPT;
+        arr = ({ fun, flags, "" }) + args;
+    }
 
+    // Arrays gegen flatten quoten.
     for ( i = sizeof(arr) - 1; i > 1; i-- )
        if ( pointerp(arr[i]) )
            arr[i] = quote(arr[i]);
 
-    TN = (mapping) this_player()->query_telnet_neg();
-
-    if ( mappingp(TN) && mappingp(TN["received"]) &&
-        (TN["received"][TELOPT_EOR,1] == DO) )
-       funcall( bind_lambda( #'efun::binary_message/*'*/, this_player() ),
-               ({ IAC, EOR }) );
-
-    funcall( bind_lambda( unbound_lambda( ({}),
+    apply( bind_lambda( unbound_lambda( ({}),
                                      ({ #'efun::input_to/*'*/ }) + arr ),
                        previous_object() ) );
 }
+//#endif
 
 nomask int set_light(int i)
 // erhoeht das Lichtlevel eines Objekts um i
@@ -1829,7 +1820,7 @@ nomask int set_light(int i)
 
 public string iso2ascii( string str )
 {
-    if ( !stringp(str) || !strlen(str) )
+    if ( !stringp(str) || !sizeof(str) )
        return "";
 
     str = regreplace( str, "ä", "ae", 1 );
@@ -1889,7 +1880,7 @@ nomask int copy_file(string source, string dest)
   string bytes;
 
   set_this_object(previous_object());
-  if (!strlen(source)||!strlen(dest)||source==dest||(file_size(source)==-1)||
+  if (!sizeof(source)||!sizeof(dest)||source==dest||(file_size(source)==-1)||
       (!call_other(master(),"valid_read",source,
                    getuid(this_interactive()||
                  previous_object()),"read_file",previous_object()))||
@@ -1916,7 +1907,7 @@ nomask int copy_file(string source, string dest)
     if (!bytes) bytes="";
     write_file(dest, bytes);
   }
-  while(strlen(bytes) == MAXLEN);
+  while(sizeof(bytes) == MAXLEN);
   return 0;
 }
 #endif //!__EFUN_DEFINED__(copy_file)
@@ -2033,7 +2024,7 @@ varargs string replace_personal(string str, mixed *obs, int caps) {
 
 //replacements for dropped efuns in LD
 #if !__EFUN_DEFINED__(extract)
-varargs string extract(string str, int from, int to) {
+deprecated varargs string extract(string str, int from, int to) {
 
   if(!stringp(str)) {
     set_this_object(previous_object());
@@ -2062,7 +2053,7 @@ varargs string extract(string str, int from, int to) {
 #endif // !__EFUN_DEFINED__(extract)
 
 #if !__EFUN_DEFINED__(slice_array)
-varargs mixed *slice_array(mixed array, int from, int to) {
+deprecated varargs mixed slice_array(mixed array, int from, int to) {
 
   if(!pointerp(array)) {
     set_this_object(previous_object());
@@ -2091,7 +2082,7 @@ varargs mixed *slice_array(mixed array, int from, int to) {
 #endif // !__EFUN_DEFINED__(slice_array)
 
 #if !__EFUN_DEFINED__(member_array)
-int member_array(mixed item, mixed arraystring) {
+deprecated int member_array(mixed item, mixed arraystring) {
 
   if (pointerp(arraystring)) {
     return(efun::member(arraystring,item));
@@ -2111,7 +2102,7 @@ string count_table =
     "0112122312232334122323342334344512232334233434452334344534454556";
 int broken_count_bits( string s ) {
     int i, res;
-    if( !stringp(s) || !(i=strlen(s)) ) return 0;
+    if( !stringp(s) || !(i=sizeof(s)) ) return 0;
     for( ; i-->0; ) {
         // We are counting 6 bits at a time using a precompiled table.
         res += count_table[(s[i]-' ')&63]-'0';
@@ -2127,7 +2118,7 @@ int count_bits( string s ) {
 
 
 // * Teile aus einem Array entfernen *** OBSOLETE
-mixed *exclude_array(mixed *arr,int from,int to)
+deprecated mixed *exclude_array(mixed *arr,int from,int to)
 {
   if (to<from)
     to = from;
@@ -2135,7 +2126,7 @@ mixed *exclude_array(mixed *arr,int from,int to)
 }
 
 #if __EFUN_DEFINED__(hash)
-string md5(mixed arg, varargs mixed* iterations)
+deprecated string md5(mixed arg, varargs mixed* iterations)
 {
     if (extern_call())
          set_this_object(previous_object());
@@ -2143,70 +2134,4 @@ string md5(mixed arg, varargs mixed* iterations)
     return hash(TLS_HASH_MD5, arg, iterations...);
 }
 #endif //__EFUN_DEFINED__(hash)
-
-
-#if __VERSION__ > "3.3.718"
-// This sefun replaces the deprecated efun cat().
-#define CAT_MAX_LINES 50
-varargs int cat(string file, int start, int num)
-{
-    if (extern_call())
-        set_this_object(previous_object());
-
-    int more;
-
-    if (num < 0 || !this_player())
-        return 0;
-
-    if (!start)
-        start = 1;
-
-    if (!num || num > CAT_MAX_LINES) {
-        num = CAT_MAX_LINES;
-        more = strlen(read_file(file, start+num, 1));
-    }
-
-    string txt = read_file(file, start, num);
-    if (!txt)
-        return 0;
-
-    tell_object(this_player(), txt);
-
-    if (more)
-        tell_object(this_player(), "*****TRUNCATED****\n");
-
-    return strlen(txt & "\n");
-}
-#undef CAT_MAX_LINES
-#endif // __VERSION__ > "3.3.718"
-
-#if __VERSION__ > "3.3.719"
-// This sefun replaces the deprecated efun tail().
-#define TAIL_MAX_BYTES 1000
-varargs int tail(string file)
-{
-    if (extern_call())
-        set_this_object(previous_object());
-
-    if (!stringp(file) || !this_player())
-        return 0;
-    string txt = read_bytes(file, -(TAIL_MAX_BYTES + 80), (TAIL_MAX_BYTES + 80));
-    if (!stringp(txt))
-        return 0;
-
-    // cut off first (incomplete) line
-    int index = strstr(txt, "\n");
-    if (index > -1) {
-        if (index + 1 < strlen(txt))
-            txt = txt[index+1..];
-        else
-            txt = "";
-    }
-
-    tell_object(this_player(), txt);
-
-    return 1;
-}
-#undef TAIL_MAX_BYTES
-#endif // __VERSION__ > "3.3.719"
 

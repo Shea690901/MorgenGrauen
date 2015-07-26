@@ -1,7 +1,7 @@
 PreventLeaveLiving()
 
 FUNKTION:
-     varargs int PreventLeaveLiving(object ob, mixed dest);
+     int PreventLeaveLiving(object ob, mixed dest);
 
 DEFINIERT IN:
      /std/container/restrictions.c

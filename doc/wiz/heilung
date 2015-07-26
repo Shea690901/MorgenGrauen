@@ -141,82 +141,6 @@ zustaendigen Magier fuer Heilungs-Balance gemeldet und von diesem genehmigt
 werden. Wer diesen Posten momentan innehat, kann dem MailAlias
 "heilungs_balance" entnommen werden.
 
-Heilungsantragsvorlagen:
------------------------
-
-Schoen waere es, wenn ihr fuer Heilungsobjekte diese Antragsvorlagen fuer
-euren Antrag nutzen wuerdet. Ihr wuerdet mir Arbeit ersparen und eurem
-Antrag etwas auf die Spruenge helfen. Vielen Dank!
-
-Fuer mobile Heilung:
-*#*#*#*#*#*#*#*#*#*
-
-* <objektname> (<gegend>, <magier>): <objektpfad>
-  ---------------------------------
-  Raumpfad:  <raumpfad>
-  Befehl:    <befehl, mit dem man das objekt bekommt> (<kosten>)
-  Reset:     <normal|schneller|langsamer als der normale raumreset>
-
-  Anzahl:      <wieviel objekte man pro reset bekommt>
-  Heilung:     <heilung pro objekt> LP/MP
-  Anzahl/Obj:  <anzahl der heilungen pro objekt>
-  P_FOOD/DRNK: <punkte, um wieviel P_FOOD hochgesetzt wird>
-  Resetzeiten: <resetzeiten, bevor das objekt verfault>
-
-  Bemerkungen: <persoenlichen bemerkungen zu diesem objekt
-               z. Bsp. erreichbarkeit, besonderheiten, tragebeschraenkungen>
-
-*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-
-Fuer stationaere Heilung/Enttanken:
-*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#
-
-* <gegend>, <magier>: <raumpfad>
-  ------------------
-  Befehl:    <befehl, mit dem man tanken/enttanken kann> (<kosten>)
-  Reset:     <normal|schneller|langsamer>
-
-  Anzahl:      <wieviel tank/enttank-moeglichkeiten man pro reset bekommt>
-  Heilung:     <heilung pro befehl>
-  P_FOOD/DRNK: <punkte, um wieviel P_FOOD/P_DRINK hochgesetzt wird>
-  Resetzeiten: <resetzeiten, bevor man das naechste mal tanken/enttanken kann>
-
-  Bemerkungen: <persoenlichen bemerkungen zu dieser tank-/enttankstelle:
-               z. Bsp. erreichbarkeit, voraussetzungen zum tanken/enttanken>
-
-*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-
-Fuer Heiler, Schamanen, etc.:
-*#*#*#*#*#*#*#*#*#*#*#*#*#*#
-
-* <gegend>, <magier>: <raumpfad>
-  ------------------
-  Befehl: <befehl, mit dem man eine auflistung der heilmoeglichkeiten bekommt,
-          oder mit dem man geheilt wird>
-
-  Heilungen:   <heilungsmoeglichkeiten, was sie kosten, verzoegerungen beim
-               heilen, ob P_FOOD gesetzt wird, ob buffer_* genutzt wird und
-               ob sie spielerwerte-abhaengig sind.
-
-               beispiel:
-
-               LP/MP(150)   P_FOOD:5   buffer:-   10:3K; 50:5K; 100:10K
-
-               heisst im klartext:
-               LP und MP werden auf befehl je 150 punkte geheilt, wenn der
-               spieler mit level 10 3000 muenzen, der spieler mit level 50
-               5000 muenzen und der spieler mit level 100 10000 muenzen
-               zahlt. dabei werden dem spieler 5 food-punkte verabreicht.
-               die heilung geschieht instant (ohne buffer_*).
-
-               (beim geld reichen ungefaehre werte. im code sollten sie
-               genau aufgeschluesselt und nachvollziehbar zu lesen sein!)
-               gutes beispiel: /d/dschungel/paracelsus/room/heiler.c>
-
-  Bemerkungen: <persoenlichen bemerkungen zu diesem heiler:
-               z. Bsp. erreichbarkeit, voraussetzungen zum heilen, gibt es
-               nachwirkungen?>
-
 Siehe auch:
 ----------
      eat_food, drink_alcohol, drink_soft, heal_self, restore_spell_points,
@@ -225,4 +149,5 @@ Siehe auch:
      reduce_alcohol, P_DRINK, P_FOOD, P_ALCOHOL, P_LAST_XP, food
 
 ----------------------------------------------------------------------------
-Last modified: Fre Oct 29 09:00:00 2003 by Gabylon
+17.09.2010, Zesstra
+

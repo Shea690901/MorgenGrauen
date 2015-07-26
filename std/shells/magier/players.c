@@ -2,7 +2,7 @@
 //
 // players.c
 //
-// $Id: players.c 7358 2010-01-06 20:48:40Z Zesstra $
+// $Id: players.c 9207 2015-05-10 19:14:37Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma range_check
@@ -21,7 +21,7 @@
 #include <properties.h>
 #include <moving.h>
 
-static mixed *_query_localcmds()
+static mixed _query_localcmds()
 {
   return ({({"zap","_zap",0,WIZARD_LVL}),
            ({"verfolge","_verfolge",0,LEARNER_LVL}),
@@ -116,7 +116,7 @@ static int _verfolge(string str)
   mixed *pur, lv;
   object lv2;
 
-  if (!strlen(str))
+  if (!sizeof(str))
   {
     if (!pointerp(pur=Query(P_PURSUERS)))
       return notify_fail("Du verfolgst doch ueberhaupt niemanden.\n"),0;
@@ -155,7 +155,7 @@ static int _trans(string str)
 {
   object living;
 
-  if (!strlen(str))
+  if (!sizeof(str))
     return _notify_fail("Syntax: trans <spielername>\n"),0;
   str=match_living(str,0);
   if (intp(str))
@@ -247,8 +247,9 @@ static int _pwho()
 #else
   spieler = filter(users(),(: return !IS_LEARNER($1); :));
 #endif
-  spieler = order_alist(
-           ({map_objects(spieler,"QueryProp",P_LEVEL),spieler}))[1];
+  spieler = sort_array(spieler, function int (object a, object b)
+      { return a->QueryProp(P_LEVEL) > b->QueryProp(P_LEVEL); } );
+  
   res = "Lvl Name         Erfahrung   QP  Int Str Dex Con WC   "
     "AC   HANDS HP  (max)\n"
     "--------------------------------------------------------------"
@@ -343,7 +344,7 @@ static int _heile(string name)
 //############################## PEOPLE #################################
 //                             ##########
 
-private static string _people_filename(object obj)
+private string _people_filename(object obj)
 {
   string str;
   str=object_name(environment(obj));
@@ -443,7 +444,7 @@ static int _spieler(string arg)
   int i;
   
   arg=_unparsed_args();
-  if(!strlen(arg) || sscanf(arg,"aus ip %s",dummy)!=1)
+  if(!sizeof(arg) || sscanf(arg,"aus ip %s",dummy)!=1)
     return USAGE("spieler aus ip [von <spieler>|<ip>]");
   arg=dummy;
   if (sscanf(arg,"von %s",dummy)==1)

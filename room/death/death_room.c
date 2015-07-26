@@ -2,7 +2,7 @@
 //
 // death_room.c -- Der Todesraum
 //
-// $Id: death_room.c 7314 2009-09-28 13:28:14Z Zesstra $
+// $Id: death_room.c 9138 2015-02-03 21:46:56Z Zesstra $
 
 
 #pragma strict_types
@@ -21,15 +21,14 @@ mixed *players;
 mapping msgCache;
 
 
-private static void flush( int unusedOnly );
-private static string expand( string table, int value );
-private static string parseText( string msg, object pl );
-private static void do_remove();
-private static varargs mixed get_sequence( string str );
+private void flush( int unusedOnly );
+private string expand( string table, int value );
+private string parseText( string msg, object pl );
+private void do_remove();
+private varargs mixed get_sequence( string str );
 void add_player( object pl );
 static int filter_ldfied( string str );
 public int SmartLog( string creat, string myname, string str, string date );
-private static void wech_damit( object ob );
 public mixed hier_geblieben( mixed dest, int methods, string direction,
                              string textout, string textin );
 public void init()
@@ -51,6 +50,7 @@ public void create()
     SetProp( P_GENDER, MALE );
     SetProp( P_ARTICLE, 0 );
     SetProp( P_LIGHT,1 );
+    SetProp( P_NO_TPORT, NO_TPORT_OUT );
     SetProp( P_LOG_FILE, "TOD/Todesraum" );
     SetProp( P_INT_SHORT, "Arbeitszimmer des Todes" );
     SetProp( P_INT_LONG, break_string(
@@ -71,7 +71,7 @@ public void reset()
     flush(1);
 }
 
-private static void flush( int unusedOnly )
+private void flush( int unusedOnly )
 {
     string *mi;
     int i;
@@ -82,7 +82,7 @@ private static void flush( int unusedOnly )
                 if ( msgCache[mi[i], 1] )
                     msgCache[mi[i], 1] = 0;
                 else
-                    msgCache = m_delete( msgCache, mi[i] );
+                    msgCache = m_copy_delete( msgCache, mi[i] );
         }
     }
     else
@@ -90,7 +90,7 @@ private static void flush( int unusedOnly )
 }
 
 
-private static string expand( string table, int value )
+private string expand( string table, int value )
 {
     int sz, wert, i;
     string *texte;
@@ -117,19 +117,18 @@ private static string expand( string table, int value )
 #define POP(s)	(s=s[0..<2])
 
 // ziemlich vom htmld abgekupfert ;)
-private static string
+private string
 parseText( string msg, object pl ) 
 {
-  string *words, *texte, *todo, *done, tmp, cmd;
-  int i, k, sz;
+  string *words, *texte, *todo, *done;
   int endFlag;
 
-  sz = sizeof( words = regexplode(msg, "[<][^>]*[>]") );
+  int sz = sizeof( words = regexplode(msg, "[<][^>]*[>]") );
   todo = ({ });
   done = ({""});
 
-  for ( i=1; i<sz; i+=2 ){
-      cmd = words[i][1..<2];
+  for ( int i=1; i<sz; i+=2 ){
+      string cmd = words[i][1..<2];
       TOS(done) += words[i-1];
 
       if ( cmd[0] == '/' ){
@@ -196,7 +195,7 @@ parseText( string msg, object pl )
                       wert=0;
                       cnt=0;
                       
-                      for ( k = 1; k < sz2; k += 2 ){
+                      for ( int k = 1; k < sz2; k += 2 ){
                           sscanf( texte[k], "%d", wert );
                           cnt += wert;
                           if ( rnd < cnt ) {
@@ -252,7 +251,7 @@ parseText( string msg, object pl )
           break;
 
       case 'N': /*** Name, in Grossbuchstaben ***/
-          TOS(done) += (string) upperstring(pl->name(RAW));
+          TOS(done) += upperstring(pl->name(RAW));
           break;
       }
   }
@@ -263,12 +262,7 @@ parseText( string msg, object pl )
 
 public void heart_beat()
 {
-    int j, nr;
-    string msg;
-
-    j=0;
-
-    for ( j = sizeof(players); j--; )
+    for ( int j = sizeof(players); j--; )
         if ( !objectp(players[j][0]) ||
              environment(players[j][0]) != 
 	     find_object("/room/death/virtual/death_room_"+getuid(players[j][0])) )
@@ -281,7 +275,10 @@ public void heart_beat()
         return;
     }
 
-  for ( j = sizeof(players); j--; ){
+  for ( int j = sizeof(players); j--; ) {
+      int nr;
+      string msg;
+
       nr = ++players[j][1];
 
       if ( mappingp(players[j][2]) )
@@ -299,14 +296,14 @@ public void heart_beat()
   do_remove();
 }
 
-private static void
+private void
 do_remove()
 {
-    int j, res;
+    int res;
     string prayroom;
     object plobj, pl;
     
-    for ( j = sizeof(players); j--; ){
+    for ( int j = sizeof(players); j--; ){
         if ( players[j][1] >= players[j][3][0]){
             pl = players[j][0];
             while ( plobj = present("\ndeath_mark", pl) )
@@ -320,6 +317,7 @@ do_remove()
             pl->Set( P_LAST_KILLER, 0 );
             pl->Set( P_KILLER, 0 );
             pl->Set( P_ENEMY_DEATH_SEQUENCE, 0 );
+            pl->Set( P_NEXT_DEATH_SEQUENCE, 0 );
             pl->Set( P_POISON, 0, F_QUERY_METHOD );
             
             if ( catch( res = (int) pl->move(prayroom, M_GO|M_SILENT|M_NOCHECK) )
@@ -336,19 +334,18 @@ do_remove()
         set_heart_beat(0);
 }
 
-private static varargs mixed
+private varargs mixed
 get_sequence( string str )
 {
-    string *sequences, seq;
+    string *sequences;
     int i, len, cacheable;
-    mapping m;
     
     if ( !stringp(str) || catch( len = file_size(str) ) || len <= 0 ){
         sequences = get_dir( "/room/death/sequences/*" ) - ({ ".", "..", ".svn" });
         str = "/room/death/sequences/" + sequences[random( sizeof(sequences) )];
     }
 
-    if ( cacheable = ((strlen(str) > 21) &&
+    if ( cacheable = ((sizeof(str) > 21) &&
                       (str[0..21] == "/room/death/sequences/")) ){
         if ( member(msgCache, str) ){
             msgCache[str, 1] = 1;  // Touch it!
@@ -358,9 +355,9 @@ get_sequence( string str )
     
     sequences = explode( read_file(str), "\n" );
     sscanf( sequences[0], "%d", len );
-    seq = implode( sequences[1..], "\n" );
+    string seq = implode( sequences[1..], "\n" );
     sequences = regexplode( seq, "[0-9][0-9]*:" );
-    m = ([]);
+    mapping m = ([]);
     
     for ( i = 1; i < sizeof(sequences)-1; i += 2 )
         m[(int) sequences[i]] = sequences[i+1];
@@ -371,27 +368,22 @@ get_sequence( string str )
     return ({ ({ len, m }), str });
 }
 
-void add_player( object pl )
-  {
 // Description:   Adds a player to the list
-    int i, kart, kgen;
-    int escaped,magiertestie;
-    object pre, kill_liv, kill_ob;
+void add_player( object pl )
+{
+    int kart, kgen;
+    int escaped;
+    object kill_liv, kill_ob;
     mixed dseq, act_seq, killer_name, killer_msg;
-    string fn, kanal,testplayer;
  
     set_heart_beat(1);
-    kill_liv = 0;
-    kill_ob = 0;
-    dseq = 0;
-    kart = 0;
     kgen = MALE;
 
-    foreach(pre : caller_stack(1)) { 
-        if ( !objectp(pre) || pre == pl )
+    foreach(object prev : caller_stack(1)) { 
+        if ( !objectp(prev) || prev == pl )
             continue;
 
-        fn = object_name(pre);
+        string fn = object_name(prev);
 
         if ( fn[0..12] == "/secure/login" && !kill_liv ){
             escaped = 1;
@@ -404,15 +396,16 @@ void add_player( object pl )
         if ( fn[0..21] == "/room/death/death_mark" )
             continue;
 
-        if ( living(pre) ){
-            kill_liv = pre; // Killer
+        if ( living(prev) ){
+            kill_liv = prev; // Killer
             break;
         }
 
-        kill_ob = pre; // killendes Objekt
+        kill_ob = prev; // killendes Objekt
     }
 
-    if ( objectp( pre = ((object) pl->QueryProp(P_KILLER)) ) ){
+    object pre = (object) pl->QueryProp(P_KILLER);
+    if ( objectp(pre) ) {
         dseq = (mixed) pre->QueryProp(P_ENEMY_DEATH_SEQUENCE);
 
         if( !(killer_name = (mixed) pre->QueryProp(P_KILL_NAME)) ){
@@ -448,7 +441,11 @@ void add_player( object pl )
 
         killer_msg = (mixed) kill_ob->QueryProp(P_KILL_MSG);
         pre = kill_ob;
-   }
+    }
+    
+    // falls keine Sequenz gesetzt, eventuelle eigene Todessequenz nehmen
+    if (!dseq)
+      dseq = (mixed)pl->QueryProp(P_NEXT_DEATH_SEQUENCE);
 
     act_seq = 0;
 
@@ -476,6 +473,7 @@ void add_player( object pl )
     if ( !mappingp(dseq) )
         dseq = 0;
 
+    int i;
     for ( i = sizeof(players); i--; )
         if ( players[i][0] == pl )
             break;
@@ -517,21 +515,20 @@ void add_player( object pl )
         SetProp( P_NAME, killer_name );
         SetProp( P_ARTICLE, kart );
         SetProp( P_GENDER, kgen );
-        fn = Name(WER);
+        string killname = Name(WER);
         SetProp( P_NAME, "Lars" );
         SetProp( P_ARTICLE, 0 );
         SetProp( P_GENDER,MALE );
 
-        testplayer=(string) pl->QueryProp(P_TESTPLAYER);
-        if (strlen(testplayer))
+        int magiertestie;
+        string testplayer = (string) pl->QueryProp(P_TESTPLAYER);
+        if (sizeof(testplayer))
         {
-          if (testplayer[<5..<1]=="Gilde")
-            magiertestie=0;
-          else 
-            magiertestie=1;
+          if (testplayer[<5..<1]!="Gilde")
+            magiertestie = 1;
         }
-        else 
-          magiertestie=0;
+          
+        string kanal;
         if  (magiertestie || IS_LEARNING(pl))
             kanal = "TdT";
         else
@@ -543,11 +540,11 @@ void add_player( object pl )
              (sizeof(killer_msg) < 4 || !killer_msg[3]) ){
             if ( killer_msg[2] == PLURAL )
                 CHMASTER->send( kanal, this_object(),
-                                fn + " haben gerade " +
+                                killname + " haben gerade " +
                                 capitalize(getuid(pl)) + " umgebracht." );
             else
                 CHMASTER->send( kanal, this_object(),
-                                fn + " hat gerade " +
+                                killname + " hat gerade " +
                                 capitalize(getuid(pl)) + " umgebracht." );
         }
 
@@ -627,8 +624,7 @@ SmartLog( string creat, string myname, string str, string date )
         creat = "TOD/" + explode( fn, "/" )[<1] + ".rep";
 
     log_file( creat, myname + " von " + getuid(this_interactive())
-              + " ["+fn+"] (" + date + "):\n" );
-    log_file( creat, str + "\n" );
+              + " ["+fn+"] (" + date + "):\n" + str + "\n" );
 
     return 1;
 }
@@ -636,8 +632,6 @@ SmartLog( string creat, string myname, string str, string date )
 public mixed hier_geblieben( mixed dest, int methods, string direction,
                              string textout, string textin ) 
 {
-    int i;
-
     // Magier duerfen Spieler heraustransen
     if ( this_interactive() && IS_LEARNER(this_interactive()) &&
          (this_interactive() != previous_object() ||
@@ -647,7 +641,7 @@ public mixed hier_geblieben( mixed dest, int methods, string direction,
     }
 
     // Spieler haengt noch in der Todessequenz
-    for ( i = sizeof(players); i--; )
+    for ( int i = sizeof(players); i--; )
         if ( objectp(players[i][0]) && previous_object() == players[i][0] &&
              environment(previous_object()) == find_object(
 	  "/room/death/virtual/room_death_" + getuid(previous_object()))&&

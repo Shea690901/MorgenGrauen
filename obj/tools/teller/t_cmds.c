@@ -9,13 +9,23 @@ inherit T_BASE;
 #include <terminal.h>
 #include <wizlevels.h>
 
-static cmd_clear()
+static void do_rinv( object env, int depth );
+static scan_obj( object player, object obj );
+static void mk_waitfor( mixed waitfor );
+static void mk_autoload( mixed autoload );
+static int do_roomupdate( int destflag, int noitems );
+static int do_cleanof( int strong );
+
+// from teller.c
+static int do_cmd( string str );
+
+static int cmd_clear()
 {
 	stack = ({});
 	return TRUE;
 }
 
-static cmd_pop()
+static int cmd_pop()
 {
 	if( !sizeof(stack) )
 		return error( "pop: Der Stack ist leer" );
@@ -23,7 +33,7 @@ static cmd_pop()
 	return TRUE;
 }
 
-static cmd_top()
+static int cmd_top()
 {
 	if( !sizeof(stack) )
 		return error( "top: Der Stack ist leer" );
@@ -32,7 +42,7 @@ static cmd_top()
 	return TRUE;
 }
 
-static cmd_swap()
+static int cmd_swap()
 {
 	mixed tmp;
 
@@ -44,7 +54,7 @@ static cmd_swap()
 	return TRUE;
 }
 
-static cmd_dup()
+static int cmd_dup()
 {
 	if( !sizeof(stack) )
 		return error( "dup: Der Stack ist leer" );
@@ -52,13 +62,13 @@ static cmd_dup()
 	return TRUE;
 }
 
-static cmd_here()
+static int cmd_here()
 {
 	push(environment(PL));
 	return TRUE;
 }
 
-static cmd_stack()
+static int cmd_stack()
 {
   int i;
   if( !sizeof(stack) )
@@ -72,7 +82,7 @@ static cmd_stack()
   return TRUE;
 }
 
-static cmd_inv()
+static int cmd_inv()
 {
   int i;
   object ob;
@@ -89,7 +99,7 @@ static cmd_inv()
   return TRUE;
 }
 
-static cmd_rekinv()
+static int cmd_rekinv()
 {
 	if( !becomes_obj() )
 		return error( "rekinv: TOS ist kein Objekt" );
@@ -100,7 +110,7 @@ static cmd_rekinv()
 	return TRUE;
 }
 
-static do_rinv( env, depth )
+static void do_rinv( object env, int depth )
 {
 	int i;
 	object ob;
@@ -113,14 +123,14 @@ static do_rinv( env, depth )
 	}
 }
 
-static cmd_me()
+static int cmd_me()
 {
 	push( PL );
 	return TRUE;
 }
 
 // Uebernommen aus dem Teddy (mit freundlicher Genehmigung von Sir).
-static cmd_scan()
+static int cmd_scan()
 {
 	object obj;
 
@@ -142,7 +152,7 @@ static cmd_scan()
 	return TRUE;
 }
 
-static WizLevel( obj )
+static int WizLevel( object obj )
 {
 	if( obj->Notlogged() )
 		return query_wiz_level( lower_case(obj->playername()) );
@@ -150,7 +160,7 @@ static WizLevel( obj )
 		return query_wiz_level( obj );
 }
 
-static IpName( obj )
+static string IpName( object obj )
 {
 	string ip_name, ip_num, nm;
 
@@ -180,14 +190,14 @@ static IpName( obj )
 	}
 }
 
-IdleTime( obj )
+string IdleTime( object obj )
 {
 	if( obj->Notlogged() ) return "-nicht da-";
 	if( query_ip_number(obj) ) return ""+query_idle(obj);
 	return "-netztot-";
 }
 
-static scan_obj( player, obj )
+static scan_obj( object player, object obj )
 {
 	string title, level, gender, room, testpl,
 		weapon, armour, quest, stat_str, *arr;
@@ -308,7 +318,7 @@ static scan_obj( player, obj )
   if( stat_str == "" )
     stat_str = "Keine" ;
   else
-    stat_str = extract( stat_str, 0, strlen( stat_str ) - 3 ) ;
+    stat_str = stat_str[0..sizeof( stat_str ) - 3] ;
   printf( "Attribute..: %s.\n", stat_str ) ;
 
   // 7.Zeile : Waffe( Dateiname )[ AC ]
@@ -364,7 +374,7 @@ static scan_obj( player, obj )
 	return TRUE;
 }
 
-static mk_waitfor( waitfor )
+static void mk_waitfor( mixed waitfor )
 {
 	string str;
 	int i;
@@ -378,7 +388,7 @@ static mk_waitfor( waitfor )
 	write( str+"\n" );
 }
 	
-static mk_autoload( autoload )
+static void mk_autoload( mixed autoload )
 {
 	string str, *objlist;
 	int i;
@@ -396,13 +406,13 @@ static mk_autoload( autoload )
 	write( str );
 }
 
-static print_memory_line( key, data, flag )
+static void print_memory_line( string key, object data, int flag )
 {
   printf( " %-10s%s ", key, (flag ? ">" : "=") );
   dump_obj( data, 13 );
 }
 	
-static cmd_memory()
+static int cmd_memory()
 {
   int i;
   if( !sizeof(memory) )
@@ -412,7 +422,7 @@ static cmd_memory()
   return TRUE;
 }
 
-static cmd_array()
+static int cmd_array()
 {
   mixed *array;
   mixed ob;
@@ -426,7 +436,7 @@ static cmd_array()
 	return TRUE;
 }
 
-static cmd_split()
+static int cmd_split()
 {
   mixed *array;
   int i;
@@ -441,7 +451,7 @@ static cmd_split()
 	return TRUE;
 }
 
-static cmd_player()
+static int cmd_player()
 {
 	object ob;
 	string str;
@@ -457,7 +467,7 @@ static cmd_player()
 	return TRUE;
 }
 
-static cmd_object()
+static int cmd_object()
 {
 	object ob;
 	string err,fnam;
@@ -478,7 +488,7 @@ static cmd_object()
 	return TRUE;
 }
 
-static cmd_living()
+static int cmd_living()
 {
 	object ob;
 	if( !stringp(top()) )
@@ -491,7 +501,7 @@ static cmd_living()
 	return TRUE;
 }
 
-static cmd_say()
+static int cmd_say()
 {
 	mit_say = !mit_say;
 	if( mit_say )
@@ -501,7 +511,7 @@ static cmd_say()
 	return TRUE;
 }
 
-static cmd_names()
+static int cmd_names()
 {
 	mit_namen = !mit_namen;
 	if( mit_namen )
@@ -511,7 +521,7 @@ static cmd_names()
 	return TRUE;
 }
 
-static cmd_secureinv()
+static int cmd_secureinv()
 {
 	secureinv = !secureinv;
 	if( secureinv )
@@ -522,7 +532,7 @@ static cmd_secureinv()
 	return TRUE;
 }
 
-static cmd_logaccess()
+static int cmd_logaccess()
 {
 	dologaccess = !dologaccess;
 	if( dologaccess )
@@ -532,7 +542,7 @@ static cmd_logaccess()
 	return TRUE;
 }
 
-static cmd_destruct_bang()
+static int cmd_destruct_bang()
 {
 	if( !becomes_obj() )
 		return error( "destruct: TOS ist kein Objekt" );
@@ -540,7 +550,7 @@ static cmd_destruct_bang()
 	return TRUE;
 }
 
-static cmd_destruct()
+static int cmd_destruct()
 {
 	if( !becomes_obj() )
 		return error( "remove: TOS ist kein Objekt" );
@@ -553,7 +563,7 @@ static cmd_destruct()
 	return TRUE;
 }
 
-static cmd_remove()
+static int cmd_remove()
 {
 	if( !becomes_obj() )
 		return error( "remove: TOS ist kein Objekt" );
@@ -565,7 +575,7 @@ static cmd_remove()
 	return TRUE;
 }
 
-static cmd_update()
+static int cmd_update()
 {
 	object blue;
 
@@ -580,7 +590,7 @@ static cmd_update()
 	return TRUE;
 }
 
-static cmd_update_bang()
+static int cmd_update_bang()
 {
 	if( !becomes_obj() )
 		return error( "update: TOS ist kein Objekt" );
@@ -588,31 +598,31 @@ static cmd_update_bang()
 	return TRUE;
 }
 
-static cmd_roomupdate()
+static int cmd_roomupdate()
 {
 	return do_roomupdate( FALSE, FALSE );
 }
 
-static cmd_roomupdate_bang()
+static int cmd_roomupdate_bang()
 {
 	return do_roomupdate( TRUE, FALSE );
 }
 
-static cmd_extroomupdate()
+static int cmd_extroomupdate()
 {
 	return do_roomupdate( FALSE, TRUE );
 }
 
-static cmd_extroomupdate_bang()
+static int cmd_extroomupdate_bang()
 {
 	return do_roomupdate( TRUE, TRUE );
 }
 
 // Hilfsfunktionen zum Filtern von Items
 static object *collect_items;
-static collect( data ) { collect_items += ({ data[0] }); }
+static void collect( object* data ) { collect_items += ({ data[0] }); }
 
-static do_roomupdate( destflag, noitems )
+static int do_roomupdate( int destflag, int noitems )
 {
 	object tmproom,newroom;
 	object *inv;
@@ -679,7 +689,7 @@ static do_roomupdate( destflag, noitems )
 	return TRUE;
 }
 
-static cmd_clone()
+static int cmd_clone()
 {
 	if( !stringp(top()) )
 		return error( "clone: TOS ist kein String" );
@@ -691,7 +701,7 @@ static cmd_clone()
 	return TRUE;
 }
 
-static cmd_move()
+static int cmd_move()
 {
 	object ob;
 
@@ -704,17 +714,17 @@ static cmd_move()
 	return TRUE;
 }
 
-static cmd_cleanof_bang()
+static int cmd_cleanof_bang()
 {
 	return do_cleanof( TRUE );
 }
 
-static cmd_cleanof()
+static int cmd_cleanof()
 {
 	return do_cleanof( FALSE );
 }
 
-static do_cleanof( strong )
+static int do_cleanof( int strong )
 {
 	object *inv;
 	int i;
@@ -739,9 +749,9 @@ static do_cleanof( strong )
 	return TRUE;
 }
 
-static cmd_snoopers()
+static int cmd_snoopers()
 {
-	string* u, snooper;
+	object* u, snooper;
 	int i, flag;
 
 	flag = 0;
@@ -760,7 +770,7 @@ static cmd_snoopers()
 	return TRUE;
 }
 
-static cmd_ping()
+static int cmd_ping()
 {
 	object pl;
 
@@ -772,14 +782,14 @@ static cmd_ping()
 	return TRUE;
 }
 
-static ping( argv )
+static void ping( mixed* argv )
 {
 	if( !argv[0] || --argv[1] < 0 ) return;
 	tell_object( argv[0], BEEP+PL->name(WER)+" pingt Dich an.\n" );
 	call_out( "ping", 1, argv );
 }
 
-static do_calloutinfo( call )
+static void do_calloutinfo( mixed* call )
 {
 	int l,i;
 
@@ -794,7 +804,7 @@ static do_calloutinfo( call )
 	}
 }
 
-static cmd_callouts_bang()
+static int cmd_callouts_bang()
 {
 	mixed *calls;
 	object obj;
@@ -811,7 +821,7 @@ static cmd_callouts_bang()
 	return TRUE;
 }
 
-static do_calloutinfo2( call, str )
+static void do_calloutinfo2( mixed* call, string str )
 {
 	string s;
 	int i,l;
@@ -831,7 +841,7 @@ static do_calloutinfo2( call, str )
 	}
 }
 
-static cmd_callouts()
+static int cmd_callouts()
 {
 	mixed *calls;
 	object obj;
@@ -851,11 +861,12 @@ static cmd_callouts()
 	return TRUE;
 }
 
-static cmd_heartbeats()
+static int cmd_heartbeats()
 {
 	mixed *beats;
 	int i;
 	object env;
+	string enam;
 
 	beats = heart_beat_info();
 	if( !pointerp(beats) || !sizeof(beats) )
@@ -866,13 +877,13 @@ static cmd_heartbeats()
 	for( i=0; i<sizeof(beats); i++ )
 	{
 		env = environment(beats[i]);
-		env = env ? object_name(env) : "-- nirgends --";
-		printf( "%-35s %-35s\n", object_name(beats[i]), env );
+		enam = env ? object_name(env) : "-- nirgends --";
+		printf( "%-35s %-35s\n", object_name(beats[i]), enam );
 	}
 	return TRUE;
 }
 
-static cmd_wer()
+static int cmd_wer()
 {
 	object* ppl;
 	string* pl;
@@ -896,7 +907,7 @@ static cmd_wer()
 	return TRUE;
 }
 
-static cmd_debuginfo()
+static int cmd_debuginfo()
 {
 	if( !becomes_obj() )
 		return error( "dinfo: TOS ist kein Objekt" );
@@ -904,7 +915,7 @@ static cmd_debuginfo()
 	return TRUE;
 }
 
-static cmd_pretty()
+static int cmd_pretty()
 {
 	pretty = !pretty;
 	if( pretty )
@@ -914,7 +925,7 @@ static cmd_pretty()
 	return TRUE;
 }
 
-static cmd_doprofile()
+static int cmd_doprofile()
 {
 	do_profile=!do_profile;
 	if( do_profile )
@@ -924,7 +935,7 @@ static cmd_doprofile()
 	return TRUE;
 }
 
-static cmd_evaluate()
+static int cmd_evaluate()
 {
 	string str;
 	if( !sizeof(stack) ) return error( "evaluate: Stack ist leer" );
@@ -933,12 +944,12 @@ static cmd_evaluate()
 	return do_cmd( str );
 }
 
-static write_memory( nam, str, flag, file )
+static void write_memory( string nam, string str, int flag, string file )
 {
 	if( flag ) write_file( file, nam + " = " + str + "\n" );
 }
 
-static cmd_dump()
+static int cmd_dump()
 {
 	string file;
 
@@ -953,15 +964,16 @@ static cmd_dump()
 	return TRUE;
 }
 
-static restore_line( line )
+static int restore_line( string line )
 {
 	string nam,str;
 	if( sscanf( line, "%s = %s", nam, str ) != 2 )
 		return error( "restore: Fehler im file" );
 	memory += ([ nam: str; 1 ]);
+  return 1;
 }
 
-static cmd_restore()
+static int cmd_restore()
 {
 	string str, *lines;
 
@@ -977,7 +989,7 @@ static cmd_restore()
 	return TRUE;
 }
 
-static cmd_if()
+static int cmd_if()
 {
 	if( sizeof(stack) < 3 )
 		return error( "if: zuwenig Argumente" );

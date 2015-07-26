@@ -109,16 +109,16 @@ int AddNotiz(string str) {
   //ggf. nur Einlesen, Cache muss hier nicht aktualisiert werden ;-)
   checkStatus(1);
   str=(string)PL->_unparsed_args(0);  //kein parsing
-  if (!stringp(str) || !strlen(str)) {
+  if (!stringp(str) || !sizeof(str)) {
     tell_object(PL,
       "Was moechtest Du Dir denn notieren?\n");
     return(1);
   }
-  if (strlen(str)>MAX_NOTE_LENGTH) {
+  if (sizeof(str)>MAX_NOTE_LENGTH) {
     tell_object(PL,BS(
       sprintf("Deine Notiz ist mit %d Zeichen zu lang! Leider passen auf "
              "Deinen Merkzettel nur % Zeichen drauf.",
-        strlen(str),MAX_NOTE_LENGTH)));
+        sizeof(str),MAX_NOTE_LENGTH)));
     return(1);
   }
   
@@ -163,7 +163,7 @@ int LiesNotiz(string str) {
         BS("Dieser Zugriff auf den Merkzettel wurde nicht erlaubt."));
     return(0);
   }
-  if (!stringp(str) || !strlen(str) || !id=to_int(str)) {
+  if (!stringp(str) || !sizeof(str) || !id=to_int(str)) {
     tell_object(PL,
       "Welche Notiz moechtest Du lesen? Bitte eine ID angeben!\n");
     return(1);
@@ -198,7 +198,7 @@ int RemoveNotiz(string str) {
         BS("Dieser Zugriff auf den Merkzettel wurde nicht erlaubt."));
     return(0);
   }
-  if (!stringp(str) || !strlen(str) || !id=to_int(str)) {
+  if (!stringp(str) || !sizeof(str) || !id=to_int(str)) {
     tell_object(PL,
       "Welche Notiz moechtest Du ausradieren? Bitte eine ID angeben!\n");
     return(1);
@@ -213,8 +213,8 @@ int RemoveNotiz(string str) {
       sprintf("Es gibt keine Notiz mit der ID: %d\n",id));
     return(1);
   }
-  //direkt Loeschen, keine Kopie, daher efun::m_delete()
-  efun::m_delete(notizen,id);
+  //direkt Loeschen, keine Kopie, daher m_delete()
+  m_delete(notizen,id);
   //in Kuerze speichern, aber nicht fuer jede Aenderung speichern
   save_me(60);
   //cache invalidieren
@@ -240,7 +240,7 @@ int FinishNotiz(string str) {
         BS("Dieser Zugriff auf den Merkzettel wurde nicht erlaubt."));
     return(0);
   }
-  if (!stringp(str) || !strlen(str) || !id=to_int(str)) {
+  if (!stringp(str) || !sizeof(str) || !id=to_int(str)) {
     tell_object(PL,
       "Welche Notiz moechtest Du abhaken? Bitte eine ID angeben!\n");
     return(1);
@@ -302,7 +302,7 @@ int ListNotizen(string str) {
     return(1);
   }
   //Argumente parsen
-  if(stringp(str) && strlen(str))
+  if(stringp(str) && sizeof(str))
     arr=explode(str," ");
   if (pointerp(arr)) arr-=({""}); //doppelte leerzeichen im String
   if (pointerp(arr) && sizeof(arr)>=2) {
@@ -337,7 +337,7 @@ int ListNotizen(string str) {
   }
   //1. Argument "all" oder "alle" ist: alle anzeigen
   if (pointerp(arr) && sizeof(arr) && stringp(arr[0]) &&
-      strlen(arr[0]) && arr[0]=="alle")
+      sizeof(arr[0]) && arr[0]=="alle")
     zahl=notizzahl;  //alle anzeigen
   
   //wenn die gewuenschte Zahl die Anzahl gespeicherter
@@ -393,7 +393,7 @@ int ChangeDep(string str) {
     return(0);
   }
   str=(string)PL->_unparsed_args(0);
-  if (!stringp(str) || !strlen(str))
+  if (!stringp(str) || !sizeof(str))
     return(0);
   
   if (!checkStatus()) {
@@ -442,7 +442,7 @@ int ChangePrio(string str) {
     return(0);
   }
   str=(string)PL->_unparsed_args(0);
-  if (!stringp(str) || !strlen(str))
+  if (!stringp(str) || !sizeof(str))
     return(0);
   
   if (!checkStatus()) {
@@ -495,7 +495,7 @@ int ChangeHelper(string str) {
     return(0);
   }
   str=(string)PL->_unparsed_args(0);
-  if (!stringp(str) || !strlen(str))
+  if (!stringp(str) || !sizeof(str))
     return(0);
   
   if (!checkStatus()) {
@@ -545,7 +545,7 @@ int ChangeStatus(string str) {
     return(0);
   }
   str=(string)PL->_unparsed_args(0);
-  if (!stringp(str) || !strlen(str))
+  if (!stringp(str) || !sizeof(str))
     return(0);
   if (!checkStatus()) {
     tell_object(PL,BS(
@@ -613,7 +613,7 @@ int ErsetzeText(string str) {
     return(0);
   }
   str=(string)PL->_unparsed_args(0);
-  if (!stringp(str) || !strlen(str))
+  if (!stringp(str) || !sizeof(str))
     return(0);
   
   if (!checkStatus()) {
@@ -628,7 +628,7 @@ int ErsetzeText(string str) {
     return(0);
   id=to_int(arr[0]);
   str=implode(arr[1..]," ");  //text wiederherstellen, ohne erstes Element
-  if (!strlen(str)) return(0);
+  if (!sizeof(str)) return(0);
   if (!member(notizen,id)) {
     tell_object(PL,
       sprintf("Es gibt keine Notiz mit der ID: %d\n",id));
@@ -660,7 +660,7 @@ int ErgaenzeText(string str) {
     return(0);
   }
   str=(string)PL->_unparsed_args(0);
-  if (!stringp(str) || !strlen(str))
+  if (!stringp(str) || !sizeof(str))
     return(0);
   
   if (!checkStatus()) {
@@ -703,7 +703,7 @@ int ZeigeZettel(string str) {
   if (!objectp(TI)) return(0);
   if (!environment() || !environment(environment()))
      return(0);
-  if (!stringp(str) || !strlen(str)) return(0);
+  if (!stringp(str) || !sizeof(str)) return(0);
   if(!check_allowed()) {
     if(objectp(this_interactive()))
       tell_object(this_interactive(),
@@ -764,7 +764,7 @@ int WedelZettel(string str) {
   if (!objectp(TI)) return(0);
   if (!environment() || !environment(environment()))
      return(0);
-  if (!stringp(str) || !strlen(str)) return(0);
+  if (!stringp(str) || !sizeof(str)) return(0);
   if(!check_allowed()) {
     if(objectp(this_interactive()))
       tell_object(this_interactive(),
@@ -804,7 +804,7 @@ int LiesDeps(string str) {
     return(0);
   }
   str=(string)PL->_unparsed_args(0);
-  if (!stringp(str) || !strlen(str))
+  if (!stringp(str) || !sizeof(str))
     return(0);
   
   if (!checkStatus()) {
@@ -865,7 +865,7 @@ int Expire(string str) {
     return(0);
   }
   str=(string)PL->_unparsed_args(0);
-  if (!stringp(str) || !strlen(str))
+  if (!stringp(str) || !sizeof(str))
     return(0);
   age=to_float(str);
   if (age<=0) return(0);
@@ -888,7 +888,7 @@ int Expire(string str) {
   for (i=sizeof(liste);i--;) {
     //Infos noch einmal ausgeben und loeschen
     res+=_LiesNotiz(liste[i])+"\n";
-    efun::m_delete(notizen,liste[i]);
+    m_delete(notizen,liste[i]);
   }
   res+="\n";
   write_file(ARCHIVE(owner),res);
@@ -1026,7 +1026,7 @@ static nomask status check_allowed() {
   return(0);
 }
 
-static int restore_me() {
+protected int restore_me() {
   //laedt Savefile im Home vom Magier
   if(!stringp(owner)) return(0);
   if(!restore_object(SAVEFILE(owner))) {
@@ -1038,10 +1038,9 @@ static int restore_me() {
   return(1);
 }
 
-varargs void save_me(int delay) {
+varargs protected void save_me(int delay) {
   //speichert Savefile im Home vom Magier
-  if(!stringp(owner)) return(0);
-  if (!check_allowed()) return(0);
+  if(!stringp(owner)) return;
   //wenn maxusedID==0 wurde der zettel noch nicht ordentlich initialisiert
   //bzw. restauriert. In diesem Fall wuerde ein leeres Savefile geschrieben
   if (maxusedID==0)
@@ -1051,17 +1050,15 @@ varargs void save_me(int delay) {
     save_object(SAVEFILE(owner));
   else {
     //verzoegert speichern, wenn schon ein call_out laeuft, nehm ich den
-    if(find_call_out("save_me")==-1)
-      call_out("save_me",delay);
+    if(find_call_out(#'save_me)==-1)
+      call_out(#'save_me,delay);
   }
 }
 
 varargs int remove(int silent) {
   //erstmal speichern. ;-)
   save_me();
-  while(find_call_out("save_me")!=-1)
-    remove_call_out("save_me");
-  return(::remove(silent));
+  return ::remove(silent);
 }
 
 static string query_autoloadobj() {

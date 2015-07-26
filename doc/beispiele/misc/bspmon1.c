@@ -3,17 +3,20 @@
 ** (von Boing)
 */
 
-inherit "std/npc";
+// Diese Pragmas sorgen dafuer, dass der Driver darauf achtet, dass bei
+// Funktionsargumenten, -Rueckgabewerten und teilweise bei Zuweisung von
+// Werten an Variablen der richtige Datentyp verwendet wird (z.b. kein string
+// anstelle eines int verwendet wird). Sollte in keinem Objekt fehlen.
+#pragma strong_types, save_types, rtt_checks
+
+// den Standard-NPC der Mudlib erben.
+inherit "/std/npc";
 
 #include <properties.h>
 #include <language.h>
 
-create()
+protected void create()
 {
-/* Das naechste Konstrukt verhindert eine Konfiguration der Blueprint 
-     --> man spart Speicher */
-  if (!clonep(this_object())) return;
-
   ::create();    /* Nicht vergessen, ohne das geht nichts */
 
 /* Die Kurzbeschreibung wird zum Beispiel angezeigt wenn man in einen Raum
@@ -39,7 +42,7 @@ create()
 /* Zuerst sollte man dem Monster einen Grundlevel geben. */
 /* Die Spellpunkte und die Lebenpunkte sowie die Attribute werden dann */
 /* automatisch angepasst. */
-	create_default_npc( 10 );
+  create_default_npc( 10 );
 
 /* Nun machen wir es etwas widerstandsfaehiger, indem wir P_BODY setzen.  */
 /* Nie P_TOTAL_AC oder P_AC setzen, P_TOTAL_AC wird automatisch berechnet */
@@ -64,7 +67,7 @@ create()
 /* Schlag weapon_class*schaden/10 punkte (weapon_class hier 55), also */
 /* insgesamt weapon_class*hit_points/10.                              */
   SetProp(P_XP, 10000);
-  
+
 /* Die Groesse des Monsters in cm. Dies wird bei einigen Kampfbefehlen */
 /* ausgewertet, sowie bei einigen Identifikationsspruechen von Gilden  */
   SetProp(P_SIZE,180);
@@ -72,7 +75,4 @@ create()
 /* Weitere Werte: P_(MAX)_FOOD, P_(MAX)_DRINK, P_(MAX)_ALCOHOL,       */
 /* P_MSGIN, P_MSGOUT, P_MMSGIN, P_MMSGOUT, P_MAX_HANDS, P_USED_HANDS  */
 
-/* wenn der living_name gesetzt ist, kann das monster mit find_living() */
-/* gefunden werden. (Wird z.B. bei trans, goto, force benutzt)          */
-  set_living_name ("beispielmonster");
 }

@@ -2,7 +2,7 @@
 //
 // container/items.c -- creating extra items in room
 //
-// $Id: items.c 7539 2010-05-02 12:09:08Z Zesstra $
+// $Id: items.c 8811 2014-05-09 17:30:37Z Zesstra $
 
 // extra items handling
 //
@@ -61,13 +61,6 @@ private object removeable_ob( object ob )
     return 0;
 }
 
-#if __BOOT_TIME__ < 1233404298
-private int _sortfunc( mixed *a, mixed *b )
-{
-    return a[0] < b[0];
-}
-#endif
-
 protected varargs void remove_multiple(int limit, mixed fun)
 {
     object *inh = all_inventory(this_object()) - ({0});
@@ -76,40 +69,15 @@ protected varargs void remove_multiple(int limit, mixed fun)
     foreach(mixed item : QueryProp(P_ITEMS))
       inh -= ({ item[0] });
  
-//TODO: nach Reboot #if entsorgen.
-#if __BOOT_TIME__ > 1233404298
     if (!stringp(fun) && !closurep(fun))
-	fun = "description_id";
+      fun = "description_id";
     inh = unique_array(inh, fun, 0);
-    foreach(mixed arr: inh) {
+    foreach(mixed arr: inh)
+    {
       if (sizeof(arr) <= limit)
-	continue;
+        continue;
       catch(call_other(arr[limit ..], "remove"); publish);
     }
-#else    
-    // TODO: Den ganzen Quatsch da unten am besten durch unique_array()
-    // ersetzen. Dazu muessen aber die Objekt erst ne entsprechende
-    // ID-Funktion haben.
-    foreach( mixed arr: &inh)  
-      arr = ({ ( load_name(arr) + arr->short() + arr->long() ),
-		    arr });
-
-    inh = sort_array( inh, #'_sortfunc/*'*/ );
-    string ident = "";
-    int j;
-    foreach(mixed arr: inh) {
-        if ( ident != arr[0] ){
-            ident = arr[0];
-            j = 1;
-        } else {
-            if ( ++j > limit && arr[1] ){
-                catch( arr[1]->remove();publish );
-                if ( arr[1] )
-                    destruct( arr[1] );
-            }
-        }
-    }
-#endif // __BOOT_TIME__
 }
 
 

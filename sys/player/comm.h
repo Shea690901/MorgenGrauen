@@ -7,6 +7,9 @@
 #ifndef __PLAYER_COMM_H__
 #define __PLAYER_COMM_H__
 
+// living/comm.h brauchen wir auch.
+#include <living/comm.h>
+
 // properties
 
 #define P_INTERMUD           "intermud" // Does she listen to it ?
@@ -16,6 +19,8 @@
 #define P_MESSAGE_BEEP       "message_beep" // wenn gesetzt 
                                             // Anzahl der Sekunden dazwischen
 #define P_MESSAGE_PREPEND  "message_prepend"
+// Will der Magier MT_DEBUG sehen?
+#define P_WIZ_DEBUG          "std_p_wizdebug"
 
 #define MESSAGE_BEEP "\007"
 
@@ -48,6 +53,14 @@
 #define MESSAGE_IGNORE_MUD  -3
 #define MESSAGE_DEAF	    -4	// Empfaenger hoert nicht zu
 #define MESSAGE_CACHE_FULL  -5	// Kobold kann nichts mehr merken
+
+// Flags fuer Statusreports
+#define DO_REPORT_HP         0x1
+#define DO_REPORT_SP         0x2
+#define DO_REPORT_POISON     0x4
+#define DO_REPORT_WIMPY      0x8
+#define DO_REPORT_WIMPY_DIR  0x10
+
 #endif // __PLAYER_COMM_H__
 
 #ifdef NEED_PROTOTYPES
@@ -62,6 +75,8 @@ protected varargs int _recv(object ob, string message,
 
 varargs int Message(string msg, int flag, string indent,
                     string cname, mixed sender);
+
+protected void status_report(int type, mixed val);
 
 #endif // __PLAYER_COMM_H_PROTO__
 

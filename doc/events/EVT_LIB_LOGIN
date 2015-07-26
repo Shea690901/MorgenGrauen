@@ -1,5 +1,5 @@
 EVENT: 
-   EVT_LIB_LOGINE
+   EVT_LIB_LOGIN
 
 DEFINIERT IN:
    /sys/events.h

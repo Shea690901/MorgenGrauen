@@ -32,44 +32,6 @@ void create()
       +SERVER+MUDWWW + "?" +REQ + "=" + R_NEWS + "\">lesen</A>");
 }
 
-//#define FBMASTER "/p/daemon/fbmaster"
-
-/*
-void init()
-{
-    // call_out("putfb", 0, this_player());
-    //add_action("nimm","nimm");
-}
-*/
-
-/*
-void putfb(object pl)
-{
-   string q;
-   if(strstr(object_name(pl), "#") != -1) return;
-  
-   if((q = FBMASTER->online()) && interactive(pl))
-    {
-        if(!FBMASTER->done(pl, q))
-            if(!present("fragebogen", pl))
-            {
-                object fb;
-                (fb = clone_object("/p/service/hate/fragebogen"))->move(pl,M_GET);
-                fb->ask(q);
-            }
-    }
-}
-*/
-
-/*
-int nimm(string str)
-{
-        if (!id(str)) return 0;
-        ME->move(this_player(),M_GET);
-        return 1;
-}
-*/
-
 int get(object targ) {
   int res;
 

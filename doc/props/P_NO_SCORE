@@ -32,7 +32,7 @@ BEISPIEL:
          SetProp(P_NO_SCORE,1);
        }
 
-     Damit kann P_XP einen Wert haben, der eigentlich zum automatischer
+     Damit kann P_XP einen Wert haben, der eigentlich zum automatischen
      Eintragen von Erstkillstufenpunkten fuer ein Lebewesen fuehrt, und
      trotzdem wird dieser Eintrag nicht vorgenommen.
      Sinnvoll ist dies insbesondere bei Lebewesen, die nicht jeder

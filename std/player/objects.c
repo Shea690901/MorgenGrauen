@@ -2,7 +2,7 @@
 //
 // player/objects.c -- object handling for player
 //
-// $Id: objects.c 6548 2007-10-17 11:36:22Z Zesstra $
+// $Id: objects.c 8675 2014-02-18 20:39:54Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -229,7 +229,7 @@ static int exec_playerob(string name)
   return 1;
 }
 
-static string *_query_localcmds()
+static mixed _query_localcmds()
 {
   return ({
            ({"clone","clone",0,WIZARD_LVL}),

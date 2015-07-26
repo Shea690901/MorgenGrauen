@@ -1,6 +1,6 @@
 // MorgenGrauen MUDlib
 //
-// $Id: netztot.c 7155 2009-02-25 21:20:50Z Zesstra $
+// $Id: netztot.c 8747 2014-04-26 13:08:47Z Zesstra $
 
 #include <wizlevels.h>
 #include <moving.h>
@@ -33,18 +33,18 @@ wegraeumen(ob)
 }
 
 invcheck()
-{
-  object *inv;
-  int i;
-  
+{ 
   while(remove_call_out("invcheck")!=-1);
-  inv=all_inventory(this_object());
-  for (i=sizeof(inv)-1;i>0;i--)
-    if (interactive(inv[i]))
-      set_object_heart_beat(inv[i],1);
-    else
-      if (!query_once_interactive(inv[i]) && object_name(inv[i])!="/obj/sperrer")
-	call_out("wegraeumen",1,inv[i]);
+  foreach(object ob: all_inventory(this_object()))
+  {
+    if (interactive(ob))
+    {
+      catch(this_player()->move("/room/void",M_GO));
+      set_object_heart_beat(ob,1);
+    }
+    else if (!query_once_interactive(ob) && object_name(ob)!="/obj/sperrer")
+      call_out("wegraeumen",1,ob);
+  }
   call_out("invcheck",120);
   "/obj/sperrer"->upd();
 }
@@ -55,7 +55,7 @@ init()
     return;
   catch(this_player()->StopHuntingMode());
   if (interactive(this_player()))
-    catch(this_player()->move("room/gilde",M_GO));
+    catch(this_player()->move("/room/void",M_GO));
   if (!query_once_interactive(this_player()))
   {
     this_player()->remove();

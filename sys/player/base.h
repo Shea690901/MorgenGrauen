@@ -1,8 +1,8 @@
 // MorgenGrauen MUDlib
 //
-// player/base.H -- player base header
+// player/base.h -- player base header
 //
-// $Id: base.h 7078 2009-01-19 21:00:20Z Zesstra $
+// $Id: base.h 8487 2013-05-21 19:15:52Z Zesstra $
 
 #ifndef __PLAYER_BASE_H__
 #define __PLAYER_BASE_H__
@@ -11,18 +11,11 @@
 // verzeichnisse noch nicht gesetzt sind, darf dieses File auch nur die abs.
 // Namen verwenden. *seufz*
 #include "/sys/player/can.h"
+#include "/sys/player/telnetneg.h"
+
 #define HAUSVERWALTER   "/d/seher/haeuser/hausverwalter"
 
 // properties
-
-//Properties fuer die tatsaechliche Fenstergroesse des Telnetclients sowie
-//den eingestellten Terminaltyp. Falls der Client die Daten nicht
-//herausrueckt, bleiben die Properties leer.
-#define P_TTY                "tty"
-#define P_TTY_COLS           "tty_cols"
-#define P_TTY_ROWS           "tty_rows"
-#define P_TTY_TYPE           "tty_type"
-#define P_TTY_SHOW           "tty_show"
 
 #define P_KILLS              "playerkills"
 
@@ -67,10 +60,13 @@
 #define P_SECOND             "second"
 #define P_SECOND_MARK        "second_mark"
 #define P_SECOND_LIST        "second_list"
+#define P_MUD_NEWBIE         "_lib_mud_newbie"  // not played a mud before?
+
 #define P_TESTPLAYER         "testplayer"
 #define P_ALLOWED_SHADOW     "allowed_shadow"
 
 #define P_START_HOME         "start_home"
+#define P_PRAY_ROOM          "_lib_p_prayroom"
 
 #define P_SHELL_VERSION      "shell_version"
 
@@ -94,7 +90,7 @@
 
 #define P_NEEDED_QP          "needed_qp"
 
-//TODO: Remove - Property ist not needed any more.
+//TODO: Remove - Property is not needed any more.
 #define P_TELNET_KEEP_ALIVE  "send_telnet_keep_alive"
 
 #endif // __PLAYER_BASE_H__
@@ -117,10 +113,11 @@ static void restart_heart_beats();
 nomask int query_hc_play();
 varargs nomask void set_hc_play(string str, int val);
 string SetDefaultHome(string str);
-string SetPrayRoom(string str);
+protected string SetDefaultPrayRoom(string str);
 
 void save_me(mixed value_items);
 nomask mixed query_real_name();
+protected void call_notify_player_change(int rein);
 
 #endif // __PLAYER_BASE_H_PROTO__
 

@@ -48,27 +48,6 @@ string strip_string(string str)
   return implode(strip_explode(str," ")," ");
 }
 
-mixed *remove_alist(mixed key, mixed *alist)
-{
-  int i, s, p, l;
-  
-  if(!pointerp(alist))
-    return 0;
-  if((s=sizeof(alist))<2)
-    return 0;
-  if((p=assoc(key, alist[0]))>=0)
-  {
-    l=sizeof(alist[0])-1;
-    for(i=0;i<s;i++)
-    {
-      if(!pointerp(alist[i]))
-	return 0;
-      alist[i]=alist[i][0..p-1]+alist[i][p+1..l];
-    }
-  }
-  return alist;
-}
-
 int string_compare(string a, string b)
 {
   return a==b?0:(a>b?1:-1);
@@ -88,15 +67,15 @@ string short_path(string file)
     return 0;
   if(PL)
   {
-    if(extract(file, 0, 8)=="/players/")
+    if(file[0.. 8]=="/players/")
     {
-      s=strlen(getuid(PL))+8;
-      return "~"+(extract(file, 9, s)==getuid(PL) ?
-		  extract(file, s+1, -1) : extract(file, 9, -1));
+      s=sizeof(getuid(PL))+8;
+      return "~"+(file[9.. s]==getuid(PL) ?
+		  file[s+1.. <1] : file[9.. <1]);
     }
   }
-  if(extract(file, 0, 2)=="/d/")
-    return "+"+extract(file, 3, -1);
+  if(file[0.. 2]=="/d/")
+    return "+"+file[3.. <1];
   else
     return file;  
 }
@@ -152,6 +131,8 @@ string mixed_to_string(mixed mix, int lvl)
       default:
       case T_INVALID:
       return "<invalid>";
+      case T_STRUCT:
+      return to_string(mix);
       case T_LVALUE:
       return "&"+mixed_to_string(mix, lvl-1);
       case T_NUMBER:

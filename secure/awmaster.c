@@ -21,9 +21,6 @@
 #define ADUMPFILE "/log/ARCH/RUESTUNGEN"
 #define DDUMPFILE "/log/ARCH/DAMAGERS"
 #define WDUMPFILE "/log/ARCH/WAFFEN"
-#define ACCNGFILE "/log/ARCH/ACCHANGE"
-
-//#define ACCHANGE 1
 
 #define AWF_PUTON  1
 #define AWF_PUTOFF 2
@@ -43,8 +40,9 @@
 #define AWM_TIME      9
 
 mapping armours,weapons,damagers;
+private int save_me_soon;
 
-private static int allowed()
+private int allowed()
 {
   if (previous_object() && geteuid(previous_object())==ROOTID)
     return 1;
@@ -67,71 +65,31 @@ void create()
       mapping tmp = damagers;
       damagers = m_allocate(sizeof(tmp),2);
       foreach(string r, int flag: tmp) {
-	damagers[r,0]=flag;
+        damagers[r,0]=flag;
       }
     }
 }
 
-void save_me()
+void save_me(int now)
 {
+  if (now)
     save_object(SAVEFILE);
+  else
+    save_me_soon=1;
 }
 
 void reset() {
-  save_me();
+  if (save_me_soon)
+  {
+    save_me_soon=0;
+    save_me(1);
+  }
 }
+
 public varargs int remove(int silent) {
-  save_me();
-}
-
-static void NotifyACChange(object ob, string fn)
-{
-#ifdef ACCHANGE
-    string at,msg;
-    int ac,max;
-
-    if (!objectp(ob) || !stringp(fn))
-        return;
-    if (!stringp(at=ob->QueryProp(P_ARMOUR_TYPE)))
-        return;
-    if ((ac=ob->QueryProp(P_AC)) < (max=VALID_ARMOUR_CLASS[at]))
-        return;
-/* Bereits genehmigte Max-AC-Umhaenge und Ringe/Amulette, die nach den neuen
-** Werten Max-Schutz haben, werden nicht gemeldet.
-*/
-    if ( (at==AT_CLOAK || at==AT_RING || at==AT_AMULET || at==AT_MISC) && 
-          ac==VALID_ARMOUR_CLASS[at])
-        return;
-    msg=sprintf("ROOT [%s]\nDie Ruestung %s (P_AC=%d)\n",
-        dtime(time()),fn,ac);
-    if (ac==max) 
-        msg+=("\
-besitzt nach Umstellung der Ruestungsklassen einen MAXIMALEN Ruestungsschutz.\n\
-Lass doch bitte dieses Objekt vom Balance-Gremium genehmigen.\n\
-Hierzu genuegt ein kurzer Antrag in /players/paracelsus/office.\n");
-    else
-        msg+=("\
-besitzt nach Umstellung der Ruestungsklassen einen UNZULAESSIGEN\n\
-Ruestungsschutz, d.h. sie wird fuer Spieler in Kuerze nicht mehr nutzbar\n\
-sein. Bitte aendere den Ruestungsschutz entspr. der neuen Obergrenzen\n\
-(-> man ruestungen). Sollte der gewuenschte Ruestungsschutz oberhalb der\n\
-Genehmigungsgrenze liegen, muss die Ruestung selbstverstaendlich vom\n\
-Balance-Gremium genehmigt werden.\n");
-    msg+=("### Dies ist eine automatisch generierte Meldung ###\n");
-
-    write_file(ACCNGFILE,
-        sprintf("[%s] P_AC: %d MAX: %d\nOb: %s\n\n",
-            dtime(time()),ac,max,fn));
-
-    at = MASTER->creator_file(ob);
-    if (at == ROOTID)
-        at = "ROOT";
-    else if( !at || at[0]==' ' )
-        at="STD";
-    at = "report/" + at + ".rep";
-
-    log_file(at,msg);
-#endif
+  save_me(1);
+  destruct(this_object());
+  return 1;
 }
 
 int xflags(object ob){
@@ -151,7 +109,7 @@ int xflags(object ob){
         re += AWF_BOOST;
     // ists nen Mapping und nicht leer?
     if (mappingp(m=(mapping)ob->QueryProp(P_RESISTANCE_STRENGTHS))
-	&& sizeof(m))
+        && sizeof(m))
         re += AWF_RESIST;
     return re;
 }
@@ -167,12 +125,11 @@ void RegisterArmour()
     id = explode(object_name(ob),"#")[0];
     if (member(armours,id))
     {
-	armours[id][AWM_TIME]=time();
+        armours[id][AWM_TIME]=time();
         flag=0;
         if ((h=(int)ob->QueryProp(P_AC)) > armours[id][AWM_CLASS])
         {
             armours[id][AWM_CLASS]=h;
-            NotifyACChange(ob,id);
             flag=1;
         }
         if ((h=(int)ob->QueryProp(P_EFFECTIVE_AC)) > armours[id][AWM_EFF_CLASS])
@@ -191,7 +148,8 @@ void RegisterArmour()
             flag=1;
         }
     }
-    else {
+    else
+    {
       armours += ([ id : 
         ([
             AWM_TYPE      : ob->QueryProp(P_ARMOUR_TYPE) ,
@@ -204,10 +162,10 @@ void RegisterArmour()
             AWM_D_TYPE    : ob->QueryProp(P_DAM_TYPE) ,
             AWM_X_CLASS   : ob->QueryProp(P_EFFECTIVE_WC) ||
                             ob->QueryProp(P_WC),
-	    AWM_TIME      : time()
+            AWM_TIME      : time()
         ]) ]);
-      NotifyACChange(ob,id);
     }
+    save_me(0);
 }
 
 void RegisterWeapon()
@@ -244,7 +202,8 @@ void RegisterWeapon()
             flag=1;
         }
     }
-    else {
+    else
+    {
       weapons += ([ id :
         ([
             AWM_TYPE      : ob->QueryProp(P_WEAPON_TYPE) ,
@@ -257,9 +216,10 @@ void RegisterWeapon()
             AWM_D_TYPE    : ob->QueryProp(P_DAM_TYPE) ,
             AWM_X_CLASS   : ob->QueryProp(P_EFFECTIVE_AC) || 
                             ob->QueryProp(P_AC),
-	    AWM_TIME      : time()
+            AWM_TIME      : time()
         ]) ]);
     }
+    save_me(0);
 }
 
 void RegisterDamager(object dam_ob,int old_dam, int new_dam)
@@ -283,6 +243,7 @@ void RegisterDamager(object dam_ob,int old_dam, int new_dam)
         return;
     damagers[fn,0]=damagers[fn,0]|flag;
     damagers[fn,1]=time(); 
+    save_me(0);
 }
 
 string dtdump(mixed arg)
@@ -310,18 +271,19 @@ string dtdump(mixed arg)
     return re;
 }
 
-int Dump(mixed what)
+int Dump(mixed what, int sortidx)
 {   string  file,*ind;
     mapping dump;
 
     if (!allowed())
         return -1;
+
     if (!what)
     {
         write("Nimm doch mal einen richtigen Parameter!\n");
         return 0;
     }
-    if (stringp(what) && strlen(what)>0)
+    if (stringp(what) && sizeof(what)>0)
     {
         what==what[0..0];
         if (what=="a")
@@ -344,34 +306,33 @@ int Dump(mixed what)
     if (what==3) // Die 'damagers' haben ein anderes Ausgabeformat
     {
         printf("AWM: Dumping 'damagers' to '%s'\n",DDUMPFILE);
-        ind=sort_array(m_indices(damagers),#'<);
-        if (sizeof(ind) < 1) {
+        if (sizeof(damagers) < 1) {
             write("AWM: Dump aborted, mapping empty.\n");
             return 1;
         }
         if (file_size(DDUMPFILE)>1)
             rm(DDUMPFILE);
         
-	// nach letzter Aktualisierung sortieren.
-	mixed sorted = sort_array(m_indices(damagers),
-	    function int (int a, int b) {
-		return damagers[a,1] < damagers[b,1];
-	    } );
+        // nach letzter Aktualisierung sortieren.
+        mixed sorted = sort_array(m_indices(damagers),
+            function int (string a, string b) {
+                return damagers[a,1] < damagers[b,1];
+            } );
 
-	string ausgabe = sprintf(
+        string ausgabe = sprintf(
             "--- Damagers-Dump --- %s --- %s ---\n\n"+
             "%:15s D R [Filename]\n",
             dtime(time()),capitalize(getuid(this_interactive())),
-	    "Datum/Zeit");
-	foreach(string rue : sorted) {
+            "Datum/Zeit");
+        foreach(string rue : sorted) {
             ausgabe += sprintf("%:15s %1s %1s %s\n",
-		strftime("%y%m%d-%H:%M:%S",damagers[rue,1]),
+                strftime("%y%m%d-%H:%M:%S",damagers[rue,1]),
                 (damagers[rue,0]&1?"+":"-"),
                 (damagers[rue,0]&2?"+":"-"),
                 rue);
-	}
-	
-	write_file(DDUMPFILE, ausgabe);
+        }
+        
+        write_file(DDUMPFILE, ausgabe);
         return 1;
     }
     if (what==2)
@@ -382,7 +343,15 @@ int Dump(mixed what)
         (what?"armours":"weapons"),file);
     
     dump=(what?armours:weapons);
-    ind=sort_array(m_indices(dump),#'>);
+    
+    if (sortidx) {
+      ind = sort_array(m_indices(dump),
+          function int (string a, string b)
+          {return dump[a][sortidx] < dump[b][sortidx];} );
+    }
+    else
+      ind = sort_array(m_indices(dump),#'>);
+    
     if (sizeof(ind) < 1)
     {
         write("AWM: Dump aborted, mapping empty.\n");
@@ -433,22 +402,23 @@ int Unregister(string what)
     } 
     if (member(armours,what))
     {
-        efun::m_delete(armours,what);
+        m_delete(armours,what);
         write("Unregistered "+what+" from 'armours'.\n");
         return 1;
     }
     if (member(weapons,what))
     {
-        efun::m_delete(weapons,what);
+        m_delete(weapons,what);
         write("Unregistered "+what+" from 'weapons'.\n");
         return 1;
     }
     if (member(damagers,what))
     {
-        efun::m_delete(damagers,what);
+        m_delete(damagers,what);
         write("Unregistered "+what+" from 'damagers'.\n");
         return 1;
     }
+    save_me(0);
     return 0;
 }
 
@@ -457,7 +427,7 @@ int ResetDamagers()
     if (!allowed())
         return -1;
     damagers = m_allocate(0,2);
-    save_me();
+    save_me(1);
     return 1;
 }
 

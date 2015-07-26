@@ -2,7 +2,7 @@
 //
 // thing/language.c -- language handling object
 //
-// $Id: language.c 7165 2009-02-27 23:05:52Z Zesstra $
+// $Id: language.c 8359 2013-02-09 11:43:39Z Zesstra $
 
 #pragma strict_types
 #pragma save_types
@@ -89,7 +89,7 @@ varargs string QueryArticle(int casus, int dem, int force)
 // Besitzanzeiger fuer Objekt bestimmen
 varargs string QueryOwn(int casus)
 {
-  return sprintf("Dein%s ",query_g_suffix(QueryProp(P_GENDER),casus));
+  return sprintf("Dein%s",query_g_suffix(QueryProp(P_GENDER),casus));
 }
 
 // Possessivpronomen bestimmen

@@ -2,7 +2,7 @@
 //
 // mailer.c
 //
-// $Id: mailer.c 7452 2010-02-20 12:59:01Z Zesstra $
+// $Id: mailer.c 8755 2014-04-26 13:13:40Z Zesstra $
 
 /*
  *------------------------------------------------------------
@@ -412,7 +412,7 @@ public int FingerMail( string user )
     int newfolder, i;
 
     //Zugriff beschraenken, Zahl der gelesenen Mails ist Privatsphaere
-    if (!objectp(this_interactive()) || !stringp(user) || !strlen(user)) 
+    if (!objectp(this_interactive()) || !stringp(user) || !sizeof(user)) 
      return(-1);
     if ((getuid(this_interactive())!=user) &&
      (process_call() || !ARCH_SECURITY)) return(-1);
@@ -420,7 +420,7 @@ public int FingerMail( string user )
     if ( !GetFolders(user) )
         return 0;
 
-    if ( (newfolder = member_array( "unread", folders[0] )) != -1 )
+    if ( (newfolder = member(folders[0],"unread")) != -1 )
         return sizeof(folders[1][newfolder]);
 
     return 0;
@@ -435,12 +435,12 @@ static void save_msg( mixed msg, string user )
     GetFolders( user );
 
     /* if folder 'unread' doesn't exist, create it */
-    newfolder = member_array( "unread", folders[0] );
+    newfolder = member( folders[0], "unread");
     
     if ( newfolder == -1 ){
         folders[0] += ({ "unread" });
         folders[1] += ({ ({ }) });
-        newfolder = member_array( "unread", folders[0] );
+        newfolder = member( folders[0], "unread");
     }
     
     folders[1][newfolder] += ({ msg });
@@ -494,7 +494,7 @@ public int MoveMsg( int msg, int folder, string newfolder, string user )
     if ( msg < 0 || sizeof(folders[1][folder]) <= msg )
         return 0; /* No such msg */
 
-    if ( (target = member_array( newfolder, folders[0] )) == -1 )
+    if ( (target = member(folders[0], newfolder)) == -1 )
         return -3;
 
     if ( target == folder )
@@ -519,10 +519,10 @@ public int DeleteUnreadFolder( string user )
     if ( !GetFolders(user) )
         return -1; /* Source folder not found */
 
-    if ( (unread = member_array( "unread", folders[0] )) == -1 )
+    if ( (unread = member( folders[0], "unread")) == -1 )
         return 0;
     
-    if ( (newmail = member_array( "newmail", folders[0] )) == -1 ){
+    if ( (newmail = member( folders[0], "newmail")) == -1 ){
         folders[0] += ({ "newmail" });
         folders[1] += ({({})}); 
         newmail = sizeof(folders[1]) - 1;
@@ -552,7 +552,7 @@ public int RemoveFolder( string folder, string user )
     if ( !GetFolders(user) )
         return -1; /* No such folder */
 
-    if ( (i = member_array( folder, folders[0] )) == -1 )
+    if ( (i = member( folders[0], folder)) == -1 )
         return -1; /* No such folder */
 
     if ( sizeof(folders[1][i]) > 0 )
@@ -579,7 +579,7 @@ public int MakeFolder( string folder, string user )
 
     GetFolders( user );
 
-    if ( member_array( folder, folders[0] ) != -1 )
+    if ( member( folders[0], folder) != -1 )
         return 0; /* Folder exists */
 
     folders[0] = folders[0] + ({ folder });

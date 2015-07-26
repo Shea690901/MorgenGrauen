@@ -2,7 +2,7 @@ NAME:
     P_TTY_COLS                                  "tty_cols"
 
 DEFINIERT IN:
-    /sys/properties.h
+    /secure/telnetneg.h
 
 BESCHREIBUNG:
     In dieser Properties steht die Anzahl der Spalten, die das 

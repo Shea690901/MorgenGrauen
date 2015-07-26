@@ -11,6 +11,11 @@ inherit "/std/room/shop";
 
 protected void create()
 {
+  if (object_name(this_object()) == __FILE__[0..<3])
+  {
+    set_next_reset(-1);
+    return;
+  }
   room::create();
   shop::create();
 

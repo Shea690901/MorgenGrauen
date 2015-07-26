@@ -3,21 +3,20 @@
 ** (von Boing)
 */
 
-inherit "std/weapon";
+// Diese Pragmas sorgen dafuer, dass der Driver darauf achtet, dass bei
+// Funktionsargumenten, -Rueckgabewerten und teilweise bei Zuweisung von
+// Werten an Variablen der richtige Datentyp verwendet wird (z.b. kein string
+// anstelle eines int verwendet wird). Sollte in keinem Objekt fehlen.
+#pragma strong_types, save_types, rtt_checks
+
+inherit "/std/weapon";
 
 #include <properties.h>     /* Definition der Properties */
 #include <combat.h>         /* Definition der kampfspezifischen Konstanten */
 #include <language.h>       /* Definition von MALE, FEMALE, WER, ... */
 
-create()
+protected void create()
 {
-/* Wenn das Objekt kein Clone ist sondern die Blueprint (also das Original
- * von dem beim clonen Kopien gemacht werden), soll im Normalfall nichts
- * konfiguriert werden --> Speicher wird gespart
- */
-  if (!clonep(this_object()))
-     return;
-
   ::create();   /* WICHTIG!!! */
 
 /* Kurzbeschreibung fuer Darstellung in inventories */
@@ -54,3 +53,4 @@ create()
 /* ein Zweihaender.                                             */
   SetProp(P_NR_HANDS, 1);
 }
+

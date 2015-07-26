@@ -2,7 +2,7 @@ NAME:
     P_TTY_SHOW                                  "tty_show"
 
 DEFINIERT IN:
-    /sys/properties.h
+    /secure/telnetneg.h
 
 BESCHREIBUNG:
     Bei Telnets, die Telnetnegotiations unterstuetzen, wird eine Aenderung

@@ -2,7 +2,7 @@
 //
 // rooms.h -- standard room header
 //
-// $Id: rooms.h 4429 2006-09-23 10:13:30Z root $
+// $Id: rooms.h 8425 2013-02-23 18:49:09Z Zesstra $
 
 #ifndef __ROOM_H__
 #define __ROOM_H__
@@ -10,6 +10,10 @@
 #include <room/description.h>
 #include <room/exits.h>
 #include <doorroom.h>
+
+// properties
+// Flags fuer Einschraenkung der Daten fuer Mappingzwecke an den Client
+#define P_MAP_RESTRICTIONS  "lib_p_map_restrictions"
 
 // raise error message
 #define AddDoor(a,b,c,d,e,f) raise_error("Use NewDoor instead of AddDoor!\n")
@@ -40,7 +44,9 @@
 #define RT_SHOP    1
 #define RT_PUB     2
 
-// properties
+// Werte fuer P_MAP_RESTRICTIONS
+#define MR_NOUID  0x1
+#define MR_NOINFO 0x2
 
 #endif // __ROOM_H__
 

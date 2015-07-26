@@ -2,7 +2,7 @@
 //
 // living/put_and_get.c -- taking and putting things
 //
-// $Id: put_and_get.c 6982 2008-08-22 21:00:28Z Zesstra $
+// $Id: put_and_get.c 8755 2014-04-26 13:13:40Z Zesstra $
 
 /*
   Grundlegend neu strukturiert von Amynthor im April-Juni 2007
@@ -174,7 +174,7 @@ private string put_or_get(object o, object dest)
             }
 
             if (dest == environment())
-                return (stringp(str = dest->Name(WER, 1)) && strlen(str) ?
+                return (stringp(str = dest->Name(WER, 1)) && sizeof(str) ?
                         str : "Der Raum") + " wuerde dann zu schwer werden.";
 
             return capitalize(wer0 + " passt in " + dest->name(WEN, 1) +
@@ -247,7 +247,7 @@ private string put_or_get(object o, object dest)
                        " wuerde Dir dann zu schwer werden.";
 
             return (stringp(str = environment(dest)->Name(WER, 1))
-                        && strlen(str) ? str : "Der Raum") +
+                        && sizeof(str) ? str : "Der Raum") +
                     " wuerde dann zu schwer werden.";
 
         case TOO_MANY_OBJECTS:
@@ -279,6 +279,7 @@ private string put_or_get(object o, object dest)
 
             return capitalize(wen0 + " kannst Du dort nicht hineinstecken.");
     }
+    return 0; // NOT REACHED
 }
 
 
@@ -579,15 +580,19 @@ private object *__find_objects(string *tokens, object env, int is_source)
     if (!env && sizeof(tokens) > 1 && tokens[<1] == "hier") {
         tokens = tokens[..<2];
         env = environment();
-    } else if (!env && sizeof(tokens) > 2 && tokens[<2] == "in")
+    }
+    else if (!env && sizeof(tokens) > 2 && tokens[<2] == "in")
+    {
         if (tokens[<1] == "mir" ||
             tokens[<1] == "dir") {
             tokens = tokens[..<3];
             env = this_object();
-        } else if (tokens[<1] == "raum") {
+        }
+        else if (tokens[<1] == "raum") {
             tokens = tokens[..<3];
             env = environment();
         }
+    }
 
     for (int i = sizeof(tokens)-1; i > 1; i--) {
         if (env)
@@ -627,7 +632,7 @@ private object *__find_objects(string *tokens, object env, int is_source)
         return env->present_objects(implode(tokens, " "));
 
     if (environment() &&
-	sizeof(obs = environment()->present_objects(implode(tokens, " "))))
+        sizeof(obs = environment()->present_objects(implode(tokens, " "))))
         return obs;
 
     return present_objects(implode(tokens, " "));
@@ -635,7 +640,7 @@ private object *__find_objects(string *tokens, object env, int is_source)
 
 object *find_objects(string what, object env, int is_source)
 {
-  if (!stringp(what) || !strlen(what))
+  if (!stringp(what) || !sizeof(what))
     return ({});
   return __find_objects(explode(what, " "), env, is_source);
 }
@@ -685,7 +690,7 @@ varargs int put_objects(string str, int casus, string verb, mixed msg)
 {
     object *obs, dest, *no_move;
     
-    if (!stringp(str) || !strlen(str)) return 0;
+    if (!stringp(str) || !sizeof(str)) return 0;
 
     string *tokens = explode(str, " ");
     int allow_room = 1;
@@ -767,6 +772,8 @@ varargs int put_objects(string str, int casus, string verb, mixed msg)
         last_moved_where = dest;
         return 1;
     }
+    
+    return 0;
 }
 
 varargs int pick_objects(string str, int flag, mixed msg)
@@ -803,7 +810,7 @@ varargs int give_objects(string str, mixed msg)
 {
     object *obs, dest;
     
-    if (!stringp(str) || !strlen(str)) return 0;
+    if (!stringp(str) || !sizeof(str)) return 0;
 
     string *tokens = explode(str, " ");
 
@@ -834,7 +841,8 @@ varargs int give_objects(string str, mixed msg)
 
         if ((pos = strrstr(str, " an ")) >= 0) {
             dest = present(str[pos+4..], environment());
-            obs = find_objects(str[..pos-1], this_object(), 1);
+            // zu gebende Objekte in Env + Living suchen
+            obs = find_objects(str[..pos-1], 0, 1);
         }
     }
 
@@ -862,7 +870,7 @@ varargs int show_objects(string str, mixed msg)
 {
     object *obs, whom;
     
-    if (!stringp(str) || !strlen(str))
+    if (!stringp(str) || !sizeof(str))
       return 0;
 
     string *tokens = explode(str, " ");
@@ -1101,7 +1109,7 @@ object* find_obs(string str, int meth)
    }
    else if (meth & PUT_GET_DROP) inv=ME; // Raum bei drop uninteressant
    // else kein besonderes inv ausgewaehlt also inv=0
-   if (!strlen(str))
+   if (!sizeof(str))
      return 0; // hier passt die bereits gesetzte _notify_fail
    else {
      object *obs;
@@ -1178,14 +1186,14 @@ int pick_obj(object ob)
     TME("Du kannst nicht mehr nehmen als da ist.");
     return 1;
   }
-  (void) pick(ob);
+  pick(ob);
   return 1;
 }
 
 int drop_obj(object ob)
 {
   if (!ob || ob==this_object() || environment(ob)!=this_object()) return 0;
-  (void) drop(ob);
+  drop(ob);
   return 1;
 }
 
@@ -1207,7 +1215,7 @@ int put_obj(object ob, object where)
     _notify_fail("Da kommst du so nicht ran.\n");
     return 0;
   }
-  (void) put(ob, where);
+  put(ob, where);
   return 1;
 }
 
@@ -1230,6 +1238,6 @@ int give_obj(object ob, object where)
     TME("Das hast Du nicht.");
     return 1;
   }
-  (void) give(ob, where);
+  give(ob, where);
   return 1;
 }

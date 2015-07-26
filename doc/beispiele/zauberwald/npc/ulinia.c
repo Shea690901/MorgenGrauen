@@ -50,7 +50,7 @@ void create()
    AddAdjective("wunderschoen");
    AddId(({"fee", "waldfee", "ulinia", WALDID("fee")}));
    SetProp(P_HANDS, ({" mit ihren zarten Haenden", 150, DT_BLUDGEON}) );
-   SetProp(P_SKILL_ATTRIBUTE_OFFSETS, ([SA_ENEMY_SAVE: 250]));
+   SetProp(P_SKILL_ATTRIBUTE_OFFSETS, ([SA_SPELL_PENETRATION: 250]));
    SetProp(P_XP, 800*200*5*2);
    SetProp(P_GUILD, "zauberer");
    SetProp(P_Z_NO_MATERIAL, 1);

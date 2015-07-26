@@ -1,7 +1,7 @@
 PreventInsert()
 
 FUNKTION:
-     varargs int PreventInsert(object ob);
+     int PreventInsert(object ob);
 
 DEFINIERT IN:
      /std/container/restrictions.c

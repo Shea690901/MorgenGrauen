@@ -1,6 +1,6 @@
 #include <properties.h>
 
-inherit "std/thing";
+inherit "/std/thing";
 
 create() {
   if (!clonep(this_object())) return;

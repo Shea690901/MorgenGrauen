@@ -17,7 +17,7 @@
 #define MAXLOGSIZE 2000000
 #define SMALLLOGSIZE 200000
 #define LOGTIME 120
-#define MAXBUFFSIZE 1000
+#define MAXBUFFSIZE 2000
 
 #define DEBUG(x)  if (find_player("zesstra"))\
             tell_object(find_player("zesstra"),\
@@ -50,7 +50,7 @@ private nosave mapping ldata = m_allocate(0,D_LOG);
 
 public int query_bb();
 public void writebb( string msg );
-public void BBWrite(string msg);
+public varargs void BBWrite(string msg, int catmode);
 
 public int add( string user, int timeout );
 public int sub( string user );
@@ -142,7 +142,7 @@ private void DumpData(string uid, string erstie, string ip, int flags, mixed log
   foreach(mixed arr : logdata) {
     res+=sprintf("%O: %O [%s]\n", 
         strftime("%y%m%d-%H%M%S",arr[DL_TIME]),
-        arr[DL_CMD], arr[DL_ENV]);
+        arr[DL_CMD], arr[DL_ENV] || "<unbekannt>");
   }
 
   //DEBUG("DumpData: "+res);
@@ -173,7 +173,7 @@ private void AddTemporaryPlayer(string uid) {
 
 private void RemoveTemporaryPlayer(string uid) { 
   if (!(ldata[uid,D_FLAGS] & FL_PERMANENT)) {
-    efun::m_delete(ldata, uid);
+    m_delete(ldata, uid);
   }
 }
 
@@ -198,7 +198,7 @@ public int query_bb()
 // neue Funktion. Kriegt nur Kommandosstring uebergegen, werden ggf. gepuffert
 // und dann weggeschrieben.
 public varargs void BBWrite(string msg, int catmode) {
-
+  
   if ( !this_interactive() ||
       (extern_call() && 
        strstr(load_name(previous_object()), "/std/shells/") != 0 ) )
@@ -302,11 +302,11 @@ private void scan_bb_opfer()
                                        || "" ), "\n" )[2..];
     
     foreach(string line : lines) {
-        if( strlen(line) && line[0] != '#' ) {
+        if( sizeof(line) && line[0] != '#' ) {
 	    uid=line[0 .. member(line,' ')-1];
 	    AddTemporaryPlayer(uid);
 	    ldata[uid,D_LOGTIME] = __INT_MAX__;
-	    ldata[uid,D_FLAGS] = FL_PERMANENT|FL_SYNC;
+	    ldata[uid,D_FLAGS] = FL_PERMANENT;
 	    pl = find_player(uid) || find_netdead(uid);
 	    if (pl)
 	      pl->__set_bb(1);
@@ -338,7 +338,7 @@ public varargs int remove(int silent) {
 // Alles ab hier nur zum Ueberwachen von FTP-Aktivitaeten.
 private int player_exists( string user )
 {
-    if ( !stringp( user ) || strlen( user ) < 2 )
+    if ( !stringp( user ) || sizeof( user ) < 2 )
         return 0;
     
   return file_size( "/save/" + user[0..0] + "/" + user + ".o" ) > 0;
@@ -368,7 +368,7 @@ public int sub( string user )
     if( !stringp(user) || !member( monitored, lower_case(user) ) )
         return -2;
     
-    efun::m_delete( monitored, lower_case(user) );
+    m_delete( monitored, lower_case(user) );
     save_object( FTPSAVE );
     
     return 1;

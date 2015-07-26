@@ -2,7 +2,7 @@
 //
 // thing/commands.h -- command handling header
 //
-// $Id: commands.h 5706 2006-09-23 10:37:01Z root $
+// $Id: commands.h 8707 2014-02-23 22:38:34Z Zesstra $
 
 #ifndef __THING_COMMANDS_H__
 #define __THING_COMMANDS_H__
@@ -32,8 +32,7 @@ static mapping _query_commands();
 
 // internal
 static int _execute(mixed fun, string str, mixed *parsed);
-static int _process_command(string str, string *noparsestr,mixed *fun, mixed *flag, mixed *rule);
-static string _replace_personal(string str, mixed *obs);
+static int _process_command(string str, string *noparsestr,mixed fun, mixed flag, mixed rule);
 
 public int _cl(string str);
 

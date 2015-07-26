@@ -3,14 +3,13 @@
 // unit.c -- Basisklasse fuer Mengenobjekte
 //           (neue Version von Padreic)
 //
-// $Id: unit.c 7327 2009-11-05 20:27:52Z Zesstra $
-#pragma strong_types
-#pragma save_types
+// $Id: unit.c 9077 2015-01-16 23:26:00Z Zesstra $
+#pragma strong_types,save_types,rtt_checks
 #pragma range_check
 #pragma no_clone
 #pragma pedantic
 
-inherit "std/thing";
+inherit "/std/thing";
 
 #define NEED_PROTOTYPES
 #include <unit.h>
@@ -22,11 +21,20 @@ inherit "std/thing";
 #include <language.h>
 #include <moving.h>
 #include <wizlevels.h>
+#include <debug_info.h>
 
-//#define ZDEBUG(x) if (find_player("zesstra")) tell_object(find_player("zesstra"),x)
-#define ZDEBUG(x)
+// zum debuggen und extra public
+public string debugmode;
+public string __set_debug(string recv) {return debugmode=recv;}
+#include <living/comm.h>
+#define ZDEBUG(x) if (stringp(debugmode) && find_player(debugmode)) \
+  find_player(debugmode)->ReceiveMsg(x,MT_DEBUG,0,object_name()+": ",ME)
+//#define ZDEBUG(x)
+
+private void _call_DoDecay(object *klone);
 
 private nosave string lastverb;
+private nosave int lastevalnumber;
 
 protected void create()
 {
@@ -46,22 +54,42 @@ protected void create_super() {
 //// Query und Set Funktionen fuer die Propertys
 
 static void check_leave()
-{  if (Query(P_AMOUNT)<1) remove();  }
+{  if (Query(P_AMOUNT,F_VALUE)<1) remove(1);  }
+
+static int _query_invis()
+{
+  if (QueryProp(P_AMOUNT) < 1)
+    return 1;
+  return Query(P_INVIS, F_VALUE);
+}
 
 static int _set_amount(int am)
 {
-  if (am<1) call_out("check_leave",1);
-  Set(U_REQ, am);
-  return Set(P_AMOUNT,am);
+  if (am<1)
+    call_out("check_leave",1);
+  SetProp(U_REQ, am);
+  return Set(P_AMOUNT,am, F_VALUE);
+}
+
+static int _set_u_req(int ureq)
+{
+  lastverb = query_verb();
+  lastevalnumber = debug_info(DINFO_EVAL_NUMBER);
+  return Set(U_REQ, ureq, F_VALUE);
 }
 
 static int _query_u_req()
 {
-  if (lastverb!=query_verb()) {
-    lastverb=0;
-    Set(U_REQ, Query(P_AMOUNT));
+  // Zwei Dinge benutzten, um zu entscheiden, ob U_REQ noch gueltig ist oder
+  // besser auf P_AMOUNT zurueckgesetzt werden sollte: die DINFO_EVAL_NUMBER
+  // und das Kommandoverb. Wenn eines von beiden sich geaendert hat, wird
+  // U_REQ als ungueltig betrachtet. (Und dies bleibt ein uebler Hack.)
+  if (lastevalnumber != debug_info(DINFO_EVAL_NUMBER)
+      || lastverb != query_verb())
+  {
+    return SetProp(U_REQ, Query(P_AMOUNT, F_VALUE));
   }
-  return Query(U_REQ);
+  return Query(U_REQ, F_VALUE);
 }
 
 // Gesamtwert der gerade mit U_REQ ausgewaehlten unitobjekte
@@ -69,30 +97,30 @@ static int _query_value()
 {
   mixed cpu;
   cpu=Query(U_CPU);
-  if (intp(cpu)) return Query(U_REQ)*(int)cpu;
+  if (intp(cpu)) return QueryProp(U_REQ) * cpu;
   if (!pointerp(cpu)) return 0;
-  return (Query(U_REQ)*cpu[0])/cpu[1];
+  return (QueryProp(U_REQ) * cpu[0])/cpu[1];
 }
 
 static int _set_value(int num) {
 // Setzt den Wert fuer die derzeitige Anzahl
-  SetCoinsPerUnits(num, Query(U_REQ));
+  SetCoinsPerUnits(num, QueryProp(U_REQ));
   return QueryProp(P_VALUE);
 }
 
 static int _query_weight()
 {
   mixed gpu, req;
-  if ((req=Query(U_REQ))<1) return 0;
+  if ((req=QueryProp(U_REQ))<1) return 0;
   gpu=Query(U_GPU);
-  if (intp(gpu)) return req*(int)gpu;
+  if (intp(gpu)) return req * gpu;
   if (!pointerp(gpu)) return 0;
   return MAX(1,(req*gpu[0])/gpu[1]);
 }
 
 static int _set_weight(int num) {
 // Setzt das Gewicht fuer die derzeitige Anzahl
-    SetGramsPerUnits(num, Query(U_REQ));
+    SetGramsPerUnits(num, QueryProp(U_REQ));
     return QueryProp(P_WEIGHT);
 }
 
@@ -110,20 +138,20 @@ static int _query_total_weight()
 static int _query_plural()
 {
   int i;
-  i=Query(U_REQ); // wichtig _nicht_ QueryProp
+  i=QueryProp(U_REQ); // wichtig _nicht_ QueryProp
   return (i<=1 ? 0 : i);
 }
 
 // gibt string | string* zurueck.
-static mixed _query_name()
+static string|string* _query_name()
 {
-  if (Query(U_REQ)==1)
+  if (QueryProp(U_REQ)==1)
     return "%s%s"+((string *)Query(P_NAME))[0];
   return "%d %s"+((string *)Query(P_NAME))[1];
 }
 
 // gibt string | string* zurueck.
-static mixed _set_name(mixed names)
+static string|string*  _set_name(mixed names)
 {
   if(!names)
     return Set(P_NAME,({"",""}));
@@ -160,7 +188,7 @@ void RemoveSingularId(mixed str)
   if(stringp(str))
     str=({str});
   if(pointerp(str))
-    return Set(U_IDS,({Query(U_IDS)[0]-str,Query(U_IDS)[1]}));
+    Set(U_IDS,({Query(U_IDS)[0]-str,Query(U_IDS)[1]}));
 }
  
 void AddPluralId(mixed str)
@@ -178,7 +206,7 @@ void RemovePluralId(mixed str)
   if(stringp(str))
     str=({str});
   if(pointerp(str))
-    return Set(U_IDS,({Query(U_IDS)[0],Query(U_IDS)[1]-str}));
+    Set(U_IDS,({Query(U_IDS)[0],Query(U_IDS)[1]-str}));
 }
 
 void SetCoinsPerUnits(int coins,int units)
@@ -236,7 +264,7 @@ varargs string name(int fall, int demo)
   mixed n_adj;
   string adj;
 
-  if ((req=Query(U_REQ))<1) return 0;
+  if ((req=QueryProp(U_REQ))<1) return 0;
   if (fall!=RAW && 
       pointerp(n_adj=QueryProp(P_NAME_ADJ)) && sizeof(n_adj) )
     adj = implode(map(n_adj, #'DeclAdj, fall, demo && req==1), "");
@@ -260,7 +288,7 @@ varargs string name(int fall, int demo)
 
 varargs string QueryPronoun(int casus)
 {
-  if (Query(U_REQ)==1)
+  if (QueryProp(U_REQ)==1)
     return ::QueryPronoun(casus);
   switch(casus) {
     case WESSEN: return "ihrer";
@@ -272,9 +300,7 @@ varargs string QueryPronoun(int casus)
 
 string short()
 {
-  int req;
-  if (!lastverb||query_verb()!=lastverb) Set(U_REQ, Query(P_AMOUNT));
-  if ((req=Query(U_REQ))<1 || QueryProp(P_INVIS)) return 0;
+  if (QueryProp(U_REQ)<1 || QueryProp(P_INVIS)) return 0;
   return capitalize(name(WER,0))+".\n";
   /*
   if (req>1) return sprintf(QueryProp(P_NAME), req)+".\n";
@@ -290,130 +316,175 @@ varargs string long()
 
 varargs int id(string str,int lvl)
 {
-  int i,amount;
+
   string s1,s2,*ids;
+  int i;
 
   if (!str) return 0;
-  if (lastverb!=query_verb()) lastverb=0;
+  
+  // Wenn kein pos. Amount, hat dieses Objekt keine IDs mehr, damit es nicht
+  // mehr ansprechbar ist.
+  int amount=QueryProp(P_AMOUNT);
+  if (amount < 1)
+    return 0;
+
   if (::id(str)) {
-    Set(U_REQ, Query(P_AMOUNT));
-    lastverb=query_verb();
+    SetProp(U_REQ, Query(P_AMOUNT,F_VALUE));
     return 1;
   }
-  amount=Query(P_AMOUNT);
+
+ ids=Query(U_IDS);
+  if (!ids)
+    return 0;
+ 
   //die casts auf 'mixed' sind absicht. Sonst geht der Driver offenbar davon
   //aus, dass ids[1] ein String ist. Es ist aber aber ein Array von Strings
   //und genau das will auch match_item() haben. ;-) Zesstra
-  if (!amount || !(ids=Query(U_IDS))) return 0;
   if (match_item(str,(mixed)ids[1] )) {
-    Set(U_REQ, amount);
-    lastverb=query_verb();
+    SetProp(U_REQ, amount);
     return 1;
   }
   if (match_item(str,(mixed)ids[0] )) {
-    Set(U_REQ,1);
-    lastverb=query_verb();
+    SetProp(U_REQ,1);
     return 1;
   }
   if (sscanf(str,"%s %s",s1,s2) && s1[0..3]=="alle" && 
     match_item(s2,(mixed)ids[1] )) {
-    Set(U_REQ, amount);
-    lastverb=query_verb();
+    SetProp(U_REQ, amount);
     return 1;
   }
   if (sscanf(str,"%d %s",i,s1)==2 && i==1 && match_item(s1,(mixed)ids[0] )) {
-    Set(U_REQ,1);
-    lastverb=query_verb();
+    SetProp(U_REQ,1);
     return 1;
   }
   if (sscanf(str,"%d %s",i,s1)==2 && match_item(s1,(mixed)ids[1] ) && 
       i<=amount && i>0) {
-    Set(U_REQ,i);
-    lastverb=query_verb();
+    SetProp(U_REQ,i);
     return 1;
   }
   return 0;
 }
 
-varargs int move(mixed dest,int method)
+// Status fuer move... *seufz*
+int _orig_amount, _move_requested;
+
+varargs int move(object|string dest,int method)
 {
-  int i, j, amount, req;
-  string fname;
-  mixed env;
-  
-  amount = QueryProp(P_AMOUNT);
-  req = QueryProp(U_REQ);
-  fname = BLUE_NAME(ME);
-  
-  if ( !(method & (M_MOVE_ALL|M_FORCE_SPLIT)) && amount != req ){
-      env = environment(); // wird nur benoetigt bei amount!=U_REQ
-      
-     if ( env )
-         env->query_weight_contents();
+  _orig_amount = QueryProp(P_AMOUNT);
+  // Wenn M_MOVE_ALL gesetzt ist, wird IMMER ALLES bewegt.
+  if (method & M_MOVE_ALL)
+    _move_requested = _orig_amount;
+  else
+    _move_requested = QueryProp(U_REQ);
+
+  ZDEBUG(sprintf("move from %O to %O: amount %d, req %d\n",environment(),dest,_orig_amount,_move_requested));
+  // Wenn nicht alles bewegt werden soll, wird die Menge dieses Objektes
+  // erstmal reduziert und bewegt. Erst nach der Bewegung wird der Rest dann
+  // im alten Environment neu erzeugt.
+  if ( _orig_amount > _move_requested )
+  {
      // wenn in einem alten Paket das Gewicht noch nicht neu berechnet
      // wurde muss dies geschehn solange die Muenzen im Paket noch das
      // volle Gewicht haben...
-     Set( P_AMOUNT, req );
-  }
-  
-  i = ::move( dest, method );
-  
-  if ( i != 1 ){
-      if (env){
-          Set( P_AMOUNT, amount ); // verfruehte Aenderung rueckgaengig machen
-          // ohne move auch keine Aenderung an P_LAST_CONTENT_CHANGE noetig
-      }
-      
-      return i;
-  }
-  
-  if (env) { // schliesst automatisch amount != req mit ein!
-      if ( env == environment() && !(method & M_NOCHECK) ){
-          // Objekt wurde nur an den Anfang des inventory bewegt, sonst nichts.
-          Set( P_AMOUNT, amount ); // verfruehte Aenderung rueckgaengig machen.
-          env = this_object();
-          
-          while ( env = environment(env) )
-          // Ja. Man ruft die _set_xxx()-Funktionen eigentlich nicht direkt auf.
-          // Aber das move() ist schon *so* rechenintensiv und gerade der
-          // P_LAST_CONTENT_CHANGE-Cache wird *so* oft benoetigt, dass es mir
-          // da um jedes bisschen Rechenzeit geht.
-          // Der Zweck heiligt ja bekanntlich die Mittel. ;-)
-          //
-          // Tiamak
-              env->_set_last_content_change(); // wurde beim ::move veraendert
-      }
-      else{ // verbleibende Muenzen zurueck moven
-          object temp;
-          temp = clone_object(fname);
-          temp->SetProp( P_AMOUNT, amount-req );
-          temp->move( env, M_NOCHECK );
-      }
-  }
-  
-  // wenn man in frisch geclonten Muenzen die noch kein environment haben
-  // per Hand U_REQ auf einen Wert != P_AMOUNT setzt, so gehen die
-  // Restmuenzen verloren (man behaelt ja eh keinen Zeiger darauf).
-  if ( method & M_NOCHECK || !environment() )
-      return 1;
-
-  foreach(object item: all_inventory(environment())) {
-      if ( IS_EQUAL(item) ) { // feature, bitte nicht ausbauen!!!
-          amount = Query(P_AMOUNT) + item->Query(P_AMOUNT);
-          item->Set( P_AMOUNT, 0 );
-          item->remove();
-
-          Set( P_AMOUNT, amount );
-          if ( req < 0 )
-              Set( U_REQ, amount );
-      }
+     if ( environment() )
+         environment()->query_weight_contents();
+     // ab jetzt nur auf <_move_requested> Einheiten arbeiten
+     Set( P_AMOUNT, _move_requested, F_VALUE);
+     ZDEBUG(sprintf("move: amount set to %d\n",_move_requested));
   }
 
-  if ( amount < 1 )
-      call_out( "check_leave", 1 );
-  
-  return 1;
+  int res = ::move( dest, method );
+
+  if ( res != MOVE_OK )
+  {
+      // Fehlgeschlagene Bewegung ist doof.
+      // ggf. verfruehte Aenderung (P_AMOUNT oben auf <U_REQ> Einheiten
+      // reduziert) rueckgaengig machen
+      Set( P_AMOUNT, _orig_amount, F_VALUE );
+      ZDEBUG(sprintf("move: not OK, amount restored to %d\n",_orig_amount));
+      return res;
+  }
+
+  // TODO: eigentlich sollte es nicht passieren, dass die Menge jetzt negagtiv
+  // ist. Aber bei Geld kann es durch vereinigen mit Geldboerse/Geldkarten
+  // passieren und das ist kein Fehler. Koennte man evtl. mal differenziert
+  // pruefen.
+  int finalamount= QueryProp(P_AMOUNT);
+  /*if ( finalamount < 1 )
+  {
+    ZDEBUG(sprintf("move: zerstoerung, amount %d\n",finalamount));
+    remove(1);
+    return ME_WAS_DESTRUCTED;
+  }
+  */
+  ZDEBUG(sprintf("move: OK, amount %d\n",finalamount));
+  return res;
 }
+
+
+protected void NotifyMove(object dest, object oldenv, int method)
+{
+  // Erst einen evtl. nicht zu bewegenden Rest im alten Environment wieder erzeugen.
+  if (oldenv && _orig_amount > _move_requested)
+  {
+      if ( oldenv == dest )
+      {
+          // Objekt wurde nur an den Anfang des inventory bewegt, sonst nichts.
+          // ggf. verfruehte Aenderung (oben auf <req> Einheiten reduziert)
+          // rueckgaengig machen
+          ZDEBUG(sprintf("move: same env, amount restored to %d\n",_orig_amount));
+          Set( P_AMOUNT, _orig_amount, F_VALUE );
+      }
+      else
+      {
+        // verbleibende Einheiten in einem neuen Objekte wieder zurueck ins
+        // alte Environment zurueck bewgen
+          object temp;
+          temp = clone_object(BLUE_NAME(ME));
+          temp->SetProp( P_AMOUNT, _orig_amount-_move_requested );
+          temp->move( oldenv, M_NOCHECK );
+          ZDEBUG(sprintf("move: Restmenge im alten Env erzeugt, amount %d\n",_orig_amount-_move_requested));
+      }
+  }
+
+  // Und jetzt ggf. mit den anderen Units gleichen Typs im neuen Environment
+  // vereinigen.
+  foreach(object item: all_inventory(environment()))
+  {
+      if ( IS_EQUAL(item) )
+      {
+        // Es ist ein Feature, dass auch mit Objekten mit negativen Amount
+        // vereinigt wird.
+        ZDEBUG(sprintf("move: vereinige mit %O (%d)\n",
+               item,item->QueryProp(P_AMOUNT)));
+        int mergedamount = QueryProp(P_AMOUNT) + item->QueryProp(P_AMOUNT);
+        item->Set( P_AMOUNT, 0, F_VALUE);
+        item->remove(1);
+
+        SetProp( P_AMOUNT, mergedamount);
+        // U_REQ ist jetzt auch zurueckgesetzt.
+
+        ZDEBUG(sprintf("move: nach vereinigung, amount %d\n",mergedamount));
+      }
+  }
+
+  // wenn man in frisch geclonten Units die noch kein environment haben
+  // per Hand U_REQ auf einen Wert != P_AMOUNT setzt, so gehen die
+  // restlichen Einheiten  verloren (es gibt kein Environment, in das man die
+  // Resteinheiten zurueck bewegen koennte).
+
+  // Und jetzt mal Decaykrams machen...
+
+  // wenn NO_DECAY_UNTIL_MOVE an ist und dieses ein Move ist, was von einem
+  // Env in ein anderes Env geht, loeschen. Nicht geloescht wird
+  // hingegen, wenn das move() in das allererste Env erfolgt (nach dem Clonen)
+  if ( (QueryProp(P_UNIT_DECAY_FLAGS) & NO_DECAY_UNTIL_MOVE)
+      && objectp(dest) && objectp(oldenv) && dest != oldenv)
+    SetProp(P_UNIT_DECAY_FLAGS, 
+        QueryProp(P_UNIT_DECAY_FLAGS) & ~NO_DECAY_UNTIL_MOVE );
+  ::NotifyMove(dest, oldenv, method);
+}
+
 
 void reset() {
   if (!clonep(ME)) {
@@ -424,7 +495,8 @@ void reset() {
     if (previous_object() && previous_object() != ME)
       return; 
     int zeit = QueryProp(P_UNIT_DECAY_INTERVAL);
-    if (zeit > 0) {
+    if (zeit > 0)
+    {
       set_next_reset(zeit);
       // Das Callout muss auf jeden Fall gemacht werden, wenn ein Decay
       // Intervall gesetzt ist, damit die Blueprint auch den naechsten Reset
@@ -432,37 +504,29 @@ void reset() {
       // kann der Callout wegfallen, beim Setzen eines Quota wird ja eine
       // Funktion an diesem Objekt gerufen.
       if (QueryProp(P_UNIT_DECAY_QUOTA) > 0)
-	call_out(#'_call_DoDecay, 1, 0);
+        call_out(#'_call_DoDecay, 1, 0);
     }
   }
   else {
     // Clones
-    if (Query(P_AMOUNT)<1) remove();
+    if (Query(P_AMOUNT,F_VALUE)<1) remove(1);
     else ::reset();
   }
 }
 
-varargs int remove()
+varargs int remove(int silent)
 {
-  if (lastverb==query_verb() && Query(P_AMOUNT)>Query(U_REQ)) {
-    SetProp(P_AMOUNT, Query(P_AMOUNT)-Query(U_REQ));
+  int amount = QueryProp(P_AMOUNT);
+  int req = QueryProp(U_REQ);
+  if (amount > req)
+  {
+    ZDEBUG(sprintf("remove: reduziere amount %d um %d -> %d\n",
+           amount, req, amount-req ));
+    SetProp(P_AMOUNT, amount - req);
     return 1;
   }
-  return ::remove();
-}
-
-
-protected void NotifyMove(object dest, object oldenv, int method) {
-  //TODO: Kram aus dem move() hierher verlagern.
-
-  // wenn NO_DECAY_UNTIL_MOVE an ist und dieses ein Move ist, was von einem
-  // Env in ein anderes Env geht, loeschen. Nicht geloescht wird
-  // hingegen, wenn das move() in das allererste Env erfolgt (nach dem Clonen)
-  if ( (QueryProp(P_UNIT_DECAY_FLAGS) & NO_DECAY_UNTIL_MOVE)
-      && objectp(dest) && objectp(oldenv) && dest != oldenv)
-    SetProp(P_UNIT_DECAY_FLAGS, 
-	QueryProp(P_UNIT_DECAY_FLAGS) & ~NO_DECAY_UNTIL_MOVE );
-  ::NotifyMove(dest, oldenv, method);
+  ZDEBUG(sprintf("remove: restlos weg.\n"));
+  return ::remove(silent);
 }
 
 // sollte nicht von aussen gerufen werden.
@@ -541,7 +605,7 @@ public int DoDecay(int silent) {
       // dann zerfaellt eine Einheit extra. Da das Random fuer grosse Zahlen
       // besser verteilt ist, nehm ich n = __INT_MAX__
       if (ceil(tmp * __INT_MAX__) > random(__INT_MAX__) + 1)
-	zerfall++;
+        zerfall++;
     }
 
     // nicht unter Minimum zerfallen
@@ -549,7 +613,7 @@ public int DoDecay(int silent) {
       zerfall = amount - minimum;
 
     // erst ggf. Meldung ausgeben.
-    if (!silent)
+    if (!silent && zerfall > 0)
       DoDecayMessage(amount, zerfall);
     // dann runtersetzen.
     SetProp(P_AMOUNT, amount - zerfall);
@@ -573,31 +637,31 @@ protected void DoDecayMessage(int oldamount, int zerfall) {
   if (oldamount == zerfall) {
     if (living(environment())) {
       tell_object(environment(), break_string(sprintf(
-	  "Auf einmal %s%s zu Staub!",
-	  (oldamount>1?"zerfallen Deine ":"zerfaellt D"), name(WER)),78));
+          "Auf einmal %s%s zu Staub!",
+          (oldamount>1?"zerfallen Deine ":"zerfaellt D"), name(WER)),78));
     }
     // das tell_room() muss auf jeden fall sein, weil es "lebende" Raeume
     // gibt. Liegt der KRam in einem solchen wuerden die Livings in diesem Raum
     // sonst keine meldung kriegen.
     tell_room(environment(), break_string(sprintf(
-	  "Auf einmal %s %s zu Staub!",
-	  (oldamount>1?"zerfallen":"zerfaellt"), name(WER)),78),
-	({environment()}));
+          "Auf einmal %s %s zu Staub!",
+          (oldamount>1?"zerfallen":"zerfaellt"), name(WER)),78),
+        ({environment()}));
   }
   else {
      if (living(environment())) {
       tell_object(environment(), break_string(sprintf(
-	  "Auf einmal %s %d Deiner %s zu Staub!",
-	  (zerfall>1?"zerfallen":"zerfaellt"),
-	  zerfall, Query(P_NAME)[1]),78));
+          "Auf einmal %s %d Deiner %s zu Staub!",
+          (zerfall>1?"zerfallen":"zerfaellt"),
+          zerfall, Query(P_NAME)[1]),78));
     }
     // das tell_room() muss auf jeden fall sein, weil es "lebende" Raeume
     // gibt. Liegt der KRam in einem solchen wuerden die Livings in diesem Raum
     // sonst keine meldung kriegen.
     tell_room(environment(), break_string(sprintf(
-	  "Auf einmal %s %d %s zu Staub!",
-	  (zerfall>1?"zerfallen":"zerfaellt"),
-	  zerfall, Query(P_NAME)[1]),78), ({environment()}) ); 
+          "Auf einmal %s %d %s zu Staub!",
+          (zerfall>1?"zerfallen":"zerfaellt"),
+          zerfall, Query(P_NAME)[1]),78), ({environment()}) ); 
   }
 }
 
@@ -632,13 +696,13 @@ static int _set_unit_decay_interval(int zeit) {
     if (po != ME) {
       // fremden Aufrufer gefunden
       if (getuid(po) != getuid(ME) 
-	  && member(master()->QueryUIDsForWizard(getuid(po)),getuid(ME)) == -1
-	  && (!this_interactive() || !IS_ELDER(this_interactive()) ) )
-	// unberechtigt, Abbruch
-	return QueryProp(P_UNIT_DECAY_INTERVAL);
+          && member(master()->QueryUIDsForWizard(getuid(po)),getuid(ME)) == -1
+          && (!this_interactive() || !IS_ELDER(this_interactive()) ) )
+        // unberechtigt, Abbruch
+        return QueryProp(P_UNIT_DECAY_INTERVAL);
       else
-	// nur das erste ext. Objekt in der Callkette wird geprueft, raus.
-	break;
+        // nur das erste ext. Objekt in der Callkette wird geprueft, raus.
+        break;
     }
   }
   set_next_reset(zeit);

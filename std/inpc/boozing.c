@@ -2,7 +2,7 @@
 //
 // inpc/boozing.c -- Intelligentes Saufen
 //
-// $Id: boozing.c 6371 2007-07-17 22:46:50Z Zesstra $
+// $Id: boozing.c 8396 2013-02-18 21:56:37Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -13,7 +13,7 @@
 #include <thing.h>
 #include <living.h>
 #include <inpc.h>
-#include <player/moneyhandler.h>
+#include <container/moneyhandler.h>
 #include <properties.h>
 
 #define DRINK_IDS 1

@@ -2,14 +2,13 @@
 //
 // orakel.c -- Der Raum, in dem man sich neue ZT-Sprueche holen kann
 //
-// $Id: orakel.c 5997 2006-09-23 10:42:34Z root $
+// $Id: orakel.c 8870 2014-07-18 21:00:14Z Zesstra $
 
-#define ROOM(x) "/players/boing/orakel/"+x
 #define TIPS(x) "/secure/ARCH/ZT/"+x
 
 #define POTIONMASTER "/secure/potionmaster"
 
-inherit "std/room";
+inherit "/std/room";
 
 #include <properties.h>
 
@@ -29,7 +28,7 @@ inherit "std/room";
 
 
 
-create()
+protected void create()
 {
    ::create();
    SetProp(P_INDOORS, 1);
@@ -129,7 +128,7 @@ int ZTAuswahl()
 }
 
 
-Vision()
+string Vision()
 {
   int	  nr;
   string* text;
@@ -191,7 +190,7 @@ string TipListe()
     return "--------------------------------------------------------------------------\n"+ret;
 }
 
-trinken(str)
+int trinken(string str)
 {
   notify_fail("Was moechtest Du trinken?\n");
   if (!str || str=="") return 0;
@@ -212,7 +211,7 @@ meditieren()
   return 1;
 }
 
-werfen(str)
+int werfen(string str)
 {
   if (str=="muenze in see" || str=="muenze in wasser" ||
       str=="muenze in quellsee")
@@ -228,4 +227,5 @@ werfen(str)
     write(Vision());
     return 1;
   }
+  return 0;
 }

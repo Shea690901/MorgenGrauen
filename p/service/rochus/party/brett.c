@@ -338,8 +338,8 @@ static end_query() {
   mapping dat;
 
   if (!mappingp(dat=newdata[TP])) dat=([]);
-  efun::m_delete(newdata,TP);
-  efun::m_delete(dat,KEY_QUERY_NUMBER);
+  m_delete(newdata,TP);
+  m_delete(dat,KEY_QUERY_NUMBER);
   PM->SetUser(getuid(TP),dat);
   write("OK, angemeldet.\n");
 

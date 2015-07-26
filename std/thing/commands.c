@@ -2,7 +2,7 @@
 //
 // thing/commands.c -- thing description
 //
-// $Id: commands.c 7346 2009-12-19 14:46:29Z Zesstra $
+// $Id: commands.c 9186 2015-03-29 08:44:53Z Zesstra $
 //
 // Aus Regenbogen MUDLib
 // aus Gueldenland/Wunderland MUDlib (Morgengrauen MUDlib)
@@ -29,7 +29,7 @@
 //       (adressing especially old-style-AddCmd-MUDs)
 #pragma strict_types
 #pragma save_types
-//#pragma range_check
+#pragma range_check
 #pragma no_clone
 #pragma pedantic
 
@@ -41,6 +41,11 @@
 #include <thing/description.h>
 #include <thing/commands.h>
 #undef NEED_PROTOTYPES
+
+#ifdef DBG
+#undef DBG
+#endif
+#define DBG(x) printf("Object %O tmpstr=%s\n", explode(object_name(this_object()),"#")[1], x);
 
 private nosave mapping added_cmds;
 
@@ -154,8 +159,6 @@ varargs void AddCmd(mixed cmd, mixed func, mixed flag, mixed cmdid) {
  }
 }
 
-#define DBG(x) if(find_player("jof")) tell_object(find_player("jof"),sprintf("%O\n",x));
-
 // Auswertung fuer ein Verb loeschen
 varargs int RemoveCmd(mixed cmd, int del_norule, mixed onlyid) {
  int ret;
@@ -199,7 +202,7 @@ varargs int RemoveCmd(mixed cmd, int del_norule, mixed onlyid) {
 
   while(i--) {
    // keine Regeln da und Regeln loeschen erlaubt: alles loeschen
-   if(!delrule && !del_norule && !onlyid) efun::m_delete(added_cmds,cmd[i]);
+   if(!delrule && !del_norule && !onlyid) m_delete(added_cmds,cmd[i]);
    else if(m_contains(&fun, &flag, &rule, &ids, added_cmds, cmd[i])) {
     j=sizeof(fun);
     while(j--) {
@@ -236,7 +239,7 @@ varargs int RemoveCmd(mixed cmd, int del_norule, mixed onlyid) {
     added_cmds[cmd[i],1]=flag;
     added_cmds[cmd[i],2]=rule;
     added_cmds[cmd[i],3]=ids;
-   } else efun::m_delete(added_cmds,cmd[i]);
+   } else m_delete(added_cmds,cmd[i]);
   }
   if(!sizeof(added_cmds)) added_cmds=(mapping)0;
  }
@@ -259,49 +262,51 @@ static int _execute(mixed fun, string str, mixed *parsed) {
 #define CHECK_PUTGETTAKE  16
 #define CHECK_PUTGET      (CHECK_PUTGETNONE|CHECK_PUTGETDROP|CHECK_PUTGETTAKE)
 
+// Wert fuer Fehlschlag, Fallback-Wert der benutzten while-- - Schleifen
+#define NOMATCHFOUND      -1
+
 // Regeln fuer ein (nun unwichtiges) Verb triggern
 static int _process_command(string str, string *noparsestr,
-			     mixed *fun, mixed *flag, mixed *rule) {
- int tmpint;
- mixed *parsed, *pointermatches;
+			     mixed fun, mixed flag, mixed rule) {
+ mixed *parsed, *objmatches;
 
  // eine Regel ... auswerten ...
  if(pointerp(rule)) {
-  int lastmatchpos, nrul, rs;
-  parsed=pointermatches=allocate(0);
-  lastmatchpos=-1;
+  int nrul;
+  parsed=objmatches=allocate(0);
+  int lastmatchpos=NOMATCHFOUND;
 
   // Abgleichen der gesplitteten Eingabe mit Regeln:
   // vorwaerts durch die Synonymgruppen
-  rs=sizeof(rule);
+  int rs=sizeof(rule);
   while(nrul<rs) {
    int matchpos;
    string *synonym;
-   mixed matchstr, tmp;
+   mixed matchstr;
 
-   matchpos=-1;
+   matchpos=NOMATCHFOUND;
    matchstr=0;
 
    // Synonyme extrahieren
-   tmpint=sizeof(synonym=rule[nrul]);
+   int nrsynonyms=sizeof(synonym=rule[nrul]);
 
    // egal wie durch Synonyme bis Match - Abgleich mit Eingabe
-   while(tmpint--) {
+   while(nrsynonyms--) {
+    int tmppos = member(noparsestr,synonym[nrsynonyms]);
     // ist Synonym im Eingabestring und kommt spaeter als vorheriges Synonym?
-    if((tmp=member(noparsestr,synonym[tmpint]))>=0 &&
-       tmp>lastmatchpos) {
+    if(tmppos>=0 && tmppos>lastmatchpos) {
      // Erfolg: merken der Position im Eingabestring und den matchenden String
-     matchpos=tmp;
-     matchstr=noparsestr[tmp];
+     matchpos=tmppos;
+     matchstr=noparsestr[tmppos];
      break;
     }
    }
 
-   // kein Match durch Synonyme?
-   if(matchpos<0) {
+   // kein Match durch Synonyme? Pruefe die @-Spezialvariablen.
+   if(matchpos == NOMATCHFOUND) {
     int check_present;
     // ist Abpruefen von ID/PRESENT in der Synonymgruppe verlangt
-    // bei present()/find_obs gleich Grundvoraussetzung mitprufen
+    // bei present()/find_obs gleich Voraussetzung gueltiger TP mitprufen
     if(member(synonym,"@ID")>=0) check_present=CHECK_ID;
     if(this_player()) {
      if(member(synonym,"@PRESENT")>=0) check_present|=CHECK_PRESENT;
@@ -312,31 +317,32 @@ static int _process_command(string str, string *noparsestr,
      else if(member(synonym,"@PUT_GET_DROP")>=0)
 		check_present|=CHECK_PUTGETTAKE;
     }
-    if(check_present) {
-     int q,r;
-     // wir fangen hinter dem letzten Match an
-     if(lastmatchpos<0) q=0;
-     else q=lastmatchpos+1;
-     r=sizeof(noparsestr)-1;
 
-     while((tmp=r-q)>=0) {
+    if(check_present) {
+     // wir fangen hinter dem letzten Match an
+     int q_start=lastmatchpos+1;
+     int r_end=sizeof(noparsestr)-1;
+
+     int range;
+     while((range=r_end-q_start)>=0) {
       mixed tmpobj;
 
       // wie weit wollen wir zurückgehen?
-      if(tmp)
+      if(range)
         if(!(check_present&CHECK_PUTGET))
-          tmp=1;			// 2 Fragmente fuer @ID / @PRESENT
-        else if(tmp>4)
-          tmp=4;			// 5 Fragmente fuer @PUT_XXX 
+          range=range>2?2:range; // 3 Fragmente fuer @ID/@PRESENT (Adverb/Nr)
+        else if(range>4)
+          range=4;               // 5 Fragmente fuer @PUT_XXX 
 
-      // und jetzt die Substrings prüfen
-      while(tmp>=0 && !matchstr) {
+      // und jetzt die Substrings pruefen
+      while(range>=0 && !matchstr) {
        string tmpstr;
 
-       if(tmp) tmpstr=implode(noparsestr[q..(q+tmp)]," ");
-       else tmpstr=noparsestr[q];
+       // zu pruefenden String aus den Teilen zusammensetzen
+       if(range) tmpstr=implode(noparsestr[q_start..(q_start+range)]," ");
+       else tmpstr=noparsestr[q_start];
 
-       // DBG(tmpstr);
+       //DBG(tmpstr);
        if(check_present&CHECK_PRESENT &&			// PRESENT ?
           ((tmpobj=present(tmpstr,this_player())) ||
            (tmpobj=present(tmpstr,environment(this_player())))))
@@ -353,49 +359,56 @@ static int _process_command(string str, string *noparsestr,
                sizeof(tmpobj)) {
         if(sizeof(tmpobj)==1) matchstr=tmpobj[0];
         else {	// Arrays werden zwischengespeichert ...
-         pointermatches+=({sizeof(parsed),tmpobj});
+         objmatches+=({sizeof(parsed),tmpobj});
          matchstr=tmpstr;
         }
-       } else {
-        tmp--;
-        continue;
+       } else { // dieser Substring hat nicht gematcht
+        // ab weniger als 3 Teilen ist das Nichtmatching eines Substrings mit
+        // beendendem Numeral Kriterium fuer Abbruch ("objekt 2" soll matchen)
+        string numeralcheck;
+        if(range && range<=2 &&
+           sizeof(numeralcheck=noparsestr[q_start+range]) &&
+           to_string(to_int(numeralcheck))==numeralcheck)
+          break;
+
+        // Substringlaenge verkuerzen und weiter
+        range--;
        }
       }
 
       // Match gefunden!
       if(matchstr) {
-       matchpos=tmp+q;
+       matchpos=range+q_start;
        // DBG(matchpos);
        break;
       }
-      q++;
+      q_start++;
      } // end while
     }
    }
 
-
    // Fehlermeldung fuer diese fehlgeschlagene Synonymgruppe setzen
-   if(matchpos<0) {
+   if(matchpos == NOMATCHFOUND) {
     // Fehlermeldungen und ein Eintrag an der Fehlerstelle?
     if(pointerp(flag) && sizeof(flag)>nrul) {
 
      matchstr=flag[nrul];
 
-     if(stringp(matchstr) && strlen(matchstr)) {
+     if(stringp(matchstr) && sizeof(matchstr)) {
       if(member(matchstr,'@')>=0) {
        matchstr=replace_personal(&matchstr,({this_player()})+parsed,1);
-       tmp=((query_verb()[<1]^'e')?query_verb():query_verb()[0..<2]);
-       matchstr=regreplace(matchstr,"@VERB",capitalize(tmp),1);
-       matchstr=regreplace(matchstr,"@verb",tmp,1);
+       string stamm=((query_verb()[<1]^'e')?query_verb():query_verb()[0..<2]);
+       matchstr=regreplace(matchstr,"@VERB",capitalize(stamm),1);
+       matchstr=regreplace(matchstr,"@verb",stamm,1);
       }
 
       // ist Fehlermeldung ein WRITE?
       // dann return 1 !
-      if(intp(flag[<1]) && (tmpint=flag[<1])<=nrul) {
+      if(intp(flag[<1]) && flag[<1]<=nrul) {
        if(member(matchstr,'^')>=0) {
         matchstr=explode(matchstr,"^");
         write(capitalize(break_string(matchstr[0],78,0,1)));
-        if(strlen(matchstr[1]))
+        if(sizeof(matchstr[1]))
          say(capitalize(break_string(matchstr[1],78,0,1)),({this_player()}) );
        } else write(capitalize(break_string(matchstr,78,0,1)));
        return 1;
@@ -412,10 +425,11 @@ static int _process_command(string str, string *noparsestr,
   } // end while(nrul<rs) ... Erfolg ... ab zum naechsten Regelteil
  }
 
- // Arrays resubstituieren
- if((tmpint=sizeof(pointermatches)))
-  while((tmpint-=2)>=0)
-   parsed[pointermatches[tmpint]]=pointermatches[tmpint+1];
+ // Arrays der @-Objectmatches in Parameter fuer Methode resubstituieren
+ int objsize;
+ if((objsize=sizeof(objmatches)))
+  while((objsize-=2)>=0)
+   parsed[objmatches[objsize]]=objmatches[objsize+1];
 
  // erfolgreich Methode gefunden/eine Regel bis zum Ende durchgeparst:
  return(_execute(&fun,&str,&parsed));

@@ -16,16 +16,25 @@ upd
 
     Die Dateinamen koennen auch Muster wie * oder ? enthalten.
 
+    Wird ein Objekt nicht nur zerstoert, sondern auch neu erzeugt, so wird
+    Configure() benutzt, sofern es eines hat, d.h. die Objektdaten werden
+    vor der Zerstoerung mittels Configure() abgerufen und im neuen Objekt mit
+    Configure() wieder gesetzt.
+
     Zusaetzlich koennen folgende Flags angegeben werden:
 
      -a  Alle Instanzen (Clones) der Datei werden zerstoert. Da dazu die
          gesamte Objektliste durchsucht werden muss und diese Funktion
-         entsprechend zeitaufwendig ist, sollte man dieses nur mit bedacht
+         entsprechend zeitaufwendig ist, sollte man dieses nur mit Bedacht
          benutzen.
      -b  Falls es beim Update einen Fehler gab, wird versucht, ein Backtrace
          aus `/<rechner>.debug.log' zu lesen.
-     -c  Die Properties des Originalobjektes werden kopiert (im Zusammenspiel
-         mit -l und -r).
+     -C  Die Nutzung von Configure() wird erzwungen, d.h. Objekte, die kein
+         oeffentliches Configure() haben, werden nicht zerstoert/ersetzt.
+         (im Zusammenspiel mit -l oder -r, inkompatibel mit -c)
+     -c  Die Properties des Originalobjektes werden kopiert. In diesem Fall
+         wird Configure() _nicht_ benutzt (im Zusammenspiel mit -l und -r,
+         inkompatibel mit -C)
      -d  Beim Zerstoeren der Instanzen werden auch evtl. in ihnen vorhandene
          Objekte zerstoert. Nuetzlich, um z.B. NPCs samt ihrer Ausruestung zu
          entsorgen.
@@ -64,6 +73,7 @@ upd
 
  SIEHE AUCH:
     destruct, load
+    Configure()
 
  LETZTE AENDERUNG:
     Tue, Oct 10 18:50:00 2000 von Mandragon

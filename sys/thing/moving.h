@@ -2,7 +2,7 @@
 //
 // thing/moving.h -- object moving
 //
-// $Id: moving.h 7280 2009-09-01 19:40:05Z Zesstra $
+// $Id: moving.h 8892 2014-08-04 19:48:28Z Zesstra $
  
 #ifndef __THING_MOVING_H__
 #define __THING_MOVING_H__
@@ -33,7 +33,7 @@
 
 // prototypes
 // move the object from current position to dest using the method
-public varargs int move(mixed dest, int method);
+public varargs int move(object|string dest, int method);
 
 // remove the object return 1 for successful destruction
 public varargs int remove(int silent);

@@ -2,7 +2,7 @@
 //
 // armour.c -- armour standard object
 //
-// $Id: armour.c 6571 2007-10-21 14:41:10Z Zesstra $
+// $Id: armour.c 7804 2011-07-10 20:37:52Z Zesstra $
 
 #pragma strict_types
 #pragma save_types
@@ -13,6 +13,7 @@
 inherit "/std/thing/properties";
 inherit "/std/thing/commands";
 inherit "/std/thing/restrictions";
+inherit "/std/thing/light";
 inherit "/std/armour/description";
 inherit "/std/clothing/moving";
 inherit "/std/armour/wear";
@@ -32,6 +33,7 @@ inherit "/std/thing/envchk";
 protected void create() {
   properties::create();
   commands::create();
+  light::create();
   restrictions::create();
   description::create();
   wear::create();

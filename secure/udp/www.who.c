@@ -2,7 +2,7 @@
 //
 // www.who.c
 //
-// $Id: www.who.c 7391 2010-01-25 22:52:51Z Zesstra $
+// $Id: www.who.c 8755 2014-04-26 13:13:40Z Zesstra $
 
 #pragma strong_types
 #pragma combine_strings
@@ -18,12 +18,12 @@ string MakeLink(mixed entry)
 
   entry[1] = regreplace(entry[1], "<", "\\&lt;", 1);
   entry[1] = regreplace(entry[1], ">", "\\&gt;", 1);
-  nm = (string)getuid(entry[0]);
+  nm = getuid(entry[0]);
   if(nm == " R O O T ") return "<TT>"+entry[1][0..2]+"</TT>"+entry[1][3..];
   idx = strstr(lower_case(entry[1]), nm);
   return "<TT>"+entry[1][0..2]+"</TT>"+entry[1][3..idx-1]
        + "<A HREF=\""+MUDWWW+"?"+REQ+"="+R_FINGER+"&"+USER+"="+nm+"\"><B>"
-       + entry[1][idx..idx = idx+strlen(nm)]
+       + entry[1][idx..idx = idx+sizeof(nm)]
        + "</B></A>"
        + entry[1][idx+1..];
 }

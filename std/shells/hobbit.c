@@ -6,7 +6,7 @@
 //
 //   15.Juni prayroom und defHome auf Hobbitdorf gesetzt von Gundur
 //
-// $Id: hobbit.c 7423 2010-02-07 22:56:38Z Zesstra $
+// $Id: hobbit.c 8920 2014-09-02 20:18:38Z Zesstra $
 
 #pragma strong_types,save_types
 
@@ -34,7 +34,7 @@ void create(){
 
   base::create();
   SetDefaultHome("/d/wald/gundur/hobbitdorf/schrein");
-  SetPrayRoom("/d/wald/gundur/hobbitdorf/schrein");
+  SetDefaultPrayRoom("/d/wald/gundur/hobbitdorf/schrein");
   SetProp(P_ATTRIBUTES_OFFSETS,([A_DEX:4,A_CON:2]));
   SetProp(P_AVERAGE_SIZE, 105);
   SetProp(P_AVERAGE_WEIGHT, 60000);
@@ -62,7 +62,7 @@ void create(){
 	   MT_PSYCHO : -500 ]));
 
   if(!(res=QueryProp(P_HANDS)) || !pointerp(res) || (sizeof(res)<3))
-    res=({" mit pelzigen Haenden",25,DT_BLUDGEON});
+    res=({" mit pelzigen Haenden",25,({DT_BLUDGEON})});
   res[1]=25;
   SetProp(P_HANDS,res);
   SetProp(P_BODY,15);
@@ -121,7 +121,7 @@ string _query_default_guild(){
 
 void FinalSetup() {
   if(!present("pfeifchen",this_object()))
-    clone_object("/obj/pfeifchen")->move(this_object(),M_NOCHECK);
+    clone_object("/items/pfeifchen")->move(this_object(),M_NOCHECK);
 }
 
 mixed RaceDefault(string arg)
@@ -131,7 +131,7 @@ mixed RaceDefault(string arg)
   switch(arg)
   {
     case P_HANDS :
-      return ({" mit pelzigen Haenden",25,DT_BLUDGEON});
+      return ({" mit pelzigen Haenden",25,({DT_BLUDGEON}) });
     case P_BODY :
       return 15;
   }

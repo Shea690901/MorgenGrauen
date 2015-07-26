@@ -81,20 +81,20 @@ private void UpdateSACache(string *attrs) {
           timeout = duration;
       }
       else
-        efun::m_delete(stat, ob); // ja, geht im foreach ;-)
+        m_delete(stat, ob); // ja, geht im foreach ;-)
     }
     // Ablaufzeiten der dyn. Mods pruefen, waere hier zwar nicht unbedingt
     // noetig sondern koennte man ausschliesslich im QuerySkillAttribute()
     // machen, aber dann waere die Ermittlung der Summe der Mods schwieriger.
     foreach(object ob, closure value, int duration: dyn) {
       if (duration < time())
-        efun::m_delete(dyn, ob); // ungueltig, weg damit.
+        m_delete(dyn, ob); // ungueltig, weg damit.
     }
     // gesamtzahl Mods?
     cache[SAM_COUNT] = sizeof(stat) + sizeof(dyn);
     if (!cache[SAM_COUNT]) {
       // keine mods da, Submapping fuer dieses SA komplett loeschen.
-      efun::m_delete(skillattrs, attr);
+      m_delete(skillattrs, attr);
       continue;
     }
     // sonst die anderen Cache-Werte setzen.
@@ -162,14 +162,14 @@ private int InternalModifySkillAttribute(object caster, string atrname,
     // jedes Objekt darf nur einen mod haben. Wenn dieses schon einen dyn.
     // hat, muss der geloescht werden (stat. werden ja eh ersetzt).
     if (member(skillattrs[atrname,SAM_DYNAMIC], caster))
-      efun::m_delete(skillattrs[atrname,SAM_DYNAMIC], caster);
+      m_delete(skillattrs[atrname,SAM_DYNAMIC], caster);
     // sonst eintragen
     skillattrs[atrname, SAM_STATIC] += ([caster: value; duration]);
   }
   else if (closurep(value)) {
     // nur ein Mod pro Objekt, s.o.
     if (member(skillattrs[atrname,SAM_STATIC], caster))
-      efun::m_delete(skillattrs[atrname,SAM_STATIC], caster);
+      m_delete(skillattrs[atrname,SAM_STATIC], caster);
     // direkt ohne weitere Pruefung eintragen
     skillattrs[atrname, SAM_DYNAMIC] += ([caster: value; duration]);
   }
@@ -215,10 +215,10 @@ public int RemoveSkillAttributeModifier(object caster, string attrname) {
   // TODO: Berechtigung pruefen. ;-)
 
   if (member(skillattrs[attrname, SAM_STATIC], caster)) {
-    efun::m_delete(skillattrs[attrname, SAM_STATIC], caster);
+    m_delete(skillattrs[attrname, SAM_STATIC], caster);
   }
   else if (member(skillattrs[attrname, SAM_DYNAMIC], caster)) {
-    efun::m_delete(skillattrs[attrname, SAM_DYNAMIC], caster);
+    m_delete(skillattrs[attrname, SAM_DYNAMIC], caster);
   }
   else
     return SA_MOD_NOT_FOUND;
@@ -291,7 +291,7 @@ public int QuerySkillAttribute(string atrname)
          && intp(cval=funcall(cl, ME)) ) // Funktion liefert int zurueck
       modsumme += cval;
     else {
-      efun::m_delete(skillattrs[atrname,SAM_DYNAMIC], ob);
+      m_delete(skillattrs[atrname,SAM_DYNAMIC], ob);
       skillattrs[atrname,SAM_CACHE][SAM_COUNT]--;
     }
   }

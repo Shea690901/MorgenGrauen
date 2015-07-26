@@ -17,6 +17,8 @@ abgelegt ist. Du kannst Dir die Dateien mit Hilfe des Befehls "man"
 anzeigen lassen. Eine Uebersicht ueber die Struktur der Dokumentation und
 die Themen der einzelnen Unterverzeichnisse verschafft Dir der Befehl
 "more /doc/README".
+Unter /doc/beispiele/ befinden sich ein paar Beispiele der Programmierung 
+mit LPC - auch wenn leider nicht alle auf dem aktuellsten Stand sind.
 
 Der Befehl "man <begriff>" durchsucht alle diese Verzeichnisse automatisch
 nach dem angegebenen Begriff, der z.B. eine Mudlib-Funktion sein kann.

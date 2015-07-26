@@ -2,7 +2,7 @@
 //
 // player/combat.c -- combat statistics
 //
-// $Id: combat.c 7186 2009-03-14 21:03:01Z Zesstra $
+// $Id: combat.c 9008 2015-01-06 17:20:17Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -91,13 +91,34 @@ public int UnregisterHelperNPC(object npc) {
 
   mapping helpers = QueryProp(P_HELPER_NPC);
   if (member(helpers, npc)) {
-    efun::m_delete(helpers, npc);
+    m_delete(helpers, npc);
     // momentan unnoetig, da helpers keine Kopie ist.
     // SetProp(P_HELPER_NPC, helpers);
     npc->SetProp(P_HELPER_NPC, 0);
     return 1;
   }
   return 0;
+}
+
+/** Feind eintragen.
+  * Traegt ob als Feind ein. Dies allerdings nur, wenn ob kein Spieler ist
+  * oder beide Spieler (dieses Objekt und ob) in der Schattenwelt sind oder
+  * beide Spieler Testspieler sind.
+   @param[in] ob potentieller Feind.
+   @return int 1, falls ob als _neuer_ Feind eingetragen wurde.
+   */
+public int InsertEnemy(object ob) {
+  // wenn ob ein Spieler ist und nicht sowohl ich als auch ob in der
+  // Schattenwelt sind, wird ob nicht als Feind eingetragen.
+  if (query_once_interactive(ob)
+      && (strstr(object_name(environment(ob)),"/d/schattenwelt/")!=0
+          || strstr(object_name(environment(ME)),"/d/schattenwelt/")!=0)
+      && (!QueryProp(P_TESTPLAYER) || !ob->QueryProp(P_TESTPLAYER))
+     )
+  {
+    return 0;
+  }
+  return ::InsertEnemy(ob);
 }
 
 /** Hat dieser Spieler den Spieler pl angegriffen?.
@@ -136,17 +157,21 @@ public int Kill(object ob) {
 
   int res = combat::Kill(ob);
 
-  // falls Feind neu eingetragen wurde, pruefen, ob es ein
-  // Spieler-Spieler-Angriff ist.
-  // TODO: Weg finden, dies in InsertEnemy() zu tun. Schwierigkeit ist, zu
-  // TODO::ermitteln, von welchem Spieler der urspruengliche Angriff ausging.
-  if (res==1 && CheckPlayerAttack(ME, ob, 0))
-    plAttacked += ({ getuid(ob) });
+  // falls ob nen Spieler ist, pruefen, ob es ein Spieler-Spieler-Angriff
+  // ist.
+  // Dabei ggf. loggen und Magier verstaendigen.
+  if (query_once_interactive(ob) && CheckPlayerAttack(ME, ob, 0))
+  {
+    if (res == -4) // feind wurde nicht eingetragen
+      tell_object(ME, "Ein goettlicher Befehl hindert Dich am Kampf.\n");
+    else
+      plAttacked += ({ getuid(ob) });
+  }
 
   return res;
 }
 
-int Defend(int dam, mixed dam_type, mixed spell, object enemy) {
+public int Defend(int dam, string|string* dam_type, int|mapping spell, object enemy) {
   int delta_hp,res;
 
   if (query_once_interactive(ME)

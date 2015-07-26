@@ -3,7 +3,7 @@
 // class.h -- Definitionen fuer Klassen von Objekten und Lebewesen.
 //            Siehe AddClass()/is_class_member() in /std/thing/description.c
 //
-// $Id: class.h 7342 2009-11-19 21:46:03Z Zesstra $
+// $Id: class.h 9003 2015-01-02 22:27:23Z Arathorn $
 
 #ifndef __CLASS_H__
 #define __CLASS_H__
@@ -69,7 +69,6 @@
 #define CL_INORGANIC "anorganisch"
 #define CL_POISON "gift"
 #define CL_POISONOUS "giftiges"
-#define CL_BIGBANG "massenvernichtungswaffe"
 #define CL_AMMUNITION "munition"
 // Es kann auch fuer Gegenstaende CL_ILLUSION verwendet werden.
 
@@ -82,7 +81,7 @@
                 CL_REPTILE, CL_SHADOW, CL_SKELETON, CL_SLIME, CL_SNAKE, \
                 CL_TROLL, CL_UNDEAD, CL_ZOMBIE, CL_SHAPECHANGER, CL_WALKING, \
                 CL_CRAWLING, CL_SWIMMING, CL_FLYING, CL_EXPLOSIVE, \
-                CL_DISEASE, CL_CURSE, CL_POISON, CL_POISONOUS, CL_BIGBANG, \
+                CL_DISEASE, CL_CURSE, CL_POISON, CL_POISONOUS, \
                 CL_AMMUNITION, CL_ILLUSION})
 
 #endif

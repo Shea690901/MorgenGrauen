@@ -24,7 +24,7 @@ BESCHREIBUNG:
     Wenn ein Spieler im Einflussbereich des Objektes das Verb benutzt,
     wird die entsprechende Funktion im Objekt aufgerufen:
     - die Verben sollten Imperative sein
-    - die Funktion muss 1 fuer ERFOLG und 0 sonst zurückgeben
+    - die Funktion muss 1 fuer ERFOLG (und FPs!) und 0 sonst zurueckgeben
       (sonst werden evtl. weitere Funktionen mit diesem Kommandoverb gerufen)
     - innerhalb der Funktionen koennen Fehlermeldungen fuer den totalen
       Misserfolg des Kommandos mit notify_fail gesetzt werden
@@ -59,9 +59,17 @@ BESCHREIBUNG:
 
       Spezialregelteile sind:
       - @PRESENT: entspricht einem Objekt in Inv oder Env des Spielers
-      - @ID:      entspricht der ID des kommandodefinierenden Objektes
+      - @ID:      entspricht der ID des kommandobesitzenden Objektes
+                  (wo die Kommandomethode definiert ist, ist noch unwichtig)
       - @PUT_GET_DROP, @PUT_GET_TAKE, @PUT_GET_NONE:
                   entsprechend den Filteroptionen fuer find_obs()
+      ACHTUNG: Zusaetzliche Ziffern in Verbindung mit den @-Spezialregeln
+               sind schlecht. @-Regeln versuchen gierig, Objekte exakt im
+               Inventory zu matchen ("objekt 3" anstatt "objekt") und miss-
+               interpretieren daher zB die 4 in "stopf objekt 3 in loch 4" als
+               Teil des Objekt-ID-Strings.
+               Interna: 3 Substrings fuer @PRESENT/@ID ("gruener kristall 2")
+                        5 fuer @PUT... ("kristall 2 in beutel 3")
 
     ### FEHLERMELDUNGEN (bei Anwendung von Regeln): ###
       Als dritter Parameter koennen auch Fehlermeldungen fuer jeweils
@@ -71,13 +79,14 @@ BESCHREIBUNG:
 
       Mit nicht von Spielern erfuellbaren Regeln und ^-Fehlermeldungen
       kann man auch ohne Ausfuehrung einer Funktion Texte an Spieler
-      und Umgebung ausgeben. Siehe dazu AddCmd_bsp
+      und Umgebung ausgeben. Siehe dazu AddCmd_bsp.
 
       Trenner sind: | zum Trennen der einzelnen Fehlermeldungen
                     ^ um
                        - die Auswertung (ab dieser Fehlermeldung!) mit
                          "return 1;" zu beenden und
-                       - eine write^say-Meldung zu trennen
+                       - eine write^say-Meldung zu trennen und
+                       - (fuer funktionslose AddCmd auch FPs zu vergeben!)
 
       Beispielfehlermeldungen fuer obige Regel:
         "Womit willst Du schnitzen?|Was willst Du schnitzen?|"
@@ -87,7 +96,7 @@ BESCHREIBUNG:
       werden:
       - @verb (ersetzt durch query_verb() ohne beendendes 'e')
       - @VERB (ersetzt durch capitalize(query_verb()) ohne beendendes 'e')
-      - @WERx, @WESSENx, @WEMx, @WENx
+      - @WERx, @WESSENx, @WEMx, @WENx: siehe alles aus replace_personal()
         - @WE..1 ist immer der aktive Spieler
         - alle folgenden sind die matchenden Parameter der Spielereingabe
           - (x-1)<=Fehlermeldung (da x=1 Spieler und
@@ -198,4 +207,4 @@ SIEHE AUCH:
     Sonstiges:  replace_personal(E), enable_commands(E)
     Alternativen: AddAction(L), add_action(E)
 
-10 Juni 2004 Gloinson
+30. Aug 2013 Gloinson

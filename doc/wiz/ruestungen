@@ -30,10 +30,9 @@
 
       P_WEIGHT
 	Bitte realistisch halten. Ringe mit weit ueber 100 Gramm sind 
-	Schwachsinn, ebenso Hosen mit Gewichten unter 200 usw. 
-	Orientierungen an mittelalten Ruestungen; bei neueren treten zum 
-	Teil laecherliche Werte auf, die bei Gelegenheit angepasst werden 
-	muessen. RMs sind gefragt...
+	Schwachsinn, ebenso Hosen mit Gewichten unter 200 usw.
+  (BTW: Spieler koennen bei Max-Staerke (30) 33200 gr zzgl. etwaige
+   Trageskills der Gilde tragen.)
 
       P_VALUE
 	Wert der Ruestungen sollte auch nicht zu gross sein und sich ein 
@@ -209,4 +208,5 @@
      attributsveraenderungen, resistenzen, kampfobjekte
 
  LETZTE AeNDERUNG:
-    Son, 04.01.2004, 12:40:00 von Nonne
+  18.10.2010, Zesstra
+

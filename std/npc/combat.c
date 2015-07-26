@@ -2,7 +2,7 @@
 //
 // npc/combat.c -- NPC-spezifische Kampffunktionen
 //
-// $Id: combat.c 7515 2010-03-28 07:54:50Z Zesstra $
+// $Id: combat.c 9156 2015-02-10 19:20:29Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -17,6 +17,10 @@ inherit "std/living/combat";
 #include <wizlevels.h>
 #include <health.h>
 #include <new_skills.h>
+
+#define NEED_PROTOTYPES 1
+#include <living/life.h>
+#undef NEED_PROTOTYPES
 
 #define HB_CHECK 7
 #define ME this_object()
@@ -36,6 +40,16 @@ protected void create_super() {
   set_next_reset(-1);
 }
 
+// aktuelles Lebewesen, fuer das dieser NPC gerade taetig ist. Default:
+// Spieler, bei dem er als Helfer-NPC registriert ist.
+public object QueryUser()
+{
+  mixed helperdata = QueryProp(P_HELPER_NPC);
+  if (pointerp(helperdata) && objectp(helperdata[0]))
+    return helperdata[0];
+  return 0;
+}
+
 // ggf. Feinde expiren. Soll das Problem verringern, dass Spieler nach Tagen
 // erst die Meldung kriegen, dass der NPC sie nicht mehr jagt, wenn der HB
 // reaktivert wird.
@@ -43,6 +57,8 @@ void reset() {
   // ggf. die abgeschalteten HBs nachholen.
   if (!heartbeat)
     catch_up_hbs();
+  // ggf. P_ENEMY_DAMAGE zuruecksetzen
+  ResetEnemyDamage();
 }
 
 static void _set_max_hp(int i) {
@@ -117,17 +133,27 @@ static int _query_hb()
 #define SPELL_ARG 6
 
 varargs int AddSpell(int rate, int damage, string TextForEnemy,
-                     string TextForOthers, mixed dam_type, mixed func, mixed spellarg) {
+                     string TextForOthers, string|string* dam_type, string func,
+                     int|mapping spellarg) {
   mixed *spells;
   int total_rates;
 
   if (rate<0 || damage<=0 || !stringp(TextForEnemy) ||
       !stringp(TextForOthers))
      return 0;
-  if (!dam_type)
-     dam_type = DT_MAGIC;
-  if (!spellarg)
-    spellarg=1;
+
+  if (stringp(dam_type))
+     dam_type = ({dam_type});
+  else if (!pointerp(dam_type))
+      dam_type = ({DT_MAGIC});
+  
+  // Tatsaechlich ist es immer ein nicht-physischer Angriff, wenn spellarg ein
+  // int ist, weil wenn spellarg==0 ist der Default nicht-physischer Angriff
+  // und bei spellarg!=0 auch. Nur mit einem mapping kann man einen phys.
+  // Angriff erzeugen.
+  if (intp(spellarg))
+    spellarg = ([SP_PHYSICAL_ATTACK: 0]);
+
   total_rates=Query("npc:total_rates")+rate;
   spells=Query(P_SPELLS);
   if (!pointerp(spells))
@@ -354,7 +380,7 @@ void init() {
     Kill(this_player());
 }
 
-private static closure mod_att_stat;
+private nosave closure mod_att_stat;
 
 int Defend(int dam, mixed dam_type, mixed spell, object enemy) {
   if (objectp(enemy=(enemy||this_player()))

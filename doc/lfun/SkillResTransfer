@@ -1,17 +1,17 @@
 SkillResTransfer()
 
 FUNKTION:
-     static void SkillResTransfer(mapping from_M, mapping to_M)
+     protected void SkillResTransfer(mapping from_M, mapping to_M)
 
 DEFINIERT IN:
-     /std/living/combat.c
+     /std/living/skill_utils
 
 ARGUMENTE:
-     from_M:	mapping mit zu kopierenden Werten
-     to_M:	Zielmapping
+     mapping from_M: Mapping mit zu kopierenden Werten
+     mapping to_M:   Zielmapping
 
 BESCHREIBUNG:
-     Interne Methode, die waherend der Ausfuehrung von Attack() durch
+     Interne Methode, die zB (!) waehrend der Ausfuehrung von Attack() durch
      Skills oder P_TMP_ATTACK_MOD geaenderte Werte selektiert in das
      Hauptangriffsmapping uebertraegt.
 
@@ -19,7 +19,10 @@ BESCHREIBUNG:
      SI_SKILLDAMAGE, SI_SKILLDAMAGE_MSG, SI_SKILLDAMAGE_MSG2,
      SI_SKILLDAMAGE_TYPE, SI_SPELL
 
+BEMERKUNGEN:
+     * wird an mehreren Stellen, nicht nur der living/combat verwendet
+
 SIEHE AUCH:
      P_TMP_ATTACK_MOD, UseSkill (Waffenfaehigkeiten)
 
-26.Apr.2002 Gloinson@MG
+18.Jul 2014 Gloinson

@@ -6,6 +6,7 @@ FUNKTION:
 DEFINIERT IN:
     /std/living/skills.c
     /std/player/skills.c
+    /sys/living/skills.h
 
 ARGUMENTE:
     int duration: Wie lang soll die Spruchermuedung andauern?

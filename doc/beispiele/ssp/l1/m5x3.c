@@ -24,10 +24,9 @@ create()
   AddDetail("metall", "Es scheint Eisen zu sein.\n");
   AddDetail("eisen", "Ja, zweifellos, es ist Eisen.\n");
   AddExit("westen",L1("m4x3"));
-  GUARDED_EXIT("norden", L1("m5x2"), "ork",
-	       "Der Ork laesst Dich nicht vorbei.\n");
-  GUARDED_EXIT("sueden", L1("m5x4"), "ork",
-	       "Der Ork laesst Dich nicht vorbei.\n");
+  AddExit("norden",L1("m5x2"));
+  AddExit("sueden",L1("m5x4"));
+
   AddItem(MON("orkchef"), REFRESH_REMOVE);
 }
 

@@ -38,6 +38,13 @@ BEMERKUNGEN:
       oder: SetProp(P_ATTRIBUTES_MODIFIER, 0 ); 
       aber nicht: SetProp(P_ATTRIBUTES_MODIFIER, ([A_STR:0]));
 
+BEISPIELE:
+    // ein Bonus ... 'ende'-fest (muss also per uid gesichert werden)
+    player->SetProp(P_ATTRIBUTES_MODIFIER,
+                    ({"g_klerus_segen", ([A_CON:5, A_INT:5])}));
+    ...
+    player->SetProp(P_ATTRIBUTES_MODIFIER, ({"g_klerus_segen", 0}));
+
 SIEHE AUCH:
 	QueryAttribute(), QueryRealAttribute(), QueryAttributeOffset(),
 	SetAttribute(), SetRealAttribute(), UpdateAttributes(),

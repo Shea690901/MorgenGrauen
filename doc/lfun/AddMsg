@@ -1,7 +1,7 @@
 AddMsg()
 
 FUNKTION:
-     varargs void AddMsg(string msg, int next);
+     void AddMsg(string msg, int next);
 
 DEFINIERT IN:
      /std/transport.c
@@ -17,6 +17,9 @@ BESCHREIBUNG:
      hinzugefuegt. Diese Meldung koennte zum Beispiel das Nahen der
      naechsten Haltestelle ankuendigen o.ae. Nach Ausgabe der Meldung
      vergehen next Sekunden, bis die naechste Station angefahren wird.
+
+     Um das Umbrechen der Meldung (normalerweise auf 78 Zeichen pro Zeile)
+     muss sich der Aufrufer selber kuemmern.
 
 RUeCKGABEWERT:
      keiner
@@ -35,4 +38,5 @@ SIEHE AUCH:
      AddRoute(), AddFun(), /std/transport.c
 
 ----------------------------------------------------------------------------
-Last modified: Wed May 8 10:17:01 1996 by Wargon
+25.01.2015, Zesstra
+

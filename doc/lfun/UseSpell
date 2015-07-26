@@ -1,154 +1,77 @@
-Methode UseSpell
+UseSpell()
+FUNKTION:
+    public varargs int UseSpell(string str, string spell)
 
-Die Methode UseSpell() ist dafuer da, dass Lebewesen Spells verwenden
-koennen.
+DEFINIERT IN:
+    /std/living/skills.c
 
-Zunaechst wird die Methode als Empfaenger fuer Kommandos bekannt gemacht.
-Das passiert mit der Anweisung add_action( "UseSpell", "", 1 ); in den
-Dateien player/base.c und in living/npc.c.
+ARGUMENTE:
+    string str       Spell-Optionen
+    string spell     optionaler Spellname
 
+BESCHREIBUNG:
+    Benutzt einen Spell, dessen Spellname 'spell' ggf ueber query_verb()
+    ermittelt wird. Dieser Spell sollte (als kleingeschriebener
+    Skill/Spell) im Living vorliegen.
+    
+    Die Argumente 'str' werden als SI_SKILLARG temporaer in das
+    Skillmapping eingetragen (also nur fuer diesen Aufruf gueltig).
+    
+    Eine ausfuehrbare Spell-Funktion zum Spell wird in folgender
+    Reihenfolge bestimmt:
+    - eine gesetzte SI_CLOSURE nutzen
+    - "UseSpell" an einem gesetzten SI_SPELLBOOK nutzen
+    - "UseSpell" an der gesetzten P_GUILD nutzen
+      - [UseSpell der Gilde sucht iA ebenfalls nur den Spell am Spellbook]
+    - eine Closure mit Rueckgabewert 0 erstellen
+    Die so bestimmte Spell-Funktion wird dann als SI_CLOSURE im Spieler
+    gesetzt und ist bis zur Zerstoerung der entsprechenden Objekte gueltig.
+    Die Methode wird dann gerufen (der Spell also angewandt).
 
-Es gibt mehrere Stellen, an denen eine Methode mit diesem Namen definiert
-ist. Fuer die weitere Betrachtung interessant sind:
+    Standardmaessig gibt ein UseSpell() also 0 zurueck, es sei denn, eine
+    Funktion wurde fuer den Spell an einer der oben genannten Stellen
+    implementiert.
 
-1. in /std/living/skills.c
-     - varargs int UseSpell(string str, string spell);
-2. in /std/gilden/gilden_ob.c
-     - varargs int UseSpell(object caster, string spell, mapping sinfo);
-3. in /std/spellbook.c
-     - varargs int UseSpell(object caster, string spell, mapping sinfo)<
+    SI_INHERIT ist fuer Spells beim Aufruf wirkungslos (gilt aber bei
+    LearnSkill normal).
 
+    Ein Durchlauf von UseSpell durch den Spieler sieht in etwa so aus:
+      1) Die Methode wird als Empfaenger fuer Kommandos bekannt gemacht.
+         Das passiert mit der Anweisung
+         'add_action("UseSpell", "", 1);' in den Dateien player/base.c und
+         in living/npc.c.
 
-Aufgerufen wird zunaechst die Methode in skills.c, indem der Spieler ein
-Kommando eingibt, sowie im HeartBeat von std/living/combat.c, um fertig
-vorbereitete Spells auszuloesen.
+      2) /std/living/skills::UseSpell wird durch Kommando oder Heartbeat
+         gerufen.
+      
+      3) UseSpell() ermittelt eine SI_CLOSURE oder delegiert diesen Aufruf
+         an die gueltige Gilde/das Spellbook weiter.
+      
+      4) Eine gueltige Closure wird ausgefuehrt. UseSpell() uebergibt dabei
+         die Spell/Skill-Informationen und SI_SKILLARG.
+      
+      4.1.) Im Normalfall einer Gilde/Spellbook landet der Aufruf ueber
+            /std/gilden_ob::UseSpell() in /std/spellbook::UseSpell() und
+            dieses ruft eine Spellfunktion im Spellbook auf.
+            Die Spellfunktion arbeitet mit den Spell-Informationen und
+            gibt ein ERFOLG, MISSERFOLG oder 0 dafuer zurueck, ob das
+            Spellbook Lernen/Fehlermeldung oder nichts machen soll.
+            Dementsprechend werden P_SP, P_ATTACK_BUSY und
+            P_NEXT_SPELL_TIME im Spellbook geaendert.
 
+      5.) Der Aufruf der Closure kehrt zurueck und wird zurueckgegeben.
+          Damit ist der 0-Rueckgabewert der Spellfunktion im Spellbook
+          aequivalent einem nicht ausgefuehrten Kommando.
 
+SIEHE AUCH:
+    Skills Lernen:  LearnSkill, ModifySkill, LimitAbility
+    * Nutzung:      UseSkill
+    * Abfragen:     QuerySkill, QuerySkillAbility
+    * Modifikation: ModifySkillAttribute, QuerySkillAttribute,
+                    QuerySkillAttributeModifier, RemoveSkillAttributeModifier
+      * Properties: P_SKILL_ATTRIBUTES, P_SKILL_ATTRIBUTE_OFFSETS
+    * sonstig:      spruchermuedung, skill_info_liste
+    * Properties:   P_NEWSKILLS
+    Spellbook:      UseSpell (spellbook), Learn, SpellSuccess
 
-In der Methode in /std/living/skills.c wird die Gilde des Aufrufenden und
-der zu verwendende Skill aus der Property "newskills" ermittelt.
-Dabei haben gildenspezifische Skills Vorrang vor allgemeinen Skills.
-
-Die Methode versorgt eine Variable sinfo mit den Informationen, die sie
-aus newskills ermitteln konnte, wobei ein reiner Zahlenwert als Value
-fuer SI_SKILLABILITY angenommen wird.
-Unter Umstaenden wird noch SI_GUILD:"ANY" eingetragen, um zu zeigen, dass
-der Spell kein Gildenspell, sondern ein allgemeiner Spell ist.
-Als sinfo[SI_SKILLARG] wird die Eingabe des Lebewesens ohne das Verb selbst
-verwendet.
-
-Falls sich in sinfo[SI_CLOSURE] eine Closure befindet, die auf eine Methode
-eines gültigen Objekts verweist, wird die Closure ausgefuehrt.
-Falls ansonsten in sinfo[SI_SPELLBOOK] ein Spellbook genannt wird, wird die
-Methode UseSpell() des genannten Spellbooks aufgerufen.
-Falls ansonsten das Lebewesen in einer Gilde ist, wird UseSpell() der Gilde
-aufgerufen.
-Ansonsten bricht die Methode ab.
-
-In sinfo[SI_CLOSURE] findet sich in jedem Fall die aufzurufende Methode als
-symbol_function.
-
-
-
-Gildenobjekte erben in der Regel von gilden_ob. Daraus ergibt sich, dass im
-oben genannten zweiten Fall (Gilde) diese Methode aufgerufen wird, sofern
-die Gilde die Methode nicht ueberschreibt. Tut sie das, so ruft sie
-ueblicherweise auch diese Methode auf.
-
-Die Methode UseSpell der Klasse gilden_ob ist im Wesentlichen dafuer
-zustaendig, die Methode UseSpell des richtigen Spellbooks aufzurufen.
-Dafuer fragt sie den Wert von ski[SI_SPELLBOOK] ab.
-
-
-
-Die Signatur der Methode UseSpell() des Spellbooks ist (sinnvollerweise)
-identisch mit der Signatur der Methode aus gilden_ob.
-Dort werden zuerst einige Restriktionen geprueft. Erfuellt der Caster
-die gesetzten Bedingungen, dann wird die eigentliche Spell-Methode
-aufgerufen. Sie kann den Wert des Defines ERFOLG, MISSERFOLG, ABGEWEHRT oder
-0 zurueckgeben. Wird nicht 0 zurueckgegeben, dann werden
-die KP in Hoehe der Spellkosten abgezogen und die Properties
-P_ATTACK_BUSY und P_NEXT_SPELL_TIME gesetzt.
-
-
-In der Methode werden die folgenden Eintraege in sinfo ausgewertet.
-
-sinfo[SI_SKILLFUNC]
-  Beinhaltet den Namen der Methode, die die eigentliche Funktionalitaet des
-  Spells implementiert. Falls nicht angegeben, wird das Verb, das der
-  Spieler eingegeben hat, als Spell-Methodenname angenommen.
-sinfo[SM_RACE]
-  Beinhaltet ein Mapping, das als Key die Rasse und als Value ein Mapping X
-  beinhaltet. Dieses Mapping X wird direkt zu sinfo hinzugefuegt und
-  ueberschreibt damit bei Bedarf Defaultwerte durch rassenspezifische Werte.
-sinfo[SI_SPELLCOST]
-sinfo[FACTOR(SI_SPELLCOST)]
-sinfo[OFFSET(SI_SPELLCOST)]
-  Beinhaltet die Werte, die fuer die Berechnung der Spellkosten zustaendig
-  sind.
-  Dabei gilt: kosten = offset(x) + (x * faktor(x)) / 100
-  Jedoch sind x, offset(x) und faktor(x) nicht zwingend Integer-Werte,
-  sondern koennen auch eine Closure, der Name einer Methode oder ein
-  Pointer auf ein Array mit dem Namen einer Klasse und einer dort
-  aufzurufenden Methode sein.
-ski[SI_SP_LOW_MSG]
-  Beinhaltet eine Meldung, die dem Spieler mitteilt, dass er zu wenige
-  Konzentrationspunkte besitzt, um den Spell zu casten. Falls dieser
-  Eintrag nicht gesetzt ist, wird ein Standardtext ausgegeben.
-ski[SI_TIME_MSG]
-  Beinhaltet eine Meldung, die dem Spieler mitteilt, dass er noch nicht
-  wieder einen Spell casten kann. Falls dieser
-  Eintrag nicht gesetzt ist, wird ein Standardtext ausgegeben.
-ski[SI_NO_ATTACK_BUSY]
-  Ist auf NO_ATTACK_BUSY_QUERY gesetzt, wenn ein Spieler diesen Spell im
-  Kampf nicht als Artillerie verwendet. D.h. dass der Artillerie-Count
-  sich nicht darauf auswirkt, ob der Spieler den Spell casten kann
-  oder nicht.
-ski[SI_ATTACK_BUSY_AMOUNT]
-  Ist gesetzt, wenn das Artillerie-Flag beim Angreifen auf etwas anderes
-  als 1 gesetzt werden soll. Das ist dann interessant, wenn
-  SI_NO_ATTACK_BUSY nicht auf NO_ATTACK_BUSY_QUERY gesetzt ist.
-ski[SI_ATTACK_BUSY_MSG]
-  Beinhaltet die Meldung, die dem Spieler ausgegeben werden soll, wenn er 
-  diesen Spell kampfbedingt nicht casten kann. Ggf. wird ein Standardtext
-  ausgegeben.
-ski[SI_PREPARE_BUSY_MSG]
-  Beinhaltet die Meldung, die dem Spieler ausgegeben werden soll, wenn er 
-  schon diesen Spell vorbereitet. Ggf. wird ein Standardtext ausgegeben.
-ski[SI_PREPARE_ABORT_MSG]
-  Beinhaltet die Meldung, die dem Spieler ausgegeben werden soll, wenn er 
-  die Vorbereitung dieses Spells durch einen anderen Spell unterbricht.
-  Ggf. wird ein Standardtext ausgegeben.
-ski[SI_PREPARE_TIME]
-  Beinhaltet die Vorbereitungszeit fuer einen Spell. Kann eine Closure,
-  eine Methode u.ae. beinhalten.
-ski[SI_SKILLARG]
-  Beinhaltet den Text, den der Spieler nach dem Spellkommando eingegeben
-  hat.
-  Z.B. stuende bei "krallenschlag ork 2" der Text "ork 2" im Parameter.
-ski[SI_NOMAGIC]
-  Beinhaltet einen Wert zwischen 0 und 100 (oder mehr) und gibt an, ob ein
-  Raum mit gesetztem P_NOMAGIC die Ausfuehrung des Spells verhindert.
-  Je hoeher der Wert ist, desto unwahrscheinlicher ist es, dass ein Raum
-  den Spell durch Antimagie stoert. Ein Raum sollte nur Werte zwischen
-  0 und 100 gesetzt haben. Ist der Wert des Raums groesser als der hier
-  angegebenen, dann blockiert er Magie mit einer gewissen
-  Wahrscheinlichkeit.
-ski[SI_SPELLFATIGUE]
-ski[FACTOR(SI_SPELLFATIGUE)]
-ski[OFFSET(SI_SPELLFATIGUE)]
-  Beinhalten die Werte, die fuer die Berechnung der Wieder-Cast-Zeit
-  notwendig sind.
-  Die Berechnung und die moeglichen Angaben (closure etc.) sind identisch
-  zu SI_SPELLCOST.
-sinfo[SI_SKILLRESTR_USE]
-  Beinhaltet die Einschraenkungen, die dieser Spell mitbringt.
-  Wird normalerweise direkt im Spellbook fuer den Spell eingetragen.
-  Die einzelnen Moeglichkeiten werden in der manpage zu "check_restrictions"
-  erlaeutert.
-  
-  
-Aus spellbook->QueryProp(P_SB_SPELLS) werden die spellbookinternen Daten ausgelesen.
-
-
-CanTrySpell prueft, ob der Spieler diesen Spell casten darf. => restriction-checker + Geist.
+5. Okt 2011 Gloinson

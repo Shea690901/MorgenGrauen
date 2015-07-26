@@ -2,7 +2,7 @@
 //
 // exploration.h -- Definitionen fuer den explorationmaster
 //
-// $Id: exploration.h 6151 2007-02-03 12:02:14Z Muadib $
+// $Id: exploration.h 8835 2014-06-09 20:24:00Z Zesstra $
 
 #ifndef __EXPLORATION_H__
 #define __EXPLORATION_H__
@@ -35,9 +35,11 @@
 #define EP_PUB    6   // Speisen und Getraenke in Kneipen
 #define EP_SMELL  7   // Gerueche
 #define EP_SOUND  8   // Geraeusche
-#define EP_MAX    8   // max. Anzahl von Typen
+#define EP_TOUCH  9   // ertastbare Details
+#define EP_MAX    9   // max. Anzahl von Typen
 
-#define EP_TYPES ({ "det ", "exit", "cmd ", "info", "misc", "rdet", "pub ", "sme ", "sond" })
+#define EP_TYPES ({ "det ", "exit", "cmd ", "info", "misc",\
+                    "rdet", "pub ", "sme ", "sond", "tastdet" })
 
 /* Fehler bei Funktionsaufrufen */
 #define EPERR_NOT_ARCH	  -1  // this_interactive() war kein Erzmagier
@@ -55,11 +57,6 @@
 
 /* FP-Logfile */
 #define FP_LOG "ARCH/FPS_FOUND"
-
-// ein paar defines fuer ektips
-#define FPTIPS_MAX_RETRY		10
-// one tip per level in list, above top entry one tip every level
-#define FPTIPS_LEVEL_LIMITS 	({61,66,71,75,79,83,86,89,92,94,96,98})
 
 #endif
 

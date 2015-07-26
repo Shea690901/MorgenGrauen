@@ -59,7 +59,7 @@ public int AddReputation(string repid, mixed validuids, string name,
   if(stringp(validuids)) validuids = ({ validuids });
   if(!pointerp(validuids)) validuids = ({ });
   // validuids + changemsgs kann auch erstmal leer bleiben
-  if(!stringp(repid) || !strlen(repid) || !stringp(name) || !strlen(name))
+  if(!stringp(repid) || !sizeof(repid) || !stringp(name) || !sizeof(name))
     return -2;
   if(member(reputations, repid))
     return -3;
@@ -90,7 +90,7 @@ public int AddReputation(string repid, mixed validuids, string name,
 public int DeactivateReputation(string repid) {
   if(!Sec())
     return -1;
-  if(!stringp(repid) || !strlen(repid))
+  if(!stringp(repid) || !sizeof(repid))
     return -2;
   if(!member(reputations, repid))
     return -3;
@@ -114,7 +114,7 @@ public int DeactivateReputation(string repid) {
 public int ActivateReputation(string repid) {
   if(!Sec())
     return -1;
-  if(!stringp(repid) || !strlen(repid))
+  if(!stringp(repid) || !sizeof(repid))
     return -2;
   if(!member(reputations, repid))
     return -3;
@@ -139,7 +139,7 @@ public int ActivateReputation(string repid) {
 public int AddReputationUid(string repid, string uid) {
   if(!Sec())
     return -1;
-  if(!stringp(repid) || !strlen(repid) || !stringp(uid) || !strlen(uid))
+  if(!stringp(repid) || !sizeof(repid) || !stringp(uid) || !sizeof(uid))
     return -2;
   if(!member(reputations, repid))
     return -3;
@@ -164,7 +164,7 @@ public int AddReputationUid(string repid, string uid) {
 public int RemoveReputationUid(string repid, string uid) {
   if(!Sec())
     return -1;
-  if(!stringp(repid) || !strlen(repid) || !stringp(uid) || !strlen(uid))
+  if(!stringp(repid) || !sizeof(repid) || !stringp(uid) || !sizeof(uid))
     return -2;
   if(!member(reputations, repid))
     return -3;
@@ -189,7 +189,7 @@ public int RemoveReputationUid(string repid, string uid) {
 public int ChangeReputationName(string repid, string name) {
   if(!Sec())
     return -1;
-  if(!stringp(repid) || !strlen(repid) || !stringp(name) || !strlen(name))
+  if(!stringp(repid) || !sizeof(repid) || !stringp(name) || !sizeof(name))
     return -2;
   if(!member(reputations, repid))
     return -3;
@@ -214,7 +214,7 @@ public int ChangeReputationName(string repid, string name) {
 public int ChangeReputationMsg(string repid, string msg) {
   if(!Sec())
     return -1;
-  if(!stringp(repid) || !strlen(repid) || !stringp(msg) || !strlen(msg))
+  if(!stringp(repid) || !sizeof(repid) || !stringp(msg) || !sizeof(msg))
     return -2;
   if(!member(reputations, repid))
     return -3;
@@ -261,7 +261,7 @@ public varargs int ViewReputationData(mixed repids) {
  * 0 = Falsches Argument / Reputation nicht vorhanden
  */
 public mapping GetReputationData(string repid) {
-  if(!stringp(repid) || !strlen(repid) || !member(reputations, repid))
+  if(!stringp(repid) || !sizeof(repid) || !member(reputations, repid))
     return 0;
   return deep_copy(reputations[repid]);
 }
@@ -276,7 +276,7 @@ public mapping GetReputationData(string repid) {
  */
 public string GetDefaultChangeMsg(string repid, int value) {
   string strength;
-  if(!stringp(repid) || !strlen(repid) || !intp(value) || !value ||
+  if(!stringp(repid) || !sizeof(repid) || !intp(value) || !value ||
      !member(reputations, repid))
     return 0;
   switch(abs(value)) {
@@ -303,7 +303,7 @@ public string GetDefaultChangeMsg(string repid, int value) {
  * -2 = Rep nicht vorhanden 
  */
 public int CheckValidUid(string repid, object ob) {
-  if(!stringp(repid) || !strlen(repid) || !objectp(ob))
+  if(!stringp(repid) || !sizeof(repid) || !objectp(ob))
     return -1;
   if(!member(reputations, repid))
     return -2;
@@ -320,7 +320,7 @@ public int CheckValidUid(string repid, object ob) {
  * -2 = Rep nicht vorhanden 
  */
 public int CheckRepActive(string repid) {
-  if(!stringp(repid) || !strlen(repid))
+  if(!stringp(repid) || !sizeof(repid))
     return -1;
   if(!member(reputations, repid))
     return -2;

@@ -1,23 +1,24 @@
  WAFFEN:
 
-     a. Allgemeines
+    a. Allgemeines
 
-	Alle (zumindest neuen!) Waffen sollten ueber eine vernuenftige
-	Beschreibung und auch Details verfuegen. Einfach "Ein Schwert" ist
-	ein bissel arg duerftig und rechtfertigt auf keinen Fall
-	irgendwelche hohen WCs oder gar HitFuncs! Darauf sollten schon die
-	RMs achten...
+    Alle (zumindest neuen!) Waffen sollten ueber eine vernuenftige
+    Beschreibung und auch Details verfuegen. Einfach "Ein Schwert" ist
+    ein bissel arg duerftig und rechtfertigt auf keinen Fall
+    irgendwelche hohen WCs oder gar HitFuncs! Darauf sollten schon die
+    RMs achten...
 
-	Nach Moeglichkeit auch P_INFO setzen, das ist fuer Spieler nicht so
-	frustrierend und kann ja auch einen netten Spruch enthalten. P_INFO
-	ist *zwingend* bei Waffen mit HitFuncs! Muss ja nicht absolut ein-
-	deutig sein, aber etwas Liebe zum Detail sollte bei Sonderwaffen auf
-	jeden Fall gelten.
+    Nach Moeglichkeit auch P_INFO setzen, das ist fuer Spieler nicht so
+    frustrierend und kann ja auch einen netten Spruch enthalten. P_INFO
+    ist *zwingend* bei Waffen mit HitFuncs! Muss ja nicht absolut ein-
+    deutig sein, aber etwas Liebe zum Detail sollte bei Sonderwaffen auf
+    jeden Fall gelten.
 
-	Waffen vom Typ WT_MISC duerfen weder ueber eine Defend- noch eine
-	HitFunc verfuegen. Die AC solcher Waffen ist immer 0. Weiter duerfen
-	solche Waffen keinerlei andere kampfrelevante Bedeutung besitzen
-	oder Manipulationen am/im Spieler/Gegner verursachen.
+    Waffen vom Typ WT_MISC duerfen weder ueber eine Defend- noch eine
+    HitFunc verfuegen. Die AC solcher Waffen ist immer 0. Weiter duerfen
+    solche Waffen keinerlei andere kampfrelevante Bedeutung besitzen
+    oder Manipulationen am/im Spieler/Gegner verursachen.
+
 
     b. Bemerkungen zu einigen Properties:
 
@@ -52,21 +53,21 @@
      ** Aerger vorzubeugen. Grade fuer Kaempfer ist das Gewicht von Waffen **
      ** sehr wichtig!                                                      **
 
-	Zur Erinnerung: Spieler mit Kraft 20 koennen nur 25000 Gewichts-
-	einheiten ("Gramm") tragen.
+    Zur Erinnerung: Spieler mit Kraft 20 koennen nur 25000 Gewichts-
+    einheiten ("Gramm") tragen.
 
      P_SIZE
-	Die Laenge der Waffe in cm. Setzt man sie nicht, so gilt der
-	Default- wert fuer den jeweiligen Waffentyp, welcher in der Manpage
-	zu P_SIZE notiert ist.
+        Die Laenge der Waffe in cm. Setzt man sie nicht, so gilt der
+        Default- wert fuer den jeweiligen Waffentyp, welcher in der Manpage
+        zu P_SIZE notiert ist.
 
      P_VALUE
-	Wie bei P_WEIGHT sind die RMs gefragt: Augenmass zaehlt. Werte ueber
-	10000 oder so sind zwar nett, aber sinnlos und unrealistisch.
+        Wie bei P_WEIGHT sind die RMs gefragt: Augenmass zaehlt. Werte ueber
+        10000 oder so sind zwar nett, aber sinnlos und unrealistisch.
 
      P_DAM_TYPE
-	Jede Waffe, die aus physikalischem Material besteht (also faktisch
-	alles mit Hardware) *muss* einen physikalischen Schadenstyp haben.
+        Jede Waffe, die aus physikalischem Material besteht (also faktisch
+        alles mit Hardware) *muss* einen physikalischen Schadenstyp haben.
 
      ** Waffen mit mehr als einem nichtphysikalischen Schadenstyp oder   **
      ** mehr als 50% nichtphysikalischen Anteilen sind generell zur      **
@@ -75,129 +76,127 @@
      ** a) Waffen mit mehr als 66% nichtphysikalischem Schaden im Array, **
      ** b) Waffen mit einem nichtphysikalischen Schadenstyp ueber 50%    **
 
-	Weiterhin genehmigungspflichtig sind die Schadenstypen:
+    Weiterhin genehmigungspflichtig sind die Schadenstypen:
 
-	DT_TERROR, DT_SOUND, DT_SQUEEZE
+    DT_TERROR, DT_SOUND, DT_SQUEEZE
 
-	Diese Schadenstypen werden in Waffen nur genehmigt, wenn sie gut
-	begruendet sind.
+    Diese Schadenstypen werden in Waffen nur genehmigt, wenn sie gut
+    begruendet sind.
 
-	Der Schadenstyp DT_EXPLOSION wird in Waffen generell nicht mehr
-	genehmigt.
+    Der Schadenstyp DT_EXPLOSION wird in Waffen generell nicht mehr
+    genehmigt.
 
      P_WEAPON_TYPE
-	Nur zur Erinnerung: es gibt im MG zu viele Schwerter und Speere.
-	Nutzt auch die anderen Waffentypen! (Messer und Peitschen sind sehr
-	rar. Bitte angepasste WCs!)
+        Nur zur Erinnerung: es gibt im MG zu viele Schwerter und Speere.
+        Nutzt auch die anderen Waffentypen! (Messer und Peitschen sind sehr
+        rar. Bitte angepasste WCs!)
 
      P_EFFECTIVE_WC
-	Hier kann die evtl durch eine HitFunc veraenderte WC angegeben
-	werden. Der Durchschnittswert soll da stehen. Die Kaempfergilde kann
-	das in gewissen Grenzen abschaetzen.
+        Hier kann die evtl durch eine HitFunc veraenderte WC angegeben
+        werden. Der Durchschnittswert soll da stehen. Die Kaempfergilde kann
+        das in gewissen Grenzen abschaetzen.
 
      P_EFFECTIVE_AC
-	Fuer Paradewaffen setzen. Werte unbedingt mit Boing absprechen!
+        Fuer Paradewaffen setzen. Werte unbedingt mit Boing absprechen!
 
      P_NOBUY
-	Waffen ab WC 150 werden beim Verkauf im Laden zurueckbehalten. Es
-	sollte aber auch fuer Waffen, die HitFuncs enthalten, P_NOBUY
-	gesetzt werden.
+        Waffen ab WC 150 werden beim Verkauf im Laden zurueckbehalten. Es
+        sollte aber auch fuer Waffen, die HitFuncs enthalten, P_NOBUY
+        gesetzt werden.
 
-     c. Spezialwaffen/Waffen mit Sonderfunktion
+
+    c. Spezialwaffen/Waffen mit Sonderfunktion
 
      ** ALLE Waffen mit HitFunc oder entsprechender Fkt. muessen   **
      ** genehmigt werden!                                          **
 
-	Solche Waffen muessen ueber ein P_INFO verfuegen und irgendwo in
-	ihrer Beschreibung oder im P_INFO mindestens eine Andeutung ueber
-	die Herkunft oder den Grund ihrer besonderen Faehigkeit haben.
+    Solche Waffen muessen ueber ein P_INFO verfuegen und irgendwo in
+    ihrer Beschreibung oder im P_INFO mindestens eine Andeutung ueber
+    die Herkunft oder den Grund ihrer besonderen Faehigkeit haben.
 
-	Auch Spezialwaffen sollten nach Moeglichkeit nicht ueber eine
-	EFFECTIVE_WC von 200 hinausgehen. Der Return-Wert der HitFunc,
-	sofern er von 0 abweicht, MUSS per random() zurueckgegeben werden,
-	da er ohne weiteres random() auf die WC aufaddiert wird.
+    Auch Spezialwaffen sollten nach Moeglichkeit nicht ueber eine
+    EFFECTIVE_WC von 200 hinausgehen. Der Return-Wert der HitFunc,
+    sofern er von 0 abweicht, MUSS per random() zurueckgegeben werden,
+    da er ohne weiteres random() auf die WC aufaddiert wird.
 
-	Zu beachten ist, dass man bei Waffen, die nur fuer NPCs mehr Schaden
-	machen sollen, nicht (nur) ueber P_RACE prueft, ob der Benutzer ein
-	solcher ist. Es ist denkbar, dass Spieler ihre Rasse temporaer ver-
-	aendern koennen. Waffen die nur bei
-	!interactive(QueryProp(P_WIELDED)) besser zuschlagen, brauchen
-	natuerlich nicht genehmigt zu werden.
+    Zu beachten ist, dass man bei Waffen, die nur fuer NPCs mehr Schaden
+    machen sollen, nicht (nur) ueber P_RACE prueft, ob der Benutzer ein
+    solcher ist. Es ist denkbar, dass Spieler ihre Rasse temporaer ver-
+    aendern koennen. Waffen die nur bei
+    !interactive(QueryProp(P_WIELDED)) besser zuschlagen, brauchen
+    natuerlich nicht genehmigt zu werden.
 
-	Die Dichte solcher Waffen in einem Gebiet sollte ein vernuenftiges
-	Mass nicht ueberschreiten. Fuer eine Sonderwaffe sollten auch
-	etliche nicht-magische Waffen in der Umgebung sein. Zumindest die
-	starken Waffen (also nicht die, die nur einen Gag oder so
-	beinhalten, sondern wirklich in den Kampf eingreifen) sollten nicht
-	zu leicht zu bekommen sein. Hierauf sollen die RMs achten. Solche
-	Sachen gehoeren zu Monstern, die ein wenig schlechter erreichbar
-	sind oder die besonders stark oder sonstwie unangenehm sind. Also
-	nix verschenken.
+    Die Dichte solcher Waffen in einem Gebiet sollte ein vernuenftiges
+    Mass nicht ueberschreiten. Fuer eine Sonderwaffe sollten auch
+    etliche nicht-magische Waffen in der Umgebung sein. Zumindest die
+    starken Waffen (also nicht die, die nur einen Gag oder so
+    beinhalten, sondern wirklich in den Kampf eingreifen) sollten nicht
+    zu leicht zu bekommen sein. Hierauf sollen die RMs achten. Solche
+    Sachen gehoeren zu Monstern, die ein wenig schlechter erreichbar
+    sind oder die besonders stark oder sonstwie unangenehm sind. Also
+    nix verschenken.
 
-	Waffen, die Monster vergiften (also nicht nur P_DAM_TYPE DT_POISON
-	haben) sind zwar nicht grundsaetzlich verboten, aber doch
-	unerwuenscht. Sie sind auf jeden Fall genehmigungspflichtig.
-	Ausserdem sollte die Wahrscheinlichkeit einer Vergiftung pro
-	Kampfrunde max. bei 1% liegen.
+    Waffen, die Monster vergiften (also nicht nur P_DAM_TYPE DT_POISON
+    haben) sind zwar nicht grundsaetzlich verboten, aber doch
+    unerwuenscht. Sie sind auf jeden Fall genehmigungspflichtig.
+    Ausserdem sollte die Wahrscheinlichkeit einer Vergiftung pro
+    Kampfrunde max. bei 1% liegen.
 
-	Des weiteren muessen Waffen, die fuer bestimmte Gilden bestimmte
-	Vorteile bringen (sich beim Kami der Tanjian nicht abnutzen zum
-	Beispiel) ebenfalls von der Balance genehmigt werden.
+    Des weiteren muessen Waffen, die fuer bestimmte Gilden bestimmte
+    Vorteile bringen (sich beim Kami der Tanjian nicht abnutzen zum
+    Beispiel) ebenfalls von der Balance genehmigt werden.
 
-     d. Genehmigungsgrenzen
 
-	Einhaendige Waffen  :    ab P_WC >= 140
-	Zweihaendige Waffen :    ab P_WC >= 175
+    d. Genehmigungsgrenzen
 
-	Fuer Waffen die einen nichtphysikalischen Schadenstyp enthalten:
+    Einhaendige Waffen  :    ab P_WC >= 140
+    Zweihaendige Waffen :    ab P_WC >= 175
 
-	Einhaendige Waffen  :    ab P_WC >= 120
-	Zweihaendige Waffen :    ab P_WC >= 150
+    Fuer Waffen die einen nichtphysikalischen Schadenstyp enthalten:
 
-     e. Spezielle Properties fuer die Kaempfergilde
+    Einhaendige Waffen  :    ab P_WC >= 120
+    Zweihaendige Waffen :    ab P_WC >= 150
 
-	Diese Properties sind definiert in `/p/kaempfer/kampf.h' und liefern
-	Boni fuer bestimme Aktionen der Kaempfer:
 
-	K_DISTRACTING_WEAPON  Finte, Waffentrick
-	K_THROWING_WEAPON     Waffenwurf
-	K_BRAWLING_WC         Waffenschlag
-	K_KO                  Ko
-	K_WEAPON_SHATTER      Waffenbruch
-	K_CRITICAL_HIT        Todesstoss
+    e. Spezielle Properties fuer die Kaempfergilde
 
-	Genauere Hinweise zu diesen Properties und den zu setzenden Werten
-	findet man in '/p/kaempfer/doc/waffen.txt'.
+    Diese Properties sind definiert in '/p/kaempfer/kaempfer.h'. Mit ihnen
+    kann man Boni fuer bestimmte Attacken der Kaempfer vergeben (z.B.
+    Bonus auf Waffenschlag oder Todesstoss).
 
-	Prinzipiell gilt:
+    Genauere Hinweise zu diesen Properties und den zu setzenden Werten
+    findet man in 'man kaempferboni'.
 
-	* Alle Waffen, in denen eine solche Property gesetzt wird, sind mit
-	  der Objektbalance abzuklaeren.
+    Prinzipiell gilt:
 
-     f. Parierwaffen
+     ** Alle Waffen, in denen eine solche Property gesetzt wird,  **
+     ** sind mit der Objektbalance abzuklaeren.                   **
 
-	Parierwaffen sind Waffen, die die Verteidigung unterstuetzen.  Eine
-	Waffe wird als Parierwaffe verwendet, wenn die Property P_PARRY
-	gesetzt ist. Folgende Werte sind moeglich:
 
-	PARRY_NOT     Die ist KEINE Parierwaffe (=default).
+    f. Parierwaffen
 
-	PARRY_ONLY    Dies ist eine reine Parierwaffe.
+    Parierwaffen sind Waffen, die die Verteidigung unterstuetzen.  Eine
+    Waffe wird als Parierwaffe verwendet, wenn die Property P_PARRY
+    gesetzt ist. Folgende Werte sind moeglich:
 
-	PARRY_TOO     Diese Waffe wird sowohl als Parierwaffe als auch
-		      als Angriffswaffe benutzt
+    PARRY_NOT     Die ist KEINE Parierwaffe (=default).
 
-	Die Schutzwirkung der Parierwaffe wird wie bei Ruestungen ueber die
-	Property P_AC gesetzt. Ueber die Property P_DEFEND_FUNC kann wie bei
-	Ruestungen eine DefendFunc gesetzt werden.
+    PARRY_ONLY    Dies ist eine reine Parierwaffe.
 
-	Waffen mit PARRY_ONLY unterliegen den gleichen P_AC-Grenzwerten wie
-	Ruestungen vom Typ AT_SHIELD. Waffen mit PARRY_TOO oder einer
-	DefendFunc muessen generell genehmigt werden.
+    PARRY_TOO     Diese Waffe wird sowohl als Parierwaffe als auch
+                  als Angriffswaffe benutzt
+
+    Die Schutzwirkung der Parierwaffe wird wie bei Ruestungen ueber die
+    Property P_AC gesetzt. Ueber die Property P_DEFEND_FUNC kann wie bei
+    Ruestungen eine DefendFunc gesetzt werden.
+
+    Waffen mit PARRY_ONLY unterliegen den gleichen P_AC-Grenzwerten wie
+    Ruestungen vom Typ AT_SHIELD. Waffen mit PARRY_TOO oder einer
+    DefendFunc muessen generell genehmigt werden.
 
  SIEHE AUCH:
      balance, ruestungen, fernwaffen, uniques, npcs, grenzwerte,
-     attributsveraenderungen, resistenzen, kampfobjekte
+     attributsveraenderungen, resistenzen, kampfobjekte, kaempferboni
 
  LETZTE AeNDERUNG:
-     20. Mai 2004 Gloinson
+     16. Januar 2014 Gloinson

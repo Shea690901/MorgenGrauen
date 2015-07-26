@@ -51,7 +51,8 @@ Allgemeines und generelles zu Waffen:
    P_EFFECTIVE_WC
       Hier kann die evtl durch eine HitFunc veraenderte WC angegeben
       werden. Der Durchschnittswert soll da stehen. Die Kaempfergilde
-      kann das in gewissen Grenzen abschaetzen.
+      kann das in gewissen Grenzen abschaetzen und es wird auch fuer
+      die Guete von Zusatzangriffen von Gilden genutzt.
 
    P_EFFECTIVE_AC
       Fuer Paradewaffen setzen. Werte unbedingt mit Boing absprechen!
@@ -107,3 +108,5 @@ Parierwaffen
    Waffen mit PARRY_ONLY unterliegen den gleichen P_AC-Grenzwerten
    wie Ruestungen vom Typ AT_SHIELD. Waffen mit PARRY_TOO oder einer
    DefendFunc muessen generell genehmigt werden.
+
+---------- LETZTE AENDERUNG: Humni, 2011-10-12

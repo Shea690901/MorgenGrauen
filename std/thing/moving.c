@@ -2,7 +2,7 @@
 //
 // thing/moving.c -- object moving
 //
-// $Id: moving.c 7156 2009-02-25 21:23:19Z Zesstra $
+// $Id: moving.c 8892 2014-08-04 19:48:28Z Zesstra $
 
 #pragma strict_types
 #pragma save_types
@@ -38,7 +38,7 @@ protected int PreventMove(object dest, object oldenv, int method) {
       return ME_CANT_BE_DROPPED;
 
   // P_NOGET verhindert nehmen
-  if ((method & M_GET) && QueryProp(P_NOGET))
+  if ((method & (M_GET|M_GIVE)) && QueryProp(P_NOGET))
       return ME_CANT_BE_TAKEN;
 
   // Gewicht ermitteln
@@ -70,7 +70,7 @@ protected int PreventMove(object dest, object oldenv, int method) {
 protected void NotifyMove(object dest, object oldenv, int method) {
 }
 
-varargs int move( mixed dest, int method )
+varargs int move( object|string dest, int method )
 {
   object oldenv;
   int tmp;
@@ -79,8 +79,8 @@ varargs int move( mixed dest, int method )
 
   if (!objectp(dest) && !stringp(dest))
       raise_error(sprintf("Wrong argument 1 to move(). 'dest' must be a "
-	    "string or object! Argument was: %.100O\n",
-	    dest));
+            "string or object! Argument was: %.100O\n",
+            dest));
 
   // Jetzige Umgebung merken
   oldenv = environment();
@@ -111,8 +111,8 @@ varargs int move( mixed dest, int method )
           if ( (find_object(fn) || ((file_size(fn+".c")>0||
                   (file_size(vc=implode(explode(fn,"/")[0..<2],"/")+
                   "/virtual_compiler.c")>0 &&
-		  !catch(tmp=(int)call_other(vc,"QueryValidObject",fn);
-		    publish) && tmp>0)) &&
+                  !catch(tmp=(int)call_other(vc,"QueryValidObject",fn);
+                    publish) && tmp>0)) &&
                   !catch(load_object( fn );publish))) &&
               (!fn->QueryProp(P_NO_PLAYERS) || QueryProp(P_TESTPLAYER)) )
            dest = fn;
@@ -128,17 +128,20 @@ varargs int move( mixed dest, int method )
       // auf gueltigen Fehler pruefen, wer weiss, was Magier da evtl.
       // versehentliche zurueckgeben.
       if (VALID_MOVE_ERROR(tmp))
-	return(tmp);
+        return(tmp);
       else
-	return(ME_DONT_WANT_TO_BE_MOVED);
+        return(ME_DONT_WANT_TO_BE_MOVED);
   }
 
   // Sensitive Objekte muessen entfernt werden
   sens = QueryProp(P_SENSITIVE);
-  
-  if (sens&&environment())
-    environment()->RemoveSensitiveObject( this_object() );
 
+  if (sens && environment())
+  {
+    environment()->RemoveSensitiveObject( this_object() );
+    if (!objectp(ME))
+      return ME_WAS_DESTRUCTED;
+  }
   // Bewegen
   move_object(ME, dest);
 
@@ -150,13 +153,16 @@ varargs int move( mixed dest, int method )
   NotifyMove(environment(), oldenv, method);
 
   // Alte Umgebung informieren
-  if (oldenv) oldenv->NotifyLeave(this_object());
+  if (oldenv) oldenv->NotifyLeave(this_object(), dest);
 
   // Wenn das Objekt eine Umgebung hat, selbige informieren
   if (environment()) {
     if (sens)
+    {
       environment()->InsertSensitiveObject(this_object(),sens);
-    environment()->NotifyInsert(this_object());
+      if (!objectp(ME)) return ME_WAS_DESTRUCTED;
+    }
+    environment()->NotifyInsert(this_object(), oldenv);
   }
   //wurde das Objekt vielleicht noch zerstoert?
   if (!objectp(ME)) return(ME_WAS_DESTRUCTED);
@@ -169,17 +175,16 @@ varargs int move( mixed dest, int method )
 varargs int remove(int silent)
 { 
     if (environment() ) {
-	if(QueryProp(P_SENSITIVE))
-		environment()->RemoveSensitiveObject(this_object());
-	environment()->NotifyRemove(this_object());
+        if(QueryProp(P_SENSITIVE))
+                environment()->RemoveSensitiveObject(this_object());
+        environment()->NotifyRemove(this_object());
     }
     if (objectp(this_object()))
-	destruct(this_object());
+        destruct(this_object());
     return 1;
 }
 
 public string NotifyDestruct(object caller) {
-#if __BOOT_TIME__ > 1234212788
   // Lichtsystem mit der aenderung versorgen. :-/
   foreach(object env : all_environment() || ({})) {
       // Ja. Man ruft die _set_xxx()-Funktionen eigentlich nicht direkt auf.
@@ -191,7 +196,6 @@ public string NotifyDestruct(object caller) {
       // Tiamak
       env->_set_last_content_change();
   }
-#endif
   return 0;
 }
 

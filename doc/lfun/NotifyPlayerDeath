@@ -27,6 +27,10 @@ BESCHREIBUNG:
   Hauptaufgabe dieser Funktion ist es somit, auf Tode von Spielern zu
   reagieren oder selbige einfach nur mitzuloggen.
 
+  Zu dem Zeitpunkt des Aufrufs dieser Funktion ist der Spieler noch _nicht_
+  Geist und noch _nicht_ im Todesraum - dies wird im Anschluss an den Aufruf
+  der NotifyPlayerDeath() durchgefuehrt.
+  
   Aufgerufen wird die Funktion aus '/std/player/life.c' mittels catch() und
   werden mit limited() auf max. 150k (Gegner, Environment, Gilde) bzw. 80k 
   (alle anderen Objekte) Ticks beschraenkt.
@@ -61,10 +65,10 @@ BEISPIELE:
   Weiterhin ist es empfehlenswert, das toetende Objekt (killer) nicht
   im NotifyPlayerDeath() zu zestoeren, sondern etwas zeitversetzt,
   damit nicht etwa im nachfolgenden NotifyPlayerDeath() eines anderen
-  Objektes (s.o. Reihenfolge) killer=0 ist.
+  Objektes (s.o. Reihenfolge) killer==0 ist.
 
 SIEHE AUCH:
   Defend(), do_damage(), NotifyHpChange(), catch(), write_file(), log_file()
   P_LAST_DEATH_PROPS
 ----------------------------------------------------------------------------
-18.09.2009, Zesstra
+24.03.2012, Zesstra

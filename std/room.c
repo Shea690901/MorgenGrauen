@@ -2,26 +2,24 @@
 //
 // room.c -- room base object
 //
-// $Id: room.c 7412 2010-02-06 10:21:26Z Zesstra $
+// $Id: room.c 9138 2015-02-03 21:46:56Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
 #pragma no_clone
 #pragma pedantic
 
-inherit "std/thing/properties";
-//inherit "std/thing/util";
-inherit "std/thing/language";
-inherit "std/room/moving";
-inherit "std/room/restrictions";
-inherit "std/room/description";
-inherit "std/room/exits";
-inherit "std/room/commands";
-inherit "std/room/items";
-inherit "std/room/doors";
-inherit "std/container/inventory";
-
-//#define NEED_PROTOTYPES
+inherit "/std/thing/properties";
+inherit "/std/thing/language";
+inherit "/std/room/light";
+inherit "/std/container/inventory";
+inherit "/std/room/moving";
+inherit "/std/room/restrictions";
+inherit "/std/room/description";
+inherit "/std/room/exits";
+inherit "/std/room/commands";
+inherit "/std/room/items";
+inherit "/std/room/doors";
 
 #include <thing/properties.h>
 #include <config.h>
@@ -82,6 +80,7 @@ protected void create()
   properties::create();
   restrictions::create();
   commands::create();
+  light::create();
   description::create();
   exits::create();
   items::create();
@@ -103,7 +102,7 @@ protected void create_super() {
   set_next_reset(-1);
 }
 
-private static int
+private int
 check_clean_count()
 {
   int cc;
@@ -195,6 +194,12 @@ toggle_exits(string str)
 {
   int ex;
 
+  /* Nur das aktuelle Environment des Spielers ist zustaendig fuer die
+     Auflistung der Ausgaenge. Anderenfalls wird das Kommando von Raeumen
+     im Raum (z.B. Transportern) abgefangen und es werden dessen Ausgaenge
+     aufgelistet.
+     Sprich: keine Auflistung von Aussen. */
+  if (environment(this_player()) != this_object()) return 0;
   if (!str) return show_exits();
   if (str!="auto") return 0;
   ex = this_player()->QueryProp(P_SHOW_EXITS);

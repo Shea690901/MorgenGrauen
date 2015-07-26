@@ -9,9 +9,9 @@
 #include "tweak.h"
 #include "types.h"
 
-private static mapping memory;	// contains function information
-private static string *G_input;	// global input stack
-private static string *history;	// input history
+private nosave mapping memory;	// contains function information
+private nosave string *G_input;	// global input stack
+private nosave string *history;	// input history
 
 nomask static public string output(mixed res);
 
@@ -103,7 +103,7 @@ nomask varargs string get_line()
 }
 
 // transform() -- transforms some of the output strings
-nomask static private string transform(string e)
+nomask private string transform(string e)
 {
   switch(e)
   {

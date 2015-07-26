@@ -15,8 +15,7 @@ Forscherpunkte
     Die Testphase ist eine gute Gelegenheit, sich darueber Gedanken zu machen,
     wo welche FP vergeben werden koennten.
 
-    Fuer das Verwalten der Forscherpunkte ist eigentlich Rikur zustaendig.
-    Solange dieser allerdings nicht da ist, wendet euch bitte an Humni.
+    Fuer das Eintragen der Forscherpunkte ist derzeit Miril zustaendig.
 
  WAS FUeR FP KANN ICH VERGEBEN?
     Folgende Typen von Forscherpunkten stehen zur Verfuegung:
@@ -27,6 +26,8 @@ Forscherpunkte
      * Kommandos, soweit sie mit AddCmd() angemeldet werden.
        Kommandos, die mit add_action() angemeldet werden, koennen aus
        technischen Gruenden nicht beruecksichtigt werden.
+       Kommandos, die als FPs eingetragen sind, geben genau dann den
+       FP, wenn 1 zurueckgegeben wird.
      * Ausgaenge bei Raeumen. Darunter fallen auch SpecialExits.
      * Infos bei NPCs. Das Defaultinfo laesst sich allerdings nicht ohne
        weiteres verwenden.
@@ -61,4 +62,4 @@ Forscherpunkte
     /players/wargon/mon/errol: info drachen
 
  LETZTE AeNDERUNG:
-    Tue, 02.09.1997, 16:53:20 von Wargon
+	Thu, 2013-04-04 von Humni

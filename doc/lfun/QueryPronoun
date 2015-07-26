@@ -27,6 +27,6 @@ BEISPIELE:
 
 SIEHE AUCH:
      SuggestArticle(), QueryPossPronoun(), /std/thing/language.c
-
+     QueryOwn()
 ----------------------------------------------------------------------------
 Last modified: Wed May 8 10:23:14 1996 by Wargon

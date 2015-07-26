@@ -2,7 +2,7 @@
 //
 // comm.c
 //
-// $Id: comm.c 6371 2007-07-17 22:46:50Z Zesstra $
+// $Id: comm.c 8755 2014-04-26 13:13:40Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma range_check
@@ -64,7 +64,7 @@ static int _mecho(string str)  {
   object *who;
   int i;
 
-  if (!strlen(str=_unparsed_args()))
+  if (!sizeof(str=_unparsed_args()))
     return USAGE("mecho <text>\n");
   who=users();
   i=sizeof(who);
@@ -81,7 +81,7 @@ static int _ping(string str)
 {
   object pl;
 
-  if (!strlen(str))
+  if (!sizeof(str))
     return USAGE("ping <spielername>\n");
   if (!(pl=find_player(lower_case(str))))
     return
@@ -102,7 +102,7 @@ int _oropax(string cmdline)
 
   cmdline=_unparsed_args();
   old=QueryProp(P_EARMUFFS);
-  if (!strlen(cmdline)||cmdline=="0")
+  if (!sizeof(cmdline)||cmdline=="0")
   {
     if (old)
     {
@@ -138,7 +138,7 @@ int _oropax(string cmdline)
 //########################## INITIALISIERUNG #############################
 //                         ###################
 
-static mixed *_query_localcmds()
+static mixed _query_localcmds()
 {
   return
     ({({"oropax","_oropax",0,LEARNER_LVL}),

@@ -5,7 +5,7 @@
 #include <properties.h>
 #include <language.h>
 
-private static object pl;
+private nosave object pl;
 
 void create()
 {
@@ -30,7 +30,8 @@ AddExp(int ep)
 	  !query_once_interactive(previous_object())
 	 )
        )
-     ) {
+     )
+  {
     diff = block->Gutschreiben(ep-lim);
     return pl->AddExp(lim+diff);
   }

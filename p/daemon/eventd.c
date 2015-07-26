@@ -89,9 +89,9 @@ nosave int updateme;
 // Haeufigkeiten.
 nosave mapping stats=([]);
 
+
+protected void process_events();
 protected void save_me();
-
-
 varargs int remove(int silent);
 
 // ist der Event-Typ "eid" schon bekannt, d.h. gib es min. 1 Listener?
@@ -136,8 +136,8 @@ int RegisterEvent(string eid, string fun, object ob) {
     if (!mappingp(events[eid]))
         events[eid]=m_allocate(1,3); // 3 Werte pro Key
     events[eid]+=([object_name(ob):fun;cl;ob]);
-    if (find_call_out(#'save_me)==-1)
-        call_out(#'save_me,15);
+//    if (find_call_out(#'save_me)==-1)
+//        call_out(#'save_me,15);
     LOGREGISTER(ob,fun,eid,po);
     return 1;
 }
@@ -155,16 +155,16 @@ int UnregisterEvent(string eid, object ob) {
     string oname=object_name(ob);
     if (!member(events[eid],oname)) 
         return -2;
-    efun::m_delete(events[eid],oname);
+    m_delete(events[eid],oname);
     if (!sizeof(events[eid]))
-        efun::m_delete(events,eid);
+        m_delete(events,eid);
     // aus aktivem Event austragen, falls es drin sein sollte.
     if (sizeof(active) && member(active,eid) 
         && member(active[eid,A_LISTENERS], oname)) {
-        efun::m_delete(active[eid,A_LISTENERS],oname);
+        m_delete(active[eid,A_LISTENERS],oname);
     }
-    if (find_call_out(#'save_me)==-1)
-      call_out(#'save_me,15);
+//    if (find_call_out(#'save_me)==-1)
+//      call_out(#'save_me,15);
     LOGUNREGISTER(ob, eid, po);
     return 1;
 }
@@ -178,28 +178,34 @@ varargs int TriggerEvent(string eid, mixed args) {
         return -1;
     if (!allowedtrigger(eid, trigger)) return -2;
     if (!member(events,eid)) return -3;
+    if (sizeof(pending) > __MAX_ARRAY_SIZE__/5)
+        return -4;
     pending+=({ ({eid,trigger,object_name(trigger), args, time()}) });
-    set_heart_beat(1);
+    if (find_call_out(#'process_events) == -1)
+      call_out(#'process_events,0);
     LOGEVENT(eid,trigger,args);
     //DEBUG(sprintf("%O",pending));
     return 1;
 }
 
-protected void heart_beat() {
+protected void process_events() {
+  // erstmal wieder nen call_out eintragen.
+  call_out(#'process_events, 1);
+
   // solange ueber active und pending laufen, bis keine Ticks mehr da sind,
   // bzw. in der Schleife abgebrochen wird, weil keine Events mehr da sind.
   while(get_eval_cost() > TICK_RESERVE) {
     // HB abschalten, wenn nix zu tun ist.
     if (!sizeof(active)) {
       if (!sizeof(pending)) {
-        set_heart_beat(0);
-        return;
+        remove_call_out(#'process_events);
+        break;
       }
       // scheint noch min. ein Eintrag in pending zu sein, nach active kopieren,
       // plus die Callback-Infos aus events
       active=({pending[0][P_EID],
                pending[0][P_TRIGOB],pending[0][P_TRIGOBNAME],
-               pending[0][P_ARGS],                         
+               pending[0][P_ARGS],
                deep_copy(events[pending[0][P_EID]]),
                pending[0][P_TIME] });
 
@@ -221,7 +227,7 @@ protected void heart_beat() {
     foreach(string obname, string fun, closure cl, object listener: 
                  listeners) {
       // erst pruefen, ob noch genug Ticks da sind. wenn nicht, gehts im
-      // naechsten HB weiter.
+      // naechsten Zyklus weiter.
       if (get_eval_cost() < TICK_RESERVE) {
         return;
       }
@@ -236,9 +242,9 @@ protected void heart_beat() {
         }
         else {
           // Objekt nicht gefunden oder Closure nicht erzeugbar, austragen
-          efun::m_delete(listeners,obname);
+          m_delete(listeners,obname);
           // und aus events austragen.
-          efun::m_delete(events[eid],obname);
+          m_delete(events[eid],obname);
           // und naechster Durchgang
           continue;
         }
@@ -246,7 +252,7 @@ protected void heart_beat() {
       // Objekt noch da, Closure wird als ausfuehrbar betrachtet. 
       catch(limited(#'funcall,({TICKSPERCALLBACK}),cl,eid,trigob,args);publish);
       // fertig mit diesem Objekt.
-      efun::m_delete(listeners,obname);
+      m_delete(listeners,obname);
     }
     // Statistik? Differenzen zwische Erledigungszeit und Eintragszeit bilden
     // die Keys, die Values werden einfach hochgezaehlt.
@@ -258,6 +264,7 @@ protected void heart_beat() {
     //DEBUG(sprintf("Fertig: %O %O",eid, trigobname));
     LOGEVENTFINISH(eid,trigobname);
   }  // while(get_eval_cost() > TICK_RESERVE)
+
   // Soll dies Ding neugeladen werden? Wenn ja, Selbstzerstoerung, wenn keine
   // Events mehr da sind.
   if (updateme && !sizeof(active) && !sizeof(pending)) {
@@ -276,7 +283,6 @@ protected void create() {
       events=([]);
       lastboot=__BOOT_TIME__;;
     }
-    set_heart_beat(0);
     LOG("Event-Dispatcher loaded");
 }
 
@@ -320,6 +326,9 @@ mapping QueryStats() {
 }
 
 int UpdateMe(int flag) {
-    return (updateme=flag);
+    updateme=flag;
+    if (find_call_out(#'process_events)==-1)
+      reset();
+    return flag;
 }
 

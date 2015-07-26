@@ -10,9 +10,8 @@ moeglichst reibungslos zu gestalten, seien Dir zunaechst folgende formale
 Dinge ans Herz gelegt:
 
 
-o  #pragma strong_types soll in allen Files verwendet werden,
-   ab Driver-Version LD_3.5.x ggf. auch ueber save_types und rtt_checks
-   nachdenken. 
+o  #pragma strong_types,save_types soll in allen Files verwendet werden,
+   ab Driver-Version LD_3.5.x wird auch rrtt_checks dringend empfohlen.
 
 o  Der Code soll keine Zeilen mit mehr als 78 Zeichen enthalten.
 
@@ -39,13 +38,35 @@ o  Wirf bitte nach Abschluss der Arbeiten Platzhalter-Code raus (z.B. leere
 o  Speicherung von Daten in secure-Verzeichnissen soll bitte nur sehr
    sparsam erfolgen und nur in Abstimmung mit dem RM.
 
+o  save_object() bitte sehr sparsam verwenden (nicht bei jeder Daten-
+   aenderung, bei Bedarf in reset/remove).
+
 o  Wenn Defines zum Einsatz kommen, verwende sie bitte moeglichst sparsam
    und sorge dafuer, dass Defines klar als solche erkennbar sind. Ausser in
    Faellen, wo es gar nicht anders geht, solltest Du keine Code-Defines
    verwenden, die mehr umfassen als einfache Funktionsaufrufe wie z.B.
-   #define TP this_player()
+      #define TP this_player()
    Fuer uebliche Standardfaelle existiert bereits eine Headerdatei in der 
    Mudlib unter /sys/defines.h. 
+
+o  Solltest Du bestimmte Ereignisse in Deinem Gebiet loggen wollen (z.B.
+   (Mini-)Questabschluesse oder besondere Kills), dann benutze bitte 
+   log_file(), so dass die Logfiles nach /log/ geschrieben werden. Zusaetzlich
+   werden so erstellte Logfiles automatisch bei Erreichen einer bestimmten
+   Dateigroesse rotiert, so dass sich der Platzverbrauch in Grenzen haelt.
+   Das Protokollieren mittels write_file() in Regionsverzeichnissen unter 
+   /d/ ist grundsaetzlich NICHT erwuenscht. 
+   Nach Absprache KANN es fuer SELTENE und WICHTIGE Meldungen erlaubt werden,
+   mittels write_file(() nach /log/ zu schreiben.
+
+o  Wenn Du in Deinem Gebiet Daten oder Code ablegst, der nicht fuer 
+   jedermanns Augen bestimmt ist (Questloesungen, Gebietskarten, Savefiles
+   von questrelevanten (Master-)Objekten), solltest Du in Abstimmung mit
+   Deinem Regionsmagier ueberlegen, diese in ein ./secure/-Verzeichnis
+   zu verschieben, damit sichergestellt ist, dass auch tatsaechlich nur
+   berechtigte Magier darauf Zugriff erhalten. Denn bedenke, dass Lese-
+   und Schreibrechte nur fuer Codedateien geprueft werden, jedoch nicht
+   fuer beliebige sonstige Textdateien.
 
 o  Es sei ausdruecklich auf die Manpages "goodstyle", "effizienz", etc.
    verwiesen.
@@ -117,8 +138,10 @@ Was keinesfalls akzeptiert wird:
 
 o  Files, die in /players liegen, incl. Headerfiles. Dies erschwert das
    Reparieren von Bugs ungemein und bringt eine gewisse Unuebersichtlichkeit
-   mit sich. Bitte auch nichts aus /players inheriten (Ausnahmen sind in
-   Absprache mit dem RM natuerlich moeglich).
+   mit sich. Bitte auch nichts aus /players inheriten (Ausnahmen hiervon sind 
+   aufgrund eines neuen Driver-Features nur noch mit Hilfe eines Erzmagiers 
+   moeglich. Kurz gesagt: es gibt eine Whitelist von Objekten, die das 
+   duerfen. Alle anderen duerfen das per Default nicht.).
 
 
 Viel Spass bei der Programmierung! 

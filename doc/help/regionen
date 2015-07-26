@@ -11,18 +11,17 @@ Hier also alle Regionen des Morgengrauens mit ihren Regionsmagiern:
 
    Anfaenger     Ark
    Dschungel     Ark
-   Ebene         Arathorn, Ragnaroek
+   Ebene         Arathorn
    Fernwest      Vanion
-   Gebirge       Bambi, Boing
-   Inseln        Miril, Seleven
-   Polar         Humni, Noel
+   Gebirge       Bambi
+   Inseln        Miril
+   Polar         Humni, Caldra
    Schattenwelt  Zook
    Seher         Zook
    Unterwelt     Zesstra (vertretungsweise in Abwesenheit eines RM)
-   VLand         Esme, nur noch spiritus rector: Morgoth
-                 (in Abwesenheit: Ark)
+   VLand         Bugfix, Esme, nur noch spiritus rector: Morgoth
    Wald          Chagall
-   Wueste        Amaryllis, Ennox, Raschaua
+   Wueste        Notstrom, Ennox
 
 Wenn Du den Regionsmagiern einer Region eine Mail schreiben moechtest,
 so verwende am besten die Mail-Aliase "rm_<regionname>".
@@ -37,4 +36,4 @@ SIEHE AUCH:
 	Gildenmagier
 
 ----------------------------------------------------------------------------
-Last modified: 2009-05-18 von Zook.
+Last modified: 2015-01-20 von Zook.

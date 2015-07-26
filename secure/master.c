@@ -2,7 +2,7 @@
 //
 // master.c -- master object
 //
-// $Id: master.c 7486 2010-02-21 19:14:29Z Zesstra $
+// $Id: master.c 9153 2015-02-09 20:03:19Z Zesstra $
 #pragma strict_types
 #pragma no_clone
 #pragma no_shadow
@@ -29,6 +29,8 @@ inherit "/secure/master/players_deny";
 #include "/sys/rtlimits.h"
 #include "/sys/debug_info.h"
 #include "/sys/debug_message.h"
+#include "/sys/configuration.h"
+#include "/sys/regexp.h"
 
 // Module des Master einfuegen. Per #include, damits geringfuegig schneller.
 // Da die Module ja nirgendwo sonst geerbt werden koennten, ist dies
@@ -42,8 +44,13 @@ inherit "/secure/master/players_deny";
 #define LOGFILEAGE (RESETINT*LOGROTATE)      // alle 2 tage wechseln
 #define LOGNUM     3                         // Anzahl der Logfiles
 
-static int logrotate_counter; //READ_FILE alle LOGROTATE Resets rotieren
-
+private nosave int logrotate_counter; //READ_FILE alle LOGROTATE Resets rotieren
+// Wird gerade versucht, die simul_efuns zu laden? Wenn ja, duerfen keine
+// sefuns gerufen werden.
+private nosave int loading_simul_efuns;
+// wird gerade ein Fehler bearbeitet? Dient zur Erkennung von Rekursionen in
+// der Fehlerbehandlung
+private nosave int handling_error;
 
 //                       #####################
 //######################## Start des Masters ############################
@@ -55,6 +62,8 @@ static int logrotate_counter; //READ_FILE alle LOGROTATE Resets rotieren
 //neugeladen.
 protected void inaugurate_master(int arg) {
 
+  set_driver_hook(H_REGEXP_PACKAGE, RE_TRADITIONAL);
+  
   seteuid(ROOTID);
   userinfo::create();
   LoadPLDenylists();
@@ -78,11 +87,15 @@ protected void inaugurate_master(int arg) {
   // Reset festsetzen (1h)
   set_next_reset(RESETINT);
 
-
-  // Hooks setzen
+  // Driver konfigurieren
+  // Lagerkennung erst ne Minute spaeter, waehrend preload darfs momentan
+  // ruhig laggen (Zeit: vorlaeufig 1min)
+  call_out(#'configure_driver, 60, DC_LONG_EXEC_TIME, 100000);
+  
+  // Hooks setzen 
   
   // Standardincludeverzeichnisse fuer #include <>
-  set_driver_hook(H_INCLUDE_DIRS, ({"secure/","sys/"}) );
+  set_driver_hook(H_INCLUDE_DIRS, ({"/secure/","/sys/"}) );
   
   //Nach dem Laden/Clonen create() im Objekt rufen
   set_driver_hook(H_CREATE_CLONE,       "create");
@@ -97,6 +110,9 @@ protected void inaugurate_master(int arg) {
 
   // Jede Eingabe wird ueber modify_command gelenkt
   set_driver_hook(H_MODIFY_COMMAND,       "modify_command");
+  // Dieser Hook ist mandatory, aber wird nur benutzt, wenn via
+  // set_modify_command() aktiviert - was wir nicht (mehr) tun. Insofern ist
+  // das Relikt aus alten Zeiten.
   set_driver_hook(H_MODIFY_COMMAND_FNAME, "modify_command");
 
   // Standard-Fehlermeldung
@@ -109,10 +125,21 @@ protected void inaugurate_master(int arg) {
   // Was machen bei telnet_neg
   set_driver_hook(H_TELNET_NEG,"telnet_neg");
   //  set_driver_hook(H_TELNET_NEG,0);
- 
+
+  // Promptbehandlung: Defaultprompt setzen und dafuer sorgen, dass alle
+  // Promptausgaben durch print_prompt im Interactive laufen, damit das EOR
+  // angehaengt wird.
+  set_driver_hook(H_PRINT_PROMPT, "print_prompt");
+  set_driver_hook(H_DEFAULT_PROMPT, "> ");
+
   // EUID und UID muessen neue Objekte auch noch kriegen, Hooks dafuer setzen
   set_driver_hook(H_LOAD_UIDS, #'load_uid_hook);
   set_driver_hook(H_CLONE_UIDS, #'clone_uid_hook);
+
+  // Meldung bei vollem Mud
+  set_driver_hook(H_NO_IPC_SLOT, "Momentan sind leider zuviele Spieler im "
+      +MUDNAME+" eingeloggt.\nBitte komm doch etwas spaeter nochmal "
+      "vorbei!\n");
 
   // Nun der beruechtigte Move-Hook ...
   // (bewegt objekt und ruft alle notwendigen inits auf)
@@ -262,15 +289,21 @@ protected void preload(string file) {
 protected string *get_simul_efun() {
   string err;
 
-  if (!(err=catch(SIMUL_EFUN_FILE->start_simul_efun())) )
+  ++loading_simul_efuns;
+
+  if (!(err=catch(SIMUL_EFUN_FILE->start_simul_efun())) ) {
+    --loading_simul_efuns;
     return ({SIMUL_EFUN_FILE});
+  }
   
   write("Failed to load simul efun " + SIMUL_EFUN_FILE + "\n");
   debug_message("Failed to load simul efun " + SIMUL_EFUN_FILE +
       " " + err, DMSG_STDOUT | DMSG_LOGFILE);
 
-  if (!(err=catch(SPARE_SIMUL_EFUN_FILE->start_simul_efun())) )
+  if (!(err=catch(SPARE_SIMUL_EFUN_FILE->start_simul_efun())) ) {
+    --loading_simul_efuns;
     return ({SPARE_SIMUL_EFUN_FILE});
+  }
   
   write("Failed to load spare simul efun" + SPARE_SIMUL_EFUN_FILE + "\n");
   debug_message("Failed to load spare simul efun " + SPARE_SIMUL_EFUN_FILE +
@@ -281,6 +314,34 @@ protected string *get_simul_efun() {
   
   return 0;
 }
+
+protected mixed call_sefun(string sefun, varargs mixed args) {
+  if (!loading_simul_efuns)
+    return apply(symbol_function(sefun), args);
+  else {
+    switch(sefun) {
+      case "log_file":
+      case "secure_level":
+      case "secure_euid":
+      case "find_player":
+      case "find_netdead":
+      case "find_living":
+      case "process_call":
+      case "replace_personal":
+      case "file_time":
+        return 0;
+      case "dtime":
+        if (pointerp(args) && sizeof(args))
+          return strftime("%a %d. %b %Y, %H:%M:%S",args[0]);
+        else
+          return strftime("%a %d. %b %Y, %H:%M:%S");
+      case "uptime":
+        return to_string(time()-__BOOT_TIME__) + " Sekunden";
+    }
+  }
+  return 0;
+}
+
 
 // Preload manuell wiederholen; Keine GD-Funktion
 void redo_preload()
@@ -339,6 +400,9 @@ protected void reset()
   // missbraucht.
   if (!(logrotate_counter%24)) {
     ResetUIDAliase();
+#ifdef _PUREFTPD_
+    expire_ftp_user();
+#endif
   }
 
   // Wizlist altert
@@ -428,12 +492,15 @@ string creator_file(mixed str) {
     case NEWSDIR:
       return NEWSID;
 
+    case LIBITEMDIR:
+      return ITEMID;
+
     /* Fall-Through */
     default:
       return NOBODY;
 
  }
- return(NOBODY);  //should never be reached.
+ return NOBODY;  //should never be reached.
 }
 
 // UID und EUID an Objekt geben (oder eben nicht)
@@ -445,11 +512,15 @@ protected mixed give_uid_to_object(string datei,object po)
   // Parameter testen
   if (!stringp(datei)||!objectp(po))  return 1;
 
+  // Keine Objekte in /log, /open oder /data
+  if (strstr(datei, "/"LIBDATADIR"/") == 0
+      || strstr(datei, "/"LIBLOGDIR"/") == 0
+      || strstr(datei, "/"FTPDIR"/") == 0
+      )
+      return 1;
+
   // Datei muss Besitzer haben
   if (!(creator=creator_file(datei))) return 1;
-  
-  // Keine Objekte in /log und /open
-  if (datei[0..2]=="log" || datei[0..3]=="open") return 1;
 
   // Hack, damit simul_efun geladen werden kann
   if (creator==ROOTID && po==TO) return ROOTID;
@@ -502,15 +573,6 @@ protected object connect()
     }
   }
 #endif
-  // if err is > 0, the TLS connection is still being established in the
-  // background. We must not send any data to the client.
-  if (errno == 0) {
-    printf("HTTP/1.0 302 Found\n"
-         "Location: http://mg.mud.de/\n\n"
-         "NetCologne, Koeln, Germany. Local time: %s\n\n"
-         MUDNAME" LDmud, NATIVE mode, driver version %s\n\n",
-         strftime("%c"), __VERSION__);
-  }
 
   // Blueprint im Environment? Das geht nun wirklich nicht ...
   if ((bp=find_object("/secure/login")) && environment(bp)) 
@@ -537,13 +599,14 @@ protected object compile_object(string filename)
   string *str;
   string compiler;
 
-  if (!strlen(filename)) return 0;
+  if (!sizeof(filename)) return 0;
   str=efun::explode(filename,"/");
 
   if(sizeof(str)<2) return 0;
   compiler=implode(str[0..<2],"/")+"/virtual_compiler";
  
-  if (file_size(compiler+".c")>0)
+  if (find_object(compiler)
+      || file_size(compiler+".c")>0)
   {
     if(catch(
           ret=(object)call_other(compiler,"compile_object",str[<1]); publish))
@@ -621,18 +684,22 @@ int valid_exec(string name, object ob, object obfrom)
 {
   // Ungueltige Parameter oder Aufruf durch process_string -> Abbruch
   if (!objectp(ob) || !objectp(obfrom) 
-      || !stringp(name) || !strlen(name)
+      || !stringp(name) || !sizeof(name)
       || funcall(symbol_function('process_call)) )
     return 0;
 
   // renew_player_object() darf ...
-  if (name=="secure/master/misc.c") return 1;
+  if (name=="/secure/master/misc.c"
+      || name=="secure/master/misc.c")
+    return 1;
 
   // Ansonsten darf sich nur die Shell selber aendern ...
   if (previous_object() != obfrom) return 0;
 
   // Die Login-Shell zu jedem Objekt ...
-  if (name=="secure/login.c") return 1;
+  if (name=="/secure/login.c"
+      || name=="secure/login.c")
+    return 1;
 
   // Magier per exec nur, wenn sie damit keine Fremde uid/euid bekommen
   if (this_interactive() == obfrom && getuid(obfrom) == getuid(ob) 
@@ -712,21 +779,31 @@ int privilege_violation(string op, mixed who, mixed arg1, mixed arg2)
       return 1;
 
     case "nomask simul_efun":
+      // <who> ist in diesem Fall ein string (Filename) und damit von dem
+      // Check da oben nicht abgedeckt. Daher explizite Behandlung hier.
+      // Ausserdem hat der Pfad (zur Zeit noch) keinen fuehrenden '/'.
+      // Falls das jemand einschraenken will: der Kram fuer die simul_efuns
+      // muss das duerfen!
+      if (stringp(who)
+          && strstr(who,"secure/") == 0)
+        return 1;
+      return 0; // alle andere nicht.
+
     case "get_extra_wizinfo":
       // benutzt von /secure/memory.c und /secure/simul_efun.c
     case "set_extra_wizinfo":
       // wird benutzt von simul_efun.c, welche aber als ROOT-Objekt implizit
       // erlaubt ist (s.o.)
-       if (who==SIMUL_EFUN_FILE||
-           who == SPARE_SIMUL_EFUN_FILE)
-         return 1;
-       return -1;
+      return -1; // fuer allen nicht erlaubt.
 
     case "rename_object":
       if (object_name(who)=="/secure/impfetch" ||
           BLUE_NAME(who)=="/secure/login")
         return 1;
       return(-1);
+
+    case "configure_driver": 
+      return call_sefun("secure_level") >= ARCH_LVL;
 
     case "limited":
       // Spielershells duerfen sich zusaetzliche Ticks fuer den Aufruf von
@@ -756,6 +833,8 @@ int privilege_violation(string op, mixed who, mixed arg1, mixed arg2)
       //sonst verweigern.
       return(-1);
 
+    case "sqlite_pragma":
+      return 1;
     case "attach_erq_demon":
     case "bind_lambda": 
     case "enable_telnet":
@@ -808,6 +887,18 @@ protected int heart_beat_error( object culprit, string error, string program,
   return 0;
 }
 
+// Ausgabe einer Meldung an Spieler mit Level >= minlevel. Wird genutzt, um
+// Magier ueber Fehler zu informieren, die nicht normal behandelt werden
+// (z.B. rekursive Fehler, d.h. Fehler in der Fehlerbehandlung)
+private void tell_players(string msg, int minlevel) {
+  msg = efun::sprintf("%=-78s","Master: " + msg); // umbrechen
+  efun::filter(efun::users(), function int (object pl)
+      {
+        if (query_wiz_level(pl) >= minlevel)
+          efun::tell_object(pl, msg);
+        return 0;
+      } );
+}
 
 /**
  * \brief Error handling fuer Fehler beim Compilieren.
@@ -824,23 +915,38 @@ protected int heart_beat_error( object culprit, string error, string program,
  * @param warn Warnung (warn!=0) oder Fehler (warn==0)?
  * */
 
-protected int log_error(string file, string message, int warn) {
+protected void log_error(string file, string message, int warn) {
   string lfile;
   string cr;
   mixed *lfile_size;
 
+  if (handling_error == efun::time()) {
+    // Fehler im Verlauf einer Fehlerbehandlung: Fehlerbehandlung minimieren,
+    // nur Meldung an eingeloggte Erzmagier.
+    tell_players("log_error(): Rekursiver Fehler in Fehlerbehandlung. "
+        "Bitte Debuglog beachten. Aktueller Fehler in " + file + ": "
+        + message, ARCH_LVL);
+    return;
+  }
+  handling_error = efun::time();
+
  //Fehlerdaten an den Errord zur Speicherung weitergeben, falls wir sowas
  //haben.
 #ifdef ERRORD
+  // Only call the errord if we are _not_ compiling the sefuns. It uses sefuns
+  // and it will cause a recursing call to get_simul_efuns() which is bound to
+  // fail.
+  if (!loading_simul_efuns) {
     catch(limited(#'call_other,({200000}),ERRORD,"LogCompileProblem",
-          file,message,warn); publish);
+          file,message,warn);publish );
+  }
 #endif // ERRORD
 
  // Logfile bestimmen
   cr=creator_file(file);
   if (!cr)                     lfile="NOBODY.err";
   else if (cr==ROOTID)         lfile="ROOT";
-  else if (member(cr,' ')!=-1) lfile="STD";
+  else if (efun::member(cr,' ')!=-1) lfile="STD";
   else                         lfile=cr;
   //je nach Warnung oder Fehler Verzeichnis und Suffix bestimmen
   if (warn) {
@@ -851,25 +957,32 @@ protected int log_error(string file, string message, int warn) {
   }
 
   // Bei Bedarf Rotieren des Logfiles
-  if ( sizeof(lfile_size = get_dir(lfile,2)) &&
-           lfile_size[0] >= MAX_ERRLOG_SIZE )
+  if ( !loading_simul_efuns
+      && sizeof(lfile_size = get_dir(lfile,2))
+      && lfile_size[0] >= MAX_ERRLOG_SIZE )
   {
     catch(rename(lfile, lfile + ".old"); publish); /* No panic if failure */
-    DEBUG3_MSG("Logfile rotiert: "+lfile+".");
+    if (!loading_simul_efuns)
+    {
+      catch(send_channel_msg("Entwicklung","<MasteR>",
+                              "Logfile rotiert: "+lfile+"."));
+    }
   }
 
-  write_file(lfile,message);
+  efun::write_file(lfile,message);
 
   // Magier bekommen die Fehlermeldung angezeigt
-  if (IS_LEARNER(TI)) write(message);
-  return 1;
+  if (IS_LEARNER(TI)) efun::tell_object(TI, message);
+
+  handling_error = 0;
 }
 
 /* Gegenmassnahme gegen 'too long eval' im Handler vom runtime error:
    Aufsplitten des Handlers und Nutzung von limited() */
 //keine GD-Funktion
-private void handle_runtime_error(string err, string prg, string curobj, 
-    int line, mixed culprit, int caught, object po, string hashkey) {
+private void handle_runtime_error(string err, string prg, string curobj,
+    int line, mixed culprit, int caught, object po, int issueid)
+{
   string code;
   string debug_txt;
   object ob, titp; 
@@ -880,60 +993,77 @@ private void handle_runtime_error(string err, string prg, string curobj,
   if (!stringp(err))    err="<NULL>";
   if (!stringp(prg))    prg="<NULL>";
   if (!stringp(curobj)) curobj="<NULL>";
-  debug_txt=sprintf("Fehler: %O, Objekt: %s, Programm: %O, Zeile %O (%s), "
-                    "ID: %s",
+  debug_txt=efun::sprintf("Fehler: %O, Objekt: %s, Programm: %O, Zeile %O (%s), "
+                    "ID: %d",
                     err[0..<2], curobj, (prg[0]!='<'?"/":"")+prg, line,
-                    (TI?capitalize(getuid(TI)):"<Unbekannt>"),
-                    hashkey||"");
-  
+                    (TI?efun::capitalize(efun::getuid(TI)):"<Unbekannt>"),
+                    issueid);
+
   titp = TI || TP;
-  // Fehlermeldung an Kanaele schicken
-  if (titp && (IS_LEARNER(titp) || (titp->QueryProp(P_TESTPLAYER))))
-    DEBUG2_MSG(debug_txt,po); // -entw
-  else
-    DEBUG_MSG(debug_txt,po);  // -Debug
+  // Fehlermeldung an Kanaele schicken, aber nur wenn der aktuelle Fehler
+  // nicht waehrend des ladens der simulefuns auftrat, bei der Ausgabe der
+  // Meldung ueber die Kaenaele wieder sefuns genutzt werden.
+  if (!loading_simul_efuns) {
+    if (titp && (IS_LEARNER(titp) || (titp->QueryProp(P_TESTPLAYER))))
+    {
+      catch(send_channel_msg("Entwicklung",
+                             capitalize(objectp(po) ? REAL_UID(po) : ""),
+                             debug_txt));
+    }
+    else
+    {
+      catch(send_channel_msg("Debug",
+                             capitalize(objectp(po) ? REAL_UID(po) : ""),
+                             debug_txt));
+    }
+  }
+
   if (!titp) return;
 
   // Fehlermeldung an Benutzer
   if (IS_LEARNER(titp))
-    tell_object(titp,
-                sprintf("%'-'78.78s\nfile: %s line: %d object: %s\n" +
+    efun::tell_object(titp,
+                efun::sprintf("%'-'78.78s\nfile: %s line: %d object: %s\n" +
                         "%serror: %s%'-'78.78s\n","",prg,line,curobj,
-                        (prg&&(code=read_file("/"+prg,line,1))?
+                        (prg&&(code=efun::read_file("/"+prg,line,1))?
                          "\n"+code+"\n":""),err,""));
   else
-    write("Du siehst einen Fehler im Raum-Zeit-Gefuege.\n");
-
-  // Wenn Magierclosure zerstoert wurde: Magier zerstoeren
-  // TODO: Ist das gewollt?
-  if (err=="Object the closure was bound to has been destructed\n")
-  {
-    ob=find_object(curobj);
-    if (ob && IS_LEARNER(ob) && query_once_interactive(ob))
-    {
-      ob->quit();
-      if (ob) catch(ob->remove(); publish);
-      if (ob) destruct(ob);
-    }
-  }
-  return;
+    efun::tell_object(titp, "Du siehst einen Fehler im Raum-Zeit-Gefuege.\n");
 }
 
 //Keine GD-Funktion, limitiert die Kosten fuer den handler
-private void call_runtime_error(string err, string prg, string curobj, 
-    int line, mixed culprit, int caught, object po) {
-    string hashkey;
+private void call_runtime_error(string err, string prg, string curobj,
+    int line, mixed culprit, int caught, object po)
+{
+  if (handling_error == efun::time())
+  {
+    // Fehler im Verlauf einer Fehlerbehandlung: Fehlerbehandlung minimieren,
+    // nur Meldung an eingeloggte Regionsmagier.
+    tell_players("call_runtime_error(): Rekursiver Fehler in "
+        "Fehlerbehandlung. Bitte Debuglog beachten. Aktueller Fehler in "
+        + curobj + ": " + err, LORD_LVL);
+    return;
+  }
+  handling_error = efun::time();
 
-    //Fehlerdaten an den Errord zur Speicherung weitergeben, falls wir sowas
-    //haben.
+  //Fehlerdaten an den Errord zur Speicherung weitergeben, falls wir sowas
+  //haben.
 #ifdef ERRORD
-    catch(hashkey=limited(#'call_other,({200000}),ERRORD,"LogError",
+  int issueid;
+  // Wenn die sefuns gerade geladen werden, erfolgt keine Weitergabe an den
+  // ErrorD, da dabei wieder sefuns gerufen werden, was zu einer Rekursion
+  // fuehrt.
+  if (!loading_simul_efuns) {
+    catch(issueid=efun::limited(#'call_other,({200000}),ERRORD,"LogError",
           err,prg,curobj,line,culprit,caught);publish);
+  }
 #endif // ERRORD
 
-    //eigenen Errorhandler laufzeitbegrenzt rufen
-    limited(#'handle_runtime_error, ({ 200000 }), err, prg, curobj,
-        line,culprit,caught, po, hashkey);
+  //eigenen Errorhandler laufzeitbegrenzt rufen
+  efun::limited(#'handle_runtime_error, ({ 200000 }), err, prg, curobj,
+        line,culprit,caught, po, issueid);
+
+  handling_error = 0;
 }
 
 // Laufzeitfehlerbehandlung, hebt Evalcost-Beschraenkung auf und reicht weiter
@@ -951,18 +1081,20 @@ protected void runtime_error(string err ,string prg, string curobj, int line,
 
 //Warnungen mitloggen
 protected void runtime_warning( string msg, string curobj, string prog, int line,
-    int inside_catch) {
-  string code, hashkey;
+    int inside_catch)
+{
+  string code;
   string debug_txt;
   object titp;
 
   //DEBUG(sprintf("Callerstack: in runtime_warning(): %O\nPO(0): %O\n",
   //        caller_stack(1),previous_object(0)));
-  
+
   //Daten der Warnung an den Errord zur Speicherung weitergeben, falls wir 
   //sowas haben.
+  int issueid;
 #ifdef ERRORD
-  catch(hashkey=limited(#'call_other,({200000}),ERRORD,"LogWarning",
+  catch(issueid=limited(#'call_other,({200000}),ERRORD,"LogWarning",
         msg,prog,curobj,line,inside_catch); publish);
 #endif // ERRORD
 
@@ -971,18 +1103,21 @@ protected void runtime_warning( string msg, string curobj, string prog, int line
   if (!stringp(prog))    prog="<NULL>";
   if (!stringp(curobj)) curobj="<NULL>";
   debug_txt=sprintf("Warnung: %O, Objekt: %s, Programm: %O, Zeile %O (%s) "
-                    "ID: %s",
+                    "ID: %d",
                     msg[0..<2], curobj, (prog[0]!='<'?"/":"")+prog, line,
                     (TI?capitalize(getuid(TI)):"<Unbekannt>"),
-                    hashkey||"");
-  
+                    issueid);
+
   //Fehlermeldungen an -warnungen schicken
-  DEBUG4_MSG(debug_txt,previous_object());
+  catch(send_channel_msg("Warnungen",
+                         capitalize(objectp(previous_object()) ?
+                                    REAL_UID(previous_object()) : ""),
+                         debug_txt));
 
   titp = TI || TP;
 
   if (!titp) return;
-  
+
   // Fehlermeldung an Benutzer
   if (IS_LEARNER(titp))
     tell_object(titp,

@@ -2,7 +2,7 @@
 //
 // armour/combat.c -- armour standard object
 //
-// $Id: combat.c 6947 2008-08-09 22:37:46Z Zesstra $
+// $Id: combat.c 9092 2015-01-19 23:57:50Z Zesstra $
 
 #pragma strict_types
 #pragma save_types
@@ -33,7 +33,7 @@ void create() {
 }
 
 // Die Funktion, die den Schutzwert berechnet, den die Ruestung bietet
-int QueryDefend(string* dam_type, mixed spell, object enemy)
+int QueryDefend(string|string* dam_type, int|mapping spell, object enemy)
 {
     int     prot;
     mixed   def_func;
@@ -44,56 +44,63 @@ int QueryDefend(string* dam_type, mixed spell, object enemy)
 
     // AT_MISC-Ruetungen schuetzen normalerweise gar nicht...
     if (QueryProp(P_ARMOUR_TYPE)==AT_MISC) {
-	// es sei denn, sie haben eine spezielle DefendFunc
-	if (!closurep(defend_cl)) return(0);
+        // es sei denn, sie haben eine spezielle DefendFunc
+        if (!closurep(defend_cl)) return(0);
     }
     else {
-	// ansonsten Ruestungsschutz ermitteln und in EINFO_DEFEND vermerken.
-	// (Beides fuer AT_MISC in jedem Fall unnoetig)
+        // ansonsten Ruestungsschutz ermitteln und in EINFO_DEFEND vermerken.
+        // (Beides fuer AT_MISC in jedem Fall unnoetig)
 
-	// Ruestungen schuetzen nur gegen physikalischen Schaden
-	if ((!spell || (mappingp(spell) && spell[SP_PHYSICAL_ATTACK]))
-	    && sizeof(filter(dam_type,PHYSICAL_DAMAGE_TYPES)))
-	{ 
-	  // Schutz bestimmen
-	  prot = random(1+QueryProp(P_AC));
-	  // ruestungschutz an defendfunc weitermelden
-	  if (mappingp(spell) &&
-	      mappingp(einfo=spell[EINFO_DEFEND])) {
-	      // Schutz d. akt. Ruestung vermerken.
-	      einfo[DEFEND_CUR_ARMOUR_PROT]=prot;
-	      // daten der Ruestung vermerken.
-	      if (mappingp(einfo[DEFEND_ARMOURS])) {
-		einfo[DEFEND_ARMOURS][ME,DEF_ARMOUR_PROT]=prot;
-	      }
-	  } // ende vom if (mapping(spell) ...)
-	} // ende vom if (phys Schaden)
+        // Ruestungen schuetzen nur gegen physikalischen Schaden
+        if ((!spell || (mappingp(spell) && spell[SP_PHYSICAL_ATTACK]))
+            && sizeof(filter(dam_type,PHYSICAL_DAMAGE_TYPES)))
+        { 
+          // Schutz bestimmen, Minimum 1, aber nur wenn P_AC > 0
+          int pac = QueryProp(P_AC);
+          if (pac > 0)
+            prot = (pac/4 + random(pac*3/4 + 1)) || 1 ;
+          object stat = find_object("/d/erzmagier/zesstra/pacstat");
+          if (stat)
+            stat->acstat(QueryProp(P_ARMOUR_TYPE),prot,
+                         random(pac)+1);
+
+          // ruestungschutz an defendfunc weitermelden
+          if (mappingp(spell) &&
+              mappingp(einfo=spell[EINFO_DEFEND])) {
+              // Schutz d. akt. Ruestung vermerken.
+              einfo[DEFEND_CUR_ARMOUR_PROT]=prot;
+              // daten der Ruestung vermerken.
+              if (mappingp(einfo[DEFEND_ARMOURS])) {
+                einfo[DEFEND_ARMOURS][ME,DEF_ARMOUR_PROT]=prot;
+              }
+          } // ende vom if (mapping(spell) ...)
+        } // ende vom if (phys Schaden)
 
     } // ende vom else (wenn kein AT_MISC) 
 
     // Ist eine DefendFunc gesetzt, wird diese ausgewertet
     if (closurep(defend_cl)) {
-	if (!objectp(get_type_info(defend_cl,2))) {
-	    // Closure gesetzt, aber nicht gueltig, schauen, ob wir sie neu
-	    // erstellen koennen.
-	    if (objectp(def_func=QueryProp(P_DEFEND_FUNC))) {
-		defend_cl=symbol_function("DefendFunc",def_func);
-	    }
-	    // sonst loeschen, um spaeter diesen Zweig ganz zu sparen.
-	    else defend_cl=0;
-	}
-	// BTW: Es ist ok, wenn defend_cl jetzt 0 ist, dann liefert funcall()
-	// auch 0.
-	// Bei Netztoten keine (zurueckschlagende) DefendFunc
-	if (objectp(pl=QueryProp(P_WORN)) && (!query_once_interactive(pl) ||
-		interactive(pl)) ) {
-	  // Der Rueckgabewert der DefendFunc wird zum Schutz addiert
-	  prot += funcall(defend_cl, dam_type, spell, enemy);
-	  // leider kann die DefendFunc jetzt auch noch das Objekt zerstoert
-	  // haben...
-	  if (!objectp(this_object()))
-	    return prot;
-	}
+        if (!objectp(get_type_info(defend_cl,2))) {
+            // Closure gesetzt, aber nicht gueltig, schauen, ob wir sie neu
+            // erstellen koennen.
+            if (objectp(def_func=QueryProp(P_DEFEND_FUNC))) {
+                defend_cl=symbol_function("DefendFunc",def_func);
+            }
+            // sonst loeschen, um spaeter diesen Zweig ganz zu sparen.
+            else defend_cl=0;
+        }
+        // BTW: Es ist ok, wenn defend_cl jetzt 0 ist, dann liefert funcall()
+        // auch 0.
+        // Bei Netztoten keine (zurueckschlagende) DefendFunc
+        if (objectp(pl=QueryProp(P_WORN)) && (!query_once_interactive(pl) ||
+                interactive(pl)) ) {
+          // Der Rueckgabewert der DefendFunc wird zum Schutz addiert
+          prot += funcall(defend_cl, dam_type, spell, enemy);
+          // leider kann die DefendFunc jetzt auch noch das Objekt zerstoert
+          // haben...
+          if (!objectp(this_object()))
+            return prot;
+        }
     }
 
     // Zeitpunkt der letzten Benutzung ausgeben

@@ -82,6 +82,7 @@ public void reset() {
 		LOG(sprintf("reset %d ->",sizeof(ipmap)));
 		expire_cache_large( m_indices(ipmap) );
 	}
+  set_next_reset(10800);
 }
 
 static int active_entry( string key, mixed* data ) {
@@ -103,7 +104,7 @@ static	void expire_cache_large( string* keys ) {
 	foreach( string key: keys ) {
 		if( get_eval_cost() < 100000 ) break;
 		if( ipmap[key,IPMAP_EXPIRE] < time() ) {
-			efun::m_delete( ipmap, key );
+			m_delete( ipmap, key );
 		}
 		next++;
 	}
@@ -190,7 +191,13 @@ public void update( string udp_reply ) {
 	if( reply[2] == "<unknown>" ) reply[2] = "irgendwoher";
 	ipmap += ([ reply[1] : reply[3] ; reply[2] ; time()+CACHE_TIME ;
 		STATUS_AUTHORITATIVE ]);
-	save_object( IPLOOKUP_SAVE );
+	//save_object( IPLOOKUP_SAVE );
+}
+
+int remove(int silent) {
+  save_object( IPLOOKUP_SAVE );
+  destruct(this_object());
+  return 1;
 }
 
 // DEBUGGING CODE

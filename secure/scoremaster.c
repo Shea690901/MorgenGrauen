@@ -1,9 +1,9 @@
 // MorgenGrauen MUDlib
 //
 // scoremaster.c - Verwaltung der eindeutigen Nummernvergabe fuer NPCs und
-//		   MiniQuests sowie der Stufenpunkte, die sie geben  
+//       MiniQuests sowie der Stufenpunkte, die sie geben  
 //
-// $Id: scoremaster.c 7532 2010-04-21 22:13:38Z Arathorn $
+// $Id: scoremaster.c 9170 2015-03-05 20:18:54Z Zesstra $
 #pragma strict_types
 #pragma no_clone
 #pragma no_shadow
@@ -132,8 +132,8 @@ public mixed Add_free_num(int what)
     free_num+=({what});
   save_object(SCORESAVEFILE);
   write_file(SCORELOGFILE,sprintf("ADDFREENUM: %s %5d (%s, %O)\n",     
-	strftime("%d%m%Y-%T",time()),what,
-	geteuid(previous_object()), this_interactive()));
+  strftime("%d%m%Y-%T",time()),what,
+  geteuid(previous_object()), this_interactive()));
 
   return free_num;
 }
@@ -147,8 +147,8 @@ public mixed Remove_free_num(int what)
   free_num-=({what});
   save_object(SCORESAVEFILE);
   write_file(SCORELOGFILE,sprintf("REMOVEFREENUM: %s %5d (%s, %O)\n",     
-	strftime("%d%m%Y-%T",time()),what,
-	geteuid(previous_object()),this_interactive()));
+  strftime("%d%m%Y-%T",time()),what,
+  geteuid(previous_object()),this_interactive()));
   return free_num;
 }
 
@@ -179,8 +179,8 @@ public mixed Add_to_change(string who, int what)
      to_change[who]=({what});
   save_object(SCORESAVEFILE);
   write_file(SCORELOGFILE,sprintf("ADDTOCHANGE: %s %s %5d (%s, %O)\n",
-	       strftime("%d%m%Y-%T",time()),who,what,
-	       geteuid(previous_object()), this_interactive()));
+         strftime("%d%m%Y-%T",time()),who,what,
+         geteuid(previous_object()), this_interactive()));
   return to_change[who];
 }
 
@@ -194,12 +194,12 @@ public mixed Remove_to_change(string who, int what)
   {
      to_change[who]-=({what});
      if (!sizeof(to_change[who]))
-        to_change=m_delete(to_change,who);
+        m_delete(to_change,who);
   }
   save_object(SCORESAVEFILE);
   write_file(SCORELOGFILE,sprintf("REMOVETOCHANGE: %s %s %5d (%s, %O)\n",
-	       strftime("%d%m%Y-%T",time()),who,what,
-	       geteuid(previous_object()), this_interactive()));
+         strftime("%d%m%Y-%T",time()),who,what,
+         geteuid(previous_object()), this_interactive()));
   return to_change[who];
 }
 
@@ -218,8 +218,8 @@ void reset()
     foreach(string n: SCOREMAINTAINERS) {
       if (objectp(find_player(n)))
           tell_object(find_player(n),break_string(
-	    "Es gibt unbestaetigte EKs im Scoremaster. Schau Dir die doch "
-	    "mal an. ;-)",78, "Der Scoremaster teilt Dir mit: "));
+      "Es gibt unbestaetigte EKs im Scoremaster. Schau Dir die doch "
+      "mal an. ;-)",78, "Der Scoremaster teilt Dir mit: "));
     }
   }
 
@@ -229,28 +229,28 @@ void reset()
     ek = (string)(MASTER->query_ek(who=whop[i]) || "");
     for (j=sizeof(what=to_change[who])-1;j>=0;j--) {
       if ((value=what[j])>0) {
-	  // Vergabestatistik hochzaehlen.
-	  npcs[by_num[value,BYNUM_KEY],NPC_COUNT]++;
-	  ek=set_bit(ek,value);
+    // Vergabestatistik hochzaehlen.
+    npcs[by_num[value,BYNUM_KEY],NPC_COUNT]++;
+    ek=set_bit(ek,value);
       }
       else {
-	  // Vergabestatistik hochzaehlen.
-	  npcs[by_num[-value,BYNUM_KEY],NPC_COUNT]++;
-	  ek=clear_bit(ek,-value);
+    // Vergabestatistik hochzaehlen.
+    npcs[by_num[-value,BYNUM_KEY],NPC_COUNT]++;
+    ek=clear_bit(ek,-value);
       }
       // if (find_player("rikus")) 
       //tell_object(find_player("rikus"),"SCOREMASTER "+who+" "+erg+"\n");
 
       write_file(SCOREAUTOLOG,
-	sprintf("SET_CLEAR_BIT (reset): %s %4d %s\n",
-	  who, j, strftime("%d%m%Y-%T",time()) ));
+  sprintf("SET_CLEAR_BIT (reset): %s %4d %s\n",
+    who, j, strftime("%d%m%Y-%T",time()) ));
     }
     MASTER->update_ek(who, ek);
 
     if (member(users_ek, who))
-      efun::m_delete(users_ek, who);
+      m_delete(users_ek, who);
     
-    efun::m_delete(to_change,who);
+    m_delete(to_change,who);
     changed=1;
     i--;
   }
@@ -298,9 +298,9 @@ public varargs mixed QueryNPC(int score)
   ClearUsersEKCache();
   save_object(SCORESAVEFILE);
   write_file(SCOREAUTOLOG,sprintf(
-	"ADDNPC: %s %5d %4d %s (UID: %s, TI: %O, TP: %O)\n",
-	strftime("%d%m%Y-%T",time()),val,score,key,
-	getuid(previous_object()), this_interactive(), this_player()));
+  "ADDNPC: %s %5d %4d %s (UID: %s, TI: %O, TP: %O)\n",
+  strftime("%d%m%Y-%T",time()),val,score,key,
+  getuid(previous_object()), this_interactive(), this_player()));
 
   while(remove_call_out("DumpNPCs") != -1) ;
   call_out("DumpNPCs",60);
@@ -337,8 +337,8 @@ public varargs mixed NewNPC(string key,int score)
   ClearUsersEKCache();
   save_object(SCORESAVEFILE);
   write_file(SCORELOGFILE,sprintf("NEWNPC: %s %5d %4d %s (%s, %O)\n",
-	       strftime("%d%m%Y-%T",time()),val,score,key,
-	       geteuid(previous_object()), this_interactive()));
+         strftime("%d%m%Y-%T",time()),val,score,key,
+         geteuid(previous_object()), this_interactive()));
  while(remove_call_out("DumpNPCs") != -1) ; 
   call_out("DumpNPCs",60);
   return ({val,score});
@@ -351,7 +351,7 @@ public varargs mixed AddNPC(string key,int score) { return NewNPC(key,score); }
 public int RestoreEK(string key, int bit, int score) {
   if (!allowed())
     return SCORE_NO_PERMISSION;
-  if (!stringp(key) || !strlen(key) 
+  if (!stringp(key) || !sizeof(key) 
       || !intp(bit) || bit < 0
       || !intp(score) || score < 0)
       return SCORE_INVALID_ARG;
@@ -365,8 +365,8 @@ public int RestoreEK(string key, int bit, int score) {
   ClearUsersEKCache();
   save_object(SCORESAVEFILE);
   write_file(SCORELOGFILE,sprintf("RESTOREEK: %s %5d %4d %s (%s, %O)\n",
-	       strftime("%d%m%Y-%T",time()), bit, score, key,
-	       geteuid(previous_object()), this_interactive()));
+         strftime("%d%m%Y-%T",time()), bit, score, key,
+         geteuid(previous_object()), this_interactive()));
   while(remove_call_out("DumpNPCs") != -1) ;
   call_out("DumpNPCs",60);
   return 1;
@@ -401,13 +401,13 @@ public int ConfirmScore(mixed key) {
       eks = set_bit(eks, bit);
       master()->update_ek(pl, eks);
       write_file(SCOREAUTOLOG, sprintf(
-	  "SETBIT: %s %5d %s\n",
-	  strftime("%d%m%Y-%T",time()), bit, pl));
+    "SETBIT: %s %5d %s\n",
+    strftime("%d%m%Y-%T",time()), bit, pl));
   }
   //Vergabestatistik hochzaehlen...
   npcs[obname,NPC_COUNT]+=sizeof(unconfirmed_scores[bit]);
 
-  efun::m_delete(unconfirmed_scores, bit);
+  m_delete(unconfirmed_scores, bit);
   active_eks = set_bit(active_eks, bit);
   save_object(SCORESAVEFILE);
 
@@ -441,9 +441,9 @@ public int RejectScore(mixed key) {
   string obname = by_num[bit, BYNUM_KEY];
   int score = by_num[bit,BYNUM_SCORE];
 
-  efun::m_delete(by_num, bit);
-  efun::m_delete(npcs, obname);
-  efun::m_delete(unconfirmed_scores,bit);
+  m_delete(by_num, bit);
+  m_delete(npcs, obname);
+  m_delete(unconfirmed_scores,bit);
   removeTip(obname);
   free_num += ({bit});
 
@@ -461,10 +461,10 @@ public void DumpUnconfirmedScores() {
   if (!objectp(this_player())) return;
  
   write(sprintf("%5s  %5s  %4s   %s\n",
-	"Nr.", "Cnt", "Sc", "Objekt"));
+  "Nr.", "Cnt", "Sc", "Objekt"));
   foreach(int bit, string *pls: unconfirmed_scores) {
     write(sprintf("%5d  %5d  %4d   %s\n",
-	bit, sizeof(pls), by_num[bit,BYNUM_SCORE], by_num[bit,BYNUM_KEY]));
+  bit, sizeof(pls), by_num[bit,BYNUM_SCORE], by_num[bit,BYNUM_KEY]));
   }
 }
 
@@ -483,18 +483,18 @@ public varargs int SetScore(mixed key,int score)
     return SCORE_NO_PERMISSION;
   if (!key) return SCORE_INVALID_ARG;
 
-  if (stringp(key) && strlen(key)) {
+  if (stringp(key) && sizeof(key)) {
     ob = load_name(key);
     if (!member(npcs, ob)) return SCORE_INVALID_ARG;
     num = npcs[ob, NPC_NUMBER];
     if (ob != by_num[num, BYNUM_KEY])
-	return SCORE_INVALID_ARG;
+  return SCORE_INVALID_ARG;
   }
   else if (intp(key) && member(by_num,key) ) {
     num = key;
     ob = by_num[num, BYNUM_KEY];
     if (!member(npcs, ob) || (npcs[ob, NPC_NUMBER] != num))
-	return SCORE_INVALID_ARG;
+  return SCORE_INVALID_ARG;
   }
   else
     return SCORE_INVALID_ARG;
@@ -511,9 +511,9 @@ public varargs int SetScore(mixed key,int score)
   ClearUsersEKCache();
   save_object(SCORESAVEFILE);
   write_file(SCORELOGFILE,sprintf(
-	"SETSCORE: %s %5d %.3d OSc: %.3d %s (%s, %O)\n",
-	       strftime("%d%m%Y-%T",time()),num,score,oldscore, ob,
-	       geteuid(previous_object()), this_interactive()));
+  "SETSCORE: %s %5d %.3d OSc: %.3d %s (%s, %O)\n",
+         strftime("%d%m%Y-%T",time()),num,score,oldscore, ob,
+         geteuid(previous_object()), this_interactive()));
  while(remove_call_out("DumpNPCs") != -1) ; 
   call_out("DumpNPCs",60);
   return 1;
@@ -533,7 +533,7 @@ public int* MarkEKForLiquidation(mixed key) {
   if (find_call_out(#'check_all_player) != -1)
       return 0;
 
-  if (stringp(key) && strlen(key)) {
+  if (stringp(key) && sizeof(key)) {
     if (!member(npcs,key)) return 0;
     bit = npcs[key,NPC_NUMBER];
   }
@@ -546,8 +546,8 @@ public int* MarkEKForLiquidation(mixed key) {
   if (member(to_be_removed,bit) == -1)
     to_be_removed += ({bit});
   write_file(SCORELOGFILE,sprintf("DELETEFLAG: %s %5d %s (%s, %O)\n",
-	strftime("%d%m%Y-%T",time()), bit, by_num[bit,BYNUM_KEY] || "NoName",
-	geteuid(previous_object()), this_interactive()));
+  strftime("%d%m%Y-%T",time()), bit, by_num[bit,BYNUM_KEY] || "NoName",
+  geteuid(previous_object()), this_interactive()));
   
   save_object(SCORESAVEFILE);
   
@@ -563,7 +563,7 @@ public int* UnmarkEKForLiquidation(mixed key) {
   if (find_call_out(#'check_all_player) != -1)
       return 0;
 
-  if (stringp(key) && strlen(key)) {
+  if (stringp(key) && sizeof(key)) {
     if (!member(npcs,key)) return 0;
     bit = npcs[key,NPC_NUMBER];
   }
@@ -575,8 +575,8 @@ public int* UnmarkEKForLiquidation(mixed key) {
  
   to_be_removed -= ({bit});
   write_file(SCORELOGFILE,sprintf("UNDELETEFLAG: %s %5d %s (%s, %O\n",
-	strftime("%d%m%Y-%T",time()),bit, by_num[bit, BYNUM_KEY] || "NoName",
-	geteuid(previous_object()), this_interactive()));
+  strftime("%d%m%Y-%T",time()),bit, by_num[bit, BYNUM_KEY] || "NoName",
+  geteuid(previous_object()), this_interactive()));
   
   save_object(SCORESAVEFILE);
 
@@ -607,9 +607,9 @@ public int RemoveScore(mixed key) {
       by_num[num, BYNUM_SCORE] = 0;
       active_eks = clear_bit(active_eks,num); 
       write_file(SCORELOGFILE,sprintf(
-	    "REMOVESCORE: %s %5d OSc: %.3d %s (%s, %O)\n",
-	      strftime("%d%m%Y-%T",time()), num, oldscore, key, 
-	      geteuid(previous_object()), this_interactive()));
+      "REMOVESCORE: %s %5d OSc: %.3d %s (%s, %O)\n",
+        strftime("%d%m%Y-%T",time()), num, oldscore, key, 
+        geteuid(previous_object()), this_interactive()));
       changed = 1;
     }
   }
@@ -621,9 +621,9 @@ public int RemoveScore(mixed key) {
       by_num[key, BYNUM_SCORE] = 0;
       active_eks = clear_bit(active_eks,key); 
       write_file(SCORELOGFILE,sprintf(
-	    "REMOVESCORE: %s %5d OSc: %.3d %s (%s, %O)\n",
-	      strftime("%d%m%Y-%T",time()),key, oldscore, obname,
-	      geteuid(previous_object()), this_interactive()));
+      "REMOVESCORE: %s %5d OSc: %.3d %s (%s, %O)\n",
+        strftime("%d%m%Y-%T",time()),key, oldscore, obname,
+        geteuid(previous_object()), this_interactive()));
       changed = 1;
     }
   }
@@ -663,7 +663,7 @@ public varargs int MoveScore(mixed oldkey, string newpath)
   score = by_num[num, BYNUM_SCORE];
 
   if (member(npcs, oldpath)) {
-    efun::m_delete(npcs, oldpath);
+    m_delete(npcs, oldpath);
     removeTip(oldkey);
     if(tip!="") addTip(newpath,tip);
     npcs[newpath, NPC_SCORE] = score;
@@ -676,8 +676,8 @@ public varargs int MoveScore(mixed oldkey, string newpath)
   ClearUsersEKCache();
   save_object(SCORESAVEFILE);
   write_file(SCORELOGFILE,sprintf("MOVESCORE: %s %s %s (%s, %O)\n",
-	strftime("%d%m%Y-%T",time()),oldpath,newpath,
-	geteuid(previous_object()),this_interactive()));
+  strftime("%d%m%Y-%T",time()),oldpath,newpath,
+  geteuid(previous_object()),this_interactive()));
 
   while(remove_call_out("DumpNPCs") != -1) ;
   call_out("DumpNPCs",60);
@@ -702,8 +702,9 @@ public string QueryKills(string pl) {
 
 public int QueryKillPoints(mixed pl) {
   
-  if (!(allowed() || 
-      (previous_object() && object_name(previous_object())=="/gilden/karate")))
+  if (!allowed() &&
+      (!previous_object() 
+       || strstr(object_name(previous_object()), "/gilden/") != 0) )
      return 0;
 
   if (!stringp(pl)) pl=getuid(pl);
@@ -774,7 +775,7 @@ public int GiveKill(object pl, int bit)
   // wenn unbestaetigt, Spieler fuer spaeter merken
   if (member(unconfirmed_scores, bit)) {
     if (member(unconfirmed_scores[bit], pls) == -1)
-	unconfirmed_scores[bit] += ({pls});
+  unconfirmed_scores[bit] += ({pls});
   }
   else {
     // sonst wird das Bit direkt im Spieler gesetzt.
@@ -788,7 +789,7 @@ public int GiveKill(object pl, int bit)
   }
 
   if (member(users_ek, pls))
-    users_ek = m_delete(users_ek, pls);
+    m_delete(users_ek, pls);
 
   EK_GIVENLOG(sprintf("%s: %s", info[SCORE_KEY], pls)); 
 
@@ -799,11 +800,14 @@ public int HasKill(mixed pl, mixed npc)
 {
   string fn, *pls;
 
-  if (!objectp(pl) && !stringp(pl) && !objectp(npc) && !stringp(npc))
+  if (!objectp(pl) && !stringp(pl) && 
+      !objectp(npc) && !stringp(npc) && !intp(npc))
     return 0;
   if (!stringp(pl)) 
     pl=getuid(pl);
 
+  if (intp(npc))
+    npc=by_num[npc,BYNUM_KEY];
   fn=load_name(npc);
 
   if (!member(npcs, fn)) return 0;
@@ -827,16 +831,16 @@ private void WriteDumpFile(string *keys) {
   rm(SCOREDUMPFILE);
 
   write_file(SCOREDUMPFILE,sprintf("%5s  %5s  %4s   %s\n",
-	"Nr.", "Cnt", "Sc", "Objekt"));
+  "Nr.", "Cnt", "Sc", "Objekt"));
   foreach(string key: keys) {
     write_file(SCOREDUMPFILE,sprintf("%5d  %5d  %4d   %O\n",
-	  npcs[key,NPC_NUMBER], npcs[key,NPC_COUNT],
-	  npcs[key,NPC_SCORE], key));
+    npcs[key,NPC_NUMBER], npcs[key,NPC_COUNT],
+    npcs[key,NPC_SCORE], key));
     maxn += npcs[key,NPC_SCORE];
   }
   write_file(SCOREDUMPFILE,sprintf(
-	"========================================================\n"
-	"NPCs gesamt: %d Punkte\n\n",maxn));
+  "========================================================\n"
+  "NPCs gesamt: %d Punkte\n\n",maxn));
 }
 
 public varargs int DumpNPCs(int sortkey) {
@@ -869,12 +873,12 @@ public int SetScoreBit(string pl, int bit)
   npcs[by_num[bit,BYNUM_KEY],NPC_COUNT]++;
 
   if (member(users_ek, pl))
-    users_ek = m_delete(users_ek, pl);
+    m_delete(users_ek, pl);
 
   write_file(SCORELOGFILE,sprintf("SETBIT: %s %s %5d Sc: %.3d %s (%s, %O)\n",
-	       strftime("%d%m%Y-%T",time()),pl, bit,
-	       by_num[bit,BYNUM_SCORE], by_num[bit,BYNUM_KEY],
-	       geteuid(previous_object()), this_interactive()));
+         strftime("%d%m%Y-%T",time()),pl, bit,
+         by_num[bit,BYNUM_SCORE], by_num[bit,BYNUM_KEY],
+         geteuid(previous_object()), this_interactive()));
   return 1;
 }
 
@@ -893,13 +897,13 @@ public int ClearScoreBit(string pl, int bit)
   npcs[by_num[bit,BYNUM_KEY],NPC_COUNT]--;
 
   if (member(users_ek, pl))
-    users_ek = m_delete(users_ek, pl);
+    m_delete(users_ek, pl);
 
   write_file(SCORELOGFILE,sprintf(
-	"CLEARBIT: %s %s %5d Sc: %.3d %s (%s, %O)\n",       
-	strftime("%d%m%Y-%T",time()),pl,bit,
-	by_num[bit,BYNUM_SCORE],by_num[bit,BYNUM_KEY],
-	geteuid(previous_object()), this_interactive()));
+  "CLEARBIT: %s %s %5d Sc: %.3d %s (%s, %O)\n",       
+  strftime("%d%m%Y-%T",time()),pl,bit,
+  by_num[bit,BYNUM_SCORE],by_num[bit,BYNUM_KEY],
+  geteuid(previous_object()), this_interactive()));
   return 1;
 }
 
@@ -910,13 +914,13 @@ private status ektipAllowed()
   status ret;
                 
   poName=load_name(previous_object());        
-  poOK=previous_object() && 	  
+  poOK=previous_object() &&     
     ((previous_object()==find_object(EKTIPGIVER)) || (poName==EKTIPLIST) );
 
   ret=allowed() || 
     (this_player() && this_interactive() && previous_object() && 
      this_interactive()==this_player() && poOK);
-	return ret;
+  return ret;
 }
 
 // liefert alle EKs, die aktiv sind und die der Spieler noch nicht hat in
@@ -1003,7 +1007,7 @@ public int removeTip(mixed key)
   
   if (!member(tipList, fn)) return SCORE_INVALID_ARG;
     
-  efun::m_delete(tipList,fn);
+  m_delete(tipList,fn);
   save_object(SCORESAVEFILE);
     
   return 1;  
@@ -1041,48 +1045,112 @@ private string _getTip(mixed key)
   
   tip=getTipFromList(fn);
   if(!tip || tip==""){
-  	path=explode(fn,"/")-({""});
-  	if(sizeof(path)<3) return "";
-  	if(path[0]=="players") 
-	    return "Schau Dich doch mal bei "+capitalize(path[1])+" um.";
-	
-	if(path[0]=="d"){
-		tip+="Schau Dich doch mal ";
-		
-		if(file_size("/players/"+path[2])==-2){
-			tip+="bei "+capitalize(path[2]+" ");
-		}
-		
-		if(path[1]=="anfaenger")
-			tip+="in den Anfaengergebieten ";
-		if(path[1]=="fernwest")
-			tip+="in Fernwest ";
-		if(path[1]=="dschungel")
-			tip+="im Dschungel ";
-		if(path[1]=="schattenwelt")
-			tip+="in der Welt der Schatten ";
-		if(path[1]=="unterwelt")
-			tip+="in der Unterwelt ";
-		if(path[1]=="gebirge")
-			tip+="im Gebirge ";
-		if(path[1]=="seher")
-			tip+="bei den Sehergebieten ";
-		if(path[1]=="vland")
-			tip+="auf dem Verlorenen Land ";
-		if(path[1]=="ebene")
-			tip+="in der Ebene ";
-		if(path[1]=="inseln")
-			tip+="auf den Inseln ";
-		if(path[1]=="wald")
-			tip+="im Wald ";
-		if(path[1]=="erzmagier")
-			tip+="bei den Erzmagiern ";
-		if(path[1]=="polar")
-			tip+="im eisigen Polar ";
-		if(path[1]=="wueste")
-			tip+="in der Wueste ";
-		tip+="um.";
-	}
+    path=explode(fn,"/")-({""});
+    if(sizeof(path)<3) return "";
+    if(path[0]=="players") {
+      string tiptext;
+      if ( path[1] == "ketos" )
+        tiptext = "Ketos im Gebirge";
+      else if ( path[1] == "boing" && path[2] == "friedhof" )
+        tiptext = "Boing im eisigen Polar";
+      else
+        tiptext = capitalize(path[1]);
+      return "Schau Dich doch mal bei "+tiptext+" um.";
+    }
+    
+    if(path[0]=="d")
+    {
+      tip+="Schau Dich doch mal ";
+    
+      if(file_size("/players/"+path[2])==-2)
+      {
+        tip+="bei "+capitalize(path[2]+" ");
+      }
+      if ( path[1]=="polar" && file_size("/players/"+path[3])==-2 )
+      {
+        tip+="bei "+capitalize(path[3])+" ";
+      }
+
+      if(path[1]=="anfaenger")
+        tip+="in den Anfaengergebieten ";
+      if(path[1]=="fernwest")
+        tip+="in Fernwest ";
+      if(path[1]=="dschungel")
+        tip+="im Dschungel ";
+      if(path[1]=="schattenwelt")
+        tip+="in der Welt der Schatten ";
+      if(path[1]=="unterwelt")
+        tip+="in der Unterwelt ";
+      if(path[1]=="gebirge")
+        tip+="im Gebirge ";
+      if(path[1]=="seher")
+        tip+="bei den Sehergebieten ";
+      if(path[1]=="vland")
+        tip+="auf dem Verlorenen Land ";
+      if(path[1]=="ebene")
+        tip+="in der Ebene ";
+      if(path[1]=="inseln")
+        tip+="auf den Inseln ";
+      if(path[1]=="wald")
+        tip+="im Wald ";
+      if(path[1]=="erzmagier")
+        tip+="bei den Erzmagiern ";
+      if(path[1]=="polar")
+      {
+        if (path[2]=="files.chaos")
+          tip+="in den Raeumen der Chaosgilde ";
+        tip+="im eisigen Polar ";
+      }
+      if(path[1]=="wueste")
+        tip+="in der Wueste ";
+      tip+="um.";
+    }
+    else if ( path[0]=="gilden" )
+    {
+      tip+="Schau Dich doch mal";
+      switch( path[1] )
+      {
+        case "mon.elementar": 
+          tip+=" unter den Anfuehrern der Elementargilde"; 
+          break;
+        case "files.dunkelelfen":
+          tip+=" unter den Anfuehrern der Dunkelelfengilde";
+          break;
+        case "files.klerus":
+          tip+=" beim Klerus"; 
+          break;
+        case "files.werwoelfe": 
+          tip+=" unter den Anfuehrern der Werwoelfe";
+          break;
+        case "files.chaos": 
+          tip+=" unter den Anfuehrern der Chaosgilde";
+          break;
+        default: 
+          tip+=" in einer der Gilden"; 
+          break;
+      }
+      tip+=" um.";
+    }
+    else if ( path[0] == "p" ) 
+    {
+      tip+="Schau Dich doch mal ";
+      switch( path[1] ) 
+      {
+        case "zauberer":
+          tip+="in der Zauberergilde zu Taramis";
+          break;
+        case "kaempfer":
+          tip+="bei den Angehoerigen des Koru-Tschakar-Struvs";
+          break;
+        case "katzenkrieger":
+          tip+="bei der Gilde der Katzenkrieger";
+          break;
+        case "tanjian":
+          tip+="unter den Meistern der Tanjiangilde";
+          break;
+      }
+      tip+=" um.";
+    }
   }
   return tip;
 }
@@ -1158,7 +1226,7 @@ public string allTipsForPlayer(object player)
 
   if(!player || !this_interactive() || 
       (this_interactive()!=player && !IS_ARCH(this_interactive())) )
-    return "";		
+    return "";    
  
   string *tips = QueryTipObjects(player);
 
@@ -1175,18 +1243,18 @@ public status playerMayGetTip(object player)
   int lvl;
   int i;
   string tips;
-	
-  if(!ektipAllowed() || !player || !query_once_interactive(player))	    
+  
+  if(!ektipAllowed() || !player || !query_once_interactive(player))      
       return 0;
 
-  if(!player || !query_once_interactive(player))		
+  if(!player || !query_once_interactive(player))    
       return 0;
-	
+  
   lvl=(int)player->QueryProp(P_LEVEL);
   numElegible=0;
   i=sizeof(EKTIPS_LEVEL_LIMITS)-1;
 
-  if(lvl>EKTIPS_LEVEL_LIMITS[i])		
+  if(lvl>EKTIPS_LEVEL_LIMITS[i])    
       numElegible+=(lvl-EKTIPS_LEVEL_LIMITS[i]);
 
   for(i;i>=0;i--){
@@ -1211,14 +1279,14 @@ public string giveTipForPlayer(object player)
   int index;
   
   if(!ektipAllowed() || !player || 
-      !query_once_interactive(player) || !playerMayGetTip(player))	
+      !query_once_interactive(player) || !playerMayGetTip(player))  
     return "";
   
   pl=getuid(player);
   free=getFreeEKsForPlayer(player);
 
   if(!mappingp(free) || sizeof(free)==0)
-  	return "";
+    return "";
 
   tmp=m_indices(free);
 
@@ -1227,10 +1295,10 @@ public string giveTipForPlayer(object player)
   foreach(int i: EKTIPS_MAX_RETRY) {
       index=random(sizeof(tmp));
       tip=getTip(tmp[index]);
-      if (stringp(tip) && strlen(tip)) {
-	  ektip=set_bit(ektip,npcs[tmp[index],NPC_NUMBER]);
-	  MASTER->update_ektips(pl,ektip);
-	  break; //fertig
+      if (stringp(tip) && sizeof(tip)) {
+    ektip=set_bit(ektip,npcs[tmp[index],NPC_NUMBER]);
+    MASTER->update_ektips(pl,ektip);
+    break; //fertig
       }
   }
 
@@ -1251,12 +1319,12 @@ public void CheckNPCs(int num) {
     if (file_size(fn) <= 0) {
       // File nicht existent
       write_file(SCORECHECKFILE, sprintf(
-	  "EK %.4d ist nicht existent (%s)\n",num,fn));
+    "EK %.4d ist nicht existent (%s)\n",num,fn));
     }
     else if (catch(ekob=load_object(fn)) || !objectp(ekob) ) {
       // NPC offenbar nicht ladbar.
       write_file(SCORECHECKFILE, sprintf(
-	  "EK %.4d ist nicht ladbar (%s)\n",num,fn));
+    "EK %.4d ist nicht ladbar (%s)\n",num,fn));
     }
     num++;
   }
@@ -1277,16 +1345,16 @@ private void LiquidateEK(int bit) {
   int score = by_num[bit, BYNUM_SCORE];
 
   if (member(npcs, obname) && (npcs[obname, NPC_NUMBER] == bit)) {
-    efun::m_delete(by_num, bit);
-    efun::m_delete(npcs, obname);
+    m_delete(by_num, bit);
+    m_delete(npcs, obname);
     if (member(unconfirmed_scores,bit))
-      efun::m_delete(unconfirmed_scores,bit);
+      m_delete(unconfirmed_scores,bit);
     active_eks = clear_bit(active_eks,bit);
     removeTip(obname);
     free_num += ({bit});
     write_file(SCOREAUTOLOG,sprintf(
-	  "LIQUIDATEEK: %s %5d Score %3d %s\n",
-	  strftime("%d%m%Y-%T",time()), bit, score, obname));
+    "LIQUIDATEEK: %s %5d Score %3d %s\n",
+    strftime("%d%m%Y-%T",time()), bit, score, obname));
   }
 }
 
@@ -1299,19 +1367,19 @@ private void check_player(string pl) {
   int p=-1;
   while ((p=next_bit(eks,p)) != -1) {
     if (!member(by_num, p)) {
-	write_file(SCORECHECKFILE, sprintf(
-	 "UNKNOWNEK %s %5d in %s gefunden.\n", 
-	  strftime("%d%m%Y-%T",time()), p, pl));
+  write_file(SCORECHECKFILE, sprintf(
+   "UNKNOWNEK %s %5d in %s gefunden.\n", 
+    strftime("%d%m%Y-%T",time()), p, pl));
     }
     // wenn das aktuelle Bit geloescht werden soll, also in to_be_removed
     // steht...
     if (member(to_be_removed,p) != -1) {
-	eks = clear_bit(eks,p);
-	changed=1;
-	write_file(EKCLEANLOG,sprintf(
-	      "CLEARBIT: %s %O %5d %s\n",
-	      strftime("%d%m%Y-%T",time()), pl, p, 
-	      by_num[p,BYNUM_KEY] || "NoName"));
+  eks = clear_bit(eks,p);
+  changed=1;
+  write_file(EKCLEANLOG,sprintf(
+        "CLEARBIT: %s %O %5d %s\n",
+        strftime("%d%m%Y-%T",time()), pl, p, 
+        by_num[p,BYNUM_KEY] || "NoName"));
     }
     else {
       // sonst statistikpflege
@@ -1325,21 +1393,21 @@ private void check_player(string pl) {
   p = -1;
   while ((p=next_bit(ektips,p)) != -1) {
     if (!member(by_num, p)) {
-	write_file(EKCLEANLOG, sprintf(
-	  "UNKNOWNEK %s %5d in %s (EKTips) gefunden - clearing.\n", 
-	  strftime("%d%m%Y-%T",time()), p, pl));
-	ektips = clear_bit(ektips, p); // hier direkt loeschen.
-	changed2 = 1;
+  write_file(EKCLEANLOG, sprintf(
+    "UNKNOWNEK %s %5d in %s (EKTips) gefunden - clearing.\n", 
+    strftime("%d%m%Y-%T",time()), p, pl));
+  ektips = clear_bit(ektips, p); // hier direkt loeschen.
+  changed2 = 1;
     }
     // wenn das aktuelle Bit geloescht werden soll, also in to_be_removed
     // steht...
     else if (member(to_be_removed,p) != -1) {
-	ektips = clear_bit(ektips,p);
-	changed2=1;
-	write_file(EKCLEANLOG,sprintf(
-	      "CLEAREKTIP: %s %O %5d %s\n",
-	      strftime("%d%m%Y-%T",time()), pl, p, 
-	      by_num[p,BYNUM_KEY] || "NoName"));
+  ektips = clear_bit(ektips,p);
+  changed2=1;
+  write_file(EKCLEANLOG,sprintf(
+        "CLEAREKTIP: %s %O %5d %s\n",
+        strftime("%d%m%Y-%T",time()), pl, p, 
+        by_num[p,BYNUM_KEY] || "NoName"));
     }
   }
 
@@ -1360,7 +1428,7 @@ public void check_all_player(mapping allplayer) {
 
   if (!mappingp(allplayer)) {
       foreach(string key: npcs) {
-	npcs[key,NPC_COUNT]=0;
+  npcs[key,NPC_COUNT]=0;
       }
       allplayer=(mapping)master()->get_all_players();
       rm(WERKILLTWEN);
@@ -1383,14 +1451,14 @@ public void check_all_player(mapping allplayer) {
   string *pls=allplayer[dir];
   foreach(string pl: pls) {
     if (get_eval_cost() < 1250000)
-	break; // spaeter weitermachen.
+      break; // spaeter weitermachen.
     catch(check_player(pl) ; publish);
     pls-=({pl});
   }
   allplayer[dir] = pls; 
  
   if (!sizeof(allplayer[dir]))
-    efun::m_delete(allplayer,dir);
+    m_delete(allplayer,dir);
  
   call_out(#'check_all_player,2,allplayer);
 }

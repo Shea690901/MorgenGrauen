@@ -83,7 +83,8 @@ Properties:
            Falls eine DefendFunc vorhanden ist und die regulaere AC
            veraendert, sollte sie gesetzt werden. Es wird der
            Durchschnittswert der AC incl. der DefendFunc gesetzt. Dient der
-           Kaempfergilde zur Einschaetzung.
+           Kaempfergilde zur Einschaetzung, wird auch von Gilden evtl. zur
+           Berechnung von Zusatzschutz oder weiteren Effekten verwendet.
 
         P_DAM_TYPE
            Auch Ruestungen koennen einen Damage-Typ haben. Nutzen tut das
@@ -124,4 +125,4 @@ Spezialruestungen/Ruestungen mit Sonderfunktion:
        werden, duerfen nur vergeben werden, wenn die Handschuhe den Schaden der Hand
        nicht veraendern und die Beschreibung der Handschuhe dazu passt.
 
-
+------------------- LETZTE AENDERUNG: Humni, 2011-10-13

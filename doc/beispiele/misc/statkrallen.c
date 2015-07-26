@@ -9,16 +9,20 @@
 **     A_DEX durch eine andere Ruestung/Waffe blockiert wird.
 */
 
+// Diese Pragmas sorgen dafuer, dass der Driver darauf achtet, dass bei
+// Funktionsargumenten, -Rueckgabewerten und teilweise bei Zuweisung von
+// Werten an Variablen der richtige Datentyp verwendet wird (z.b. kein string
+// anstelle eines int verwendet wird). Sollte in keinem Objekt fehlen.
+#pragma strong_types, save_types, rtt_checks
+
 #include <properties.h>
 #include <language.h>
 #include <combat.h>
 
 inherit "/std/armour";
 
-create()
+protected void create()
 {
-    if (!clonep(this_object())) 
-        return;
     ::create();
 
     SetProp(P_SHORT,"Statkrallen");
@@ -27,7 +31,7 @@ create()
     SetProp(P_NAME,"Statkrallen");
     SetProp(P_INFO,"Die Krallen machen staerker.\n");
     SetProp(P_GENDER,FEMALE);
-    SetProp(P_NOBUY,1);
+    SetProp(P_NOBUY,1); // wird bei Verkauf im laden zerstoert.
     SetProp(P_WEIGHT,800);
     SetProp(P_VALUE,5000+random(2000));
     SetProp(P_ARMOUR_TYPE,AT_GLOVE);
@@ -54,3 +58,4 @@ create()
     AddDetail( "schimmer",
         "Ein blaeulicher Schimmer liegt auf den Krallen.\n");
 }
+

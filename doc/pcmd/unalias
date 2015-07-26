@@ -12,6 +12,7 @@ unalias
         Das zu entfernende Alias
      <muster>
         Muster, das die zu entfernenden Aliase beschreibt
+        (Das Muster muss ein sog. 'regular expression' sein.)
 
  BESCHREIBUNG:
     (Statt `unalias' kann man auch `unali' verwenden!)
@@ -33,8 +34,13 @@ unalias
 
     > unalias [0-9]
 
+    Alle Aliase loeschen:
+
+    > unalias .*
+
  SIEHE AUCH:
     alias
 
  LETZTE AeNDERUNG:
-    Thu, 24.07.1997, 09:00:00 von Wargon
+   02.10.2012, Zesstra
+

@@ -13,7 +13,7 @@ ARGUMENTE:
        Da dieser String fuer alle Events jeweils eindeutig sein muss, 
        empfiehlt es sich, fuer eigene Events z.B. als Praefix den eigenen 
        Magiernamen zu nehmen, z.B. "zesstra_vulkanausbruch".
-       ACHTUNG: IDs, die mit '_evt_lib_' beginnen, sind AUSSCHLIESSLICH der
+       ACHTUNG: IDs, die mit 'evt_lib_' beginnen, sind AUSSCHLIESSLICH der
        Mudlib vorbehalten!
 
      mixed data,
@@ -38,7 +38,8 @@ RUeCKGABEWERT:
            fuer diesen Event freigegeben (momentan gibt es noch keine
            nicht-oeffentlichen Events)
      -3  - Event 'eid' existiert nicht, d.h. es gibt keine Lauscher.
-     
+     -4  - Es gibt zuviele nicht verarbeitete Events.
+
 BEMERKUNGEN:
 
 

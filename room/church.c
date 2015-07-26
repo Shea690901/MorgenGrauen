@@ -1,4 +1,4 @@
-inherit "std/room";
+inherit "/std/room";
 
 #include <properties.h>
 
@@ -29,7 +29,7 @@ create()
 
 open()
 {
-  notify_fail("The elevetor doesn't work anymore, sorry.\n");
+  notify_fail("The elevator doesn't work anymore, sorry.\n");
   return 0;
 }
 

@@ -37,7 +37,7 @@
 #define IS_SPECIAL(user) (query_wiz_level(user) >= SPECIAL_LVL)
 #define IS_WIZARD(user) (query_wiz_level(user) >= WIZARD_LVL)
 #define IS_DOMAINMEMBER(user) (query_wiz_level(user) >= DOMAINMEMBER_LVL)
-#define IS_DEPUTY(user) ("/secure/master"->IsDeputy(user))
+#define IS_DEPUTY(user) (master()->IsDeputy(user))
 #define IS_LORD(user) (query_wiz_level(user) >= LORD_LVL)
 #define IS_ELDER(user) (query_wiz_level(user) >= ELDER_LVL)
 #define IS_ARCH(user) (query_wiz_level(user) >= ARCH_LVL)
@@ -45,6 +45,7 @@
 
 #define IS_LEARNING(user) (query_wiz_level(user) >= LEARNER_LVL &&\
                            user->QueryProp(P_WANTS_TO_LEARN))
+#define IS_LORD_DOMAIN(user,domain) (master()->domain_master(user,domain))
 
 /*
  * Interface for enhanced security functions

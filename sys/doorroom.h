@@ -2,7 +2,7 @@
 //
 // doorroom.h -- new doors, managed by doormaster
 //
-// $Id: doorroom.h 5551 2006-09-23 10:32:26Z root $
+// $Id: doorroom.h 9128 2015-01-26 17:42:21Z Arathorn $
 
 #ifndef _DOORROOM_H_
 #define _DOORROOM_H_
@@ -58,7 +58,8 @@
 
 // prototypes
 mapping QueryAllDoors();
-varargs int NewDoor(mixed cmds, string dest, mixed ids, mixed props);
+varargs int NewDoor(string|string* cmds, string dest, string|string* ids,
+                    mapping|<int|string|string*>* props);
 void    init_doors ();
 string  look_doors ();
 void    reset_doors ();

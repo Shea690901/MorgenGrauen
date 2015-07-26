@@ -61,27 +61,13 @@ protected mixed prepare_destruct(object ob)
       (getuid(ob) == ROOTID ||
        (IS_ARCH(ob)) ||
        member(deny_destruct_list, object_name(ob)) >= 0)) {
-    if (stringp(res) && strlen(res))
+    if (stringp(res) && sizeof(res))
       return res;
     else
       return sprintf("%O verweigert die Zerstoerung mittels destruct(). "
           "Fehlende Rechte von %O?\n",ob, previous_object());
   }
   
-//TODO: Mit Reboot entfernen.
-#if __BOOT_TIME__ < 1234212788
-  // Lichtsystem mit der aenderung versorgen. :-/
-  foreach(env : all_environment(ob) || ({})) {
-      // Ja. Man ruft die _set_xxx()-Funktionen eigentlich nicht direkt auf.
-      // Aber das Lichtsystem ist schon *so* rechenintensiv und gerade der
-      // P_LAST_CONTENT_CHANGE-Cache wird *so* oft benoetigt, dass es mir
-      // da um jedes bisschen Rechenzeit geht.
-      // Der Zweck heiligt ja bekanntlich die Mittel. ;-)
-      //
-      // Tiamak
-      env->_set_last_content_change();
-  }
-#endif
   env = environment(ob);
 
   // Objekt hat kein Env: Alles zerstoeren, Spieler ins Void
@@ -105,11 +91,12 @@ protected mixed prepare_destruct(object ob)
   return 0; // Erfolg
 }
 
+// Anmerkung: liefert 0 zurueck, wenn die sefuns gerade geladen werden.
 string NotifyDestruct(object caller) {
   // Nicht jeder Magier muss den Master entsorgen koennen.
   if ((caller != this_object() && 
-        funcall(symbol_function('secure_level)) < ARCH_LVL)
-      || funcall(symbol_function('process_call)) ) {
+        call_sefun("secure_level") < ARCH_LVL)
+      || call_sefun("process_call") ) {
     return "Du darfst den Mudlib-Master nicht zerstoeren!\n";
   }
   return 0;

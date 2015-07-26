@@ -10,7 +10,7 @@
 #pragma pedantic
 #pragma range_check
 
-inherit "std/clothing";
+inherit "/std/clothing";
 
 #define NEED_PROTOTYPES
 #include <thing/commands.h>

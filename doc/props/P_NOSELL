@@ -15,7 +15,7 @@ BESCHREIBUNG:
      default 'Der Haendler' ausgegeben.
 
 BEISPIEL:
-     SetProp(P_NOSELL,"Den Schrott behaeltst Du lieber selber.\n");
+     SetProp(P_NOSELL,"Den Schrott behaeltst Du lieber selber.");
 
      ==> Apu sagt: Den Schrott behaeltst Du lieber selber.
      ==> Der Haendler sagt: Den Schrott behaeltst Du lieber selber.
@@ -29,4 +29,5 @@ SIEHE AUCH:
      P_NOBUY, P_NODROP, P_KEEPER
 
 ----------------------------------------------------------------------------
-Last modified: Tue Jun 21 15:12:00 2000 by Tilly
+03.09.2010, Zesstra
+

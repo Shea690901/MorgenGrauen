@@ -10,98 +10,83 @@
 // 04-01-2005  - Mupfel@MorgenGrauen -
 // 21.11.2006 - Zesstra
 // Der Bumerang ist umgezogen. Pfad aktualisiert
+// 13.10.2013 - Zesstra
+// Einmal auf Basis von P_KILLER neugebaut.
+// 16.10.2013 - Zesstra
+// Man muss es jetzt nicht mehr erben, sondern kann auch per Callother
+// abfragen. Dann wird der Killer vom previous_object() ermittelt.
 
+#define NEED_PROTOTYPES
 #include <thing/properties.h>
+#undef NEED_PROTOTYPES
+
 #include <thing/language.h>
+#include <properties.h>
 
-//#define DD(x) tell_object(find_player("debugger")||this_object(), x)
-#define DD(x)
-
-#define ME this_object()
-#define PL this_player()
-#define PO previous_object()
-#define CAP(x) capitalize(x)
-
-string get_killer()
+public mixed get_killer_data(int extern)
 {
-  string killer;
-
-  DD(sprintf("TP    = %O\n", this_player()));
-  DD(sprintf("TI    = %O\n", this_interactive()));
-  DD(sprintf("PO(1) = %O\n", previous_object()));
-  DD(sprintf("PO(2) = %O\n", previous_object(2)));
-  DD(sprintf("PO(3) = %O\n", previous_object(3)));
-  DD(sprintf("PO(4) = %O\n", previous_object(4)));
-  DD(sprintf("Stacktiefe = %i\n", caller_stack_depth()));
-
-  if (PL)
-  {
-    if (PL->id("\nchaos_gilden_daemon"))
-      return CAP(PL->QueryProp("chaos_daem_beschwoerer"))+" (mit Kampfdaemon)";
-    if (PL->id("Beistand") && !PL->id("P-KRIEGER"))
-      return CAP((PL->QueryProp("klerus_owner"))->name())+" (mit Beistand)";
-    if (PL == ME)   // Goblinring und andere Retrowaffen
-    {
-      if (!PO)
-        return PL->name(RAW);
-      if (old_explode(object_name(PO), "#")[0]=="/d/ebene/obj/gring")
-        return (PO->QueryProp("worn"))->name(RAW)+" (mit Goblinring)";
-      if (old_explode(object_name(PO), "#")[0]=="/d/unterwelt/wurzel/dorf/shabz")
-        return (PO->QueryProp("worn"))->name(RAW)+" (mit Abzeichen)";
-      if (old_explode(object_name(PO), "#")[0]=="/d/wueste/tsunami/schule/rue/hex_toga2")
-        return (PO->QueryProp("worn"))->name(RAW)+" (mit Toga)";
-      return PL->name(RAW);
-    }
-    return PL->name(RAW);
-  }
-  else if (PO)
-  {
-    if (old_explode(object_name(PO), "#")[0]=="/p/seher/laden/obj/bumerang.c")
-      return (PO->query_werfer())->name(RAW)+" (mit Bumerang)";
-    else
-      return PO->name(RAW);
-  }
+  object killer;
+  // wenn von ausser gerufen und ein PO existiert, fragen wir P_KILLER darin
+  // ab. Dann muss man dieses Ding hier nicht unbedingt erben.
+  if ((extern || extern_call()) && previous_object())
+      killer=previous_object()->QueryProp(P_KILLER);
   else
-    return "<unbekannt>";
+      killer=QueryProp(P_KILLER);
+
+  // Eigentlich tritt dieser Fall nur bei Vergiftungen auf.
+  if (!objectp(killer))
+    return ({0,"<unbekannt>"});
+
+  // Spieler selber? Ist ja einfach.
+  if (query_once_interactive(killer))
+    return ({killer,killer->Name(WER)});
+
+  // Helfer-NPC?
+  mixed helperdata = killer->QueryProp(P_HELPER_NPC);
+  if (pointerp(helperdata) && objectp(helperdata[0]))
+    return ({helperdata[0], helperdata[0]->Name(WER) + " mit Helfer-NPC"});
+  // Einige Gilden-NPC verweisen auf ihren Spieler. Diese wird natuerlich nur
+  // abgefragt, wenn die Gilde noch keinen Helfer-NPC registrieren.
+  else if (killer->id("\nchaos_gilden_daemon"))
+  {
+    killer=find_player(killer->QueryProp("chaos_daem_beschwoerer"));
+    return ({killer, killer->Name(WER)+" (mit Kampfdaemon)"});
+  }
+  else if (killer->id("Beistand") && !killer->id("P-KRIEGER"))
+  {
+    killer = killer->QueryProp("klerus_owner");
+    return ({killer, killer->Name(WER)+" (mit Beistand)"});
+  }
+
+  // Einige toetende Objekte gesondert behandeln und Spieler als Killer
+  // liefern.
+  switch(object_name(blueprint(killer)))
+  {
+    case "/d/ebene/obj/gring":
+      killer = killer->QueryProp(P_WORN);
+      return ({killer, killer->name(RAW)+" (mit Goblinring)"});
+    case "/d/unterwelt/wurzel/dorf/shabz":
+      killer = killer->QueryProp(P_WORN);
+      return ({killer, killer->name(RAW)+" (mit Abzeichen)"});
+    case "/d/wueste/tsunami/schule/rue/hex_toga2":
+      killer = killer->QueryProp(P_WORN);
+      return ({killer, killer->name(RAW)+" (mit Toga)"});
+    case "/p/seher/laden/obj/bumerang":
+      killer = killer->query_werfer();
+      return ({killer, killer->name(RAW)+" (mit Bumerang)"});
+  }
+  // killer ist jedenfalls kein Spieler hier.
+  return ({killer, killer->name(RAW)});
 }
 
-object get_killer_object()
+// Name des Killers
+public string get_killer()
 {
-  DD(sprintf("TP    = %O\n", this_player()));
-  DD(sprintf("TI    = %O\n", this_interactive()));
-  DD(sprintf("PO(1) = %O\n", previous_object()));
-  DD(sprintf("PO(2) = %O\n", previous_object(2)));
-  DD(sprintf("PO(3) = %O\n", previous_object(3)));
-  DD(sprintf("PO(4) = %O\n", previous_object(4)));
-  DD(sprintf("Stacktiefe = %i\n", caller_stack_depth()));
-
-  if (PL)
-  {
-    if (PL->id("\nchaos_gilden_daemon"))
-      return find_player(PL->QueryProp("chaos_daem_beschwoerer"));
-    if (PL->id("Beistand") && !PL->id("P-KRIEGER"))
-      return PL->QueryProp("klerus_owner");
-    if (PL == ME)   // Goblinring und andere Retrowaffen
-    {
-      if (!PO)
-        return PL;
-      if (old_explode(object_name(PO), "#")[0]=="/d/ebene/obj/gring")
-        return PO->QueryProp("worn");
-      if (old_explode(object_name(PO), "#")[0]=="/d/unterwelt/wurzel/dorf/shabz")
-        return PO->QueryProp("worn");
-      if (old_explode(object_name(PO), "#")[0]=="/d/wueste/tsunami/schule/rue/hex_toga2")
-        return PO->QueryProp("worn");
-      return PL;
-    }
-    return PL;
-  }
-  else if (PO)
-  {
-    if (old_explode(object_name(PO), "#")[0]=="/p/seher/laden/obj/bumerang.c")
-      return PO->query_werfer();
-    else
-      return PO;
-  }
-  else
-    return 0;
+  return get_killer_data(extern_call())[1];
 }
+// Objekt des Killers
+public object get_killer_object()
+{
+  return get_killer_data(extern_call())[0];
+}
+

@@ -8,7 +8,7 @@
 //
 // Ich gehe hier nicht auf die "normalen" Funktionen ein.
 
-inherit "std/thing";
+inherit "/std/thing";
 
 #define OS_MASTER "/doc/beispiele/master/opferstockmaster"
 

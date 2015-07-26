@@ -153,9 +153,9 @@ static efun_map_array( arg1, arg2, arg3, arg4 )
 	return map( arg1, arg2, arg3, arg4 );
 }
 
-static efun_member_array( arg1, arg2 )
+static efun_member( arg1, arg2 )
 {
-	return member_array( arg1, arg2 );
+	return member( arg1, arg2 );
 }
 
 static efun_objectp( arg )
@@ -269,11 +269,6 @@ static efun_sizeof( arg )
 	return sizeof( arg );
 }
 
-static efun_slice_array( arg1, arg2, arg3 )
-{
-	return slice_array( arg1, arg2, arg3 );
-}
-
 static efun_sort_array( arg1, arg2, arg3 )
 {
 	return sort_array( arg1, arg2, arg3 );
@@ -286,7 +281,7 @@ static efun_stringp( arg )
 
 static efun_strlen( arg )
 {
-	return strlen( arg );
+	return sizeof( arg );
 }
 
 static efun_tail( arg )
@@ -372,11 +367,6 @@ static efun_next_inventory( arg )
 static efun_inherit_list( arg )
 {
 	return inherit_list( arg );
-}
-
-static efun_extract( arg1, arg2, arg3 )
-{
-	return extract( arg1, arg2, arg3 );
 }
 
 static efun_strstr( arg1, arg2, arg3 )

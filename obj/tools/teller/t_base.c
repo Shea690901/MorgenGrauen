@@ -18,7 +18,13 @@ static bool dologaccess;
 static bool pretty;
 static bool do_profile;
 
-create()
+static mixed top();
+static mixed pop();
+static void push( mixed ob );
+
+static void dump_obj( mixed ob, int indent );
+
+void create()
 {
 	stack = ({});
 	memory = ([]);
@@ -34,31 +40,32 @@ create()
 // Hilfsfunktionen
 // ----------------------------------------------------------------------
 
-static error( msg )
+static int error( string msg )
 {
 	write( "Fehler in "+msg+".\n" );
 	fehler_passiert = TRUE;
 	return FALSE;
 }
 
-static memo( msg )
+static int memo( string msg )
 {
 	write( "MEMO: "+msg+".\n" );
 	return FALSE;
 }
 
-static calcinv( str )
+static int calcinv( string str )
 {
+	object* obs;
 	object ob;
 	int val;
 
 	if( sscanf( str, "%d", val ) == 1 )
 	{
-		ob = all_inventory(top());
-		if( val<0 || val>=sizeof(ob) )
+		obs = all_inventory(top());
+		if( val<0 || val>=sizeof(obs) )
 			return error( "'.': Kein Objekt mit dieser Nummer" );
 		pop();
-		push(ob[val]);
+		push(obs[val]);
 		return TRUE;
 	}
 
@@ -69,7 +76,7 @@ static calcinv( str )
 	return TRUE;
 }
 
-static push_str( str )
+static mixed push_str( string str )
 {
 	return
 		push( implode(old_explode( implode(old_explode( implode(old_explode(
@@ -78,7 +85,7 @@ static push_str( str )
 		[1..<2] );
 }
 
-static do_move( ob, dest )
+static void do_move( object ob, mixed dest )
 {
 	int weight;
 
@@ -89,7 +96,7 @@ static do_move( ob, dest )
 	dest->AddWeight(weight);
 }
 
-heart_beat()
+void heart_beat()
 {
 	object *newinv;
 	object owner;
@@ -130,7 +137,7 @@ heart_beat()
 // Dumpfunktionen
 // ----------------------------------------------------------------------
 
-static dump_array( ob, indent )
+static void dump_array( mixed* ob, int indent )
 {
 	int i;
 	for( i=0; i<sizeof(ob); i++ )
@@ -140,7 +147,7 @@ static dump_array( ob, indent )
 	}
 }
 
-static dump_mapping( ob, indent )
+static void dump_mapping( mapping ob, int indent )
 {
 	mixed *index;
 	mixed key;
@@ -161,7 +168,7 @@ static dump_mapping( ob, indent )
 	}
 }
 
-static dump_obj( ob, indent )
+static void dump_obj( mixed ob, int indent )
 {
 	if( !pretty )
 	{
@@ -212,18 +219,18 @@ static dump_obj( ob, indent )
 // Speicherfunktionen
 // ----------------------------------------------------------------------
 
-static do_recall( arg )
+static void do_recall( mixed arg )
 {
 	if( member(memory,arg) )
 		push( memory[arg,0] );
 }
 
-static do_store( arg )
+static void do_store( mixed arg )
 {
 	if ( sizeof(stack) )
 	{
 		if( !top() )
-			memory = efun::m_delete(memory,arg);
+			memory = m_delete(memory,arg);
 		else
 			memory += ([ arg: top(); 0 ]);
 	}
@@ -235,12 +242,12 @@ static do_store( arg )
 // Stack-Funktionen
 // ----------------------------------------------------------------------
 
-static push( ob )
+static void push( mixed ob )
 {
 	stack = ({ ob }) + stack;
 }
 
-static pop()
+static mixed pop()
 {
 	mixed answer;
 
@@ -251,13 +258,13 @@ static pop()
 	return answer;
 }	
 
-static top()
+static mixed top()
 {
 	if( sizeof(stack) )
 		return stack[0];
 }
 
-static becomes_obj(argv)
+static varargs int becomes_obj( mixed argv)
 {
 	object ob;
 
@@ -296,7 +303,7 @@ static becomes_pl(argv)
 		if( str[<1..<1] == "*" )
 		{	
 			str = str[0..<2];
-			len = strlen(str) - 1;
+			len = sizeof(str) - 1;
 			pllist = filter( users(), #'isSubStr, str, len );
 			if( sizeof(pllist) == 1 )
 			{

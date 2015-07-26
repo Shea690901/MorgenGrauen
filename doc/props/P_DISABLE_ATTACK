@@ -6,18 +6,21 @@ DEFINIERT IN:
 
 BESCHREIBUNG:
     Das Lebewesen kann nicht angreifen. Beim Setzen der Property ist es
-    wichtig SetProp() zu benutzen und die Anzahl der Kampfrunden anzugeben,
+    wichtig, SetProp() zu benutzen und die Anzahl der Kampfrunden anzugeben,
     die das Lebewesen paralysiert sein soll.
 
     Ein negativer Wert ist nicht gueltig. Bei mehr als 30 Kampfrunden wird
     die Paralyse auf 30 Kampfrunden gekappt.
 
-    Ein Gegner kann nach einer Paralyse erst wieder nach der doppelten
-    Zeit paralysiert werden. Die SetProp-Methode gibt dann den Wert
-    DISABLE_TOO_EARLY zurueck, der in combat.h definiert wird. Fuer Details
-    hierzu siehe P_NEXT_DISABLE_ATTACK.
+    Fuer jede Paralyse bekommt ein Living eine ebenso lange Schutzzeit nach
+    der Paralyse gewaehrt. Versucht man, vor Ablauf der Paralyse
+    P_DISABLE_ATTACK hoeher zu setzen (oder setzt man innerhalb der folgenden
+    Schutzzeit P_DISABLE_ATTACK auf > 0), wird DISABLE_TOO_EARLY von SetProp
+    zurueck gegeben.
+    Eine Reduktion von einem P_DISABLE_ATTACK ist moeglich, allerdings
+    reduziert dies _nicht_ eine einmal gesetzte Schutzzeit.
 
-    Einen Gegner der nie paralysiert werden koennen soll, kann man einfach
+    Einen Gegner,der nie paralysiert werden koennen soll, kann man einfach
     per 
 
     Set(P_DISABLE_ATTACK, function int () {return 0;}, F_SET_METHOD);
@@ -26,10 +29,18 @@ BESCHREIBUNG:
     einem normalen SetProp()-Aufruf geaendert werden kann.
 
 BEISPIELE:
-    // Gegner 3 Runden lang paralysieren, ohne Ruecksicht auf fruehere P.
-    SetProp(P_DISABLE_ATTACK, 3); 
+    // Gegner 17 Runden lang paralysieren, ohne Ruecksicht auf fruehere P.
+    // (in diesem Moment ist das Living bis time() + 4 * 17 vor laengerer
+    //  oder erneuter Paralyse geschuetzt)
+    en->SetProp(P_DISABLE_ATTACK, 17);
+    // Der Gegner kann jetzt fuer 34 Kampfrunden nicht erneut paralysiert
+    // werden.
+    // Paralyse reduzieren auf 10 Kampfrunden
+    en->SetProp(P_DISABLE_ATTACK, 10);
+    // Die Schutzzeit ist immer noch bei 34 Kampfrunden, nicht bei 20.
 
-SIEHE AUCH: P_NEXT_DISABLE_ATTACK
+SIEHE AUCH:
+    P_NEXT_DISABLE_ATTACK
 
----------------------------------------------------------------------------
-17.03.2008, Zesstra
+19.08.2014, Zesstra
+

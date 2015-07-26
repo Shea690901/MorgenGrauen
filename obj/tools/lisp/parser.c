@@ -13,9 +13,9 @@ private inherit HOME("lex");
 #include "stack.h"
 #include "types.h"
 
-private static mixed code;
-private static mixed stack;
-private static int quot, assume;
+private nosave mixed code;
+private nosave mixed stack;
+private nosave int quot, assume;
 
 nomask static void initialize()
 {
@@ -30,7 +30,7 @@ static void create()
   initialize();
 }
 
-nomask static private mixed CodeGen(mixed token)
+nomask private mixed CodeGen(mixed token)
 {
   switch(pre_parse(&code)) 
   {

@@ -106,10 +106,14 @@ char *telcmds[] = {
 #define  TELOPT_STARTTLS      46        /* Transport Layer Security */
 
 /* Inofficial, mud specific telnet options */
+#define  TELOPT_MSDP          69        /* Mud Server Data Protocol */
+#define  TELOPT_MSSP          70        /* Mud Server Status Protocol */
 #define  TELOPT_COMPRESS      85        /* Mud Compression Protocol, v.1 */
 #define  TELOPT_COMPRESS2     86        /* Mud Compression Protocol, v.2 */
 #define  TELOPT_MSP           90        /* Mud Sound Protocol */
 #define  TELOPT_MXP           91        /* Mud Extension Protocol */
+#define  TELOPT_ATCP         200        /* Achea Telnet Client Protocol */
+#define  TELOPT_GMCP         201        /* General Mud Communication Protocol */
 #define  TELOPT_EXOPL        255        /* extended-options-list */
 
 #define  NTELOPTS            256        /* was: (1+TELOPT_NEWENV) */

@@ -16,21 +16,15 @@ inherit "std/player/base";
  * Orks:
  * Orks sind eigentlich boese und blutruenstig, was auch oft genug zum 
  * Vorschein tritt :) Wenn ein Ork zu heftig forscht, quengelt er rum 
- * und weigert sich, bis er nicht wieder ein bischen Blut verspritzt
- * hat.
-
-
-Diese #defines stehen in dem orc.h, damit ich da nicht immer nen EM bemuehen muss die shell zu kopieren
- 
-#define F_MAX 250
-#define F_DEG 4
+ * und weigert sich, bis er nicht wieder ein bisschen Blut verspritzt
+ * hat,
+*/ 
+#define F_MAX 500
+#define F_DEG 3 
 #define NO_EXAMINE ({ \
     "Du knurrst: Ich will Blut, keine Bluemchen.", \
     "Du grummelst: Bin ich ein Forscher, oder was?" \
     })
-*/
-
-#include "/d/vland/morgoth/std/orc.h"
 
 static int f_cnt, f_deg;
 
@@ -66,8 +60,8 @@ create() {
   f_deg=F_DEG;
   
   SetDefaultHome("/d/vland/morgoth/room/city/rathalle");
-  SetPrayRoom("/d/vland/morgoth/room/city/c0606");
-  SetProp(P_ATTRIBUTES_OFFSETS,([A_STR:4,A_INT:-1,A_CON:3]));
+  SetDefaultPrayRoom("/d/vland/morgoth/room/city/c0606");
+  SetProp(P_ATTRIBUTES_OFFSETS,([A_STR:3,A_INT:-1,A_CON:2]));
   /* Kleine aeh grosse Muskelpakete */
   SetProp(P_SKILL_ATTRIBUTE_OFFSETS,([SA_DAMAGE:110]));
   SetProp(P_AVERAGE_SIZE,195);
@@ -76,6 +70,7 @@ create() {
                                  MATGROUP_BIO:40, 
                                  MATGROUP_ELEMENTAL: 20, 
                                  MAT_BLOOD:100]));
+  SetProp(P_CHANNELS, QueryProp(P_CHANNELS) + ({"Uruk-Hai"}));
   SetProp(P_RESISTANCE_STRENGTHS,
 	  ([ 
      DT_FIRE : -0.2,
@@ -110,7 +105,7 @@ create() {
     res=({" mit starken Haenden",35,({DT_BLUDGEON, DT_RIP}) });
   SetProp(P_HANDS,res);
   /* Orks haben dicke Haut */
-  SetProp(P_BODY,25);
+  SetProp(P_BODY,20);
 
   /* Groesse wird nur einmal gesetzt */
   if(!QueryProp(P_SIZE)){
@@ -153,12 +148,12 @@ _query_racedescr() {
 
 int 
 QueryAllowSelect() { 
-  return 0; 
+  return 1; 
 }
 
 string 
 *_query_racestring() {
-  if (QueryProp(P_GENDER)==2)
+  if (QueryProp(P_GENDER)==FEMALE)
     return ({"Orkin","Orkin","Orkin","Orkin"});
   return ({"Ork","Orkes","Ork","Ork"});
 }

@@ -2,7 +2,7 @@
 //
 // ranged_weapon.c -- Standardobjekt fuer Fernkampfwaffen
 //
-// $Id: ranged_weapon.c 6516 2007-10-06 20:28:42Z Zesstra $
+// $Id: ranged_weapon.c 8820 2014-05-14 19:31:46Z Zesstra $
 
 // Gebraucht wird Munition mit einer MUN_* id. Dieses Objekt sollte ausserdem
 // P_DAM_TYPE setzen sowie P_SHOOTING_WC und ggf. P_HIT_FUNC. In der Regel
@@ -14,9 +14,9 @@
 #pragma pedantic
 #pragma range_check
 
-inherit "std/weapon";
+inherit "/std/living/skill_utils";
+inherit "/std/weapon";
 
-//#define NEED_PROTOTYPES
 #include <ranged_weapon.h>
 
 #include <properties.h>
@@ -27,7 +27,7 @@ inherit "std/weapon";
 
 static int last_shoot;
 
-void create()
+protected void create()
 {
     ::create();
 
@@ -42,31 +42,6 @@ void create()
     SetProp(P_QUALITY, 100);
 
     AddCmd( ({"schiess", "schiesse"}), "cmd_shoot");
-}
-
-// Diese Funktion sollte immer ein exaktes Abbild der Funktion
-// aus /std/living/combat.c sein. Die Funktion existiert doppelt,
-// weil static-Funktionen schneller sind - und beim combat muss
-// man sparen, wo es nur geht.
-static void SkillResTransfer(mapping from_M, mapping to_M)
-{
-  if ( !mappingp(from_M) || !mappingp(to_M) )
-    return;
-
-  if ( member(from_M,SI_SKILLDAMAGE) )
-    to_M[SI_SKILLDAMAGE] = (int)from_M[SI_SKILLDAMAGE];
-
-  if ( member(from_M,SI_SKILLDAMAGE_MSG) )
-    to_M[SI_SKILLDAMAGE_MSG] = (string)from_M[SI_SKILLDAMAGE_MSG];
-
-  if ( member(from_M,SI_SKILLDAMAGE_MSG2) )
-    to_M[SI_SKILLDAMAGE_MSG2] = (string)from_M[SI_SKILLDAMAGE_MSG2];
-
-  if ( member(from_M,SI_SKILLDAMAGE_TYPE) )
-    to_M[SI_SKILLDAMAGE_TYPE] = from_M[SI_SKILLDAMAGE_TYPE];
-
-  if ( member(from_M,SI_SPELL) )
-    to_M[SI_SPELL] = from_M[SI_SPELL];
 }
       
 static int shoot_dam(mapping shoot)
@@ -264,24 +239,26 @@ static int cmd_shoot(string str)
     dam=shoot_dam(shoot);
 
     // Textausgabe
-    tell_object(PL,break_string(
-        "Du schiesst "+shoot[SI_SKILLDAMAGE_MSG]+" auf "+
-        shoot[SI_ENEMY]->name(WEN, 1)+".", 78) );
-    tell_room(environment(PL), break_string(
-        PL->Name(WER)+" schiesst "+shoot[SI_SKILLDAMAGE_MSG2]+" auf "+
-        shoot[SI_ENEMY]->name(WEN, 1)+".", 78),
-        ({ shoot[SI_ENEMY], PL }) );
-    if ( environment(PL)!=environment(shoot[SI_ENEMY]) )
-      tell_room(environment(shoot[SI_ENEMY]),break_string(
+    if (shoot[SI_ENEMY])
+    {
+      tell_object(PL,break_string(
+          "Du schiesst "+shoot[SI_SKILLDAMAGE_MSG]+" auf "+
+          shoot[SI_ENEMY]->name(WEN, 1)+".", 78) );
+      tell_room(environment(PL), break_string(
           PL->Name(WER)+" schiesst "+shoot[SI_SKILLDAMAGE_MSG2]+" auf "+
           shoot[SI_ENEMY]->name(WEN, 1)+".", 78),
-          ({ shoot[SI_ENEMY] }) );
-    tell_object(shoot[SI_ENEMY], break_string(
-        PL->Name(WER)+" schiesst "+shoot[SI_SKILLDAMAGE_MSG2]+
-        " auf Dich ab.",78) );
+          ({ shoot[SI_ENEMY], PL }) );
+      if ( environment(PL)!=environment(shoot[SI_ENEMY]) )
+        tell_room(environment(shoot[SI_ENEMY]),break_string(
+            PL->Name(WER)+" schiesst "+shoot[SI_SKILLDAMAGE_MSG2]+" auf "+
+            shoot[SI_ENEMY]->name(WEN, 1)+".", 78),
+            ({ shoot[SI_ENEMY] }) );
+      tell_object(shoot[SI_ENEMY], break_string(
+          PL->Name(WER)+" schiesst "+shoot[SI_SKILLDAMAGE_MSG2]+
+          " auf Dich ab.",78) );
 
-    shoot[SI_ENEMY]->Defend(dam,shoot[SI_SKILLDAMAGE_TYPE],shoot[SI_SPELL],PL);
-
+      shoot[SI_ENEMY]->Defend(dam,shoot[SI_SKILLDAMAGE_TYPE],shoot[SI_SPELL],PL);
+    }
     // Munition verbrauchen
     if ( shoot[P_AMMUNITION]->IsUnit() )
       shoot[P_AMMUNITION]->AddAmount(-1);

@@ -2,7 +2,7 @@
 //
 // master.h -- definitions for the master object
 //
-// $Id: master.h 7477 2010-02-20 19:14:13Z Zesstra $
+// $Id: master.h 8809 2014-05-08 19:52:48Z Zesstra $
 
 #ifndef __MASTER_H__
 #define __MASTER_H__
@@ -38,19 +38,6 @@
 
 #include "/secure/wizlevels.h"
 
-//Ebenenmeldungen
-//das previous_object(3) in den beiden ersten ist so gedacht. ;-)
-#define DEBUG_MSG(x,po) catch(CHMASTER->send("Debug", \
-	capitalize(objectp(po) ? REAL_UID(po) : ""), x))
-#define DEBUG2_MSG(x,po) catch(CHMASTER->send("Entwicklung", \
-	capitalize(objectp(po) ? REAL_UID(po) : ""), x))
-#define DEBUG3_MSG(x) catch(CHMASTER->send("Entwicklung", \
-	"<MasteR>", x))
-//hier ist previous_object() der 'Uebeltaeter'
-#define DEBUG4_MSG(x,po) catch(CHMASTER->send("Warnungen", \
-	capitalize(objectp(po) ? REAL_UID(po) : ""), x))
-
-
 //#define DEBUG(x)
 #ifndef DEBUG
 #define DEBUG(x)	if (funcall(symbol_function('find_player),"zesstra"))\
@@ -85,11 +72,15 @@ mixed         give_uid_to_object(string datei,object po);
 void          save_wiz_file();
 mixed         load_uid_hook(string datei);
 mixed         clone_uid_hook(string blueprint,string new_name);
+protected mixed call_sefun(string sefun, varargs mixed args);
 
 // aus domains.c
 int            domain_master(string user, string domain);
 int            domain_member(string user, string domain);
 string         *get_domain_homes(string wiz);
+
+// aus guild.c
+int           guild_master(string user, string guild);
 
 // aus file_access.c
 void          LoadDeputyFileList();
@@ -119,7 +110,6 @@ public string    secure_savefile(string name);
 protected void   save_userinfo(string user);
 protected string query_secure_euid();
 protected int    query_secure_level();
-private string*  ExpandUIDAlias(string alias, int rec);
 public varargs string* QueryUIDAlias(string alias, int rec);
 
 //Einen Magier als verantwortlich fuer eine bestimmte UID eintragen

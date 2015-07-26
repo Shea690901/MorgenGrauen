@@ -22,7 +22,6 @@ void create()
    SetProp(P_LEVEL, 80);
    SetProp(P_ATTRIBUTES, (["int":60,"con":40,"str":16,"dex":50]) );
    SetProp(P_DISABLE_ATTACK, -10000); // is nich :)
-   SetProp(P_SKILL_ATTRIBUTE_OFFSETS, ([SA_ENEMY_SAVE: 100]));
    SetProp(P_BODY, 80);
    SetProp(P_MAX_SP, 2000);
    SetProp(P_SP, 2000);
@@ -37,7 +36,7 @@ void create()
    AddAdjective("wunderschoen");
    AddId(({"titina", "fee", "waldfee", WALDID("fee")}));
    SetProp(P_HANDS, ({" mit ihren zarten Haenden", 150, DT_BLUDGEON}) );
-   SetProp(P_SKILL_ATTRIBUTE_OFFSETS, ([SA_ENEMY_SAVE: 100]));
+   SetProp(P_SKILL_ATTRIBUTE_OFFSETS, ([SA_SPELL_PENETRATION: 100]));
    SetProp(P_XP, 800*200*5*2);
    SetProp(P_GUILD, "zauberer");
    SetProp(P_Z_NO_MATERIAL, 1);

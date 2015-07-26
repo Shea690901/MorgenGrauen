@@ -2,7 +2,7 @@
 //
 // lightsource.c -- standard light source
 //
-// $Id: lightsource.c 6991 2008-08-22 21:57:37Z Zesstra $
+// $Id: lightsource.c 7806 2011-07-11 20:28:17Z Zesstra $
 
 // std/lightsource.c
 //
@@ -298,9 +298,6 @@ static string _query_lightdesc()
 
 static int _query_light()
 {   return (lighted ? Query(P_LIGHT) : 0);  }
-
-static int _query_total_light()
-{   return QueryProp(P_LIGHT);   }
 
 /*
  * short() ueberladen

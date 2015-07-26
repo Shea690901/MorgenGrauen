@@ -31,7 +31,13 @@ BEISPIEL:
 	QM->GiveMiniQuest(this_player());
 
 SIEHE AUCH:
+        HasMiniQuest
         /secure/questmaster.h, /secure/questmaster.c
 
+HINWEIS:
+        Die Informationen fuer den EM fuer Quests sollten diesem
+        beim Eintragen der Miniquest in den Questmaster per Mail
+        zugeschickt werden. Siehe dazu die Hilfe zu AddMiniQuest.
+
 ----------------------------------------------------------------------------
-Zuletzt geaendert: Son, 28. Jan 2001, 21:00:43 von Zook.
+Zuletzt geaendert: Don, 30. Jan 2014, 22:14:12 von Ark.

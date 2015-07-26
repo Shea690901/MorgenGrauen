@@ -2,7 +2,7 @@
 //
 // player/exploration.c -- exploration point management
 //
-// $Id: exploration.c 6405 2007-08-06 21:25:57Z Zesstra $
+// $Id: exploration.c 9142 2015-02-04 22:17:29Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -22,7 +22,7 @@
 
 private string given_scores;
 
-private static mixed epnum;
+private nosave mixed epnum;
 
 void create() {
   Set(P_LEP, SECURED|SAVE, F_MODE_AS);

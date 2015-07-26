@@ -2,7 +2,7 @@
 //
 // shells/human.c -- Human Shell
 //
-// $Id: human.c 7423 2010-02-07 22:56:38Z Zesstra $
+// $Id: human.c 9022 2015-01-10 21:50:50Z Zesstra $
 
 #pragma strong_types,save_types
 
@@ -27,7 +27,7 @@ void create() {
 
   base::create();
   SetDefaultHome("/gilden/abenteurer");
-  SetPrayRoom("/d/ebene/room/PortVain/pray_room");
+  SetDefaultPrayRoom("/d/ebene/room/PortVain/pray_room");
   SetProp(P_ATTRIBUTES_OFFSETS,([A_INT:1,A_STR:1,A_CON:1,A_DEX:3]));
   SetProp(P_AVERAGE_SIZE,170);
   SetProp(P_AVERAGE_WEIGHT,75000);
@@ -98,24 +98,16 @@ string _query_racedescr()
 
 int QueryAllowSelect() { return 1; }
 
-void FinalSetup() {
+void FinalSetup()
+{
+  // Im MG gibt fuer kleine Spieler eine Karte von Port Vain. Die gibt es
+  // woanders meist nicht.
+#if MUDNAME == "MorgenGrauen"
   if (QueryProp(P_LEVEL)<=3 && !present("portvainkarte",this_object()))
     clone_object("/d/ebene/obj/pv")->move(this_object(),M_NOCHECK);
+#endif
 }
 
 string _query_default_guild(){
   return "abenteurer";
 }
-
-mixed RaceDefault(string arg)
-{
-  if (!arg)
-    return 0;
-  switch(arg)
-  {
-    case P_BODY :
-      return -5;
-  }
-  return base::RaceDefault(arg);
-}
-                                              

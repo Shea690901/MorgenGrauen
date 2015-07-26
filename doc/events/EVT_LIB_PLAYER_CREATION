@@ -13,7 +13,7 @@ BESCHREIBUNG:
 
 EVENT-DATEN:
    Die Daten werden als Mapping uebergeben:
-   ([ E_PLNAME:       (string) UID/Name des geloeschten Spielers,
+   ([ E_PLNAME:       (string) UID/Name des erstellten Spielers,
       E_OBJECT:       (object) Objekt des Spielers,
     ])
 

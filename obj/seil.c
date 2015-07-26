@@ -1,11 +1,19 @@
+/* Kopie von /items/fackel. Kopie deshalb, weil die Objekte hier
+   ggf. auch ne GOD-ID kriegen und in /items/ nicht nur Goetter
+   Schreibrechte haben.
+   Wenn alle Benutzer umgestellt sind: diese Kopie loeschen.
+ */
+
 // Letzte Aenderung Gando - 25.06.2003
+#pragma strict_types,rtt_checks
+#if __BOOT_TIME > 1421010466
+#pragma no_clone
+#endif
 
 #include <properties.h>
 #include <language.h>
 #include <seil.h>
-inherit "std/thing";
-
-#pragma strict_types
+inherit "/std/thing";
 
 object tied_to_ob;
 string tied_name;
@@ -35,9 +43,9 @@ void create(){
 }
 
 // dieses Ding wird u.a. geerbt. Damit die BP beim Erben auch initialisiert
-// wird (fuer die Laden), muss create_super() das create() rufen.
+// wird (fuer die Laeden), muss create_super() das create() rufen.
 protected void create_super() {
-  ::create();
+  create();
 }
 
 string _query_short()
@@ -231,7 +239,7 @@ int tie(string str)
    }
 
   tied_map=([])+tied_to_ob->QueryProp(P_TIED);
-  tied_map=m_delete(tied_map,this_object());
+  tied_map=m_copy_delete(tied_map,this_object());
 
   tied_to_ob->SetProp(P_TIED,tied_map);
 
@@ -239,6 +247,7 @@ int tie(string str)
  
   return 1;
  }
+ return 0;
 }
 
 int loesen(string str)

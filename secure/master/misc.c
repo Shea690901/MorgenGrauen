@@ -2,12 +2,17 @@
 //
 // master/misc.c -- Diverses: (T)Banish, Projektverwaltung, Levelaufstieg, ...
 //
-// $Id: misc.c 7407 2010-02-06 00:24:48Z Zesstra $
+// $Id: misc.c 8952 2014-09-23 19:48:50Z Zesstra $
 
-#pragma strict_types
+#pragma strict_types,rtt_checks
+
+#include "/sys/functionlist.h"
+#include "/sys/lpctypes.h"
 
 #include "/secure/master.h"
 #include "/mail/post.h"
+#include "/sys/thing/language.h"
+#include "/sys/thing/description.h"
 
 // Fuer CIDR-Notatio im sbanish
 #include "/secure/master/cidr.c"
@@ -15,6 +20,30 @@
 static mixed *banished;
 static mapping tbanished, sbanished;
 static string *deputies;
+
+// TODO: muss ggf. Fakeobjekt erzeugen+uebergeben, wenn sender kein object
+protected void send_channel_msg(string channel,mixed sendername,string msg)
+{
+  object sender;
+  if (objectp(sendername))
+    sender=sendername;
+  else
+  {
+    // wenn kein Objekt uebergeben, erstmal schauen, ob ein Spielerobject
+    // existiert... Wenn ja, das nehmen.
+    sender = call_sefun("find_player", sendername)
+             || call_sefun("find_netdead", sendername);
+    if (!objectp(sender))
+    {
+      // sonst faken wir eins. *seufz*
+      sender=clone_object("/p/daemon/namefake");
+      sender->SetProp(P_NAME, sendername); 
+      sender->SetProp(P_ARTICLE,0);
+      // Dieses Objekt zerstoert sich nach 3s automatisch.
+    }
+  }
+  CHMASTER->send(channel, sender, msg);
+}
 
 static string *explode_files(string file) {
   string data;
@@ -60,10 +89,10 @@ mixed QueryTBanished(string str) {
     return sprintf("Es gibt schon einen Spieler diesen Namens.\n"
         +"Allerdings kann er/sie erst am %s wieder ins Mud kommen.\n",
           (i == -1 ? "St. Nimmerleinstag" :
-           funcall(symbol_function('dtime/*'*/),i)[0..16]));
+           call_sefun("dtime",i)[0..16]));
 
 // Ansonsten: die Zeit ist abgelaufen, Spieler darf wieder...
-  efun::m_delete(tbanished, str);
+  m_delete(tbanished, str);
   UpdateTBanish();
   return 0;
 }
@@ -128,11 +157,11 @@ varargs void BanishName( string name, string reason, int force )
   string *names;
   int i;
 
-  if ( PO != TO && funcall(symbol_function('secure_level)) < LORD_LVL
-           && !IsDeputy( funcall(symbol_function('secure_euid)) ) )
+  if ( PO != TO && call_sefun("secure_level") < LORD_LVL
+           && !IsDeputy( call_sefun("secure_euid") ) )
       return;
 
-  if ( !stringp(name) || !strlen(name) )
+  if ( !stringp(name) || !sizeof(name) )
       return;
 
   name = lower_case(name);
@@ -204,7 +233,7 @@ int TBanishName(string name, int days)
   int t;
 
   if ( (getuid(TI) != name) &&
-       !IsDeputy( funcall(symbol_function('secure_euid/*'*/)) ) )
+       !IsDeputy( call_sefun("secure_euid") ) )
     return 0;
 
   if (days && QueryTBanished(name)){
@@ -218,7 +247,7 @@ int TBanishName(string name, int days)
   }
 
   if (!days && member(tbanished, name))
-    efun::m_delete(tbanished, name);
+    m_delete(tbanished, name);
   else {
     if (!mappingp(tbanished))
       tbanished = ([]);
@@ -251,7 +280,7 @@ mixed QuerySBanished( string ip )
 
     foreach(site, int tstamp: sbanished) {
         if ( tstamp > 0 && tstamp < time() ) {
-            efun::m_delete( sbanished, site );
+            m_delete( sbanished, site );
             save_me=1;
         }
     }
@@ -288,8 +317,8 @@ mixed SiteBanish( string ip, int days )
     string *s, tmp, euid;
     int t, level;
 
-    euid = funcall(symbol_function('secure_euid/*'*/));
-    level = funcall(symbol_function('secure_level/*'*/));
+    euid = call_sefun("secure_euid");
+    level = call_sefun("secure_level");
 
     // Unter L26 gibt's gar nix.
     if ( level <= DOMAINMEMBER_LVL )
@@ -316,13 +345,13 @@ mixed SiteBanish( string ip, int days )
             if ( sbanished[int_ip, 1] != euid && !IsDeputy(euid) )
                 return -1;
 
-            funcall(symbol_function('log_file/*'*/), "ARCH/SBANISH",
+            call_sefun("log_file", "ARCH/SBANISH",
                     sprintf( "%s: %s hebt die Sperrung der Adresse %s von %s "
                              + "auf.\n", 
                              ctime(time()), capitalize(euid), ip,
                              capitalize(sbanished[int_ip, 1]) ) );
 
-            efun::m_delete( sbanished, int_ip );
+            m_delete( sbanished, int_ip );
         }
         else
             return 0;
@@ -358,10 +387,10 @@ mixed SiteBanish( string ip, int days )
             t = -1;
         else
             t = (time() / 86400) * 86400 + days * 86400;
-        
+
         m_add(sbanished, int_ip, t, euid);
 
-        funcall(symbol_function('log_file/*'*/), "ARCH/SBANISH",
+        call_sefun("log_file", "ARCH/SBANISH",
                 sprintf( "%s: %s sperrt die Adresse %s %s.\n",
                          ctime(time()), capitalize(euid),
                          ip,
@@ -406,7 +435,7 @@ static int create_home(string owner, int level)
   string *domains;
   int i;
 
-  player = funcall(symbol_function('find_player),owner);
+  player = call_sefun("find_player",owner);
   if (!player)
     return -5;
   domains=get_domain_homes(owner);
@@ -449,7 +478,7 @@ static int create_home(string owner, int level)
 // Sendet dem befoerderten Magier eine Hilfemail zu.
 protected void SendWizardHelpMail(string name, int level) {
   
-  object pl=funcall(symbol_function('find_player),name);
+  object pl=call_sefun("find_player",name);
   if (!objectp(pl)) return;
 
   string file=sprintf("%sinfo_ml%d", WIZ_HELP_MAIL_DIR, level);
@@ -458,11 +487,11 @@ protected void SendWizardHelpMail(string name, int level) {
     return;
 
   string subject = read_file(file,1,1);
-  string text = funcall(symbol_function('replace_personal),
+  string text = call_sefun("replace_personal",
                          read_file(file,2), ({pl}));
-  
+
   mixed mail = ({"Merlin", "<Master>", name, 0, 0, subject,
-                 funcall(symbol_function('dtime),time()), 
+                 call_sefun("dtime",time()),
                  MUDNAME+time(), text });
   MAILDEMON->DeliverMail(mail, 0);
 }
@@ -540,10 +569,10 @@ int renew_player_object(mixed who)
 
   if (stringp(who))
   {
-    who=funcall(symbol_function('find_player),who);//'))
+    who=call_sefun("find_player",who);
     if (!who)
     {
-      who=funcall(symbol_function('find_netdead),who);//'))
+      who=call_sefun("find_netdead",who);
       if (!who)
         return -1;
     }
@@ -552,6 +581,11 @@ int renew_player_object(mixed who)
     return -2;
   if (!query_once_interactive(who))
     return -3;
+  if (who->QueryGuest())
+  {
+    printf("Can't renew guests!\n");
+    return -6;
+  }
   active=interactive(who);
   printf("OK, renewing %O\n",who);
   seteuid(geteuid(who));
@@ -573,19 +607,26 @@ int renew_player_object(mixed who)
   disable_commands();
   armours=(object *)who->QueryProp(P_ARMOURS);
   weapon=(object)who->QueryProp(P_WEAPON);
+
   if ( previous_object() && object_name(previous_object()) == "/secure/merlin" )
-      DEBUG_MSG(sprintf("RENEWING: %O %O\n",newob,who),previous_object());
+      send_channel_msg("Debug",
+                       previous_object(),
+                       sprintf("RENEWING: %O %O\n",newob,who));
   else
-      DEBUG2_MSG(sprintf("RENEWING: %O %O\n",newob,who),previous_object());
+      send_channel_msg("Entwicklung",
+                       previous_object(),
+                       sprintf("RENEWING: %O %O\n",newob,who));
+
   ob_name=explode(object_name(newob),"#")[0];
-  if (strlen(ob_name)>11 && ob_name[0..11]=="/std/shells/")
+  if (sizeof(ob_name)>11 && ob_name[0..11]=="/std/shells/")
     ob_name=ob_name[11..];
   ob_name=ob_name+":"+getuid((object)who);
   if (active)
     exec(newob,who);
   if (active && (interactive(who)||!interactive(newob)))
   {
-    DEBUG_MSG("ERROR: still active !\n",previous_object());
+    send_channel_msg("Debug",previous_object(),
+                     "ERROR: still active !\n");
     newob->remove();
     return 0;
   }
@@ -669,23 +710,26 @@ mixed __query_variable(object ob, string var)
   if (!PO || !IS_ARCH(geteuid(PO)) || !this_interactive() ||
       !IS_ARCH(this_interactive()) || getuid(ob)==ROOTID )
   {
-    write("ILLEGAL\n");
-    return;
+    write("Du bist kein EM oder Gott!\n");
+    return 0;
   }
   if (query_once_interactive(ob) && (PO!=ob) &&
      (var=="history" || var=="hist2"))
-     CHMASTER->send("Snoop", previous_object(), sprintf("%s -> %s (history).",
-                    capitalize(getuid(PO)),capitalize(getuid(ob))));
+     send_channel_msg("Snoop", previous_object(),
+                      sprintf("%s -> %s (history).",
+                        capitalize(getuid(PO)),capitalize(getuid(ob))));
 
-  funcall(symbol_function('log_file/*'*/), "ARCH/QV",
+  call_sefun("log_file", "ARCH/QV",
                           sprintf("%s: %O inquires var %s in %O\n",
                                   ctime(time()),this_interactive(),var,ob) );
-  return
-    funcall(bind_lambda(
-                        unbound_lambda(
-                                       ({}),
-                                       ({#'funcall,({#'symbol_variable,var})})),
-                        ob));
+  mixed res = variable_list(ob, RETURN_FUNCTION_NAME|RETURN_FUNCTION_FLAGS|
+                                RETURN_FUNCTION_TYPE|RETURN_VARIABLE_VALUE);
+  int index = member(res,var);
+  if (index > -1)
+  {
+    return ({res[index],res[index+1],res[index+2],res[index+3]});
+  }
+  return 0;
 }
 
 void RestartBeats()

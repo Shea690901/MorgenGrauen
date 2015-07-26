@@ -2,7 +2,7 @@
 //
 // room/doors.c -- new doors, managed by doormaster
 //
-// $Id: doors.c 6571 2007-10-21 14:41:10Z Zesstra $
+// $Id: doors.c 9134 2015-02-02 19:26:03Z Zesstra $
 
 #pragma strong_types
 #pragma save_types
@@ -10,23 +10,22 @@
 #pragma range_check
 #pragma no_clone
 
-#define NEED_PROTOTYPES
-
 #include <config.h>
-#include <thing/properties.h>
 #include <properties.h>
-#include <language.h>
 #include <defines.h>
+#include <language.h>
 #include <doorroom.h>
-
-// external prototypes
-varargs void AddCmd(mixed cmd, mixed func, mixed flag, mixed cmdid);
-void AddExit(mixed cmd, mixed room);
-void AddSpecialExit(mixed cmd, mixed functionname);
-void RemoveSpecialExit(mixed cmd);
+#define NEED_PROTOTYPES
+#include <thing/properties.h>
+#include <room/exits.h>
 
 protected void create()
 {
+  if (object_name(this_object()) == __FILE__[0..<3])
+  {
+    set_next_reset(-1);
+    return;
+  }
   SetProp(P_DOOR_INFOS,0);
 }
 
@@ -34,7 +33,8 @@ protected void create_super() {
   set_next_reset(-1);
 }
 
-varargs int NewDoor(mixed cmds, string dest, mixed ids, mixed props)
+varargs int NewDoor(string|string* cmds, string dest, string|string* ids,
+                    mapping|<int|string|string*>* props)
 {
 /*
   cmds: Befehl(e), um durch die Tuer zu gehen (String oder Array von Strings)
@@ -150,6 +150,7 @@ int set_doors(string *cmds,int open)
     RemoveSpecialExit(cmds);
   for (j=sizeof(cmds)-1;j>=0;j--)
     add_action("go_door",cmds[j]);
+  return 1;
 }
 
 /* Fuer Tueren, die flexible Langbeschreibungen haben, wird ein 

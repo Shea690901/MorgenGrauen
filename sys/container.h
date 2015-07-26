@@ -2,7 +2,7 @@
 //
 // container.h -- Properties und Definitionen fuer Behaelter
 //
-// $Id: container.h 6930 2008-08-09 09:20:16Z Zesstra $
+// $Id: container.h 9020 2015-01-10 21:49:41Z Zesstra $
 
 #ifndef __CONTAINER_H__
 #define __CONTAINER_H__
@@ -61,8 +61,8 @@ static int _query_last_content_change();
 
 int MayAddWeight(int w);
 int MayAddObject(object ob);
-varargs int PreventInsert(object ob);
-varargs int PreventLeave(object ob, mixed dest);
+public int PreventInsert(object ob);
+public int PreventLeave(object ob, mixed dest);
 object *present_objects(string complex_desc);
 object *locate_objects(string complex_desc,int info);
 

@@ -29,10 +29,10 @@ void create()
   SetProp(P_LONG, 
      "Ein Tool zum Eintragen von Raumen in den Potionmaster.\n"+
      "Folgende Befehle gibt es:\n"+
-     "ptadd <nummer>    Addiert den ZT im Raum in Liste <nummer>\n"+
+     "ptadd <liste>     Addiert den ZT im Raum in Liste <liste>\n"+
      "                  und aktiviert ihn gleichzeitig.\n"+
-     "ptset <nummer>    Aktiviert den ZT im Raum und setzt ihn in\n"+
-     "                  die Liste <nummer>.\n"+
+     "ptset <liste>     Aktiviert den ZT im Raum und setzt ihn in\n"+
+     "                  die Liste <liste>.\n"+
      "ptchange <nummer> Ersetzt den ZT <nummer> durch den ZT im Raum.\n"+
      "ptact             Aktiviert einen deaktivierten ZT in seiner\n"+
      "                  bisherigen Liste.\n"+
@@ -72,7 +72,7 @@ int add(string number)
   if (!intp(nr))
   { printf("Fehler: -4\n"); return -4; }
   room = object_name(environment(environment(this_object())));
-  next = "/secure/potionmaster"->AddPotionroom(room);
+  next = "/secure/potionmaster"->AddPotionRoom(room,number);
   if (next>0)
     printf("Raum in Gesamtliste eingetragen, Nummer: %d\n", next-1);
   else
@@ -80,7 +80,8 @@ int add(string number)
     printf("Raum konnte nicht eingetragen werden, Ergebnis: %d\n", next);
     return 1;
   }
-  active = "/secure/potionmaster"->SetListNr(room, nr);
+  // Nicht mehr noetig, Arathorn, 2013-Mai-30
+  //active = "/secure/potionmaster"->SetListNr(room, nr);
   if (active>=0)
   {
     printf("Raum aktiviert in Liste %d\n", nr);
@@ -202,81 +203,81 @@ int info(string para)
       room = environment(environment(this_object()));
       info = "/secure/potionmaster"->HasPotion(room);
       if (info>=0)
-	{
-	  printf("Raum hat ZT mit Nr:  %d\n\n",info);
-	  nr = "/secure/potionmaster"->GetListByNumber(info);
-	  if (nr>=0)
-	    printf("ZT aktiv in Liste:   %d\n\n",nr);
-	  else
-	    {
-	      nr = "/secure/potionmaster"->GetInactListByNumber(info);
-	      if (nr>=0)
-		printf("ZT INaktiv in Liste: %d\n\n",nr);
-	      else
-		printf("ZT INaktiv\n\n");
-	    }
-	  if (info>=0 && s=read_file("/secure/ARCH/ZT/"+info+".zt"))
-	    {
-	      write("Tip:\n"+s);
-	    }
-	}
+        {
+          printf("Raum hat ZT mit Nr:  %d\n\n",info);
+          nr = "/secure/potionmaster"->GetListByNumber(info);
+          if (nr>=0)
+            printf("ZT aktiv in Liste:   %d\n\n",nr);
+          else
+            {
+              nr = "/secure/potionmaster"->GetInactListByNumber(info);
+              if (nr>=0)
+                printf("ZT INaktiv in Liste: %d\n\n",nr);
+              else
+                printf("ZT INaktiv\n\n");
+            }
+          if (info>=0 && s=read_file("/secure/ARCH/ZT/"+info+".zt"))
+            {
+              write("Tip:\n"+s);
+            }
+        }
       else
-	printf("Raum hat keinen ZT eingetragen.\n");
+        printf("Raum hat keinen ZT eingetragen.\n");
     }
   else
     if (sscanf(para,"%d",info)==1)
       {
-	printf("ZT mit Nummer: %d\n\n",info);
-	m = "/secure/potionmaster"->GetFilenameByNumber(info);
-	if (m!=-1)
-	  {
-	    write("Filename: "+m+"\n\n");
-	    nr = "/secure/potionmaster"->GetListByNumber(info);
-	    if (nr>=0)
-	      printf("ZT aktiv in Liste: %d\n\n",nr);
-	    else
-	      {
-		nr = "/secure/potionmaster"->GetInactListByNumber(info);
-		if (nr>=0)
-		  printf("ZT INaktiv in Liste: %d\n\n",nr);
-		else
-		  printf("ZT INaktiv\n\n");
-	      }
-	    if (info>=0 && s=read_file("/secure/ARCH/ZT/"+info+".zt"))
-	      {
-		write("Tip:\n"+s);
-	      }
-	  }
-	else
-	  write("Kein ZT mit dieser Nummer bekannt.\n");
+        printf("ZT mit Nummer: %d\n\n",info);
+        m = "/secure/potionmaster"->GetFilenameByNumber(info);
+        if (m!=-1)
+          {
+            write("Filename: "+m+"\n\n");
+            nr = "/secure/potionmaster"->GetListByNumber(info);
+            if (nr>=0)
+              printf("ZT aktiv in Liste: %d\n\n",nr);
+            else
+              {
+                nr = "/secure/potionmaster"->GetInactListByNumber(info);
+                if (nr>=0)
+                  printf("ZT INaktiv in Liste: %d\n\n",nr);
+                else
+                  printf("ZT INaktiv\n\n");
+              }
+            if (info>=0 && s=read_file("/secure/ARCH/ZT/"+info+".zt"))
+              {
+                write("Tip:\n"+s);
+              }
+          }
+        else
+          write("Kein ZT mit dieser Nummer bekannt.\n");
       }
     else
       {
-	write("Spieler "+capitalize(para)+"\n\n");
-	if (o=find_player(para))
-	  {
-	    potions=sort_array(o->QueryProp(P_POTIONROOMS),#'>);
-	    if (sizeof(potions))
-	      {
-		s="";
-		for (nr=0;nr<sizeof(potions);nr++)
-		  s+=potions[nr]+", ";
-		write("Potionrooms:\n"+break_string(s[0..<3],78)+"\n");
-	      }
-	    else write("Spieler hat keine weiteren Potionrooms.\n");
-	    potions=sort_array(o->QueryProp(P_KNOWN_POTIONROOMS),#'>);
-	    if (sizeof(potions))
-	      {
-		s="";
-		for (nr=0;nr<sizeof(potions);nr++)
-		  s+=potions[nr]+", ";
-		write("Bekannte Potionrooms:\n"+
-		      break_string(s[0..<3],78));
-	      }
-	    else write("Spieler hat keine bekannten Potionrooms.\n");
-	  }
-	else
-	  write("Kein Spieler mit diesem Namen anwesend.\n");
+        write("Spieler "+capitalize(para)+"\n\n");
+        if (o=find_player(para))
+          {
+            potions=sort_array(o->QueryProp(P_POTIONROOMS),#'>);
+            if (sizeof(potions))
+              {
+                s="";
+                for (nr=0;nr<sizeof(potions);nr++)
+                  s+=potions[nr]+", ";
+                write("Potionrooms:\n"+break_string(s[0..<3],78)+"\n");
+              }
+            else write("Spieler hat keine weiteren Potionrooms.\n");
+            potions=sort_array(o->QueryProp(P_KNOWN_POTIONROOMS),#'>);
+            if (sizeof(potions))
+              {
+                s="";
+                for (nr=0;nr<sizeof(potions);nr++)
+                  s+=potions[nr]+", ";
+                write("Bekannte Potionrooms:\n"+
+                      break_string(s[0..<3],78));
+              }
+            else write("Spieler hat keine bekannten Potionrooms.\n");
+          }
+        else
+          write("Kein Spieler mit diesem Namen anwesend.\n");
       }
   return 1;
 }

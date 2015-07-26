@@ -2,7 +2,7 @@
 //
 // util/pager.c -- generic pager
 //
-// $Id: pager.c 6371 2007-07-17 22:46:50Z Zesstra $
+// $Id: pager.c 8755 2014-04-26 13:13:40Z Zesstra $
 
 #pragma strong_types
 #pragma save_types
@@ -33,7 +33,7 @@ string fread(mixed pinfo, int begin, int c)
     {
       start = pinfo[JUNK][begin];
       if(!(end = pinfo[JUNK][begin+c]))
-        end = strlen(pinfo[TEXT]);
+        end = sizeof(pinfo[TEXT]);
       else end--;
       return pinfo[TEXT][start..end];
     }
@@ -59,7 +59,7 @@ varargs int eval_command(mixed in, mixed pinfo)
     return 1;
   }
   else
-    if(!in || (stringp(in) && !strlen(in))) pinfo[CURL] += pinfo[PAGE];
+    if(!in || (stringp(in) && !sizeof(in))) pinfo[CURL] += pinfo[PAGE];
     else if(in != -1) return 0;
 
   if(pinfo[CURL] >= pinfo[MAXL]) 

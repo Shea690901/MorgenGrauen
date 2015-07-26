@@ -2,7 +2,7 @@
 //
 // player/potion.h -- potion services
 //
-// $Id: potion.h 4457 2006-09-23 10:13:58Z root $
+// $Id: potion.h 9117 2015-01-25 11:25:14Z Zesstra $
 
 #ifndef __PLAYER_POTION_H__
 #define __PLAYER_POTION_H__
@@ -11,8 +11,9 @@
 
 #define P_POTIONROOMS         "potionrooms"
 #define P_KNOWN_POTIONROOMS   "known_potionrooms"
-#define P_HEALPOTIONS         "healpotions"
 #define P_TRANK_FINDEN        "trank_finden"
+
+// veraltete Props, lang unbenutzt.
 #define P_VISITED_POTIONROOMS "visited_potionrooms"
 #define P_BONUS_POTIONS       "bonus_potions"
 

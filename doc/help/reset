@@ -21,10 +21,7 @@ Reset
     Questgegenstand erlangbar ist.
 
     Normalerweise ist die Zeit zwischen zwei Resets 30+random(30) Minuten.
-    Allerdings veraendern Magier diese Werte gern mal. Die minimale Zeit
-    zwischen zwei Resets WAR 5 Minuten.
-    Mit LD-MUD als Driver (2007) ist diese lange Taktzeit und
-    Synchronisierungszeit zwischen den reset verschwunden. Sorry :)
+    Allerdings veraendern Magier diese Werte gern mal.
 
  BEMERKUNGEN:
     Beruehmt-beruechtigt ist der sogenannte Boing-Reset:
@@ -38,4 +35,5 @@ Reset
  SIEHE AUCH:
     abk, reboot, abenteuer
 
-13.Okt 2007 Gloinson
+21.10.2014, Zesstra
+

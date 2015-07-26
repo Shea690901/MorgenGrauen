@@ -21,10 +21,10 @@
 
 #include <daemon/mand.h>
 
-private static mapping pages;
-private static string *keys;
-private static mapping pages_case;
-private static string *keys_case;
+private nosave mapping pages;
+private nosave string *keys;
+private nosave mapping pages_case;
+private nosave string *keys_case;
 
 static string glob2regexp(string str)
 {

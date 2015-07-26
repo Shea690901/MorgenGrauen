@@ -1,5 +1,5 @@
 EVENT: 
-   EVT_LIB_ADVANCE
+   EVT_LIB_PLAYER_ATTR_CHANGE
 
 DEFINIERT IN:
    /sys/events.h

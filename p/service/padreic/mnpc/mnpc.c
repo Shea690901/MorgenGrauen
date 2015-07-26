@@ -7,7 +7,7 @@
 
 #include "/p/service/padreic/mnpc/mnpc.h"
 
-inherit "std/npc";
+inherit "/std/npc";
 inherit MNPC_MOVING;
 
 void create()
@@ -30,17 +30,16 @@ void init()
 
 int InsertEnemy(object enemy)
 {
-   int i;
-   i=(int)npc::InsertEnemy(enemy);
+   int i = npc::InsertEnemy(enemy);
    if (!i) return 0;
    moving::mnpc_InsertEnemy(enemy);
    return i;
 }
 
-varargs int move(mixed dest, int meth, string dir, string out, string in)
+varargs int move(object|string dest, int meth, string dir, string out,
+  string in)
 {
-   int i;
-   i=(int)npc::move(dest, meth, dir, out, in);
+   int i=npc::move(dest, meth, dir, out, in);
    if (i!=1) return i;
    moving::mnpc_move();
    return 1;

@@ -45,46 +45,46 @@ nomask protected int CheckPlayerAttack(object attacker, object victim,
     arena=CheckArenaFight(attacker);
 
     wizshout = sprintf("\n**** %s greift %s an. (%s) ***\n",
-	RNAME(attacker), RNAME(victim), object_name(ME));
+        RNAME(attacker), RNAME(victim), object_name(ME));
     filemessage = sprintf("\n[%s] %s greift %s an. (%s) %s %s\n",
-	strftime("%d%m%y-%H:%M:%S",time()), RNAME(attacker),
-	RNAME(victim), object_name(this_object()),
-	(arena ? "(ARENA)" : ""),
-	(victim->QueryProp(P_TESTPLAYER) ? "(Testspieler)" : ""));
+        strftime("%d%m%y-%H:%M:%S",time()), RNAME(attacker),
+        RNAME(victim), object_name(this_object()),
+        (arena ? "(ARENA)" : ""),
+        (victim->QueryProp(P_TESTPLAYER) ? "(Testspieler)" : ""));
 
     // Angriffsmsg vom Aufrufer anhaengen.
-    if (stringp(angriffsmsg) && strlen(angriffsmsg)) {
+    if (stringp(angriffsmsg) && sizeof(angriffsmsg)) {
       wizshout += angriffsmsg;
       filemessage += angriffsmsg;
     }
     // ggf. echten TI anhaengen oder warnen, falls keiner existiert.
     if ( this_interactive() != attacker ) {
         if ( this_interactive() ) {
-	  wizshout += "ACHTUNG: TI = " + getuid(this_interactive())
-	    +"\n";
-	  filemessage += "ACHTUNG: TI = "+getuid(this_interactive())
-	    +"\n";
-	}
+          wizshout += "ACHTUNG: TI = " + getuid(this_interactive())
+            +"\n";
+          filemessage += "ACHTUNG: TI = "+getuid(this_interactive())
+            +"\n";
+        }
         else {
             filemessage += " ACHTUNG: Kein TI vorhanden!\n";
-	    wizshout += " ACHTUNG: Kein TI vorhanden!\n";
+            wizshout += " ACHTUNG: Kein TI vorhanden!\n";
         }
     }
     // caller_stack() mitloggen (aber nicht Magier vollscrollen).
     filemessage += "Callerstack: " + CountUp(map(caller_stack(1),
-	  function string (object po) {return to_string(po);}),
-	", ", ", ") + "\n";
+          function string (object po) {return to_string(po);}),
+        ", ", ", ") + "\n";
     // Commandstack anhaengen
     mixed cstack = command_stack();
     filemessage += "Commandstack: " + CountUp(map(cstack,
-	  function string (mixed arr) {
-	      return sprintf("({Original-TP: %O, TP: %O, Kommando: %s})",
-		arr[CMD_ORIGIN],arr[CMD_PLAYER],arr[CMD_TEXT] || "");
-	  },", ",", ")) + "\n";
+          function string (mixed arr) {
+              return sprintf("({Original-TP: %O, TP: %O, Kommando: %s})",
+                arr[CMD_ORIGIN],arr[CMD_PLAYER],arr[CMD_TEXT] || "");
+          },", ",", ")) + "\n";
     // fuer Magier originaeren Befehl anhaengen:
     if (sizeof(cstack))
       wizshout += sprintf("Kommando: %s\n",
-	  cstack[0][CMD_TEXT] || "<unbekannt>");
+          cstack[0][CMD_TEXT] || "<unbekannt>");
 
     wizshout += "\n";
 

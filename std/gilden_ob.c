@@ -2,7 +2,7 @@
 //
 // gilden_ob.c -- Basisfunktionen einer Gilde
 //
-// $Id: gilden_ob.c 6380 2007-07-20 22:32:38Z Zesstra $
+// $Id: gilden_ob.c 8433 2013-02-24 13:47:59Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma no_shadow
@@ -14,6 +14,9 @@ inherit "/std/restriction_checker";
 #include <properties.h>
 #include <attributes.h>
 #include <new_skills.h>
+#include <defines.h>
+#include <player/fao.h>
+#include <wizlevels.h>
 
 void create() {
     // P_GUILD_SKILLS sollte nicht direkt von aussen manipuliert werden...
@@ -24,6 +27,8 @@ void create() {
 mapping _query_guild_skills() {
     // eine Kopie zurueckliefern, um versehentliche Aenderungen des
     // Originalmappings in der Gilde zu vermeiden.
+    // Darf nicht ohne weiteres entfernt werden, da es hier im File Code gibt,
+    // der sich auf die Kopie verlaesst.
     return(deep_copy(Query(P_GUILD_SKILLS)));
 }
 
@@ -83,9 +88,11 @@ void adjust_title(object pl) {
     return;
   switch((int)pl->QueryProp(P_GENDER)) {
   case MALE:
-    ti=QueryProp(P_GUILD_MALE_TITLES);break;
+    ti=QueryProp(P_GUILD_MALE_TITLES);
+    break;
   case FEMALE:
-    ti=QueryProp(P_GUILD_FEMALE_TITLES);break;
+    ti=QueryProp(P_GUILD_FEMALE_TITLES);
+    break;
   default:
     return;
   }
@@ -93,6 +100,10 @@ void adjust_title(object pl) {
     ti=ti[lv];
   if (stringp(ti))
     pl->SetProp(P_GUILD_TITLE,ti);
+  
+  // Spielertitel nullen, damit der Gildentitel angezeigt wird.
+  if (!IS_SEER(pl) && !FAO_HAS_TITLE_GIFT(pl))
+      pl->SetProp(P_TITLE,0);
 }
 
 void do_advance() {
@@ -263,38 +274,78 @@ InitialSkillAbility(mapping ski, object pl) {
 
 int
 SkillListe(int what) {
-  mapping skills;
-  string *ind,*info,*info2,s,sp;
-  int i,res;
-  
-  if (!mappingp(skills=QueryProp(P_GUILD_SKILLS))) return 0;
-  if (!sizeof(ind=m_indices(skills))) return 0;
-  info=({});info2=({});
-  for (i=sizeof(ind)-1;i>=0;i--) {
-    if (stringp(s=skills[sp=ind[i]][SI_SKILLINFO]))
-      s=sprintf("%-20s (%s)",sp,s);
-    else
-      s=sp;
-    if (capitalize(ind[i][0..0])!=ind[i][0..0])
-      // Spells werden klein geschrieben, Skills gross
-      info+=({s});
-    else
-      info2+=({s});
+  int res;
+  // Querymethode erstellt Kopie (wichtig!)
+  mapping allskills=QueryProp(P_GUILD_SKILLS);
+  string *skills=({});
+  string *spells=({});
+
+  if (!mappingp(allskills) || !sizeof(allskills))
+    return 0;
+
+  foreach(string s, mapping sdata: &allskills) {
+    // Lernlevel ermitteln und speichern.
+    mapping tmp=QuerySpell(s);
+    // wenn nix gefunden, dann ist es ein Skill, sonst ein Spell.
+    if (tmp) {
+      spells += ({s});
+      // das Spellbook hat im Zweifel das SI_SKILLINFO
+      sdata[SI_SKILLINFO] = tmp[SI_SKILLINFO];
+    }
+    else {
+      // SI_SKILLINFO steht in diesem Fall schon in sdata...
+      tmp = QuerySkill(s);
+      skills += ({s});
+    }
+    // gucken, obs nen Lernlevel gibt und einfach in sdata schreiben
+    if ( (tmp=tmp[SI_SKILLRESTR_LEARN]) )
+      sdata["_restr_level"] = tmp[P_LEVEL];
   }
-  info=sort_array(info,#'>);info2=sort_array(info2,#'>);
-  res=0;
-  if ((what & 0x01) && (i=sizeof(info))) {
-    write("Du kannst versuchen, folgende Zaubersprueche zu lernen:\n");
-    for (--i;i>=0;i--)
-      printf("   %s\n",capitalize(info[i]));
-    res=1;
+
+  // jetzt sortieren.
+  closure cl = function int (string a, string b)
+    { return allskills[a]["_restr_level"] > allskills[b]["_restr_level"]; };
+  if (what & 0x01)
+    spells = sort_array(spells, cl);
+  if (what & 0x02)
+    skills = sort_array(skills, cl);
+
+  // und ausgeben
+  cl = function void (string *list)
+    {
+      string tmp="";
+      int lvl;
+      foreach(string sp: list) {
+        lvl = allskills[sp]["_restr_level"];
+        if (lvl>0)
+          tmp += sprintf("%-20s %d\n",sp,lvl);
+        else
+          tmp += sprintf("%-20s\n",sp);
+        if (allskills[sp][SI_SKILLINFO])
+          tmp += break_string(allskills[sp][SI_SKILLINFO], 78,
+                              "    ");
+      }
+      tell_object(PL, tmp);
+    };
+
+  if ((what & 0x01) && sizeof(spells)) {
+    res = 1;
+    tell_object(PL,sprintf(
+        "Du kannst versuchen, folgende Zaubersprueche zu lernen:\n"
+        "%-20s %-3s\n","Zauberspruch","Spielerstufe"));
+    funcall(cl, spells);
+    tell_object(PL,break_string(
+       "Du kannst einen Zauberspruch mit dem Kommando \"lerne\", gefolgt "
+       "vom Zauberspruchnamen lernen.",78));
   }
-  if ((what & 0x02) && (i=sizeof(info2))) {
-    write("Du kannst versuchen, folgende Faehigkeiten zu erwerben:\n");
-    for (--i;i>=0;i--)
-      printf("   %s\n",capitalize(info2[i]));
-    res=1;
+  if ((what & 0x02) && sizeof(skills)) {
+    res = 1;
+    tell_object(PL,sprintf(
+        "Du kannst versuchen, folgende Faehigkeiten zu erwerben:\n"
+        "%-20s %-3s\n","Faehigkeit","Spielerstufe"));
+    funcall(cl, skills);
   }
+
   return res;
 }
 

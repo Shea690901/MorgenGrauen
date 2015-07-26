@@ -39,7 +39,7 @@ inherit "std/more";
 
 #pragma strong_types
 
-private static void Load_NumKey();
+private void Load_NumKey();
 int  Add_Quest	     ( string str );
 void ReadNewQuest    ( string str );
 int  Remove_Quest    ( string str );
@@ -152,7 +152,7 @@ static void do_remove()
   call_out("remove",1);
 }
 
-private static void Load_NumKey()
+private void Load_NumKey()
 {
   string *keys;
   int i;
@@ -194,7 +194,7 @@ void ReadNewQuest (string str)
   switch ( counter )
   {
     case QNAME:
-      if((!str||!strlen(str)) && do_change)
+      if((!str||!sizeof(str)) && do_change)
 	name = savekey;
       else
 	name = str;
@@ -204,7 +204,7 @@ void ReadNewQuest (string str)
       input_to ( "ReadNewQuest" );
       break;
     case QP:
-      if((!str||!strlen(str)))
+      if((!str||!sizeof(str)))
 	if(do_change)
 	  qp = (int) savequest[Q_QP];
 	else
@@ -217,7 +217,7 @@ void ReadNewQuest (string str)
       input_to ( "ReadNewQuest" );
       break;
     case XP: 
-      if((!str||!strlen(str)))
+      if((!str||!sizeof(str)))
 	if(do_change)
 	  xp = (int) savequest[Q_XP];
 	else
@@ -231,7 +231,7 @@ void ReadNewQuest (string str)
       input_to ( "ReadNewQuest" );
       break;
     case ALLOW:
-      if((!str||!strlen(str)) && do_change)
+      if((!str||!sizeof(str)) && do_change)
 	allowed = (string *) savequest[Q_ALLOWED];
       else
 	allowed = old_explode(implode(old_explode(str,".c"),""),",");
@@ -243,7 +243,7 @@ void ReadNewQuest (string str)
       input_to ( "ReadNewQuest" );
       break;
     case INFO:
-      if((!str||!strlen(str)) && do_change)
+      if((!str||!sizeof(str)) && do_change)
 	info = (string) savequest[Q_HINT];
       else
 	info = str;
@@ -253,7 +253,7 @@ void ReadNewQuest (string str)
       input_to ( "ReadNewQuest" );
       break;
     case LEVEL:
-      if((!str||!strlen(str)))
+      if((!str||!sizeof(str)))
 	if(do_change)
 	  level = (int) savequest[Q_DIFF];
 	else
@@ -265,7 +265,7 @@ void ReadNewQuest (string str)
       input_to ( "ReadNewQuest" );
       break;
     case CLASS:
-      if((!str||!strlen(str)))
+      if((!str||!sizeof(str)))
 	if(do_change)
 	  need = (int) savequest[Q_CLASS];
 	else
@@ -278,7 +278,7 @@ void ReadNewQuest (string str)
       input_to ( "ReadNewQuest" );
       break;
     case ATTR:
-      if ((!str||!strlen(str)))
+      if ((!str||!sizeof(str)))
 	if (do_change)
 	  group = (int) savequest[Q_ATTR];
 	else
@@ -291,7 +291,7 @@ void ReadNewQuest (string str)
       input_to ( "ReadNewQuest" );
     break;	
     case WIZ:
-      if((!str||!strlen(str)) && do_change)
+      if((!str||!sizeof(str)) && do_change)
 	wizard = (string) savequest[Q_WIZ];
       else
 	wizard = str;
@@ -302,7 +302,7 @@ void ReadNewQuest (string str)
       input_to ( "ReadNewQuest" );
       break;
     case SCNDWIZ:
-      if ((!str||!strlen(str)) && do_change)
+      if ((!str||!sizeof(str)) && do_change)
 	scndwizard = (string) savequest[Q_SCNDWIZ];
       else
 	scndwizard = str;
@@ -318,7 +318,7 @@ void ReadNewQuest (string str)
 	return;
 
       active = 0;
-      if ( do_change && changekey && strlen(changekey) )
+      if ( do_change && changekey && sizeof(changekey) )
       {
 	oldquest = (mixed *) QM->QueryQuest ( changekey );
 
@@ -353,7 +353,7 @@ void ReadNewQuest (string str)
       switch ( errstat )
       {
 	case  0: write ( "Zugriff verweigert.\n" ); break;
-	case -1: write ( "Key ungueltig oder strlen(key) < 5.\n" ); break;
+	case -1: write ( "Key ungueltig oder sizeof(key) < 5.\n" ); break;
 	case -2: write ( "QP ungueltig oder < 1.\n" ); break;
 	case -3: write ( "XP ungueltig.\n" ); break;
 	case -4: write ( "Filename(n) ungueltig.\n" ); break;
@@ -464,7 +464,7 @@ int Restore_Quest ( string str )
 {
   int errstat;
 
-  if ( !savekey || !strlen(savekey) )
+  if ( !savekey || !sizeof(savekey) )
   {
     write ( "\nTut mir leid!\n" );
     write ( "Nichts zum Restaurieren gefunden ...\n" );
@@ -481,7 +481,7 @@ int Restore_Quest ( string str )
   switch ( errstat )
   {
     case  0: write ( "Zugriff verweigert.\n" ); break;
-    case -1: write ( "Key ungueltig oder strlen(key) < 5.\n" ); break;
+    case -1: write ( "Key ungueltig oder sizeof(key) < 5.\n" ); break;
     case -2: write ( "QP ungueltig oder < 1.\n" ); break;
     case -3: write ( "XP ungueltig.\n" ); break;
     case -4: write ( "Filename(n) ungueltig.\n" ); break;
@@ -622,13 +622,15 @@ int Query_Quest ( string str )
     write (" (deaktiviert)\n");
   write ( "Punkte           : "+quest[Q_QP]+"\n" );
   write ( "Erfahrung        : "+quest[Q_XP]+"\n" );
-  write ( break_string ( implode( quest[Q_ALLOWED], " " ), 78, "Filenamen	 : " ) );
-  write ( break_string ( quest[Q_HINT], 78, "Info		 : " ) );
+  write ( break_string ( implode( quest[Q_ALLOWED], " " ), 65, "Filenamen	 : " ) );
+  write ( break_string ( quest[Q_HINT], 65, "Info             : " ) );
   write ( "Stufe            : "+quest[Q_DIFF]+"\n" );
+  printf("Stufe (avg)      : %.2f (%d)\n", quest[Q_AVERAGE][0], 
+        quest[Q_AVERAGE][1]);
   write ( "Klasse           : "+ QCLASS_STARS(quest[Q_CLASS])+"\n");
   write ( "Attribute        : "+ QATTR_STRINGS[quest[Q_ATTR]]+"\n");
-  write ( "Magier           : "+capitalize(quest[7])+"\n" );
-  write ( "Wartender Magier : "+capitalize(quest[8])+"\n");
+  write ( "Magier           : "+capitalize(quest[Q_WIZ])+"\n" );
+  write ( "Wartender Magier : "+capitalize(quest[Q_SCNDWIZ])+"\n");
   return 1;
 }
 

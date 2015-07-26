@@ -124,7 +124,7 @@ nomask void create()
 
 varargs nomask void init(int x)
 {
-  lisp::init();
+  lisp::init(x);
 #if (defined(TUBMUD) || defined(UNItopia))
 # ifndef TUBMUD
     item::init();

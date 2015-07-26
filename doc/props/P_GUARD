@@ -23,8 +23,6 @@ BEMERKUNGEN:
      - bei der Erzeugung von NPCs mit P_GUARD < 100 AddItem() mit dem
        Parameter REFRESH_MOVE_HOME verwenden, damit sie bei einem Raumreset
        gegebenenfalls an ihren Ausgangsort zurueckkehren. 
-     - in Zukunft sollen zwei Methoden SetGuardProtection() und
-       QueryGuardProtection() erweiterte Abfragemoeglichkeit eroeffnen
      - gildenspezifische weitere Abfragen auf Level oAe bitte bei Gilden-
        magiern erfragen
 

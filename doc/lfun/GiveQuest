@@ -24,9 +24,11 @@ RUeCKGABEWERT:
         -4 : Quest zur Zeit inaktiv                 (GQ_IS_INACTIVE)
 
 BESCHREIBUNG:
-	Mit dieser Funktion wird nach dem erfolgreichen Loesen einer 
+        Mit dieser Funktion wird nach dem erfolgreichen Loesen einer 
         Quest die Quest im Spieler eingetragen. Dabei muss der Aufruf 
         in dem Objekt erfolgen, welches im Questmaster eingetragen ist.
+        Zusaetzlich wird der Zeitpunkt eingetragen, an dem die Quest
+        bestanden wurde.
         
         Wer sich da nicht sicher ist, kann mit dem Questtool 
         (/obj/tools/questtool) nachsehen. 
@@ -55,7 +57,7 @@ BEISPIEL:
 
 SIEHE AUCH:
         /secure/questmaster.h, /obj/tools/questtool
-        QueryQuest, write_file
+        QueryQuest(), write_file(), ModifyQuestTime()
 
 ----------------------------------------------------------------------------
-Zuletzt geaendert: Mon, 17. Jul 2000, 12:16:41 von Zook.
+Zuletzt geaendert: Son, 27. Apr 2014, Arathorn

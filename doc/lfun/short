@@ -1,6 +1,6 @@
 short()
 FUNKTION:
-     string short();
+     public varargs string short();
 
 DEFINIERT IN:
      /std/thing/description.c
@@ -27,4 +27,5 @@ SIEHE AUCH:
      Sonstiges:		make_invlist()
 
 ----------------------------------------------------------------------------
-Last modified: Sun May 19 15:55:32 1996 by Wargon
+20.01.2015, Zesstra
+

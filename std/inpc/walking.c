@@ -2,7 +2,7 @@
 //
 // inpc/walking.c -- Intelligent herumlaufen
 //
-// $Id: walking.c 6693 2008-01-17 20:12:17Z Zesstra $
+// $Id: walking.c 8755 2014-04-26 13:13:40Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -52,7 +52,7 @@ int area_check(string fn) {
   }
   if (pointerp(area)) {
     for (i=sizeof(area)-1;i>=0;i--)
-      if (fn[0..(strlen(area[i])-1)]==area[i])
+      if (fn[0..(sizeof(area[i])-1)]==area[i])
 	return 1; // Erlaubtes Gebiet
     return 0; // Nicht erlaubtes Gebiet
   }

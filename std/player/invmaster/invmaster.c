@@ -2,11 +2,12 @@
 // A small master that provides a graphical display of the player´s
 // equipment. 
 #pragma strong_types
-#pragma save_types
+#pragma save_types,rtt_checks
 #pragma range_check
 #pragma no_clone
 #pragma pedantic
 
+#include <input_to.h>
 #include <properties.h>
 #include <ansi.h>
 #include <combat.h>
@@ -101,7 +102,7 @@ void create()
     pic=([]);
     for (j=sizeof(lines)-1;j>2;j--)
     {
-      for (k=strlen(lines[j])-1;k>=0;k--)
+      for (k=sizeof(lines[j])-1;k>=0;k--)
       {
         if (lines[j][k..k]!="?")
           pic+=([(j-3+indenty)*80+k+indentx:lines[j][k..k];color]);
@@ -121,12 +122,12 @@ void create()
   abbreviate=lambda(({'x}), 
       ({#'?, ({#'>, ({#'member, quote(({"der", "des"})), 'x}), 0}),
         "d.",
-        ({#'?, ({#'>, ({#'strlen, 'x}), 3}), 
+        ({#'?, ({#'>, ({#'sizeof, 'x}), 3}), 
           ({#'?, ({#',, ({#'=, 'a, ({#'allocate, 1}) }),
                         ({#'=, ({#'[, 'a, 0}), 'x }), 
                         ({#'sizeof, ({#'regexp, 'a, "^[a-z].*"}) }) 
                  }), 
-            ({#'+, ({#'extract, 'x, 0, 1}), "."}),
+            ({#'+, ({#'[..], 'x, 0, 1}), "."}),
             'x
           }), 
           'x
@@ -147,7 +148,7 @@ static string ComposeDesc(object item)
                 "^(Ein Paar|Ein|Eine|Der|Die|Das) ","",0);
                 
 // try to shorten the name with the closure
-  if (strlen(text) > 20)
+  if (sizeof(text) > 20)
     return implode(map(explode(text, " "), abbreviate), " ");
   else      
     return text;
@@ -264,7 +265,7 @@ static void AddDescription(mapping pic, string type, object item)
         AddDescription(pic, AT_SHIELD, item);break;
     default: return;
   }
-  for (i=0;i<strlen(text);i++)
+  for (i=0;i<sizeof(text);i++)
     pic+=([(80*indenty+indentx+i):text[i..i];2]);
 }
 
@@ -358,8 +359,7 @@ varargs static void ConfigureColors(string text)
       write("Ok, Farbe gewaehlt!\n");
     }
   }
-  write("\nEingabe: ");
-  input_to("ConfigureColors");
+  input_to("ConfigureColors", INPUT_PROMPT, "\nEingabe: ");
 }
 
 
@@ -383,22 +383,24 @@ mapping weapon_names=([
 
 string SimpleInv(object player) {
   object* armours=player->QueryProp(P_ARMOURS);
-  int count=sizeof(armour_order),i;
+  int count=sizeof(armour_order);
   string* list=allocate(count);
   string result="Ausruestung\n";
-  object ob;
+  int i;
 
-  for(i=sizeof(armours)-1;i>=0 && objectp(ob=armours[i]);i--) {    
-      int idx=member(armour_order,ob->QueryProp(P_ARMOUR_TYPE));	      
+  foreach(object ob: armours) {
+    if (!objectp(ob)) continue;
+      int idx = member(armour_order, ob->QueryProp(P_ARMOUR_TYPE));	      
       if (idx>=0)
-	  list[idx]=ob->QueryProp(P_SHORT);
+        list[idx]=ob->QueryProp(P_SHORT);
   }
 
-  // AT_MISC weglassen
+  // AT_MISC (letztes Element in list und armour_order) weglassen.
   for (i=0;i<count-1;i++) {
     result+=sprintf("%-20s %-57s\n",armour_order[i],list[i] || "");
   }
-  ob=ob=player->QueryProp(P_WEAPON);
+
+  object ob=ob=player->QueryProp(P_WEAPON);
   if (objectp(ob)) {
     result+=sprintf("%-20s %-57s\n",
 		    (ob->QueryProp(P_NR_HANDS)==1 ? "Einhand-":"Zweihand-")

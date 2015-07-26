@@ -2,7 +2,7 @@
 //
 // health.h -- Heilstaerken und -geschwindigkeiten
 //
-// $Id: health.h 4071 2006-09-23 10:07:29Z root $
+// $Id: health.h 8368 2013-02-12 21:03:07Z Zesstra $
 
 #ifndef _HEALTH_
 #define _HEALTH_
@@ -25,7 +25,6 @@
 #define FOOD_DELAY 9 /* quite slow */
 #define HEAL_DELAY 4 /* quite fast */
 
-#define MAX_POISON 11
 #define POISON_DELAY 4
 #define POISON_MERCY_DELAY 3
 

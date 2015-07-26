@@ -1,7 +1,7 @@
 RemoveId()
 
 FUNKTION:
-     void RemoveId(mixed ids);
+     void RemoveId(string|string* ids);
 
 DEFINIERT IN:
      /std/thing/description.c
@@ -22,4 +22,5 @@ SIEHE AUCH:
      AddId(), RemoveAdjective(), /std/thing/description.c
 
 ----------------------------------------------------------------------------
-Last modified: Wed May 8 10:24:16 1996 by Wargon
+20.01.2015, Zesstra
+

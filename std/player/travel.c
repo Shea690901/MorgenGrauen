@@ -31,14 +31,14 @@
 
 void create(){}
 
-private static string _traveller(string *s)
+private string _traveller(string *s)
 {
   switch (sizeof(s))
   {
     case 1 : return s[0];
     case 2 : return s[0]+" oder "+s[1];
-    default: return efun::implode(s[0..<2],", ")+" oder "+s[<1];
   }
+  return efun::implode(s[0..<2],", ")+" oder "+s[<1];
 }
 
 static int reise(string str)
@@ -185,15 +185,11 @@ static int reise(string str)
     {
       return 0;
     }
-    if (!strlen(nach))
+    if (!sizeof(nach))
     {
       _notify_fail("Syntax: reise mit <transportmittel> nach <zielort>\n"
                    "        reise nach <zielort> mit <transportmittel>\n");
       return 0;
-    }
-    if (sscanf(nach,"%s %s",s1,s2) == 2)
-    {
-      nach = s1;
     }
     if (environment()->id("Transporter"))
     {
@@ -233,7 +229,9 @@ static int reise(string str)
         _notify_fail("Aber da bist Du doch bereits.\n");
         return 0;
       }
-      write("Dorthin kannst Du mit "+map_objects(ship,"name",WEM)+" reisen.\n");
+     write("Dorthin kannst Du mit "+CountUp(map_objects(ship,"name",WEM))
+           +"reisen.\n");
+ 
 
       dstr = filter( filter_objects(ship,"short"), lambda( ({'x}),
              ({ #'==, ({#'environment, 'x}), environment() }) ) );
@@ -296,10 +294,6 @@ static int reise(string str)
     if (environment()->QueryProp(P_NO_TRAVELING))
     {
       return 0;
-    }
-    if (sscanf(nach,"%s %s",s1,s2) == 2)
-    {
-      nach = s1;
     }
     if (environment()->id("Transporter"))
     {

@@ -15,6 +15,8 @@ BESCHREIBUNG:
      sich mit desc ansprechen lassen. In dem Fall, dass "alle(s)"
      angefordert wird, sind das alle sichtbaren Objekte, ansonsten das erste
      Objekt, das sich mit desc ansprechen laesst.
+     Objekte, die P_INVIS gesetzt haben, zaehlen als nicht ansprechbar, im
+     Gegensatz zu solchen Objekten, die keine P_SHORT haben.
 
 RUeCKGABEWERT:
      Ein Array von Objekten mit den geforderten Eigenschaften.
@@ -26,4 +28,5 @@ SIEHE AUCH:
      locate_objects(), /std/container/restrictions.c
 
 ----------------------------------------------------------------------------
-Last modified: Wed May 8 10:21:26 1996 by Wargon
+03.03.2013, Zesstra
+

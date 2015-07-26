@@ -9,54 +9,18 @@
 #pragma no_clone
 #pragma pedantic
 
-#define NEED_PROTOTYPES
-#include <thing/properties.h>
-#undef NEED_PROTOTYPES
+inherit "/std/container/moneyhandler";
 
-#include <properties.h>
-#include <moving.h>
-#include <wizlevels.h>
-#include <money.h>
-
-public int AddMoney( int amount )
-{
-  object ob;
-  int ret;
-
-  if ( !amount )
-    return 1;
-    
-  if ( objectp(ob = find_object("/p/daemon/moneylog"))
-       && amount > 0
-       && query_once_interactive(this_object())
-       && !IS_WIZARD(this_object())
-       && !Query(P_TESTPLAYER) )
-    ob->AddMoney( previous_object(), amount );
-
-  ob = clone_object( "/obj/money" );
-  ob->SetProp( P_AMOUNT, amount );
-
-  ret=ob->move( this_object(), M_PUT|M_MOVE_ALL );
-
-  if (ret!=MOVE_OK) 
-    ob->remove();
- 
-  return ret;
+// Funktionen sollen nur das Programm ersetzen, natuerlich nur in der
+// Blueprint _dieses_ Objektes, nicht in anderen. ;-) BTW: Normalerweise
+// sollte niemand hierdrin create() rufen, der das Ding hier erbt.
+protected void create_super() {
+  if (object_name(this_object()) == __FILE__[..<3])
+    replace_program();
 }
 
-public int QueryMoney()
-{
-  object money;
-  int geld;
-
-  if ( money = present_clone(GELD, this_object()) )
-    geld = money->QueryProp(P_AMOUNT);
-
-  if ( money = present_clone(BOERSE, this_object()) )
-    geld += money->QueryProp(P_AMOUNT);
-
-  if ( money = present_clone(SEHERKARTE, this_object()) )
-    geld += money->QueryProp(P_AMOUNT);
-
-  return geld;
+// wird nicht von erbenden Objekten gerufen. (Wozu auch.)
+protected void create() {
+  create_super();
 }
+

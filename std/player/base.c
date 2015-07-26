@@ -2,7 +2,7 @@
 //
 // player/base.c -- the basic player object
 //
-// $Id: base.c 7529 2010-04-13 09:44:05Z Rumata $
+// $Id: base.c 9188 2015-04-01 11:33:13Z Arathorn $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -10,9 +10,13 @@
 #pragma pedantic
 
 #include <sys_debug.h>
+#include <regexp.h>
+#include <input_to.h>
 #include <logging.h>
 #include <werliste.h>
 #include <time.h>
+#include <errord.h>
+#include <wizlevels.h>
 
 inherit "/std/hook_provider";
 inherit "/std/player/restrictions";
@@ -29,21 +33,25 @@ inherit "/std/player/moving";
 inherit "/std/player/life";
 inherit "/std/player/comm";
 inherit "/std/player/viewcmd";
-inherit "/std/living/moneyhandler";
+inherit "/std/player/moneyhandler";
 inherit "/std/player/command";
 inherit "/std/living/skill_attributes";
+inherit "/std/living/light";
 inherit "/std/player/skills";
 inherit "/std/player/quests";
 inherit "/std/player/potion";
 inherit "/std/player/soul";
 inherit "/std/more";
 inherit "/std/user_filter";
-inherit "/std/player/telnetneg.c";
+inherit "/secure/telnetneg";
 inherit "/std/player/guide";
 inherit "/std/player/reputation";
+inherit "/std/player/protocols/gmcp";
+inherit "/std/living/helpers";
 
 #define NEED_PROTOTYPES
 #include <player/skills.h>
+#include <player/gmcp.h>
 #undef NEED_PROTOTYPES
 #include <player.h>
 #include <properties.h>
@@ -91,11 +99,10 @@ nosave int ndead_currently;
 nosave int ndead_next_check;
 nosave object *hb_obs;
 
-nosave string pray_room;
+private nosave string default_pray_room;
 
 nosave mixed env_ndead_info;
 
-static int _set_level(int i);
 static int _set_invis(int a);
 static string _set_tty(string str);
 static mixed _set_fraternitasdonoarchmagorum(mixed arg);
@@ -113,6 +120,10 @@ varargs int remove(mixed arg);
 mixed RaceDefault(string arg);
 
 /** Setzt Defaultwerte vor dem Laden des Savefiles.
+    Nur die Werte bleiben spaeter uebrig, die NICHT aus dem Savefile geladen
+    werden und diese hier ersetzen.
+    Ausserdem kann man hier nicht mit den Werten aus den Savefiles arbeiten.
+    Hierzu muss man updates_after_restore() verwenden.
 */
 protected void create()
 {
@@ -133,6 +144,7 @@ protected void create()
   command::create();
   properties::create();
   description::create();
+  light::create();
   attributes::create();
   clothing::create();
   combat::create();
@@ -148,7 +160,7 @@ protected void create()
   SetProp(P_LEVEL, -1);
   Set(P_LEVEL, SAVE|SECURED, F_MODE_AS);
   Set(P_GHOST, SAVE, F_MODE_AS);
-  SetProp(P_SCREENSIZE, 20);
+  SetProp(P_SCREENSIZE, -1);
   Set(P_SCREENSIZE, SAVE,F_MODE_AS);
   Set(P_MORE_FLAGS, SAVE, F_MODE_AS);
   SetProp(P_WEIGHT_PERCENT,100);
@@ -165,7 +177,8 @@ protected void create()
   SetProp(P_MAX_FOOD,100);
   SetProp(P_MAX_DRINK,100);
   SetProp(P_MAX_ALCOHOL,100);
-  SetProp(P_MAX_POISON,10);
+  Set( P_WIMPY, 20, F_VALUE);
+
   SetProp(P_HANDS, ({" mit blossen Haenden", 30}));
   Set(P_HANDS, SAVE, F_MODE_AS);
   SetProp(P_MAX_HANDS, 2);
@@ -182,6 +195,7 @@ protected void create()
   Set(P_INVIS, SAVE, F_MODE_AS);
   Set(P_READ_NEWS, SAVE, F_MODE_AS);
   Set(P_START_HOME, SAVE, F_MODE_AS);
+  Set(P_PRAY_ROOM, SAVE, F_MODE_AS);
   Set(P_MAILADDR, SAVE, F_MODE_AS);
   Set(P_HOMEPAGE, SAVE, F_MODE_AS);
   Set(P_ICQ, SAVE, F_MODE_AS);
@@ -232,19 +246,19 @@ protected void create()
   SetProp(P_CLONE_MSG, "zaubert etwas hervor");
   Set(P_DESTRUCT_MSG, SAVE, F_MODE);
   SetProp(P_DESTRUCT_MSG, "verschwindet einfach");
-  
+
   Set(P_FAO, SAVE|SECURED, F_MODE_AS);
   Set(P_FAO_PORTALS, SAVE, F_MODE_AS);
 
   SetProp(P_NEWBIE_GUIDE,0);
   Set(P_NEWBIE_GUIDE,SAVE,F_MODE_AS);
- 
+
   //TODO: Remove - Property ist not needed any more.
   Set(P_TELNET_KEEP_ALIVE, PROTECTED|SAVE, F_MODE_AD);
   SetProp(P_TELNET_KEEP_ALIVE, 0);
 
   AddId("Interactive");
-  
+
   realip="";
 }
 
@@ -256,6 +270,14 @@ void reset() {
   // TM-History loescht und ggf. von Netdead() und Disconnect() reaktiviert
   // wird.
   set_next_reset(-1);
+}
+
+protected void NotifyMove(object dest, object oldenv, int method)
+{
+  moving::NotifyMove(dest,oldenv,method);
+  // ggf. Daten ueber neues Env per GMCP senden.
+  if (dest != oldenv)
+    GMCP_Room();
 }
 
 string Forschung()
@@ -347,9 +369,9 @@ varargs static void stop_heart_beats(mixed obs)
   } 
   foreach(mixed ob: obs) {
     if (pointerp(ob))
-	stop_heart_beats(ob);
+        stop_heart_beats(ob);
     else if (set_object_heart_beat(ob,0))  
-	hb_obs+=({ob});
+        hb_obs+=({ob});
   }
 }
 
@@ -439,35 +461,53 @@ static void ListAwaited() //Anwesende Erwartete auflisten
     list=({});
     foreach(string erwartet : QueryProp(P_WAITFOR)) {
         if (objectp(ob=find_player(lower_case(erwartet)))) {
-	    if (ob->QueryProp(P_INVIS)) {
-		if (mag) list+=({ sprintf("(%s)",erwartet) });
-	    }
-	    else list+=({erwartet});
-	}
+            if (ob->QueryProp(P_INVIS)) {
+                if (mag) list+=({ sprintf("(%s)",erwartet) });
+            }
+            else list+=({erwartet});
+        }
     }
     if (sizeof(list))
         printf("Anwesende Erwartete: %s.\n",
-	    CountUp(sort_array(list,#'>)));
+            CountUp(sort_array(list,#'>)));
 
     if ((mappingp(mlist=QueryProp(P_WAITFOR_REASON))) && (sizeof(mlist)))
         {
-	  foreach(string erwartet : mlist) {
+          foreach(string erwartet : mlist) {
                 if (!(ob=find_player(lower_case(erwartet))) ||
                     (!mag && ob->QueryProp(P_INVIS)));
                 else Show_WaitFor_Reason(erwartet,ob->QueryProp(P_INVIS));
-	  }
-	}
+          }
+        }
 }
-
-/** Teilt Merlin mit, wer reingekommen ist.
-  Ruft in /secure/merlin notify_player_enter() auf. Merlin loest
-    dann zeitverzoegert in anwesenden Spielern die Ausgabe der
-    Erwartemeldung aus.
-  \param[in] wer string - Name des reinkommenden Spielers
+/** Teilt den Gilden und anderen Spielern mit, wer reingekommen ist.
+  Ausserdem wird ggf. PlayerQuit() im Environment gerufen.
+  \param[in] rein int - wahr, wenn der Spieler einloggt.
 */
-static void delayed_notify(string wer)
+protected void call_notify_player_change(int rein)
 {
-  catch("/secure/merlin"->notify_player_enter(wer);publish);
+  string wer = getuid(ME);
+  // erst die Gilde informieren
+  string gilde = QueryProp(P_GUILD);
+  if (stringp(gilde) && (find_object("/gilden/"+gilde)
+        || file_size("/gilden/"+gilde+".c")>0))
+    catch(("/gilden/"+gilde)->notify_player_change(ME, rein); publish);
+
+  // dann die anderen Spieler
+  int mag = IS_LEARNER(ME);
+  int invis = QueryProp(P_INVIS);
+  object *u = users() - ({ME}); // sich selber nicht melden 
+  if (mag && invis) {   // Invismagier nur Magiern melden
+    u = filter(u, function int (object o)
+        { return query_wiz_level(o) >= LEARNER_LVL; }
+        );
+  }
+  u->notify_player_change(capitalize(wer),rein,invis);
+
+  // und beim Ausloggen noch das Env informieren.
+  if (!rein) {
+    if(environment()) catch(environment()->PlayerQuit(ME);publish);
+  }
 }
 
 /** Ruft im uebergebenen Objekt ein init() auf, sofern notwendig.
@@ -496,7 +536,7 @@ static void inits_nachholen( int logout, object *obs )
     filter( obs, "call_init", ME, logout );
 }
 
-/** Velebt einen Netztoten wieder.
+/** Belebt einen Netztoten wieder.
   Wird im Login gerufen, wenn der Spieler netztot war. Aequivalent zu
   start_player()
   @param[in] silent Wenn Flag gesetzt, werden keine Meldung an den Raum
@@ -505,14 +545,16 @@ static void inits_nachholen( int logout, object *obs )
   kommt.
   @see start_player()
 */
-varargs void Reconnect( int silent, string ip )
+varargs void Reconnect( int silent )
 {
     int num;
     string called_from_ip;
     object *inv;
 
-    if ( query_once_interactive(ME) ){
-        startup_telnet_negs();
+    if ( query_once_interactive(ME) )
+    {
+        // perform the telnet negotiations. (all that are available)
+        "*"::startup_telnet_negs();
         Set( P_LAST_LOGIN, time() );
     }
 
@@ -530,14 +572,14 @@ varargs void Reconnect( int silent, string ip )
     log_file( "REENTER", sprintf( "%-11s %s, %-15s (%s).\n",
                                   capitalize(getuid(ME)), ctime(time())[4..15],
                                   query_ip_number(ME)||"Unknown",
-				  query_ip_name(ME)||"Unknown" ),
+                                  query_ip_name(ME)||"Unknown" ),
               200000 );
 
     if ( ndead_currently )
         ndead_revive();
 
-    if ( !silent && query_once_interactive(ME) )
-        delayed_notify( getuid(ME) );
+    if ( !silent && interactive(ME) )
+        call_notify_player_change(1);
 
     command::reconnect();
     if ( query_once_interactive(ME) )
@@ -545,9 +587,9 @@ varargs void Reconnect( int silent, string ip )
 
     // Login-event ausloesen
     EVENTD->TriggerEvent(EVT_LIB_LOGIN, ([
-	  E_OBJECT: ME,
-	  E_PLNAME: getuid(ME),
-	  E_ENVIRONMENT: environment() ]) );
+          E_OBJECT: ME,
+          E_PLNAME: getuid(ME),
+          E_ENVIRONMENT: environment() ]) );
 
     catch( num = "secure/mailer"->FingerMail(geteuid());publish );
 
@@ -602,9 +644,9 @@ varargs void Reconnect( int silent, string ip )
     //ZZ foreach statt call_other(), damit nen bug in BNA nicht die anderen
     //BNA verhindert.
     foreach(object ob: inv) {
-	//es ist nicht auszuschliessen, dass Items durch BecomesNetAlive()
-	//eines anderen zerstoert werden.
-	if (objectp(ob))
+        //es ist nicht auszuschliessen, dass Items durch BecomesNetAlive()
+        //eines anderen zerstoert werden.
+        if (objectp(ob))
           catch( call_other(ob, "BecomesNetAlive", ME);publish );
     }
 
@@ -617,7 +659,9 @@ varargs void Reconnect( int silent, string ip )
         else 
           tell_room(environment(),QueryProp(P_NAME) + " weilt wieder unter den Verstorbenen.\n",({ME}) );
     }
-    
+
+    NewbieIntroMsg();
+
     if ( query_once_interactive(ME) )
         ListAwaited();
 }
@@ -633,7 +677,7 @@ void NetDead()
   int num;
 
   catch(RemoveChannels();publish);
-  
+
   if(query_hc_play()>1)
     say("Ploetzlich weicht alle spirituelle Energie aus "+QueryProp(P_NAME)+".\n");
   else
@@ -648,14 +692,15 @@ void NetDead()
       Set(P_LAST_LOGOUT,time());
   if (ME)
     ndead_location = environment();
+
   if (query_once_interactive(ME))
-    catch("secure/merlin"->notify_player_leave(geteuid(ME));publish);
-   
+    call_notify_player_change(0);
+
   // Logout-event ausloesen
   EVENTD->TriggerEvent(EVT_LIB_LOGOUT, ([
-	  E_OBJECT: ME,
-	  E_PLNAME: getuid(ME),
-	  E_ENVIRONMENT: environment() ]) );
+          E_OBJECT: ME,
+          E_PLNAME: getuid(ME),
+          E_ENVIRONMENT: environment() ]) );
 
   set_next_reset(900);
   /* Bei Nicht-Magier-Shells wird comm::reset() aufgerufen, das prueft, ob
@@ -671,7 +716,7 @@ void NetDead()
   else inv=deep_inventory(ME);
   foreach(object ob: inv) {
       if (objectp(ob)) //man weiss nie was BND() macht...
-	  catch( call_other(ob, "BecomesNetDead", ME);publish );
+          catch( call_other(ob, "BecomesNetDead", ME);publish );
   }
 }
 
@@ -734,9 +779,9 @@ protected void heart_beat() {
             return;
           }
           ndead_move_me();
-	  // Zumindest bei Gaesten ist das Objekt jetzt zerstoert
-	  if (!objectp(this_object()))
-	    return;
+          // Zumindest bei Gaesten ist das Objekt jetzt zerstoert
+          if (!objectp(this_object()))
+            return;
         }
         else
           ndead_lasttime=1;
@@ -881,22 +926,38 @@ static int set_messenger(string str) {
     SetProp(P_MESSENGER, s);
   }
   return 1;
-}		      
+}
+
+
+// Prueft, ob der String vermutlich eine eMail-Adresse ist.
+// dies ist nicht narrensicher, wird aber die meisten eMail-Adressen zulassen
+// und viel Schrott ablehnen.
+private string check_email(string str) {
+  if (!stringp(str)) return 0;
+  return regmatch(lower_case(str),
+      "[a-z0-9._%+-]+@(?:[a-z0-9-]+\.)+[a-z]{2,4}",RE_PCRE);
+}
 
 /** Setzt Email-Adresse des Spielers (Spielerkommando).
   * \param[in] str Spielereingabe
   * \return 1 bei Erfolg, 0 sonst.
   */
-static mixed set_email(string str)
+static int set_email(string str)
 {
   if (!(str=_unparsed_args())) {
     write("Deine offizielle Email-Adresse lautet: " + QueryProp(P_MAILADDR)
           +"\n");
     return 1;
   }
-  write("Deine offizielle Email-Adresse wurde geaendert.\n");
-  if (str=="keine") str="none";
-  SetProp(P_MAILADDR, str); // rumata: return entfernt
+  str = check_email(str);
+  if (!str) {
+    notify_fail("Deine Eingabe scheint keine gueltige EMail-Adresse "
+        "zu sein.\n");
+    return 0;
+  }
+  write("Deine EMail-Adresse wurde geaendert zu:\n"
+      +str+"\n");
+  SetProp(P_MAILADDR, str);
   return 1;
 }
 
@@ -914,8 +975,7 @@ static int self_delete()
     "den Befehl 'spielpause'.\n"+
     "Fallst Du Dich immer noch selbstloeschen willst, gib Dein Password ein."+
     "\n\n");
-  write("Bitte das Password angeben: ");
-  input_to("self_delete2",1);
+  input_to("self_delete2",INPUT_PROMPT|INPUT_NOECHO, "Bitte das Password angeben: ");
   return 1;
 }
 
@@ -953,9 +1013,9 @@ int self_delete2(string str)
 
   // Event ausloesen. ;-)
   EVENTD->TriggerEvent(EVT_LIB_PLAYER_DELETION, ([
-	E_PLNAME: getuid(ME),
-	E_ENVIRONMENT: environment(),
-	E_GUILDNAME: QueryProp(P_GUILD) ]) );
+        E_PLNAME: getuid(ME),
+        E_ENVIRONMENT: environment(),
+        E_GUILDNAME: QueryProp(P_GUILD) ]) );
 
   remove(1);
   return 1;
@@ -1010,7 +1070,7 @@ private int InterpretTime(string a){
     else {
        // Zwei-Ziffern-Angabe des Jahres...
        if (k<100)
-	   k += 2000;
+           k += 2000;
        ts[TM_YEAR] = k;
     }
     ts[TM_MDAY] = i;
@@ -1045,20 +1105,20 @@ static int spielpause(string str)
   if(sscanf(_unparsed_args(),"bis %s",foo)==1) {
     endezeit = InterpretTime(foo);
     if (endezeit == 0) 
-	return 0;
+        return 0;
     days = ((endezeit - time()) / 86400) + 1;
   }
   else if(sscanf(str, "%d tag%s", days, foo) == 2) {
     if (days < 0)
-	days = -1;
+        days = -1;
     else
-	endezeit = (time()/86400) * 86400 + days * 86400;
+        endezeit = (time()/86400) * 86400 + days * 86400;
   }
   else return 0;
 
   if (days > 0)
     write(strftime("Du wirst Dich erst wieder am %d.%m.%Y einloggen koennen!\n",
-	  endezeit));
+          endezeit));
   else if (days < 0)
     write( "Du wirst Dich auf unbestimmte Zeit nicht mehr einloggen koennen.\n"
           +"Wenn Du wieder spielen willst, musst Du Dich an einen Gott oder\n"
@@ -1068,8 +1128,8 @@ static int spielpause(string str)
     master()->TBanishName(getuid(this_object()), 0);
     return 1;
   }
-  write( "Wenn Du das wirklich willst, gib jetzt 'ja' ein.\n]" );
-  input_to( "spielpause2", 0, days);
+  write( "Wenn Du das wirklich willst, gib jetzt 'ja' ein.\n" );
+  input_to( "spielpause2", INPUT_PROMPT, "]", days);
   return 1;
 }
 
@@ -1101,8 +1161,8 @@ static int change_password() {
   verb=query_verb();
   if (verb!="passwd"&&verb!="password"&&verb!="passwort")
     return 0;
-  write("Bitte das ALTE Passwort angeben: ");
-  input_to("change_password2",1);
+  input_to("change_password2",INPUT_NOECHO|INPUT_PROMPT,
+      "Bitte das ALTE Passwort angeben: ");
   return 1;
 }
 
@@ -1122,8 +1182,8 @@ static int change_password2(string str) {
     return 1;
   }
   passwold = str;
-  write("Bitte das NEUE Passwort eingeben: ");
-  input_to("change_password3",1);
+  input_to("change_password3",INPUT_NOECHO|INPUT_PROMPT,
+      "Bitte das NEUE Passwort eingeben: ");
   return 1;
 }
 
@@ -1145,22 +1205,21 @@ static int change_password3( string str )
     }
 
     if ( passwold == str ){
-        write( "Das war Dein altes Passwort.\n"
-               "Bitte das NEUE Passwort eingeben (zum Abbruch Return "
-               "druecken): " );
-        input_to( "change_password3", 1 );
+        write( "Das war Dein altes Passwort.\n" );
+        input_to( "change_password3", INPUT_NOECHO|INPUT_PROMPT,
+            "Bitte das NEUE Passwort eingeben (zum Abbruch Return druecken): ");
         return 1;
     }
 
     if ( !MASTER->good_password( str, getuid(ME) ) ){
-        write( "Bitte das NEUE Passwort eingeben: " );
-        input_to( "change_password3", 1 );
+        input_to( "change_password3", INPUT_NOECHO|INPUT_PROMPT,
+            "Bitte das NEUE Passwort eingeben: ");
         return 1;
     }
 
     passw = str;
-    write( "Nochmal: " );
-    input_to( "change_password4", 1 );
+    input_to( "change_password4", INPUT_NOECHO|INPUT_PROMPT,
+        "Bitte nochmal: ");
     return 1;
 }
 
@@ -1195,6 +1254,16 @@ static int change_password4( string str )
  * Rueckmeldungen von Spielern an Magier
  *-----------------------------------------------------------------
  */
+static int fehlerhilfe(string str) {
+  write("Welche Art von Fehler moechtest Du denn melden?\n"
+      "Fehlfunktionen    ->  bug\n"
+      "Ideen/Anregungen  ->  idee\n"
+      "Tippfehler/Typos  ->  typo\n"
+      "fehlende Details  ->  detail\n");
+
+  return 1;
+}
+
 /** Setzt eine Fehlermeldung an Magier ab (Spielerkommando).
   * Fragt nach der Fehlermeldung und liest sie via bug2() ein, fall der
   * Spieler kein Argument angeben hat.
@@ -1204,8 +1273,8 @@ static int change_password4( string str )
   */
 static int bug(string str) {
   if (!(str=_unparsed_args())) {
-    write( "Wie sieht der Fehler denn aus?\n]" );
-    input_to("bug2");
+    write( "Wie sieht der Fehler denn aus?\n" );
+    input_to("bug2", INPUT_PROMPT, "]");
     return 1;
   }
   write("Vielen Dank fuer die Hilfe.\n");
@@ -1238,8 +1307,8 @@ static int bug2(string str) {
   */
 static int typo(string str) {
   if (!(str=_unparsed_args())) {
-    write( "Wo ist denn der Tippfehler?\n]" );
-    input_to("typo2");
+    write( "Wo ist denn der Tippfehler?\n" );
+    input_to("typo2", INPUT_PROMPT, "]");
     return 1;
   }
   write("Vielen Dank fuer die Hilfe.\n");
@@ -1272,8 +1341,8 @@ static int typo2(string str) {
   */
 static int idea(string str) {
   if (!(str=_unparsed_args())) {
-    write( "Was fuer eine Idee hast Du denn?\n]" );
-    input_to("idea2");
+    write( "Was fuer eine Idee hast Du denn?\n" );
+    input_to("idea2",INPUT_PROMPT, "]");
     return 1;
   }
   write("Vielen Dank fuer die Hilfe.\n");
@@ -1306,8 +1375,8 @@ static int idea2(string str) {
   */
 static int md(string str) {
   if (!(str=_unparsed_args())) {
-    write( "Fuer welches Detail fehlt denn die Beschreibung?\n]" );
-    input_to("md2");
+    write( "Fuer welches Detail fehlt denn die Beschreibung?\n" );
+    input_to("md2",INPUT_PROMPT, "]");
     return 1;
   }
   write("Vielen Dank fuer die Hilfe.\n");
@@ -1341,49 +1410,62 @@ static int md2(string str) {
   */
 void smart_log(string myname, string str)
 {
-  string creat, creat_det, date, filext, obnam, rest;
+  string obnam;
   object obj;
 
-  if( sscanf(str,"%s:%s",obnam,rest)==2 &&
-      ((obj=present(obnam,environment())) || (obj=present(obnam)) )
-      )
-    str = rest;
+  string *tmp = explode(str, ":");
+  if (sizeof(tmp) > 1) {
+    obnam = lower_case(trim(tmp[0]));
+    obj = present(obnam, environment()) || present(obnam);
+    if (!obj) {
+      obj = environment(this_object());
+    }
+    else // nur hier Teil vor dem : wegschneiden
+      str = trim(implode(tmp[1..],":"));
+  }
   else {
     obj = QueryProp(P_REFERENCE_OBJECT);
     if (!obj || !present(obj))
       obj = environment(this_interactive());
   }
 
-  date = strftime("%d. %b %Y");
+  mapping err = ([ F_PROG: "unbekannt",
+           F_LINE: 0,
+           F_MSG: str,
+           F_OBJ: obj
+         ]);
 
-  if(!(creat = obj->QueryProp(P_LOG_FILE))){
-    creat = MASTER->creator_file(obj);
-    if (member(creat, '.')!=-1) creat=explode(creat, ".")[<1];
-
-    if (creat == ROOTID)
-      creat = "ROOT";
-    else if( !creat || creat[0]==' ' )
-      creat="STD";
-    switch(myname)
-    {
-      case "DETAIL":
-      filext = ".det"; break;
-      default:
-      filext = ".rep"; break;
-    }
-
-    creat=regreplace(creat,":","_",1);
-    creat_det = "report/" + creat + "_" + myname + filext;
-    creat = "report/" + creat + filext;
+  string desc="etwas unbekanntes";
+  switch(myname) {
+    case "BUG":
+      desc="einen Fehler";
+      err[F_TYPE]=T_REPORTED_ERR;
+      break;
+    case "DETAILS":
+      desc="ein fehlendes Detail";
+      err[F_TYPE]=T_REPORTED_MD;
+      break;
+    case "IDEA":
+      desc="eine Idee";
+      err[F_TYPE]=T_REPORTED_IDEA;
+      break;
+    case "TYPO":
+      desc="einen Typo";
+      err[F_TYPE]=T_REPORTED_TYPO;
+      break;
   }
 
-  if (!obj->SmartLog(creat, myname, str, date)) {
-    str = myname + " von " + getuid(this_interactive()) + " [" 
-      + object_name(obj) + "] (" + date + "):\n" + str + "\n";
-    log_file(creat, str);
-    // Noch einmal im spezialisierten Logfile
-    log_file( creat_det, str );
-  }
+  // Eintragung in die Fehler-DB
+  string hashkey = (string)ERRORD->LogReportedError(err);
+
+  // ggf. will das Objekte mit noch irgendwas anfangen.
+  obj->SmartLog(0, myname, str, strftime("%d. %b %Y"));
+
+  tell_object(this_object(), break_string( sprintf(
+    "Du hast an %s erfolgreich %s abgesetzt.\n"
+    "Die ID des abgesetzten Fehlers lautet: %s\n",
+    (obj->IsRoom() ? "diesem Raum" : obj->name(WEM,1)),desc,
+    hashkey||"N/A"),78,BS_LEAVE_MY_LFS));
 }
 
 /** Speichert den Spieler und loggt ihn aus (Spielerkommando 'ende').
@@ -1402,10 +1484,12 @@ int quit()
     save_me(0);
     tell_object(ME,"Speichere "+QueryProp(P_NAME)+".\n");
   }
-  if(environment()) catch(environment()->PlayerQuit(ME);publish);
-  if (interactive(ME) && query_once_interactive(ME)) 
-    catch("secure/merlin"->notify_player_leave(geteuid(ME));publish);
+
+  if (interactive(ME))
+    call_notify_player_change(0);
+
   remove_living_name();
+  // EVT_LIB_LOGOUT wird in remove() getriggert.
   if(catch(remove();publish)) destruct(ME);
   return 1;
 }
@@ -1430,7 +1514,7 @@ static int new_quit() {
   */
 static int score(string arg) {
   string tmp, gender;
-  int i,sz,val, plev;
+  int i,sz,val;
   mixed ind;
   object *enem1, *enem2, *inv;
 
@@ -1439,7 +1523,8 @@ static int score(string arg) {
     return 1;
   }
 
-  if((plev = QueryProp(P_LEP)/100) < 0) plev = 1;
+  int plev = LEPMASTER->QueryLevel();
+ 
   switch(tmp = QueryProp(P_GENDER)) {
   case MALE: gender = "maennlich"; break;
   case FEMALE: gender = "weiblich"; break;
@@ -1514,9 +1599,11 @@ static int score(string arg) {
       if (member(inv,en)==-1) // Ist unser Feind und ist nicht hier
         enem2+=({en});
     }
-    if(sizeof(enem2)) {
-      write("Du verfolgst ");
-      write(break_string(CountUp(map_objects(enem2, "name", WEN))+".", 78));
+    if(sizeof(enem2))
+    {
+      write(break_string(
+            "Du verfolgst " + CountUp(map_objects(enem2, "name", WEN))+".",
+            78));
     }
   }
   if(arg!="short") show_age();
@@ -1544,18 +1631,20 @@ static int very_short_score(string arg) {
 
   lp=QueryProp(P_HP); mlp=QueryProp(P_MAX_HP);
   kp=QueryProp(P_SP); mkp=QueryProp(P_MAX_SP);
-  xlp=(lp*40/mlp);
-  xkp=(kp*40/mkp);
+  if (mlp)
+    xlp=(lp*40/mlp);
+  if (mkp)
+    xkp=(kp*40/mkp);
   bar="  .    .    .    .    .    .    .    .  ";
   if (QueryProp(P_NO_ASCII_ART) || arg == "-k")
     printf("Gesundheit: %3.3d (%3.3d), Konzentration: %3.3d (%3.3d)\n",
-	   lp, mlp, kp, mkp);
+           lp, mlp, kp, mkp);
   else
     printf("Gesundheit:    0 |%'#'40.40s| %3.3d%s\n"+
-	   "Konzentration: 0 |%'#'40.40s| %3.3d%s\n",
-	   (xlp<0?bar:bar[xlp..]),lp,(lp==mlp?"":sprintf(" (%d)",mlp)),
-	   (xkp<0?bar:bar[xkp..]),kp,(kp==mkp?"":sprintf(" (%d)",mkp))
-	   );
+           "Konzentration: 0 |%'#'40.40s| %3.3d%s\n",
+           (xlp<0?bar:bar[xlp..]),lp,(lp==mlp?"":sprintf(" (%d)",mlp)),
+           (xkp<0?bar:bar[xkp..]),kp,(kp==mkp?"":sprintf(" (%d)",mkp))
+           );
   return 1;
 }
 
@@ -1574,7 +1663,7 @@ static string getmanpage(string dir, string page)
   if (dir[<1] != '/')
     dir += "/";
 
-  if ((text=read_file(dir+page)) && strlen(text))
+  if ((text=read_file(dir+page)) && sizeof(text))
     return text;
 
   if (text = read_file(dir+".synonym")) {
@@ -1728,7 +1817,7 @@ static int who(string str) {
     }
   }
   if (str) i=(member(str,'o')>0); else i=0;
-  if (strlen(str)>1 && str[0] == '-') str = str[1..1];
+  if (sizeof(str)>1 && str[0] == '-') str = str[1..1];
   More(implode( "/obj/werliste"->QueryWhoListe(
     IS_LEARNER(ME) && QueryProp(P_WANTS_TO_LEARN),shrt,0,str,i),"\n"),0);
   return 1;
@@ -1825,22 +1914,27 @@ static int kill(string str) {
   if (str=="alle") {
     object livs;
     livs=filter(all_inventory(environment(PL)),
-	function int (object ob) {
-	    if (living(ob) && !query_once_interactive(ob)
-	          && !ob->QueryProp(P_NO_GLOBAL_ATTACK)
-		  && !ob->QueryProp(P_FRIEND)) {
-		Kill(ob);
-		return 1;
-	    }
-	    return 0;
-	} );
+        function int (object ob) {
+            if (living(ob) && !query_once_interactive(ob)
+                  && !ob->QueryProp(P_INVIS)
+                  && !ob->QueryProp(P_NO_GLOBAL_ATTACK)
+                  && !ob->QueryProp(P_FRIEND))
+            {
+                Kill(ob);
+                return 1;
+            }
+            return 0;
+        } );
     // wenn Gegner gefunden, raus, ansonsten kommt die Fehlermeldung unten.
     if (sizeof(livs)) return 1;
   }
   else {
     int i=1;
     while(objectp(eob = present(str,i++,environment(PL)))) {
-      if (living(eob)) break;
+      if (living(eob) && !eob->QueryProp(P_INVIS))
+        break;
+      else
+        eob=0;
     }
   }
   if (!objectp(eob)) {
@@ -1985,14 +2079,26 @@ static int remote(string str, int flag)
 
   str += " " + tmp + (member( ".?!", tmp[<1] ) == -1 ? "." : "") + "\n";
 
-  if ( (m = destpl->Message( break_string(str,78), MSGFLAG_REMOTE )) > 0 )
+  m = destpl->ReceiveMsg(str, MT_COMM|MT_FAR, MA_EMOTE,0, ME);
+  switch(m)
+  {
+    case MSG_DELIVERED:
       _recv(destpl, capitalize(destpl->name()) + "->" + str, MSGFLAG_REMOTE);
-  else if (m == MESSAGE_CACHE)
+      break;
+    case MSG_BUFFERED:
       write( capitalize(destpl->name(WER) + " ist gerade beschaeftigt.\n") );
-  else if (m == MESSAGE_IGNORE_YOU)
+      break;
+    case MSG_IGNORED:
       write( capitalize(destpl->name(WER) + " ignoriert Dich.\n") );
-  else
+      break;
+    case MSG_VERB_IGN:
+    case MSG_MUD_IGN:
       write( capitalize(destpl->name(WER) + " ignoriert Deine Meldung.\n") );
+      break;
+    default:
+      write( capitalize(destpl->name(WER) + " kann Dich gerade nicht "
+            "wahrnehmen.\n") );
+  }
   return 1;
 }
 
@@ -2027,38 +2133,52 @@ private int RandomSize()
     (QueryProp(P_AVERAGE_SIZE)||170)/100;
 }
 
-/** Setzt bestimmte Props im Spieler, falls diese nicht gesetzt sind.
-  * Wird von start_player() gerufen. Momentan wird ggf. nur die Groesse
-  * gesetzt, falls sie bisher 0 ist und die Skills des Spielers initialisiert
-  * bzw. repariert oder auf die aktuellste Version des Skillsystems
-  * aktualisiert und der SAVE-Status der Prop P_GUILD_PREVENTS_RACESKILL
-  * geloescht.
+/** Setzt bestimmte Props im Spieler, falls diese nicht gesetzt sind oder
+  * loescht obsolete Props. Repariert bestimmte Datenstrukturen im Spieler.
+  * Wird von start_player() nach Laden des Savefiles gerufen.
+  * Momentan wird z.B. die Groesse gesetzt, falls sie bisher 0 ist und die
+  * Skills des Spielers initialisiert bzw. repariert oder auf die aktuellste
+  * Version des Skillsystems
   * Ruft ggf. InitSkills() und FixSkills().
   * @param[in] newflag Gibt an, ob es ein neuerstellter Spieler ist.
   * @sa start_player(), InitSkills(), FixSkills()
   */
 private void updates_after_restore(int newflag) {
-  int size;
+ 
+  // Seher duerfen die Fluchtrichtung uebermitteln lassen.
+  // Eigentlich koennte es Merlin machen. Dummerweise gibt es ja auch alte
+  // Seher und dann kann es gleiche fuer alle hier gemacht werden. (Ob der
+  // Code jemals rauskann?)
+  //TODO: Irgendwann alle Seher korrigieren und Code nach Merlin schieben...
+  if (IS_SEER(ME))
+    SetProp(P_CAN_FLAGS,QueryProp(P_CAN_FLAGS) | CAN_REPORT_WIMPY_DIR);
+
+  // ggf. Invis-Eigenschaft aus dem Loginobjekt abrufen (Invislogin), koennte
+  // ja anders als aus Savefile sein. Gesetztes P_INVIS aus diesem aber
+  // beibehalten.
+  if (IS_LEARNER(ME) && !QueryProp(P_INVIS)
+//      && load_name(previous_object()) == "/secure/login"
+      )
+  {
+    SetProp(P_INVIS, previous_object()->query_invis());
+    if (QueryProp(P_INVIS))
+      tell_object(ME, "DU BIST UNSICHTBAR!\n" );
+  }
+  "*"::updates_after_restore(newflag);
+
   attributes::UpdateAttributes();
-  size=Query(P_SIZE);
+
+  int size=Query(P_SIZE);
   if (!size) size=RandomSize();
   while(size==QueryProp(P_AVERAGE_SIZE))
     size=RandomSize();
   Set(P_SIZE,size);
 
-  //Allgemeine Waffenskills aktivieren, wenn noetig
-  //set_weapon_skills();
-  // Wird nun von InitSkills bzw. FixSkills uebernommen, falls noetig.
-  if (newflag) {
-    InitSkills();
-  }
-  else if (QueryProp(P_SKILLSVERSION) != CURRENT_SKILL_VERSION) {
-    // Falls noetig, Skills fixen/updaten. *grummel*
-    FixSkills();
-  }
-  // Prop gibt es nicht mehr. SAVE-Status loeschen. 
-  Set(P_GUILD_PREVENTS_RACESKILL,SAVE,F_MODE_AD);
+  // Prop wird nicht mehr genutzt. TODO: irgendwann entfernen.
+  Set(P_SECOND_LIST, SAVE, F_MODE_AD);
+  Set(P_SECOND_LIST, 0, F_VALUE);
 }
+
 
 /** Setzt den HC-Modus.
   */
@@ -2108,11 +2228,6 @@ varargs nomask int start_player( string str, string ip )
     int newflag;  /* could player be restored? */
     string str1;
 
-    if ( query_once_interactive(ME) ){
-        startup_telnet_negs();
-        modify_prompt();
-    }
-
     call_out( "disconnect", 600 );
 
     str1 = explode( object_name(previous_object()), "#" )[0];
@@ -2128,14 +2243,20 @@ varargs nomask int start_player( string str, string ip )
     }
 
     /* try to restore player. If it doesn't exist, set the new flag */
-    Set( P_WIMPY, 20 );
     newflag = !restore_object( "/" + SAVEPATH + lower_case(str)[0..0] + "/"
                                +lower_case(str) );
 
     updates_after_restore(newflag);
 
-    if ( query_once_interactive(ME) )
+   if ( query_once_interactive(ME) )
+    {
+      // Telnet-Negotiations durchfuehren, aber nur die grundlegenden aus
+      // telnetneg. Alle anderen sollten erst spaeter, nach vollstaendiger
+      // Initialisierung gemacht werden.
+        telnetneg::startup_telnet_negs();
+        modify_prompt();
         Set( P_LAST_LOGIN, time() );
+    }
 
     Set( P_WANTS_TO_LEARN, 1 ); // 1 sollte der default sein !!!
     Set( P_WANTS_TO_LEARN, PROTECTED, F_MODE_AS );
@@ -2179,10 +2300,10 @@ varargs nomask int start_player( string str, string ip )
         SetProp( P_ATTRIBUTES, ([ A_STR:1, A_CON:1, A_INT:1, A_DEX:1 ]) );
         SetProp( P_HP, QueryProp(P_MAX_HP) );
 
-	// Event ausloesen
-	EVENTD->TriggerEvent(EVT_LIB_PLAYER_CREATION, ([
-	      E_OBJECT: ME,
-	      E_PLNAME: getuid(ME) ]) );
+        // Event ausloesen
+        EVENTD->TriggerEvent(EVT_LIB_PLAYER_CREATION, ([
+              E_OBJECT: ME,
+              E_PLNAME: getuid(ME) ]) );
     }
     
     InitPlayer();
@@ -2203,7 +2324,7 @@ varargs nomask int start_player( string str, string ip )
                 log_file( "WRONG_SECOND",
                           sprintf( "%s: %s: P_SECOND = %O -> Automatisch "
                                    "korrigiert,\n",
-				   dtime(time()), object_name(), second ) );
+                                   dtime(time()), object_name(), second ) );
             }
             else {
                 tell_object( ME,
@@ -2228,7 +2349,7 @@ varargs nomask int start_player( string str, string ip )
   * guide.c, setzt den Living Name.
   * Registriert UseSpell() als Catchall-Kommando.
   * Laesst den Spieler ggf. einen Level per /std/gilde aufsteigen, ruft
-  * verzoegert delayed_notify(), loest Login-Event aus.
+  * call_notify_player_change(), loest Login-Event aus.
   * Gibt Willkommenstexte, News und neue Mails aus.
   * Findet den Startraum und bewegt den Spieler dorthin.
   * Ruft FinalSetup() (aus den Rassenshells).
@@ -2257,19 +2378,18 @@ private void InitPlayer4()
     while ( remove_call_out("disconnect") != -1 )
         ;
 
-    if ( QueryProp(P_LEVEL) == -1 ){
-        Set( P_LEVEL, 0 );
-        catch( "/std/gilde"->advance();publish );
-        Set( P_LEVEL, 1 );
+    if ( QueryProp(P_LEVEL) == -1 )
+    {
+        catch( "/std/gilde"->try_player_advance(this_object()) ;publish );
     }
 
-    if ( query_once_interactive(ME) )
-        call_out( "delayed_notify", 0, getuid(ME) );
+    if ( interactive(ME) )
+        call_notify_player_change(1);
 
     if ( interactive(this_object()) ) {
         cat( "/etc/NEWS" );
 
-	NewbieIntroMsg();
+        NewbieIntroMsg();
 
         if ( QueryProp(P_INVIS) && !IS_WIZARD(ME) )
             SetProp( P_INVIS, 0 );
@@ -2300,10 +2420,17 @@ private void InitPlayer4()
     }
 
     if ( !stringp(default_home) || default_home == "" )
-        default_home = "gilden/abenteurer";
+        default_home = "/gilden/abenteurer";
 
     if ( IS_SEER(ME) && !IS_LEARNER(ME) )
         catch( start_place = HAUSVERWALTER->FindeHaus(getuid(ME));publish );
+    // wenn der Spieler noch ganz frisch ist und noch wenig  Stufenpunkte
+    // gekriegt hat und das Tutorial noch nicht gemacht hat, startet er im
+    // Tutorial.
+    else if (QueryProp(P_LEP) <= 120
+             && QM->HasMiniQuest(this_object(),
+               "/d/anfaenger/ennox/tutorial/npcs/verkaeufer") != 1)
+        start_place = "/room/welcome/"+ getuid(this_object());
     else
         start_place = 0;
 
@@ -2312,23 +2439,26 @@ private void InitPlayer4()
 
     if( objectp(start_place) || (stringp(start_place) && start_place != "" ) ){
         if ((err = catch(move( start_place, M_GO|M_SILENT|M_NO_SHOW );publish)) 
-	    || !environment() )
+            || !environment() )
             err = catch(move( default_home, M_GO|M_SILENT|M_NO_SHOW );publish);
     }
     else
         err = catch(move( default_home, M_GO|M_SILENT|M_NO_SHOW );publish);
 
     if ( err )
-        catch(move( "gilden/abenteurer", M_GO|M_SILENT|M_NO_SHOW );publish);
+        catch(move( "/gilden/abenteurer", M_GO|M_SILENT|M_NO_SHOW );publish);
 
     // Die Shell muss FinalSetup() nicht implementieren. Daher Callother
     catch( ME->FinalSetup();publish );
 
     // Login-event ausloesen
     EVENTD->TriggerEvent(EVT_LIB_LOGIN, ([
-	  E_OBJECT: ME,
-	  E_PLNAME: getuid(ME),
-	  E_ENVIRONMENT: environment() ]) );
+          E_OBJECT: ME,
+          E_PLNAME: getuid(ME),
+          E_ENVIRONMENT: environment() ]) );
+
+    // erst jetzt GMCP freigeben und zu verhandeln.
+    gmcp::startup_telnet_negs();
 
     // Schonmal sichern, falls ein Bug (Evalcost...) dazwischen kommen sollte.
     autoload_rest = autoload;
@@ -2372,21 +2502,22 @@ private void InitPlayer4()
                                               str, num ) );
         }
     }
-
-    if ( ndead_lasttime ){
-        write( "Du findest " + ndead_lasttime +
+    int entschaedigung = QueryProp(P_CARRIED_VALUE);
+    if ( entschaedigung > 0 )
+    {
+        write( "Du findest " + entschaedigung +
                " Muenzen, die Du beim letzten Mal verloren hast.\n" );
 
-        if ( MayAddWeight( ndead_lasttime / 4 ) ){
+        if ( MayAddWeight( entschaedigung / 4 ) ){
             write( "Weil Du nicht mehr soviel tragen kannst, spendest Du den "+
                    "Rest der Zentralbank.\n" );
 
             num = (QueryProp(P_MAX_WEIGHT) - query_weight_contents()) * 4;
-            ndead_lasttime = (num < 0) ? 0 : num;
+            entschaedigung = (num < 0) ? 0 : num;
         }
 
-        AddMoney( ndead_lasttime );
-        ndead_lasttime=0;
+        AddMoney( entschaedigung );
+        SetProp(P_CARRIED_VALUE,0);
     }
 
     if ( !QueryProp(P_INVIS) )
@@ -2421,11 +2552,6 @@ private void InitPlayer()
 {
     string mailaddr;
 
-    if ( QueryProp(P_CARRIED_VALUE) > 0 ){
-        ndead_lasttime = QueryProp(P_CARRIED_VALUE);
-        SetProp( P_CARRIED_VALUE, 0 );
-    }
-
     // wenn es einen Crash gab, sollen Spieler nicht noch extra bestraft werden
     if ( file_time( "/save/" + getuid()[0..0] + "/" + getuid() + ".o" )
          < last_reboot_time() ){
@@ -2444,9 +2570,13 @@ private void InitPlayer()
     if ( QueryGuest() )
         Set( P_MAILADDR, "none" );
     else if ( !(mailaddr = Query(P_MAILADDR)) || mailaddr == "" ) {
-            write( "Gib bitte Deine EMail-Adresse an (oder 'none'): " ); 
-            input_to( "getmailaddr" );
-            return;
+        write(break_string(
+          "Eine gueltige EMail-Adresse erleichtert es erheblich, Dir "
+          "ein neues Passwort setzen zu lassen, falls Du einmal Dein "
+          "Passwort vergisst.",78)); 
+        input_to( "getmailaddr",INPUT_PROMPT,
+            "Gib bitte Deine EMail-Adresse an: " );
+        return;
     }
     InitPlayer2();
 }
@@ -2458,9 +2588,15 @@ private void InitPlayer()
   */
 static void getmailaddr( string maddr )
 {
-    if ( !stringp(maddr) || !strlen(maddr) )
-        maddr = "none";
+    maddr = check_email(maddr);
 
+    if ( !stringp(maddr)) {
+      write("Deine Eingabe scheint keine gueltige EMail-Adresse gewesen "
+          "zu sein.\n");
+      input_to( "getmailaddr", INPUT_PROMPT,
+          "Gib bitte Deine EMail-Adresse an: " );
+      return;
+    }
     Set( P_MAILADDR, maddr );
     InitPlayer2();
 }
@@ -2472,9 +2608,9 @@ static void getmailaddr( string maddr )
   */
 private void InitPlayer2()
 {
-    if( member_array( QueryProp(P_GENDER), ({ MALE, FEMALE }) ) == -1 ){
-        write( "Bist Du maennlich oder weiblich: " );
-        input_to( "getgender", 0 );
+    if( member(({ MALE, FEMALE }), QueryProp(P_GENDER) ) == -1 ) {
+        input_to( "getgender", INPUT_PROMPT,
+            "Bist Du maennlich oder weiblich: ");
         return;
     }
 
@@ -2490,19 +2626,19 @@ static void getgender( string gender_string )
 {
     gender_string = lower_case( gender_string );
 
-    if ( strlen(gender_string)==1 && gender_string[0] == 'm' ){
+    if ( sizeof(gender_string)==1 && gender_string[0] == 'm' ){
         write( "Willkommen, mein Herr!\n" );
         SetProp( P_GENDER, MALE );
     }
-    else if ( strlen(gender_string)==1 && gender_string[0] == 'w' ){    
-	write( "Willkommen, gnae' Frau!\n" );
+    else if ( sizeof(gender_string)==1 && gender_string[0] == 'w' ){    
+        write( "Willkommen, gnae' Frau!\n" );
         SetProp( P_GENDER, FEMALE );    
     }    
     else {
-	write( "Wie? Was? Verstehe ich nicht!\n" );  
-	write( "Bist Du maennlich oder weiblich? (tippe m oder w): " );    
-	input_to( "getgender" );    
-	return;
+        write( "Wie? Was? Verstehe ich nicht!\n" );    
+        input_to( "getgender", INPUT_PROMPT,
+            "Bist Du maennlich oder weiblich? (tippe m oder w): ");    
+        return;
     }
 
     InitPlayer3();
@@ -2515,13 +2651,13 @@ static void getgender( string gender_string )
   */
 private void InitPlayer3()
 {
-    if ( !QueryProp(P_TTY) || QueryProp(P_TTY) == "none" ){
+    if ( !QueryProp(P_TTY) || QueryProp(P_TTY) == "none" )
+    {
         write( "Waehle einen Terminaltyp (kann spaeter mit <stty> geaendert "
-               "werden)\nvt100, ansi, dumb [dumb] " );
-        input_to( "gettty", 0 );
+               "werden)\n");
+        input_to( "gettty", INPUT_PROMPT, "vt100, ansi, dumb (Standard: dumb): " );
         return;
     }
-
     InitPlayer4();
 }
 
@@ -2553,8 +2689,9 @@ static void gettty( string ttystr )
         }
         else {
             write( "Dieser Terminaltyp wird nicht unterstuetzt. Nimm bitte "
-                   "einen aus:\nvt100, ansi or dumb (default is dumb): " );
-            input_to( "gettty" );
+                   "einen aus:\nvt100, ansi or dumb (Standard ist dumb).\n" );
+            input_to( "gettty", INPUT_PROMPT,
+                "vt100, ansi or dumb (Standard ist dumb): ");
             return;
         }
 
@@ -2692,8 +2829,7 @@ static int extra_input(string str, string look)
     write("Ok.\n");
     return 1;
   }
-  input_to("extra_input",0,look+str+"\n");
-  write("]");
+  input_to("extra_input",INPUT_PROMPT, "]" ,look+str+"\n");
   return 1;
 }
 
@@ -2705,8 +2841,7 @@ static int extralook(mixed str)
     return 1;
   }
   write("Bitte gib Deinen Extra-Look ein. Beenden mit **:\n");
-  input_to("extra_input",0,"");
-  write("]");
+  input_to("extra_input",INPUT_PROMPT,"]","");
   return 1;
 }
 
@@ -2746,7 +2881,7 @@ void save_me(mixed value_items)
     {
       if( sscanf( object_name( ob ), "%s#%s", obnam, dummy )==2  )
       {
-        if (obnam=="/obj/money")
+        if (obnam == "/items/money")
           autoload[obnam] += val;
         else
           autoload += ([obnam:val]);
@@ -2772,7 +2907,7 @@ void save_me(mixed value_items)
     catch(call_other(dummy,"GuildRating",this_object());publish);
 
   // Speichern des Spielers
-  save_object("/"+SAVEPATH+extract(getuid(),0,0)+"/" + getuid());
+  save_object("/"+SAVEPATH+getuid()[0..0]+"/" + getuid());
 }
 
 static varargs void log_autoload( string file, string reason, mixed data, string error )
@@ -2780,7 +2915,7 @@ static varargs void log_autoload( string file, string reason, mixed data, string
   if (member(autoload_error,file)!=-1) return;
   log_file(SHELLLOG("NO_AUTO_FILE"),sprintf("%s: %s: %s\nreason: cannot %s file\ndata: %O\n%s\n",
            ctime()[4..15],capitalize(getuid()),file,reason,data,
-	   (error?"Fehlermeldung: "+error+"\n":"")));
+           (error?"Fehlermeldung: "+error+"\n":"")));
   autoload_error+=({file});
 }
 
@@ -2793,9 +2928,14 @@ private void load_auto_object( string file, mixed data )
     string error;
    
     if( get_eval_cost() < SAFE_FOR_AUTOLOADER ) return;
-    efun::m_delete( autoload_rest, file );
+    m_delete( autoload_rest, file );
     autoload_error-=({file});
- 
+
+    if ( file == "/items/money" )
+      file = "/items/money";
+    if ( file == "/obj/seercard" )
+      file = "/items/seercard";
+    
     ob = find_object(file);
     
     if (!ob)
@@ -2804,30 +2944,35 @@ private void load_auto_object( string file, mixed data )
            file_size(implode(explode(file,"/")[0..<2],"/")+
                      "/virtual_compiler.c")<0)
         {
-	   log_autoload(file,"find",data,0);
+           log_autoload(file,"find",data,0);
            return;
         }
-        if (error = catch(load_object(file);publish))
-	{
-	   log_autoload(file,"load",data,error);
+        if (error = catch(load_object(file); publish))
+        {
+           log_autoload(file,"load",data,error);
            return;
-	}
+        }
     }
     if ( error = catch(ob = clone_object(file); publish) )
     {
-	log_autoload(file,"clone",data, error);
+        log_autoload(file,"clone",data, error);
         return;
     }
-    
+
+    if ( error = catch(ob->SetProp( P_AUTOLOADOBJ, data ); publish) )
+    {
+        log_autoload(file,"SetProp",data, error);
+        ob->remove(1);
+        if (ob) destruct(ob);
+        return;
+    }
+
     if ( error = catch(ob->move( ME, M_NOCHECK );publish) ) {
-	log_autoload(file,"move",data, error);
-        ob->remove();
+        log_autoload(file,"move",data, error);
+        ob->remove(1);
         if(ob) destruct(ob);
         return;
     }
-    
-    if (ob)
-        (void) catch(ob->SetProp( P_AUTOLOADOBJ, data );publish);
 }
 
 static void load_auto_objects( mapping map_ldfied )
@@ -2938,10 +3083,10 @@ varargs nomask int query_prevent_shadow(object obj)
     // Einem Testspieler kann man P_ALLOWED_SHADOW auf einen zu testenden
     // Shadow setzen.
     if ( Query(P_TESTPLAYER) && 
-	 stringp(what) && 
-	 stringp(allowed_shadow=Query(P_ALLOWED_SHADOW) &&
-	 strstr(what, allowed_shadow)==0))
-	    return 0;
+         stringp(what) && 
+         stringp(allowed_shadow=Query(P_ALLOWED_SHADOW)) &&
+         strstr(what, allowed_shadow)==0)
+            return 0;
   }
   return 1;
 }
@@ -2952,12 +3097,8 @@ static int uhrzeit()
   return 1;
 }
 
-string SetDefaultHome(string str)
+protected string SetDefaultHome(string str)
 {
-  if(hc_play>1)
-  {
-    pray_room="/room/nirvana";
-  }
   return default_home=str;
 }
 
@@ -2966,14 +3107,16 @@ string QueryDefaultHome()
   return default_home;
 }
 
-string SetPrayRoom(string str)
+protected string SetDefaultPrayRoom(string str)
 {
   if(hc_play>1)
   {
-    pray_room="/room/nirvana";
+    default_pray_room="/room/nirvana";
   }
-  pray_room=str;
-  return(str);
+  else
+    default_pray_room=str;
+  
+  return default_pray_room;
 }
 
 string QueryPrayRoom()
@@ -2981,11 +3124,14 @@ string QueryPrayRoom()
   if(hc_play>1)
   {
     return "/room/nirvana";
-  }
-  if(QueryProp(P_GUILD)=="chaos")
-    return "/d/polar/files.chaos/swift/room/cl2tu4_3";
-  if (pray_room) return pray_room;
-  else return default_home;
+  } 
+  string room = QueryProp(P_PRAY_ROOM);
+  if (stringp(room))
+    return room;
+  else if (default_pray_room)
+    return default_pray_room;
+  // hoffentlich ist das wenigstens gesetzt. 
+  return default_home;
 }
 
 void _restart_beat()
@@ -3121,7 +3267,7 @@ static void ndead_revive()
     ndead_lasttime = 0;
 
     if ( !objectp(ndead_location) && 
-         stringp(ndead_l_filename) && strlen(ndead_l_filename)) {
+         stringp(ndead_l_filename) && sizeof(ndead_l_filename)) {
         
         if ( member( ndead_l_filename, '#' ) == -1 ){
             catch(load_object( ndead_l_filename); publish);
@@ -3217,31 +3363,32 @@ int QueryGuest()
 int disconnect(string str)
 { 
   string verb;
+  string desc = break_string(
+      "\"schlafe ein\" beendet Deine Verbindung mit "MUDNAME". Du behaeltst "
+     "Deine Sachen.\nFalls "MUDNAME" jedoch abstuerzt oder neu gestartet "
+     "wird, waehrend Du weg bist, verlierst Du die meisten allerdings "
+     "(genauso, als wenn Du Deine Verbindung mit \"ende\" beendet haettest). "
+     "In diesem Fall bekommst Du dann eine kleine Entschaedigung."
+     ,78,0,BS_LEAVE_MY_LFS);
 
   verb=query_verb();
   if (!verb)
     verb="AUTOCALL";
   if (verb[0..5]=="schlaf" && str!="ein")
   {
-    notify_fail(
-      "\"schlafe ein\" beendet Deine Verbindung mit "MUDNAME". Du behaeltst "
-     +"Deine\nSachen, aber Vorsicht: Wenn "MUDNAME" abstuerzt, waehrend Du "
-     +"weg bist,\nverlierst Du sie doch, genauso, als wenn Du Deine Verbindung "
-     +"mit \"ende\"\nbeendet haettest (allerdings bekommst Du dann eine "
-     +"finanzielle Entschaedigung).\n"
-     +"ABER: BENUTZUNG AUF EIGENE GEFAHR !!!\n" );
+    notify_fail(desc);
     return 0;
   }
   if (IS_LEARNER(this_object()))
     return quit();
-  tell_object(this_object(),
-    "Dieser Befehl beendet Deine Verbindung mit "MUDNAME". Du behaeltst Deine"
-   +"\nSachen, aber Vorsicht: Wenn "MUDNAME" abstuerzt, waehrend Du weg bist," +"\nverlierst Du sie doch, genauso, als wenn Du Deine Verbindung mit \"ende\""
-   +"\nbeendet haettest (allerdings bekommst Du dann eine finanzielle "
-   +"Entschaedigung).\n"
-   +"ABER: BENUTZUNG AUF EIGENE GEFAHR !!!\n" );
+  
+  tell_object(this_object(), desc);
+
   if (clonep(environment()) && !environment()->QueryProp(P_NETDEAD_INFO))
-    tell_object(this_object(),"\nACHTUNG: Wenn Du hier laenger als ETWA 10 Minuten schlaefst, kommst Du nicht\nan diesen Ort zurueck !\n");
+    tell_object(this_object(),break_string(
+        "\nACHTUNG: Wenn Du hier laengere Zeit schlaefst, "
+        "kommst Du vermutlich nicht an diesen Ort zurueck!",78));
+
   say(capitalize(name(WER))+" hat gerade die Verbindung zu "MUDNAME" gekappt.\n");
   remove_interactive(ME);
   call_out(#'clear_tell_history,4);
@@ -3253,7 +3400,8 @@ static int finger (string str)
   string ret;
   mixed xname;
 
-  if (!str||str==""||sizeof(explode(str," ")-({"-n","-p","-s","-v"}))>1)
+  if (!str || str==""
+      || sizeof(explode(str," ")-({"-n","-p","-s","-v","-a"}))>1)
   {
     write("finger <spielername> oder finger <spielername@mudname>\n"+
       "Bitte nur den reinen Spielernamen verwenden, keine Namensvorsaetze oder Titel\n");
@@ -3305,7 +3453,7 @@ static int muds() {
   mixed muds, output;
 
   output = lalign("Mudname", 20) + "  Status   Last access";
-  output += "\n" + MUDS_BAR[0..strlen(output)] + "\n";
+  output += "\n" + MUDS_BAR[0..sizeof(output)] + "\n";
   muds = sort_array(m_indices(hosts = INETD->query("hosts")),#'>);
   map(muds, #'format, hosts, &output);
   More(output);
@@ -3316,8 +3464,10 @@ static int muds() {
 static int _set_level(int i)
 {
   if (!intp(i)) return -1;
-  if (i<1 || i>200) return -1;
-  return Set(P_LEVEL, i);
+  if (i<1) return -1;
+  Set(P_LEVEL, i);
+  GMCP_Char( ([P_LEVEL: i]) );
+  return i;
 }
 
 static int _set_invis(int a)
@@ -3352,7 +3502,7 @@ static int stty(string str)
       if(str == "ansi") {
           printf("ANSI Farben und VT100 Attribute:\n");
           foreach(int fg: 30 .. 37) {
-	      foreach(int bg: 40 .. 47) {
+              foreach(int bg: 40 .. 47) {
                   printf("[%d;%dm[1m@[0m", fg, bg);
                   printf("[%d;%dm[4m@[0m", fg, bg);
                   printf("[%d;%dm[5m@[0m", fg, bg);
@@ -3373,7 +3523,7 @@ int set_ascii_art(string str)
   if (str!="ein"&&str!="aus")
   {
      printf("Du moechtest 'Grafik' "+(QueryProp(P_NO_ASCII_ART)?"NICHT ":"")+
-		     "sehen.\n");
+                     "sehen.\n");
   }
 
   if (str=="ein") {
@@ -3528,7 +3678,7 @@ static int _query_screensize()
         return sz;
 
     if ( !rows=QueryProp(P_TTY_ROWS) )
-        return 20;
+        return 0;
 
     return (rows+=sz) >= 5 ? rows : 5;
 }
@@ -3624,11 +3774,11 @@ void notify_player_change(string who, int rein, int invis)
   if(pointerp(list=Query(P_WAITFOR)) && sizeof(list)
       && member(list,who)!=-1) {
       if (!QueryProp(P_VISUALBELL))
-	  name+=sprintf("%c",7); // Char fuer Pieps an den String anhaengen.
+          name+=sprintf("%c",7); // Char fuer Pieps an den String anhaengen.
       delayed_write(
             ({ ({sprintf("%s   I S T   J E T Z T   %sD A !!!\n",
-			 name,(rein?"":"N I C H T   M E H R   ")),1}) 
-	    }));  
+                         name,(rein?"":"N I C H T   M E H R   ")),1}) 
+            }));  
   }
 
   if (rein && (sizeof(mlist=QueryProp(P_WAITFOR_REASON))) &&
@@ -3681,7 +3831,7 @@ static int erwarte(string str)
         str=capitalize(lower_case(str));
         if (member(list,str)!=-1)
         {
-           SetProp(P_WAITFOR_REASON,m_delete(mlist,str));
+           SetProp(P_WAITFOR_REASON,m_copy_delete(mlist,str));
            list-=({str});
            write(str+" aus der Liste entfernt.\n");
         } else
@@ -3718,7 +3868,7 @@ static int erwarte(string str)
            write("Du hast "+s+" aus keinem bestimmten Grund erwartet!\n");
         else
         {
-           SetProp(P_WAITFOR_REASON,m_delete(mlist,s));
+           SetProp(P_WAITFOR_REASON,m_copy_delete(mlist,s));
            write("Du erwartest "+s+" aus keinem bestimmten Grund mehr!\n");
         }
      else
@@ -3773,7 +3923,7 @@ static int uhrmeldung(string str)
   else
   {
     int i = strstr(str,"%",0);
-    if ( i>-1 && ( i==strlen(str)-1 || str[i+1]!='d'))
+    if ( i>-1 && ( i==sizeof(str)-1 || str[i+1]!='d'))
     {
       write("Fehler: Falscher %-Parameter in der Meldung.\n");
       return 1;
@@ -3860,13 +4010,13 @@ varargs static int angriffsmeldung(string arg) {
   return 1;
 }
 
-static string *_query_localcmds()
+static mixed _query_localcmds()
 {
   return ({({"zeilen","set_screensize",0,0}),
            ({"email","set_email",0,0}),
            ({"url","set_homepage",0,0}),
            ({"icq","set_icq",0,0}),
-	   ({"messenger", "set_messenger", 0, 0}), 
+           ({"messenger", "set_messenger", 0, 0}), 
            ({"ort","set_location",0,0}),
            ({"punkte","short_score",0,0}),
            ({"score","short_score",0,0}),
@@ -3888,7 +4038,7 @@ static string *_query_localcmds()
            ({"idee","idea",0,0}),
            ({"typo","typo",0,0}),
            ({"bug","bug",0,0}),
-           ({"fehler","bug",0,0}),
+           ({"fehler","fehlerhilfe",0,0}),
            ({"md","md",0,0}),
            ({"detail","md",0,0}),
            ({"vorsicht","toggle_whimpy",0,0}),
@@ -3925,7 +4075,7 @@ static string *_query_localcmds()
            ({"inform","inform",0,0}),
            ({"erwarte","erwarte",0,0}),
            ({"stty","stty",0,0}),
-	   ({"grafik", "set_ascii_art", 0, 0}), 
+           ({"grafik", "set_ascii_art", 0, 0}), 
            ({"uhrmeldung","uhrmeldung",0,0}),
            ({"zeitzone","zeitzone",0,0}),
            ({"behalte","behalte",0,0}),
@@ -3937,12 +4087,13 @@ static string *_query_localcmds()
            ({"spotte", "spotte", 0, 0}),
            ({"reise","reise",0,0}),
            ({"zaubertraenke","zaubertraenke",0,0}),
-	   ({"keepalive","set_keep_alive",0,0}),
+           ({"telnet","telnet_cmd",0,0}),
      })+
      command::_query_localcmds()+
      viewcmd::_query_localcmds()+
      comm::_query_localcmds()+
-     skills::_query_localcmds();
+     skills::_query_localcmds()+
+     description::_query_localcmds();
 }
 
 static int _check_keep(object ob)
@@ -4046,31 +4197,64 @@ int show_telnegs(string arg)
     return 1;
 }
 
-int set_keep_alive(string str) {
+private int set_keep_alive(string str) {
   if (str == "ein") {
     telnet_tm_counter = 600 / __HEART_BEAT_INTERVAL__;
     tell_object(this_object(), break_string(
-	"An Deinen Client werden jetzt alle 10 Minuten unsichtbare Daten "
-	"geschickt, um zu verhindern, dass Deine Verbindung zum "MUDNAME
-	" beendet wird.", 78));
+        "An Deinen Client werden jetzt alle 10 Minuten unsichtbare Daten "
+        "geschickt, um zu verhindern, dass Deine Verbindung zum "MUDNAME
+        " beendet wird.", 78));
   }
   else if (str == "aus") {
     telnet_tm_counter = 0;
     tell_object(this_object(),break_string(
-	"Du hast das Senden von unsichtbaren Daten (Keep-Alive-Pakete) an "
-	"Deinen Client ausgeschaltet.",78));
+        "Du hast das Senden von unsichtbaren Daten (Keep-Alive-Pakete) an "
+        "Deinen Client ausgeschaltet.",78));
   }
   else {
     if (!telnet_tm_counter)
       tell_object(this_object(), break_string(
-	"An Deinen Client werden keine Keep-Alive-Pakete geschickt.",78));
+        "An Deinen Client werden keine Keep-Alive-Pakete geschickt.",78));
     else
       tell_object(this_object(), break_string(
-	"An Deinen Client werden alle 10 Minuten " 
-	"unsichtbare Daten geschicht, damit Deine Verbindung "
-	"zum "MUDNAME" nicht beendet wird.",78));
+        "An Deinen Client werden alle 10 Minuten " 
+        "unsichtbare Daten geschickt, damit Deine Verbindung "
+        "zum "MUDNAME" nicht beendet wird.",78));
   }
   return 1;
+}
+
+private int print_telnet_rttime() {
+  int rtt = QueryProp(P_TELNET_RTTIME);
+  if (rtt>0)
+    tell_object(ME, break_string(
+      "Die letzte gemessene 'round-trip' Zeit vom MG zu Deinem Client "
+      "und zurueck betrug " + rtt + " us.",78));
+  else
+    tell_object(ME, break_string(
+      "Bislang wurde die 'round-trip' Zeit vom MG zu Deinem Client "
+      "noch nicht gemessen oder Dein Client unterstuetzt dieses "
+      "nicht.",78));
+  return 1;
+}
+
+int telnet_cmd(string str) {
+  if (!str) return 0;
+  string *args = explode(str, " ");
+  string newargs;
+  if (sizeof(args) > 1)
+    newargs = implode(args[1..], " ");
+  else
+    newargs = "";
+
+  switch(args[0])
+  {
+    case "keepalive":
+      return set_keep_alive(newargs);
+    case "rttime":
+      return print_telnet_rttime();
+  }
+  return 0;
 }
 
 int spotte( string str )
@@ -4142,7 +4326,7 @@ static mixed _set_fraternitasdonoarchmagorum(mixed arg)
   if (!intp(arg)) return -1;
 
   log_file("fao/P_FAO",sprintf("%s - %s P_FAO gesetzt auf %O\n",
-	dtime(time()),query_real_name(),arg) );
+        dtime(time()),query_real_name(),arg) );
   return Set(P_FAO,arg);
 }
 
@@ -4160,5 +4344,5 @@ nomask string query_realip()
 }
 
 mixed _query_netdead_env() {
-	return ndead_location || ndead_l_filename;
+        return ndead_location || ndead_l_filename;
 }

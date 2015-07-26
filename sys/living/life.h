@@ -2,7 +2,7 @@
 //
 // living/life.h -- living life header
 //
-// $Id: life.h 7325 2009-10-27 21:24:49Z Zesstra $
+// $Id: life.h 9048 2015-01-11 18:21:32Z Zesstra $
 
 #ifndef __LIVING_LIFE_H__
 #define __LIVING_LIFE_H__
@@ -91,7 +91,7 @@
 public varargs int consume(mapping cinfo, int testonly);
 // -------------------------------------------------------------------------
 
-public int do_damage(int dam, mixed enemy);
+public int do_damage(int dam, object enemy);
 public int reduce_hit_points(int dam);
 public int restore_hit_points(int heal);
 
@@ -104,7 +104,7 @@ public void heal_self(int h);
 
 public varargs void die( int poisondeath, int extern );
 
-public varargs void transfer_all_to( mixed dest, int check );
+public varargs void transfer_all_to( string|object dest, int check );
 
 public varargs int drink_alcohol(int strength, int testonly, string mytext);
 public varargs int drink_soft(int strength, int testonly, string mytext);
@@ -113,31 +113,12 @@ public varargs int eat_food(int strength, int testonly, string mytext);
 public int buffer_hp(int val,int rate);
 public int buffer_sp(int val,int rate);
 
-protected void heart_beat();
-
 public void show_age();
 
 public int AddExp(int e);
 
-// Set- und Query-Methoden
-static int     _set_align(int a);
-static int     _set_hp(int hp);
-static int     _set_sp(int sp);
-static int     _set_alcohol(int n);
-static int     _set_drink(int n);
-static int     _set_food(int n);
-static int     _set_poison(int n);
-static int     _query_age();
-static int     _set_xp(int xp);
-static mapping _query_enemy_damage();
-static mixed  *_set_last_xp( mixed last );
-static mixed   _set_die_hook(mixed hook);
-
 // internal
-private void _transfer( object *obs, mixed dest, int flag );
-protected varargs void create_kill_log_entry(string killer, object enemy);
-protected object GiveKillScore(object pl, int npcnum);
-protected void update_buffers();
+protected void ResetEnemyDamage();
 
 #endif // __LIVING_LIFE_H_PROTO__
 

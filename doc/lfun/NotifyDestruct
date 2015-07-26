@@ -1,7 +1,7 @@
 NotifyDestruct()
 
 FUNKTION:
-     public mixed NotifyRemove(object zerstoerer);
+     public int|string NotifyRemove(object zerstoerer);
 
 ARGUMENTE:
      zerstoerer

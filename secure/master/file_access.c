@@ -111,7 +111,7 @@ static int project_access(string user, string project)
 
 void OutdateProjectCache(string project)
 {
-  efun::m_delete(projects,project);
+  m_delete(projects,project);
 }
 
 static void _cleanup_projects() {
@@ -120,7 +120,7 @@ static void _cleanup_projects() {
 
   for (users=m_indices(projects),i=sizeof(users)-1;i>=0;i--)
     if((time()-projects[users[i]][1])>1800)
-      efun::m_delete(projects,users[i]);
+      m_delete(projects,users[i]);
 }
 
 int access_rights(string *p_arr, string euid)
@@ -156,13 +156,13 @@ mixed valid_write(string path, string euid, string fun, object obj)
   string *strs;
   int *date;
 
-  // einige Funktionen im Driver sind crash-anfaellig bei grossen Strings als
-  // Dateinamen. Als Work-Around alle Strings als Pfad ablehnen, die laenger
-  // als 2kb sind.
-  // TODO: nach Driverreparatur entfernen.
-  if (strlen(path) > 2048) return 0;
-
   if (member(path,' ')!=-1) return 0;
+
+  // Unter LIBDATADIR (/data) sollen komplett identische Schreibrechte
+  // vergeben werden.
+  if (sizeof(path) > 6
+      && path[0..5] == "/"LIBDATADIR"/")
+    return valid_write(path[5..], euid, fun, obj) != 0;
 
   switch(fun) {
     case "log_file":
@@ -207,18 +207,40 @@ mixed valid_write(string path, string euid, string fun, object obj)
     case TMPDIR:
       return 1;
 
-//    case "pub":
-//      return lvl>=WIZARD_LVL;
-
     case STDDIR:
     case SYSDIR:
     case LIBOBJDIR:
     case ETCDIR:
     case LIBROOMDIR:
       return lvl>=ARCH_LVL;
+    
+    case LIBITEMDIR:
+      return lvl>=ELDER_LVL;
 
     case SPELLBOOKDIR:
+      // wenn unterhalb eines unterverzeichnisses des Stils "gilde", dann ists
+      // einfach
+      if (sizeof(strs) > 2
+          && guild_master(euid, strs[1]))
+        return 1;
+
+      // sonst nur EMs bzw. access_rights.c fragen.
+      return ((lvl>=ARCH_LVL) || access_rights(strs,euid));
+
     case GUILDDIR:
+      // wenn unterhalb eines unterverzeichnisses des Stils "filde.gilde",
+      // dann ists einfach
+      if (sizeof(strs) > 2) {
+        string *tmp = explode(strs[1],"files.");
+        if (sizeof(tmp) == 2) {
+          if (guild_master(euid, tmp[1]))
+            return 1;
+        // Objekte dort sollen auch schreiben duerfen.
+          if (euid == ("GUILD."+tmp[1]))
+            return 1;
+        }
+      }
+      // sonst nur EMs bzw. access_rights.c fragen.
       return ((lvl>=ARCH_LVL) || access_rights(strs,euid));
 
     case DOCDIR:
@@ -350,13 +372,13 @@ mixed valid_read(string path, string euid, string fun, object obj)
   int s, lev;
   string *strs, suf;
 
-  // einige Funktionen im Driver sind crash-anfaellig bei grossen Strings als
-  // Dateinamen. Als Work-Around alle Strings als Pfad ablehnen, die laenger
-  // als 2kb sind.
-  // TODO: nach Driverreparatur entfernen.
-  if (strlen(path) > 2048) return 0;
-
   if (member(path,' ')!=-1) return 0;
+
+  // Unter LIBDATADIR (/data) sollen komplett identische Leserechte
+  // vergeben werden.
+  if (sizeof(path) > 6
+      && path[0..5] == "/"LIBDATADIR"/")
+    return valid_read(path[5..], euid, fun, obj) != 0;
 
   if (!euid) euid="-";
 
@@ -370,7 +392,7 @@ mixed valid_read(string path, string euid, string fun, object obj)
   // fuer die Rechtebestimmung "/" an Anfang und Ende entfernen
   strs -= ({""});
 
-  if (!sizeof(strs) || !strlen(path) || euid == ROOTID || obj==TO) return path;
+  if (!sizeof(strs) || !sizeof(path) || euid == ROOTID || obj==TO) return path;
 
   if ((s=sizeof(strs)) <= 1) return path;
 
@@ -379,12 +401,16 @@ mixed valid_read(string path, string euid, string fun, object obj)
   switch(strs[0]) {
     case "core":
     case "wahl":
-    case NEWSDIR:
       return 0;
 
-//    case "pub":
-//        if ( lev < WIZARD_LVL )
-//            return 0;
+    case NEWSDIR:
+      if (strs[1] == "archiv.pub") // oeffentliches archiv
+        return path;
+      else if (strs[1] == "archiv.magier" // Magier-Archiv
+               && lev >= WIZARD_LVL)
+        return path;
+
+      return 0; // kein Zugriff auf /news/ oder alles andere.
 
     case "maps":
       if (lev<=WIZARD_LVL) return 0;
@@ -396,6 +422,7 @@ mixed valid_read(string path, string euid, string fun, object obj)
     case DOCDIR:
     case LIBOBJDIR:
     case LIBROOMDIR:
+    case LIBITEMDIR:
     case FTPDIR:
       return path;
 
@@ -403,7 +430,7 @@ mixed valid_read(string path, string euid, string fun, object obj)
       return (euid==MAILID);
 
     case SECUREDIR:
-      if (strs[1]=="save" || strs[1]=="save_inactive") return 0;
+      if (strs[1]=="save") return 0;
       if (path[<2..]==".o" || path[<5..]==".dump") return 0;
       if (strs[1]!="ARCH" || lev>=ARCH_LVL) return path;
 

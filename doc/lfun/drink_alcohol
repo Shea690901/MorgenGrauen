@@ -5,7 +5,7 @@ DEFINIERT IN:
     /std/living/life.c
 
 ARGUMENTE:
-    alc: wird zu dem augenblicklichen Saettigungsgrad (P_ALCOHOL) addiert.
+    strength: wird zur aktuellen Saettigung P_ALCOHOL dazu addiert
     testonly: Ist das Flag gesetzt, wird dem Spieler kein ALCOHOL zugefuehrt.
               Darf nur zum Testen der Heilstelle verwendet werden und muss
               im normalen Betrieb auf '0' stehen!
@@ -13,15 +13,17 @@ ARGUMENTE:
             darf sich hier was nettes ausdenken.
 
 BESCHREIBUNG:
-    Es wird geprueft, ob dem Spieler der angebene Wert "alc" auf seine
-    aktuelle P_ALCOHOL addiert werden kann oder nicht. Ist dies moeglich,
-    wird es gemacht.
+    Es wird geprueft, ob dem Spieler der angegebene Wert fuer 'strength'
+    auf seine aktuelle P_ALCOHOL addiert werden kann oder nicht. Falls
+    das moeglich ist und testonly = 0, wird P_ALCOHOL entsprechend
+    aktualisiert.
     Sollen neben P_ALCOHOL noch weitere Props manipuliert werden - bspw. zur
     Heilung eines Lebewesens - bietet sich die Funktion consume() an.
 
 RUECKGABEWERT:
-     0, wenn alc + P_ALCOHOL > P_MAX_ALCOHOL.
-    >0, wenn Erfolg.
+    0 bei [potentiellem] Misserfolg (strength + P_ALCOHOL > P_MAX_ALCOHOL)
+    1 bei [potentiellem] Erfolg
+    * potentiell bezieht sich hier auf Nutzung mit 'testonly' != 0
 
 BEMERKUNG:
     drink_alcohol() ist in sofern nuetzlich, als dass dabei die Abfrage von
@@ -47,5 +49,4 @@ SIEHE AUCH:
      heilung, enttanken, food
 
 ----------------------------------------------------------------------------
-27.10.2009, Zesstra
-
+14.Jul 2014 Gloinson

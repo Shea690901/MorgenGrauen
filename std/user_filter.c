@@ -1,9 +1,8 @@
-// This may look like C code, but it is really -*- C++ -*-
 // MorgenGrauen MUDlib
 //
 // user_filter.c -- Hilfsmodul fuer die wer-Liste
 //
-// $Id: user_filter.c 7502 2010-03-14 21:52:21Z Zesstra $
+// $Id: user_filter.c 8755 2014-04-26 13:13:40Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma no_clone
@@ -15,22 +14,6 @@
 #include <language.h>
 
 #define ME this_object()
-
-// Mapping von Aliasen auf die 'echten' Gildennamen.
-private nosave mapping guild_aliases = ([
-    "zaubara" : "zauberer",
-    "abentoira" : "abenteurer",
-    "kaos" : "chaos",
-    "biaschuettla" : "bierschuettler",
-    "kaznkriega" : "katzenkrieger",
-    "klerikae" : "kleriker",
-    "dunklelfn" : "dunkelelfen",
-    "kaempfa" : "kaempfer",
-    "karatae" : "karate",
-    "weawoelf" : "werwoelfe",
-    "magia" : "magus",
-    "trves" : "kaempfer",
-    ]);
 
 static int is_in ( object ob, mixed x )
 {
@@ -71,11 +54,19 @@ static int is_mage_second( object ob )
 static int is_in_gilde( object ob, mixed x )
 {
   string str;
-  
-  if ( !stringp(str = (string)ob->QueryProp(P_VISIBLE_GUILD)) )
-    return 0;
-  
-  return lower_case(str)[0..strlen(x)-1] == x;
+
+  // nur Magier koennen eine andere Gilde per P_VISIBLE_GUILD in werlisten
+  // etc. vortaeuschen.
+  if (IS_LEARNER(ob)) {
+    // Querymethode von P_VISIBLE_GUILD fragt ggf. auch P_GUILD ab.
+    if ( !stringp(str = (string)ob->QueryProp(P_VISIBLE_GUILD)) )
+      return 0;
+  }
+  else {
+      str = (string)ob->QueryProp(P_GUILD);
+  }
+  if (!stringp(str)) return 0; // login hat z.B. keine Gilde.
+  return strstr(lower_case(str),x) == 0;
 }
 
 static int is_in_team( object ob, mixed x )
@@ -96,7 +87,7 @@ static int is_name_in( object ob, mixed x )
 static int is_in_region( object ob, mixed x )
 {
   return environment(ob) &&
-    (object_name(environment(ob))[0..(strlen(x)-1)] == x);
+    (object_name(environment(ob))[0..(sizeof(x)-1)] == x);
 }
 
 static int is_region_member( object ob, mixed x )
@@ -245,8 +236,7 @@ object *filter_users( string str )
     case "gilde":
       if ( ++i >= sz )
         break;
-      zwi = filter( orig, "is_in_gilde", ME, 
-	  guild_aliases[words[i]] || words[i] );
+      zwi = filter( orig, "is_in_gilde", ME, words[i] );
       break;
       
     case "team":
@@ -343,6 +333,10 @@ object *filter_users( string str )
 
     case "goblin":
       zwi = filter( orig, "is_race", ME, "Goblin" );
+      break;
+
+    case "ork":
+      zwi = filter( orig, "is_race", ME, "Ork" );
       break;
 
     case "frosch":

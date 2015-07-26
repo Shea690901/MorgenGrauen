@@ -12,31 +12,29 @@ BESCHREIBUNG:
 
     Intern werden die Modifikatoren in einer Datenstruktur der Form
 
-	({
-	   ({ Ablaufzeiten }),
-	   ([ Key : Ablaufobjekt ]),
-	   ([ Key : ([ Mapping mit den Modifikatoren ]);
-	     Ablaufzeit ; Ablaufobjekt ; Nachrichtenempfaenger
-	   ])
-	})
+    ({
+       ({ Ablaufzeiten }),
+       ([ Key : Ablaufobjekt ]),
+       ([ Key : ([ Mapping mit den Modifikatoren ]);
+         Ablaufzeit ; Ablaufobjekt ; Nachrichtenempfaenger
+       ])
+    })
 
-    gespeichert. Die Ablaufzeiten sind hierbei die Zeit in Sekunden seit
-    dem 1. Jan 1970, 0.0:0 GMT, die Ablaufobjekte sind die Objekte an deren
-    Existenz die Attributveraenderungen gebunden sind und die
-    Nachrichtenempfaenger sind diejenigen Objekte oder Files, welche im 
-    Falle einer abgelaufenen Attributveraenderung durch den Aufruf von
-    "NotifyTimedAttrModExpired" benachrichtigt werden.
-    Der Funktion NotifyTimedAttrModExpired wird als Argument der key
-    der abgelaufenen Attributveraenderung uebergeben.
+    gespeichert mit:
+    * Ablaufzeiten:  Zeit in Sekunden seit 1. Jan 1970, 0.0:0 GMT
+    * Ablaufobjekte: Objekte, an deren Existenz die Attribut-
+                     veraenderungen gebunden sind
+    * Nachrichtenempfaenger:
+      Objekte/Klassen, welche ueber abgelaufene Attributveraenderung
+      durch den Aufruf von "NotifyTimedAttrModExpired" (mit key als
+      Argument) benachrichtigt werden.
 
-    Das Setzen folg hingegen erfolg ueber die Funktionen
-    SetTimedAttrModifier und DeleteTimedAttrModifier.
+    Das Setzen der Werte erfolgt NUR ueber die Methoden SetTimedAttrModifier
+    und DeleteTimedAttrModifier.
 
     Die Daten zu einem Key koennen ueber QueryTimedAttrModifier abgefragt
-    werden.
-    Das Abfragen mittels QueryProp liefert eine Kopie der gueltigen
-    Datenstruktur, eine Abfrage mittels Query liefert eine leere
-    Datenstruktur.
+    werden. Die Abfrage mittels QueryProp liefert eine Kopie der gueltigen
+    Datenstruktur, die per Query nicht (siehe Bemerkungen).
 
     Die Bedingungen fuer die ueber P_TIMED_ATTR_MOD gesetzten
     Attributveraenderungen werden im Heartbeat in der Funktion
@@ -44,15 +42,18 @@ BESCHREIBUNG:
     Falle von Magiern ist somit kein Fehlerfall.
 
 BEMERKUNGEN:
-    Keine echte Property. Die Methode _query_timed_attr_mod() in 
+    Keine echte Property. Die Methode _query_timed_attr_mod() in
     /std/living/attributes.c stellt die Daten zusammen.
 
+    ACHTUNG: Bitte nur die bereitgestellten Methoden zur Manipulation
+             benutzen! Setzen als Property hat keinen Effekt.
+
 SIEHE AUCH:
-	QueryAttribute(), QueryRealAttribute(), QueryAttributeOffset(),
-	SetAttribute(), SetRealAttribute(), UpdateAttributes(),
-	SetTimedAttrModifier(), QueryTimedAttrModifier(),
-	DeleteTimedAttrModifier(),
-	P_ATTRIBUTES, P_ATTRIBUTES_OFFSETS, P_ATTRIBUTES_MODIFIER,
-	P_X_ATTR_MOD, P_M_ATTR_MOD, /std/living/attributes.c
+    QueryAttribute(), QueryRealAttribute(), QueryAttributeOffset(),
+    SetAttribute(), SetRealAttribute(), UpdateAttributes(),
+    SetTimedAttrModifier(), QueryTimedAttrModifier(),
+    DeleteTimedAttrModifier(),
+    P_ATTRIBUTES, P_ATTRIBUTES_OFFSETS, P_ATTRIBUTES_MODIFIER,
+    P_X_ATTR_MOD, P_M_ATTR_MOD, /std/living/attributes.c
 ----------------------------------------------------------------------------
 Last modified: Tue Jul 27 20:00:20 2004 by Muadib

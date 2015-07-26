@@ -1,11 +1,13 @@
 NotifyLeave()
 
 FUNKTION:
-     varargs void NotifyLeave(object ob);
+     void NotifyLeave(object ob, object dest);
 
 ARGUMENTE:
      ob
           Das Objekt, das aus dem Behaelter entfernt wurde.
+     dest
+          Das Objekt, in das <ob> bewegt wurde.
 
 BESCHREIBUNG:
      Diese Funktion wird im Behaelter aufgerufen, nachdem ein Objekt aus
@@ -23,4 +25,4 @@ SIEHE AUCH:
     exit(), init(), NotifyMove(), PreventMove()
 
 ----------------------------------------------------------------------------
-Last modified: 0.08.2007, Zesstra
+Last modified: 21.05.2012, Zesstra

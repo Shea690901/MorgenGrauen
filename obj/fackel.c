@@ -1,11 +1,20 @@
-#pragma strong_types
+/* Kopie von /items/fackel. Kopie deshalb, weil die Objekte hier
+   ggf. auch ne GOD-ID kriegen und in /items/ nicht nur Goetter
+   Schreibrechte haben.
+   Wenn alle Benutzer umgestellt sind: diese Kopie loeschen.
+ */
+
+#pragma strong_types,rtt_checks
+#if __BOOT_TIME > 1421010466
+#pragma no_clone
+#endif
 
 inherit "/std/lightsource";
 
 #include <properties.h>
 #include <language.h>
 
-void create() {
+protected void create() {
   lightsource::create();
   AddId(({"fackel","\nfackel"}));
   SetProp(P_NAME,"Fackel");

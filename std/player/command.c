@@ -2,7 +2,7 @@
 //
 // player/commands.c -- alias, history and player command handling
 //
-// $Id: command.c 7512 2010-03-26 15:17:54Z Zesstra $
+// $Id: command.c 9142 2015-02-04 22:17:29Z Zesstra $
 #pragma strong_types
 #pragma save_types
 //#pragma range_check
@@ -49,7 +49,7 @@ varargs mixed More(string str, int fflag, string returnto);
 static int _starts_with(string str, string start);
 static void reallocate_histbuf();
 
-private static void AddHistory(string str)
+private void AddHistory(string str)
 {
   if (!stringp(str) || str=="" || str[0]=='&' || str[0]=='^' ||
       str=="hist")
@@ -57,7 +57,7 @@ private static void AddHistory(string str)
   if (!hist_size) return;
   if (!pointerp(history) || sizeof(history)!=hist_size)
     reallocate_histbuf();
-  if (strlen(str)>=histmin && history[(hist_size+hist_now-1)%hist_size]!=str)
+  if (sizeof(str)>=histmin && history[(hist_size+hist_now-1)%hist_size]!=str)
     history[(hist_now++)%hist_size]=str;
 }
 
@@ -161,13 +161,13 @@ static int set_errormessage(string s)
 {
   if (!(s=_unparsed_args()))
   {
-    (void)_set_default_notify_fail(0);
+    _set_default_notify_fail(0);
     write("Standard-Fehlermeldung auf \"Wie bitte?\" gesetzt.\n");
   } else
   {
     write(break_string(sprintf("Standard-Fehlermeldung auf %s gesetzt.\n",
              s),78));
-    (void)_set_default_notify_fail(s);
+    _set_default_notify_fail(s);
   }
   return 1;
 }
@@ -181,9 +181,6 @@ void reconnect()
 
     max_commands = EPMASTER->QueryCommands();
     cmd_types = EPMASTER->QueryCmdTypes() || ({});
-
-    set_modify_command(0);
-    set_modify_command(this_object());
 }
 
 static int show_hist()
@@ -242,8 +239,8 @@ static int query_aliases(int display_as_aliascommand)
 static int
 _starts_with(string str, string start)
 {
-  return (strlen(start)>strlen(str) ? 0
-    : str[0..strlen(start)-1]==start);
+  return (sizeof(start)>sizeof(str) ? 0
+    : str[0..sizeof(start)-1]==start);
 }
 
 static int alias(string str)
@@ -299,8 +296,15 @@ static int alias(string str)
       ("Es nicht moeglich, den Befehl unalias zu ueberladen (waer dumm :))\n");
     return 1;
   }
+  if ((command=str[0..pos-1])=="*")
+  {
+    write
+      ("Es nicht moeglich, den Befehl \"*\" zu ueberladen.\n");
+    return 1;
+  }
+
   str=str[pos+1..],tmp=({});
-  while (l=strlen(str)) {
+  while (l=sizeof(str)) {
     pos=0,cont=1;
     while (cont) {
       if (pos<l) {
@@ -361,7 +365,7 @@ static int unalias(string str) {
     um=implode(old_explode(unmodified," ")[1..]," ");
   if (um=="") um=0;
   if ( !(str=um || _unparsed_args())) return 0;
-  if (str == "*") {
+  if (str == "*.*" || str == "*") {
     write(break_string(
       "Versuchs mal mit 'unalias .*', wenn Du wirklich alle Alias entfernen "
       "willst.",78));
@@ -374,12 +378,12 @@ static int unalias(string str) {
       return 1;
     }
     for (--i;i>=0;i--)
-      efun::m_delete(aliases,als[i]);
+      m_delete(aliases,als[i]);
     write(break_string(("Du entfernst folgende Aliase: "+
       implode(als," ")+".\n"),75));
     return 1;
   }
-  efun::m_delete(aliases,str);
+  m_delete(aliases,str);
   write("Du entfernst das Alias \""+str+"\".\n");
   return 1;
 }
@@ -480,7 +484,7 @@ static void decay_average()
   }
 }
 
-private static void DelayPreparedSpells() {
+private void DelayPreparedSpells() {
   mixed ps;
 
   if (pointerp(ps=QueryProp(P_PREPARED_SPELL))
@@ -517,7 +521,7 @@ private string parsecommand(string str)
   {
     // Kommando aus der History
     string cmd = str[1..];
-    int cmd_size = strlen(cmd);
+    int cmd_size = sizeof(cmd);
     int cmd_found = 0;
     if (cmd_size)
     {
@@ -559,8 +563,8 @@ private string parsecommand(string str)
           else
             nummer=nummer%hist_size;
         }
-        cmd = history[nummer];
-        if (nummer<0 || cmd=="\n\n")
+        if (nummer<0 
+            || ( (cmd=history[nummer]) =="\n\n") )
           notify_fail("Der Befehl ist nicht in der History!\n");
         else
         {
@@ -647,6 +651,8 @@ mixed modify_command(string str)
 
   unparsed_args[0]=unparsed_args[1]=unparsed_args[2]=unmodified=""; 
 
+  if (!sizeof(str)) return "";
+
   // Kommando wird geparst
   unmodified=parsecommand(str);
 
@@ -670,21 +676,30 @@ mixed modify_command(string str)
       && objectp(disablecommands[B_OBJECT]))
     {
       // disablecommands valid
-      if (closurep(disablecommands[B_VALUE]))
+      // hart-kodierte Ausnameliste pruefen
+      if ( member(({"mrufe","mschau","bug","idee","typo","detail"}),
+            explode(str," ")[0]) == -1)
       {
-        if (funcall(disablecommands[B_VALUE],_return_args(unmodified)))
+        if (closurep(disablecommands[B_VALUE]))
         {
-          // Non-zero Closure-Ergebnis, Abbruch. Die gerufene Funktion ist
-          // fuer eine geeignete Meldung an den Spieler verantwortlich.
+          if (funcall(disablecommands[B_VALUE],_return_args(unmodified)))
+          {
+            // Non-zero Closure-Ergebnis, Abbruch. Die gerufene Funktion ist
+            // fuer eine geeignete Meldung an den Spieler verantwortlich.
+            return 1;
+          }
+        }
+        // wenn Text, dann auch pruefen, ob das Kommandoverb in den Ausnahmen
+        // steht. (query_verb() geht leider hier noch nicht.)
+        else if (stringp(disablecommands[B_VALUE])
+                 && member(disablecommands[B_EXCEPTIONS],
+                           explode(str," ")[0]) == -1)
+        {
+          // meldung ausgeben...
+          tell_object(PL, disablecommands[B_VALUE]);
+          // und Ende...
           return 1;
         }
-      }
-      else if (stringp(disablecommands[B_VALUE]))
-      {
-        // meldung ausgeben...
-        tell_object(PL, disablecommands[B_VALUE]);
-        // und Ende...
-        return 1;
       }
     }
     else disablecommands=0;
@@ -802,12 +817,12 @@ static varargs int __auswerten(string str, string intern)
   else
     verb=intern;
   lvl=query_wiz_level(ME);
-  vl=strlen(verb);
+  vl=sizeof(verb);
   cmds=QueryProp(P_LOCALCMDS);
 
   for(i=sizeof(cmds)-1;i>=0;i--)
   {
-    cmd=cmds[i],l=strlen(cmd[0]);
+    cmd=cmds[i],l=sizeof(cmd[0]);
     if (cmd[0]==verb[0..l-1] && cmd[3]<=lvl && (cmd[2]||vl==l) &&
   (ret=auswerten(cmd[1],str)))
       return ret;
@@ -815,7 +830,7 @@ static varargs int __auswerten(string str, string intern)
   return 0;
 }
 
-static string *_query_localcmds()
+static mixed _query_localcmds()
 {
   mixed *l;
 
@@ -911,9 +926,9 @@ int command_me(string cmd)
 static mixed _query_p_lib_disablecommands() {
     // abgelaufen oder Objekt zerstoert? Weg damit.
     if (pointerp(disablecommands)
-	&& (disablecommands[B_TIME] < time()
-	|| !objectp(disablecommands[B_OBJECT])) )
-	return(disablecommands = 0);
+        && (disablecommands[B_TIME] < time()
+          || !objectp(disablecommands[B_OBJECT])) )
+        return(disablecommands = 0);
 
     // sonst Kopie zurueck (copy(0) geht)
     return(copy(disablecommands));
@@ -934,18 +949,20 @@ static mixed _set_p_lib_disablecommands(mixed data) {
       return (disablecommands = 0 );
   }
   // mal direkt buggen bei falschen Datentyp, damits auffaellt.
-  if (!pointerp(data) || sizeof(data) != 2 || !intp(data[0])
-      || (!stringp(data[1]) && !closurep(data[1])) )
+  if (!pointerp(data) || sizeof(data) < 2 || !intp(data[0])
+      || (!stringp(data[1]) && !closurep(data[1]))
+      || (sizeof(data) >= 3 && !pointerp(data[2])) )
       raise_error(sprintf(
-            "Wrong data type for P_DISABLECOMMANDS. Expected Array with "
-            "2 elements (int, string|closure), got %.25O\n", data));
+            "Wrong data type for P_DISABLE_COMMANDS. Expected Array with "
+            "2 or 3 elements (int, string|closure, [string*]), got %.25O\n",
+            data));
 
   // Wenn abgelaufen oder gleiches Objekt wie letztes Mal: eintragen.
   if (!disablecommands || (disablecommands[B_TIME] < time()
-  || !objectp(disablecommands[B_OBJECT]) 
-  || disablecommands[B_OBJECT] == origin) ) {
-      // Loggen, wenn eine Closure eingetragen wird. Reduziert den Logscroll
-      // und Strings haben deutlich weniger Missbrauchspotential.
+        || !objectp(disablecommands[B_OBJECT]) 
+        || disablecommands[B_OBJECT] == origin) ) {
+      // Loggen nur, wenn eine Closure eingetragen wird. Reduziert den
+      // Logscroll und Strings haben deutlich weniger Missbrauchspotential.
       if (closurep(data[1])) {
         CBLOG(sprintf("[%s] CB gesetzt von %O, gueltig bis %s, Daten: %O\n",
         strftime("%Y%m%d-%H:%M:%S"),origin,
@@ -953,7 +970,10 @@ static mixed _set_p_lib_disablecommands(mixed data) {
         (stringp(data[1]) ? regreplace(data[1],"\n","\\n",0)
                           : data[1])));
       }
-      disablecommands = ({ origin, data[0], data[1] });
+      if (sizeof(data)+1 <= B_EXCEPTIONS)
+        disablecommands = ({ origin, data[0], data[1], ({}) });
+      else
+        disablecommands = ({ origin, data[0], data[1], data[2] });
       return(copy(disablecommands));
   }
 

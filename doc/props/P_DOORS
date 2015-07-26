@@ -1,9 +1,0 @@
-NAME:
-    P_DOORS                       "doors"                       
-
-DEFINIERT IN:
-    /sys/properties.h
-
-BESCHREIBUNG:
-     *** OBSOLET! ***
-     Siehe P_DOOR_INFOS

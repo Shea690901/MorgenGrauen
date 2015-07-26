@@ -2,20 +2,25 @@
 //
 // player/comm.c-- basic player communiction commands
 //
-// $Id: comm.c 7469 2010-02-20 17:41:40Z Zesstra $
-
+// $Id: comm.c 9142 2015-02-04 22:17:29Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma no_clone
 #pragma pedantic
 //#pragma range_check
 
+inherit "/std/living/comm";
 inherit "/std/player/channel";
 inherit "/std/player/comm_structs";
 
 #include <input_to.h>
 
-//#define NEED_PROTOTYPES
+#define NEED_PROTOTYPES
+#include <player/quest.h>
+#include <player/gmcp.h>
+#include <living/description.h>
+#undef NEED_PROTOTYPES
+
 #include <sys_debug.h>
 
 #include <thing/properties.h>
@@ -31,6 +36,7 @@ inherit "/std/player/comm_structs";
 #include <defines.h>
 #include <daemon.h>
 #include <strings.h>
+#include <regexp.h>
 
 #define TELLHIST_DISABLED   0
 #define TELLHIST_NO_MESSAGE 1
@@ -40,9 +46,8 @@ inherit "/std/player/comm_structs";
 #define ECHO_COST 50
 #define ERWIDER_PARAM ","
 
-#define ZDEBUG(x)  if (find_player("zesstra")\
-                       && find_player("zesstra")->QueryProp("zdebug")>3)\
-                     tell_object(find_player("zesstra"),"CommDBG: "+x+"\n")
+#define ZDEBUG(x)  if (find_player("zesstra"))\
+              efun::tell_object(find_player("zesstra"),"CommDBG: "+x+"\n")
 
 private int tell_history_enabled = TELLHIST_NO_MESSAGE;
 private nosave mapping tell_history=([]);
@@ -50,14 +55,33 @@ private nosave string *commreceivers = ({});
 private nosave string last_comm_partner;
 private nosave int last_beep_time;
 
+// Statusreporte aktiviert? Binaere Flags (s. set_report())
+private int stat_reports;
+// interner Cache fuer die LP/KP/Gift-Werte fuer die Statusreport-Ausgaben
+// Eintraege (in dieser Reihenfolge): P_HP, P_SP, Giftstatus
+// Initialisierung erfolgt beim ersten Report nach Login
+private nosave mixed *report_cache;
+
+// Puffer fuer Kobold.
+private nosave struct msg_buffer_s kobold = (<msg_buffer_s>
+                                             buf: allocate(32),
+                                             index: -1,);
+#define MAX_KOBOLD_LIMIT 256
+
 varargs string name(int casus, int demonst);
 
 //local property prototypes
 static int _query_intermud();
+public int RemoveIgnore(string ign);
+public int AddIgnore(string ign);
+
+public varargs int ReceiveMsg(string msg, int msg_type, string msg_action,
+                              string msg_prefix, object origin);
+
 // erzeugt sortierte Liste an Kommunikationspartnern
 private string *sorted_commpartners(int reversed);
 
-private static string *buffer = ({});
+private nosave string *buffer = ({});
 
 void create()
 {
@@ -66,7 +90,7 @@ void create()
   Set(P_EARMUFFS, SAVE, F_MODE);
   Set(P_EARMUFFS, SECURED, F_MODE);
   Set(P_INTERMUD, SAVE, F_MODE);
-  Set(P_IGNORE, ({}), F_VALUE);
+  Set(P_IGNORE, ([]), F_VALUE);
   Set(P_IGNORE, SAVE, F_MODE);
   Set(P_BUFFER, SAVE, F_MODE);
   Set(P_MESSAGE_PREPEND, SAVE, F_MODE_AS);
@@ -78,15 +102,357 @@ void create_super()
   set_next_reset(-1);
 }
 
-private string permutate(string msg) {
-  object ob;
-  if (!objectp(ob=QueryProp(P_PERM_STRING)))
+// uebermittelt eine MT_NOTIFICATION an this_object(), welche nicht ignoriert
+// werden kann und auch nicht gespeichert wird.
+private void _notify(string msg, string action) {
+  ReceiveMsg(msg,
+             MT_NOTIFICATION|MSG_DONT_BUFFER|MSG_DONT_IGNORE|MSG_DONT_STORE,
+             action, 0, this_object());
+}
+
+protected void updates_after_restore(int newflag) {
+  // Altes Ignoriere loeschen...
+  mixed ign = Query(P_IGNORE,F_VALUE);
+  if (!mappingp(ign))
+  {
+    if (pointerp(ign))
+      _notify(break_string(
+        "Deine Ignoriere-Einstellungen wurden soeben geloescht, "
+        "weil es eine Aktualisierung der Ignorierefunktion gab, "
+        "bei der eine Konversion der Daten leider nicht "
+        "moeglich war.",78), 0);
+
+    Set(P_IGNORE, ([]), F_VALUE);
+  }
+}
+
+static int set_report(string str) {
+  int canflags = QueryProp(P_CAN_FLAGS);
+
+  if(!str)
+  {
+    if (stat_reports) {
+    string *res=({});
+    if (stat_reports & DO_REPORT_HP)
+      res+=({"Lebenspunkte"});
+    if (stat_reports & DO_REPORT_SP)
+      res+=({"Konzentrationspunkte"});
+    if (stat_reports & DO_REPORT_POISON)
+      res+=({"Vergiftungen"});
+    if (stat_reports & DO_REPORT_WIMPY)
+      res+=({"Vorsicht"});
+
+    tell_object(ME,break_string(
+        "Dir werden jetzt Veraenderungen Deiner "
+        +CountUp(res) + " berichtet.",78));
+    }
+    else
+      tell_object(ME,
+        "Alle Statusreports sind ausgeschaltet.\n");
+
+    return 1;
+  }
+  else if (str == "aus") {
+    if (stat_reports & DO_REPORT_HP || stat_reports & DO_REPORT_WIMPY) {
+      string s="";
+      if (stat_reports & DO_REPORT_HP) {
+        str="ebenfalls ";
+        tell_object(ME, "Der Report wurde ausgeschaltet.\n");
+      }
+      if ( stat_reports & DO_REPORT_WIMPY ) {
+        tell_object(ME, "Der Vorsicht-Report wurde "+s+
+          "ausgeschaltet.\n");
+      }
+      stat_reports=0;
+    }
+    else {
+      tell_object(ME, "Der Report ist bereits ausgeschaltet.\n");
+    }
+    return 1;
+  }
+  else if (str == "ein") {
+    if ( stat_reports & DO_REPORT_HP ) {
+      tell_object(ME, "Der Report ist bereits eingeschaltet.\n");
+      return 1;
+    }
+    tell_object(ME, "Der Report wurde eingeschaltet.\n");
+    stat_reports |= DO_REPORT_HP;
+    if (!(canflags & CAN_REPORT_SP)) {
+      if (QueryQuest("Hilf den Gnarfen")==1) {
+        SetProp(P_CAN_FLAGS, canflags | CAN_REPORT_SP);
+        stat_reports |= DO_REPORT_SP;
+      }
+      else {
+        tell_object(ME, break_string(
+          "Fuer den Statusreport Deiner Konzentration musst Du jedoch "
+          "zunaechst die Quest \"Hilf den Gnarfen\" bestehen.",78));
+      }
+    }
+    else {
+      stat_reports |= DO_REPORT_SP;
+    }
+    if (!(canflags & CAN_REPORT_POISON)) {
+      if (QueryQuest("Katzenjammer")==1) {
+        SetProp(P_CAN_FLAGS, canflags | CAN_REPORT_POISON);
+        stat_reports |= DO_REPORT_POISON;
+      }
+      else {
+        tell_object(ME, break_string(
+          "Fuer den Statusreport Deiner Vergiftung musst Du jedoch "
+          "zunaechst die Quest \"Katzenjammer\" bestehen.",78));
+      }
+    }
+    else {
+      stat_reports |= DO_REPORT_POISON;
+    }
+    // Cache loeschen, damit beim naechsten Report-Event alle Daten neu
+    // eingetragen werden muessen. Muss beim Einschalten des Reports
+    // passieren, weil auch in der inaktiven Zeit weiterhin Aenderungen in
+    // status_report() eingehen, so dass der Cache zwar erst einmal leer ist,
+    // aber beim Wiedereinschalten nicht mehr ungueltig waere und somit
+    // veraltete Daten an den Spieler ausgegeben werden. Im unguenstigsten
+    // Fall wuerde das sogar dazu fuehren, dass die veralteten Daten lange
+    // Zeit nicht aktualisiert werden, wenn z.B. P_HP == P_MAX_HP, so dass
+    // kein P_HP-Event mehr eingeht.
+    report_cache=0;
+  }
+  else if (str == "vorsicht") {
+    if (!(canflags & CAN_REPORT_WIMPY)) {
+      if (QueryQuest("Schrat kann nicht einschlafen")==1) {
+        SetProp(P_CAN_FLAGS, canflags | CAN_REPORT_WIMPY);
+        tell_object(ME, "Der Vorsicht-Report wurde eingeschaltet.\n");
+        stat_reports |= DO_REPORT_WIMPY;
+      }
+      else {
+        tell_object(ME, break_string(
+          "Fuer den Statusreport Deiner Vorsicht musst Du "
+          "zunaechst die Quest \"Schrat kann nicht einschlafen\" "
+          "bestehen.",78));
+      }
+    }
+    else
+    {
+      stat_reports |= DO_REPORT_WIMPY;
+    }
+    // fuer Seher auch Bericht der Fluchtrichtung einschalten.
+    if ((stat_reports & DO_REPORT_WIMPY)
+        && !(stat_reports & DO_REPORT_WIMPY_DIR)
+        && ((canflags & CAN_REPORT_WIMPY) || IS_SEER(ME)))
+    {
+      stat_reports |= DO_REPORT_WIMPY_DIR;        
+    }
+  }
+  else 
+    return 0;
+  // nur aktuellen Zustand berichten
+  set_report(0);
+  return 1;
+}
+
+private string get_poison_desc(int p) {
+  string ret;
+  if ( intp(p) ) {
+    switch(p) {
+      case 0:    ret="keins";       break;
+      case 1..3: ret="leicht";      break;
+      case 4..8: ret="gefaehrlich"; break;
+      default:   ret="sehr ernst";  break;
+    }
+    return ret;
+  }
+  else return "(nicht verfuegbar)";
+}
+
+// sprintf()-Formatstrings fuer die Reportausgabe.
+#define REPORTLINE "LP: %3d, KP: %3s, Gift: %s.\n"
+#define REPORTLINE_WIMPY "Vorsicht: %d, Fluchtrichtung: %s.\n"
+// Defines zur Adressierung der Cache-Eintraege
+#define REP_HP     0
+#define REP_SP     1
+#define REP_POISON 2
+
+protected void status_report(int type, mixed val) {
+  // Wenn der Spieler GMCP hat und das sich um die Information kuemmert,
+  // erfolgt keine textuelle Ausgabe mehr. Daher return, wenn GMCP_Char()
+  // erfolg vermeldet hat.
+  int flags = QueryProp(P_CAN_FLAGS);
+  switch (type) {
+    case DO_REPORT_HP:
+      if (GMCP_Char( ([ P_HP: val ]) ) ) return;
+      break;
+    case DO_REPORT_SP:
+      if (!(flags & CAN_REPORT_SP)) return;
+      if (GMCP_Char( ([ P_SP: val ]) ) ) return;
+      break;
+    case DO_REPORT_POISON:
+       if (!(flags & CAN_REPORT_POISON)) return;
+       if (GMCP_Char( ([ P_POISON: val ]) ) ) return;
+      break;
+    case DO_REPORT_WIMPY:
+      if (!(flags & CAN_REPORT_WIMPY)) return;
+      if (GMCP_Char( ([ P_WIMPY: val ]) ) ) return;
+      break;
+    case DO_REPORT_WIMPY_DIR:
+      if (!(flags & CAN_REPORT_WIMPY_DIR)) return;
+      if (GMCP_Char( ([ P_WIMPY_DIRECTION: val ]) ) ) return;
+      break;
+  }
+
+  // konventionelle textuelle Ausgabe des Reports ab hier.
+  if (!(type & stat_reports))
+    return;
+
+  if ( !report_cache ) {
+    report_cache = ({
+      QueryProp(P_HP),
+      (stat_reports&DO_REPORT_SP) ? to_string(QueryProp(P_SP)) : "###",
+      (stat_reports&DO_REPORT_POISON) ?
+          get_poison_desc(QueryProp(P_POISON)) : "(nicht verfuegbar)"
+    });
+  }
+
+  switch(type) {
+      // LP berichten: Cache aktualisieren und Meldung ausgeben.
+      case DO_REPORT_HP:
+        report_cache[REP_HP]=val;
+        tell_object(ME, sprintf(REPORTLINE, report_cache[REP_HP],
+          report_cache[REP_SP], report_cache[REP_POISON]));
+        break;
+      // KP berichten: Wenn der Spieler den Report freigeschaltet hat,
+      // wird bei Aenderungen gemeldet. Wenn nicht, aendert sich nur der
+      // Cache-Eintrag. So wird verhindert, dass ein Spieler ueber KP-
+      // Veraenderungen auch dann informiert wuerde, wenn er den KP-Report
+      // gar nicht benutzen koennte.
+      case DO_REPORT_SP:
+        report_cache[REP_SP]=to_string(val);
+        tell_object(ME, sprintf(REPORTLINE, report_cache[REP_HP],
+          report_cache[REP_SP], report_cache[REP_POISON]));
+        break;
+      // Giftstatus berichten: Wenn der Giftreport freigeschaltet ist,
+      // Cache aktualisieren und berichten. Wenn nicht, aendert sich nur
+      // der Cache-Eintrag. Erlaeuterung hierzu s.o. beim KP-Report.
+      case DO_REPORT_POISON:
+        report_cache[REP_POISON] = get_poison_desc(val);
+        tell_object(ME, sprintf(REPORTLINE, report_cache[REP_HP],
+          report_cache[REP_SP], report_cache[REP_POISON]));
+        break;
+      // Vorsicht-Report: kann ohne weitere Abfragen ausgegeben werden, da
+      // alle noetigen Checks schon zu Beginn dieser Funktion erledigt wurden.
+      // Lediglich der Inhalt der Meldung muss abhaengig vom Seherstatus
+      // konfiguriert werden.
+      case DO_REPORT_WIMPY:
+        string res;
+        if (IS_SEER(ME)) {
+          // QueryProp() aus Kostengruenden im if(), damit die Aufruf-
+          // Haeufigkeit zumindest ein wenig reduziert wird.
+          string dir = QueryProp(P_WIMPY_DIRECTION)||"keine";
+          res = sprintf(REPORTLINE_WIMPY, val, dir);
+        }
+        else
+          res = sprintf(REPORTLINE_WIMPY, val, "(nicht verfuegbar)");
+        tell_object(ME, res);
+        break;
+      // Fluchtrichtungs-Report: wird nur bei Sehern ausgegeben, damit
+      // nicht auch Spieler eine VS-/FR-Meldung bekommen, wenn z.B. eine
+      // externe Manipulation der Fluchtrichtung stattfindet, sie aber den
+      // Report mangels Seherstatus gar nicht freigeschaltet haben.
+      case DO_REPORT_WIMPY_DIR:
+        if (IS_SEER(ME)) {
+          if (!val) val = "keine";
+          tell_object(ME,sprintf(REPORTLINE_WIMPY, QueryProp(P_WIMPY), val));
+        }
+        break;
+  }
+}
+
+#undef REPORTLINE
+#undef REPORTLINE_WIMPY
+#undef REP_HP
+#undef REP_SP
+#undef REP_POISON
+
+private string permutate(string msg)
+{
+  // Kontrollzeichen rausfiltern. *seufz*
+  msg = regreplace(msg,"[[:cntrl:]]","",RE_PCRE|RE_GLOBAL);
+  object ob=QueryProp(P_PERM_STRING);
+  if (!objectp(ob))
     return msg;
 
   return (string)ob->permutate_string(msg)||"";
 }
 
-varargs int _flush_cache(string arg)
+// neue nachricht an den Kobold anhaengen
+// Rueckgabewerte: MSG_BUFFER_FULL oder MSG_BUFFERED
+private int add_to_kobold(string msg, int msg_type, string msg_action,
+                          string msg_prefix, object origin)
+{
+  // Nachricht soll im Kobold gespeichert werden.
+  // Kobold speichert Rohdaten und gibt spaeter das ganze auch wieder via
+  // ReceiveMsg() aus - dabei wird MSG_DONT_BUFFER | MSG_DONT_STORE gesetz,
+  // damit keine erneute Speicher in Kobold oder Komm-History erfolgt.
+
+  // wenn der Puffer zu klein ist, Groesse verdoppeln, wenn noch unterhalb
+  // des Limits.
+  if (kobold->index >= sizeof(kobold->buf)-1) {
+    if (sizeof(kobold->buf) < MAX_KOBOLD_LIMIT)
+      kobold->buf += allocate(sizeof(kobold->buf));
+    else
+      return MSG_BUFFER_FULL;
+  }
+  kobold->index = kobold->index +1;
+  // neue Nachricht an den Puffer anhaengen.
+  string sendername = query_once_interactive(origin) ?
+                      origin->query_real_name() :
+                      origin->name(WER) || "<Unbekannt>";
+  kobold->buf[kobold->index] = (<msg_s> msg: msg,
+      type : msg_type, action : msg_action, prefix : msg_prefix,
+      sendername : sendername);
+  return MSG_BUFFERED;
+}
+
+private void _flush_cache(int verbose) {
+  // nur mit genug Evalticks ausgeben.
+  if (get_eval_cost() < 100000) return;
+  if (kobold->index >= 0)
+  {
+    ReceiveMsg("Ein kleiner Kobold teilt Dir folgendes mit:",
+               MT_NOTIFICATION|MSG_DONT_IGNORE|MSG_DONT_BUFFER,
+               0, 0, this_object());
+    int prepend = QueryProp(P_MESSAGE_PREPEND);
+    foreach(int i: 0 .. kobold->index) // '0 ..' ist wichtig!
+    {
+      struct msg_s msg = kobold->buf[i];
+      // dies ist dient der Fehlerabsicherung, falls es nen Fehler (z.B. TLE)
+      // in der Schleife unten gab: dann ist index nicht auf -1 gesetzt
+      // worden, aber einige Nachrichten sind schon geloescht.
+      if (!structp(msg)) continue;
+      // Ausgabe via efun::tell_object(), weil die Arbeit von ReceiveMsg()
+      // schon getan wurde. Allerdings muessen wir uns noch um den UMbruch
+      // kuemmern.
+      if ((msg->type) & MSG_DONT_WRAP)
+        msg->msg = (msg->prefix ? msg->prefix : "") + msg->msg;
+      else
+      {
+        int bsflags = msg->type & MSG_ALL_BS_FLAGS;
+        if (prepend)
+          bsflags |= BS_PREPEND_INDENT;
+        msg->msg = break_string(msg->msg, 78, msg->prefix, bsflags);
+      }
+      efun::tell_object(this_object(), msg->msg);
+      kobold->buf[i]=0;
+    }
+    kobold->index=-1;
+  }
+  else if (verbose)
+  {
+    ReceiveMsg("Der kleine Kobold hat leider nichts Neues fuer Dich.",
+               MT_NOTIFICATION|MSG_DONT_IGNORE|MSG_DONT_BUFFER,
+               0, 0, this_object());
+  }
+}
+
+varargs int cmd_kobold(string arg)
 {
   switch(arg)
   {
@@ -98,28 +464,30 @@ varargs int _flush_cache(string arg)
       printf("Der Kobold wird Dich nicht stoeren!\n"); break;
     default: if(arg) printf("Der Kobold sagt: kobold ein oder kobold aus\n");
   }
-  if(sizeof(buffer))
-  {
-    tell_object(this_object(),
-    sprintf("Ein kleiner Kobold teilt Dir folgendes mit:\n%s",
-      implode(buffer, "")));
-    buffer = ({});
-  }
+  _flush_cache(1);
   return 1;
 }
 
-public int TestIgnore(string *arg)
+public int TestIgnoreSimple(string *arg)
 {   string *ignore;
 
-    if (!pointerp(arg) || !pointerp(ignore=QueryProp(P_IGNORE)))
+    if (!pointerp(arg) || !mappingp(ignore=Query(P_IGNORE,F_VALUE)))
         return 0;
-    return sizeof(arg&ignore);
+    foreach(string s: arg)
+    {
+      if (member(ignore,s))
+        return 1;
+    }
+    return 0;
 }
 
+//TODO: deprecated - entfernen, wenn Message() entfernt wird.
 private int check_ignore(mixed ignore, string verb, string name)
 {
-  return (ignore == verb) ||
-    ((sizeof(ignore = explode(ignore, ".")) > 1) &&
+  if (ignore == verb)
+    return 1;
+  ignore = explode(ignore, ".");
+  return ((sizeof(ignore) > 1) &&
      (name == ignore[0] && member(ignore[1..], verb) != -1));
 }
 
@@ -136,7 +504,8 @@ private varargs void add_to_tell_history( string uid, int sent, int recv,
 {
   /* tell_history ist ein Mapping mit UIDs der Gespraechspartner als Key.
      Als Wert ist eine Strukur vom Typ chat_s eingetragen.
-     Strukturen chat_s und msg_s sind in /std/player/comm_structs.c definiert.
+     Strukturen chat_s und stored_msg_s sind in /std/player/comm_structs.c
+     definiert.
      TODO fuer spaeter, gerade keine Zeit fuer:
      Als Wert ist ein Array von chat_s enthalten, wobei das 0. Element das
      jeweils juengste Gespraech mit diesem Gespraechspartner ist und alle
@@ -144,6 +513,15 @@ private varargs void add_to_tell_history( string uid, int sent, int recv,
      Element ist aeltestes Gespraech).
      */
 
+  //TODO: Entfernen, wenn das nicht mehr passiert.
+  if (!stringp(uid))
+  {
+    ReceiveMsg(sprintf(
+      "\nadd_to_tell_history(): got bad uid argument %O."
+      "sent: %d, recv: %d, flags: %d, msg: %s", 
+      uid, sent, recv, flags, message),MT_DEBUG|MSG_BS_LEAVE_LFS,0,0,ME);              
+  }
+  
   // letzten Gespraechspartner fuer erwidere.
   if (!(flags & MSGFLAG_REMOTE))
     last_comm_partner = uid;
@@ -190,7 +568,7 @@ private varargs void add_to_tell_history( string uid, int sent, int recv,
         }
       }
       // aeltestes Gespraech raus.
-      efun::m_delete(tell_history, deluid);
+      m_delete(tell_history, deluid);
       if (member(commreceivers,deluid)>-1)
         commreceivers-=({deluid});
     }
@@ -217,10 +595,10 @@ private varargs void add_to_tell_history( string uid, int sent, int recv,
     chat->msgbuf = allocate(MAX_SAVED_MESSAGES);
 
   // Message-Struktur ermitteln oder neu anlegen
-  struct msg_s msg;
+  struct stored_msg_s msg;
   if (!structp(chat->msgbuf[chat->ptr])) {
     // neue Struct ins Array schreiben
-    chat->msgbuf[chat->ptr] = msg = (<msg_s>);
+    chat->msgbuf[chat->ptr] = msg = (<stored_msg_s>);
   }
   else {
     // alte Struct ueberschreiben
@@ -230,7 +608,7 @@ private varargs void add_to_tell_history( string uid, int sent, int recv,
   chat->ptr = (chat->ptr + 1) % MAX_SAVED_MESSAGES;
   // Message speichern
   msg->msg = message;
-  msg->indent = indent;
+  msg->prefix = indent;
   msg->timestamp = time();
 }
 
@@ -262,27 +640,63 @@ protected void reset(void)
 
 }
 
-private varargs int _send(object ob, string message, int flag, string indent )
+// gerufen, wenn zielgerichtet mit jemandem kommuniziert wird _und_ das
+// Ergebnis des ReceiveMsg() geprueft werden und eine Meldung ausgegeben
+// werden soll.
+private void _send(object ob, string msg, int msg_type,
+                   string msg_action, string msg_prefix)
 {
-  mixed res;
-  if(!call_resolved(&res, ob, "Message", message, flag, indent))
-    tell_object(ob, break_string(message, 78, indent,
-      ob->QueryProp(P_MESSAGE_PREPEND) ? BS_PREPEND_INDENT : 0));
-  return res;
+  int res = ob->ReceiveMsg(msg, msg_type, msg_action, msg_prefix, ME);
+  switch(res) {
+    case MSG_DELIVERED:
+      break;  // nix machen
+    case MSG_BUFFERED:
+      ReceiveMsg(ob->Name(WER) + " moechte gerade nicht gestoert werden."
+          "Die Mitteilung wurde von einem kleinen Kobold in Empfang "
+          "genommen. Er wird sie spaeter weiterleiten!",
+          MT_NOTIFICATION, msg_action, 0, this_object());
+      break;
+    case MSG_IGNORED:
+    case MSG_VERB_IGN:
+    case MSG_MUD_IGN:
+      ReceiveMsg(ob->Name(WER) + " hoert gar nicht zu, was Du sagst.",
+           MT_NOTIFICATION, msg_action, 0, this_object());
+      break;
+    case MSG_SENSE_BLOCK:
+      ReceiveMsg(ob->Name(WER) + " kann Dich leider nicht wahrnehmen.",
+          MT_NOTIFICATION, msg_action, 0, this_object());
+      break;
+    case MSG_BUFFER_FULL:
+      ReceiveMsg(ob->Name(WER) + " moechte gerade nicht gestoert werden."
+          "Die Mitteilung ging verloren, denn der Kobold kann sich "
+          "nichts mehr merken!", MT_NOTIFICATION, msg_action, 
+          0, this_object());
+      break;
+    default:
+      ReceiveMsg(ob->Name(WER) + " hat Deine Nachricht leider nicht "
+          "mitbekommen.", MT_NOTIFICATION, msg_action, 0, this_object());
+      break;
+  }
 }
 
+// Ausgabe an das Objekt selber und Aufzeichnung in der Kommhistory, falls
+// noetig. Wird bei _ausgehenden_ Nachrichten im eigenen Objekt gerufen, damit
+// die Nachricht ggf. in den Kommhistory erfasst wird.
+// TODO: entfernen, wenn alles Aufrufer ersetzt sind durch ReceiveMsg().
 protected varargs int _recv(object ob, string message, int flag, string indent)
 {
   write(break_string(message, 78, indent,
         QueryProp(P_MESSAGE_PREPEND) ? BS_PREPEND_INDENT : 0));
   if ((flag & MSGFLAG_TELL || flag & MSGFLAG_REMOTE) &&
       query_once_interactive(ob))
+  {
     if (flag & MSGFLAG_WHISPER)
       add_to_tell_history(getuid(ob), 1, 0,
         "Du fluesterst " + ob->name(WEM) + " aus der Ferne etwas zu.", 0,
-	flag);
+        flag);
     else
       add_to_tell_history(getuid(ob), 1, 0, message, indent, flag);
+  }
   return 1;
 }
 
@@ -296,16 +710,12 @@ varargs int Message(string msg, int flag, string indent,
   int em, te;
   mixed deaf;
 
-  // TODO: Kann nach der ersten Uptime raus
-  if (objectp(cname))
-    raise_error("Message() hat einen neuen Parameter!\n");
-
   // Bei den Kanaelen 'Debug' und 'Entwicklung' kann man gezielt Bugs
   // einzelner Magier ignorieren. Dazu wird der Kanalname zum 'verb',
   // damit 'ignoriere name.debug' funktioniert.
   if( flag == MSGFLAG_CHANNEL ){
       if((msg[1..5] == "Debug" || msg[1..11] == "Entwicklung"
-	    || msg[1..9]=="Warnungen"))
+            || msg[1..9]=="Warnungen"))
       {
         // Missbrauch der Variable 'ignore' als Zwischenspeicher
         ignore = regexplode( msg, ":| |\\]" );
@@ -324,7 +734,7 @@ varargs int Message(string msg, int flag, string indent,
         }
         else
         {
-	  //falls doch kein Objekt...
+          //falls doch kein Objekt...
           if (objectp(sender))
             tin=lower_case(sender->name(RAW)||"<Unbekannt>");
         }
@@ -372,7 +782,7 @@ varargs int Message(string msg, int flag, string indent,
   }
   if (ti && (member(ignore, getuid(ti)) != -1)) {
     if(te && (IS_LEARNER(ti)||!QueryProp(P_INVIS)))
-      tell_object(ti, capitalize(name())+
+      efun::tell_object(ti, capitalize(name())+
                       " hoert gar nicht zu, was Du sagst.\n");
     return MESSAGE_IGNORE_YOU;
   }
@@ -381,7 +791,7 @@ varargs int Message(string msg, int flag, string indent,
   {
     if(ti && verb[0..2] != "ruf" && verb[0..3] != "mruf" &&
        verb[0..3] != "echo" && verb[0] != '-' && !(flag & MSGFLAG_CHANNEL) )
-      tell_object(ti, name()+" wehrt \""+verb+"\" ab.\n");
+      efun::tell_object(ti, name()+" wehrt \""+verb+"\" ab.\n");
     return MESSAGE_IGNORE_VERB;
   }
   if (flag & MSGFLAG_RTELL) {
@@ -425,9 +835,13 @@ varargs int Message(string msg, int flag, string indent,
       if(!stringp(reply))
         reply = name()+" moechte gerade nicht gestoert werden.\n";
 
-      if(sizeof(buffer) < 20)
+      msg = msg[0..<2]+" [" + strftime("%H:%M",time()) + "]\n";
+
+      int res =  add_to_kobold(msg, 0, 0, 0,
+                               objectp(sender) ? sender : ME);
+      if(res == MSG_BUFFERED)
       {
-        buffer += ({ msg[0..<2]+" [" + strftime("%H:%M",time()) + "]\n" });
+
         reply += "Die Mitteilung wurde von einem kleinen Kobold in Empfang "+
                  "genommen.\nEr wird sie spaeter weiterleiten!";
         deaf = MESSAGE_CACHE;
@@ -438,7 +852,7 @@ varargs int Message(string msg, int flag, string indent,
         deaf = MESSAGE_CACHE_FULL;
       }
       if(ti && (IS_LEARNER(ti)||!QueryProp(P_INVIS)))
-        tell_object(ti, reply+"\n");
+        efun::tell_object(ti, reply+"\n");
     }
     return deaf;
   }
@@ -446,56 +860,65 @@ varargs int Message(string msg, int flag, string indent,
           ( (flag & MSGFLAG_RTELL) ||
             (ti && (IS_LEARNER(ti)||!QueryProp(P_INVIS))))) {
     if (te && ti)
-      tell_object(ti, reply);
+      efun::tell_object(ti, reply);
     return MESSAGE_DEAF;
   }
 
-  _flush_cache();
+  _flush_cache(0);
   if(te && QueryProp(P_AWAY))
     msg = msg[0..<2]+" [" + strftime("%H:%M",time()) + "]\n";
 
   if (flag & (MSGFLAG_SAY | MSGFLAG_TELL) && comm_beep()) {
     msg=MESSAGE_BEEP+msg;
   }
-  tell_object(ME, msg);
+  efun::tell_object(ME, msg);
   return MESSAGE_OK;
 }
 
 static int ignoriere(string str)
 {
-  mixed ignore;
-  int i;
-
   str = _unparsed_args(1);
-  if(!(ignore = Query(P_IGNORE))) ignore = ({});
+  mapping ignore=Query(P_IGNORE, F_VALUE);
 
   if (!str)
   {
-      if (!sizeof(ignore)) write("Du ignorierst niemanden.\n");
+    string* ignarr = m_indices(ignore);
+    if (!sizeof(ignarr))
+        tell_object(ME, "Du ignorierst niemanden.\n");
       else
-        write( "Du ignorierst:\n"
-               + CountUp( map( sort_array( ignore, #'>/*'*/ ),
-                                     #'capitalize/*'*/ ) ) + ".\n" );
+        ReceiveMsg("Du ignorierst:\n"
+                   + break_string(CountUp(map(sort_array(ignarr, #'> ),
+                                          #'capitalize ) 
+                                         ) + ".",78),
+                   MT_NOTIFICATION|MSG_DONT_IGNORE|MSG_DONT_STORE|MSG_DONT_WRAP,
+                   0,0,this_object());
       return 1;
   }
   // trim spaces from args and convert to lower case.
   str = lower_case(trim(str, TRIM_BOTH));
-  
-  if (member(ignore, str)!=-1)
+
+  if (member(ignore, str))
   {
-    Set(P_IGNORE, ignore -= ({ str }));
-    printf("Du ignorierst %s nicht mehr.\n", capitalize(str));
-    return 1;
+    RemoveIgnore(str);
+    tell_object(ME, sprintf("Du ignorierst %s nicht mehr.\n", capitalize(str)));
   }
-  if (sizeof(ignore)>1000)
+  else if (sizeof(ignore)>100)
   {
-   printf("Du ignorierst schon genuegend!\n");
-   return 1;
+   tell_object(ME, "Du ignorierst schon genuegend!\n");
   }
-  Set(P_IGNORE, ignore += ({ str }));
-  printf("Du ignorierst jetzt %s.\n", capitalize(str));
+  else if (AddIgnore(str) == 1)
+  {
+    tell_object(ME,
+        sprintf("Du ignorierst jetzt %s.\n", capitalize(str)));
+  }
+  else
+  {
+    tell_object(ME,
+        sprintf("'%s' kannst Du nicht ignorieren.\n",str));
+  }
   return 1;
 }
+
 
 static int _msg_beep(string str) {
   int beep_interval;
@@ -509,8 +932,9 @@ static int _msg_beep(string str) {
   }
 
   beep_interval=(int)QueryProp(P_MESSAGE_BEEP);
-  write("Ton bei Mitteilungen: "+ 
-	(beep_interval ? "aller "+beep_interval+" Sekunden.\n" : "aus.\n"));
+  _notify("Ton bei Mitteilungen: "+
+        (beep_interval ? "aller "+beep_interval+" Sekunden." : "aus."),
+        query_verb());
   return 1;
 }
 
@@ -525,8 +949,10 @@ static int _msg_prepend(string str) {
     else return 0;
   }
 
-  write("Senderwiederholung bei Mitteilungen: "+ 
-	((int)QueryProp(P_MESSAGE_PREPEND) ?  "aus" : "ein")+".\n");
+  _notify("Senderwiederholung bei Mitteilungen: "+ 
+          ((int)QueryProp(P_MESSAGE_PREPEND) ?  "aus" : "ein")+".",
+          query_verb());
+
   return 1;
 }
 
@@ -542,7 +968,7 @@ static int _communicate(mixed str, int silent)
   if(stringp(verb) && verb[0] == '\'') str = verb[1..] + " " + str;
   if (str==""||str==" "||!str)
   {
-    write("Was willst Du sagen?\n");
+    _notify("Was willst Du sagen?",MA_SAY);
     return 1;
   }
   msg=permutate(str);
@@ -551,37 +977,31 @@ static int _communicate(mixed str, int silent)
      !(QueryProp(P_CAN_FLAGS)&CAN_PRESAY)?
     "":QueryProp(P_PRESAY))+name())||"";
 
-  object* players = filter(all_inventory(environment()||ME),#'interactive);
-  string sag_text=break_string(msg, 78, capitalize(myname)+" sagt: ");
-  string prepended_text;
-  foreach (object target : players-({ME})) {
-    if (target->QueryProp(P_DEAF)) continue;
-    if (target->QueryProp(P_MESSAGE_PREPEND)) {
-      if (!stringp(prepended_text)) 
-	prepended_text=break_string(msg, 78, capitalize(myname)+" sagt: ",
-	    BS_PREPEND_INDENT);
-      _send(target,prepended_text,MSGFLAG_SAY);
-    } else {
-      _send(target,sag_text,MSGFLAG_SAY);
-    }
-  }
+  // an alles im Raum senden. (MT_LISTEN, weil dies gesprochene Kommunikation
+  // ist, keine MT_COMM)
+  send_room(environment(), msg, MT_LISTEN, MA_SAY,
+            capitalize(myname)+" sagt: ", ({this_object()}) );
+
   if(!silent)
-    _recv(0, str, MSGFLAG_SAY, "Du sagst: ");
-  say(sag_text,players);
+  {
+    ReceiveMsg(msg, MT_NOTIFICATION|MSG_DONT_IGNORE|MSG_DONT_STORE,
+               MA_SAY, "Du sagst: ", ME);
+  }
   return 1;
 }
 
 static int _shout_to_all(mixed str)
 {
-  string pre, myname, realname, str1, str2;
-  int i,chars;
+  string pre, myname, realname, wizards_msg, players_msg;
+  string wizard_prefix, player_prefix;
+  int chars;
 
   if (!(str=_unparsed_args()))
   {
-    write("Was willst Du rufen?\n");
+    _notify("Was willst Du rufen?",MA_SHOUT);
     return 1;
   }
-  chars=strlen(str)/2;
+  chars=sizeof(str)/2;
   if (chars<4) chars=4;
   pre = (!IS_LEARNER(ME) ||
    QueryProp(P_INVIS) ||
@@ -591,50 +1011,61 @@ static int _shout_to_all(mixed str)
   if (QueryProp(P_INVIS))
     realname = "("+realname+")";
 
-  str1=permutate(str);
+  wizards_msg = permutate(str);
+  wizard_prefix = myname+" ruft: ";
 
-  if(QueryProp(P_FROG))
-    str2 = break_string("Quaaak, quaaaaak, quuuuaaaaaaaaaaaaaaaaaaaak !!",
-           78,myname+" quakt: ");
-  else str2=break_string(str1,78,myname+" ruft: ");
+  if(QueryProp(P_FROG)) {
+    players_msg = "Quaaak, quaaaaak, quuuuaaaaaaaaaaaaaaaaaaaak !!";
+    player_prefix = myname+" quakt: ";
+  }
+  else {
+    players_msg = wizards_msg;
+    player_prefix = wizard_prefix;
+  }
 
   if(!IS_LEARNER(this_player()))
   {
     if(QueryProp(P_GHOST)) {
-	write("So ganz ohne Koerper bekommst Du keinen Ton heraus.\n");
-	return 1;
+        _notify("So ganz ohne Koerper bekommst Du keinen Ton heraus.",
+                MA_SHOUT);
+        return 1;
     }
     if (QueryProp(P_SP) <(chars+20))
     {
-      write("Du must erst wieder magische Kraefte sammeln.\n");
-      write("Tip: Benutz doch mal die Kanaele (Hilfe dazu mit 'hilfe kanaele').\n");
+      _notify("Du musst erst wieder magische Kraefte sammeln.",
+              MA_SHOUT);
+      _notify("Tip: Benutz doch mal die Ebenen (Hilfe dazu mit 'hilfe "
+              "Ebenen').", MA_SHOUT);
       return 1;
     }
     SetProp(P_SP, QueryProp(P_SP) - chars - 20);
   }
 
-  _recv(0, str, MSGFLAG_SHOUT, "Du rufst: ");
-  str1=break_string(str1,78,realname+" ruft: ");
+  ReceiveMsg(wizards_msg, MT_NOTIFICATION|MSG_DONT_IGNORE|MSG_DONT_STORE,
+             "rufe", "Du rufst: ", ME);
 
   foreach ( object ob : users()-({this_object()}) )
     if ( IS_LEARNER(ob) )
-      _send(ob,str1,MSGFLAG_SHOUT);
+      ob->ReceiveMsg(wizards_msg, MT_LISTEN|MT_FAR, MA_SHOUT, wizard_prefix,
+                    this_object());
     else
-      _send(ob,str2,MSGFLAG_SHOUT);
+      ob->ReceiveMsg(players_msg, MT_LISTEN|MT_FAR, MA_SHOUT, player_prefix,
+                    this_object());
 
   return 1;
 }
 
-varargs int _tell(string who, mixed msg, int intcall)
+varargs int _tell(string who, mixed msg)
 {
   object    ob;
   string    away,myname,ret;
-  mixed     ignore,it,*xname;
+  mixed     ignore,it;
+  string    *xname;
   int       i,visflag;
 
-  if (extern_call()&&this_interactive()!=ME) return 1;
+  if (extern_call() && this_interactive()!=ME) return 1;
   if (!who || !msg) {
-    write("Was willst Du mitteilen?\n");
+    _notify("Was willst Du mitteilen?",MA_TELL);
     return 1;
   }
 
@@ -662,21 +1093,30 @@ varargs int _tell(string who, mixed msg, int intcall)
     }
   }
 
-  xname = old_explode(who, "@");
+  xname = explode(who, "@");
 
-  if (sizeof(xname) == 2) {
-    if (ret=(string)INETD->_send_udp(xname[1],
+  if (sizeof(xname) == 2) 
+  {
+    if ( QueryProp(P_QP) )
+    {
+      if (ret=(string)INETD->_send_udp(xname[1],
                                     ([ REQUEST:   "tell",
                                        RECIPIENT: xname[0],
                                        SENDER:    getuid(ME),
                                        DATA:     msg ]), 1))
-      write(ret);
-    else
-    {
-      write("Nachricht abgeschickt.\n");
-      add_to_tell_history(who, 1, 0, msg,
-        "Du teilst " + capitalize(who) + " mit: ", MSGFLAG_TELL, 1);
+      {
+        _notify(ret, MA_TELL);
+      }
+      else
+      {
+        write("Nachricht abgeschickt.\n");
+        add_to_tell_history(who, 1, 0, msg,
+          "Du teilst " + capitalize(who) + " mit: ", MSGFLAG_TELL, 1);
+      }
     }
+    else
+      write("Du hast nicht genug Abenteuerpunkte, um Spielern in anderen \n"
+        "Muds etwas mitteilen zu koennen.\n");
     return 1;
   }
 
@@ -684,18 +1124,17 @@ varargs int _tell(string who, mixed msg, int intcall)
   {
     it = match_living(it, 0);
     if (!stringp(it))
-      switch(it){
+      switch(it) {
       case -1:
-        write("Das war nicht eindeutig!\n");
+        _notify("Das war nicht eindeutig!",MA_TELL);
         return 1;
       case -2:
-        write("Kein solcher Spieler!\n");
+        _notify("Kein solcher Spieler!",MA_TELL);
         return 1;
       }
-    ob = find_player(it);
-    if(!ob) ob = find_living(it);
-    if(!ob){
-      write("Kein solcher Spieler!\n");
+    ob = find_player(it) || find_living(it);
+    if(!ob) {
+      _notify("Kein solcher Spieler!",MA_TELL);
       return 1;
     }
   }
@@ -711,23 +1150,34 @@ varargs int _tell(string who, mixed msg, int intcall)
   else
     myname=((IS_LEARNER(ME) && (QueryProp(P_CAN_FLAGS) & CAN_PRESAY)) ?
               QueryProp(P_PRESAY):"") + name();
-  if (myname && strlen(myname)) myname=capitalize(myname);
+  if (myname && sizeof(myname)) myname=capitalize(myname);
+  // erstmal an Empfaenger senden
+  _send(ob, permutate(msg), MT_COMM|MT_FAR, MA_TELL,
+        myname + " teilt Dir mit: ");
 
+  // dann evtl. noch an Absender ausgeben...
   if (visflag = !ob->QueryProp(P_INVIS) || IS_LEARNER(this_player()))
     _recv(ob, msg, MSGFLAG_TELL, "Du teilst " + capitalize(it) + " mit: ");
+  // oder irgendwas anderes an den Absender ausgeben...
+  if (!visflag && interactive(ob))
+      _notify("Kein solcher Spieler!",MA_TELL);
+  else if (away = (string)ob->QueryProp(P_AWAY))
+      ReceiveMsg( break_string( away, 78, capitalize(it)
+                           + " ist gerade nicht da: ", BS_INDENT_ONCE ),
+          MT_NOTIFICATION|MSG_DONT_WRAP|MSG_DONT_IGNORE,
+          MA_TELL, 0, this_object());
+  else if (interactive(ob) && (i=query_idle(ob))>=600)
+  { //ab 10 Mins
+      if (i<3600)
+        away=time2string("%m %M",i);
+      else
+        away=time2string("%h %H und %m %M",i);
 
-  if (!visflag&&interactive(ob))
-    write("Kein solcher Spieler!\n");
-  else if (away = (string) ob->QueryProp(P_AWAY))
-      write( break_string( away, 78, capitalize(it)
-                           + " ist gerade nicht da: ", BS_INDENT_ONCE ) );
-  else
-    if(interactive(ob) && (i=query_idle(ob))>=600){ //ab 10 Mins
-      if(i<3600) away=time2string("%m %M",i);
-      else away=time2string("%h %H und %m %M",i);
-      printf("%s ist seit %s voellig untaetig.\n",capitalize(it),away);
+      _notify(sprintf("%s ist seit %s voellig untaetig.",
+              capitalize(it),away),
+              MA_TELL);
     }
-  _send(ob, permutate(msg), MSGFLAG_TELL, myname + " teilt Dir mit: ");
+
   return 1;
 }
 
@@ -737,6 +1187,18 @@ static int _teile(string str)
   if (!(str=_unparsed_args())) return 0;
   if (sscanf(str, "%s mit %s", who, message) == 2)
     return _tell(who, message,1);
+  return 0;
+}
+static int _teile_mit_alias(string str)
+{
+  str = _unparsed_args(), TRIM_LEFT;
+  if (!str) return 0;
+  str = trim(str, TRIM_LEFT);
+  // Ziel muss min. 2 Buchstaben haben (.<nr>)
+  if (sizeof(str) < 4) return 0;
+  int pos = strstr(str, " ");
+  if (pos >= 2)
+    return _tell(str[..pos-1], str[pos+1..]);
   return 0;
 }
 
@@ -759,12 +1221,12 @@ static int _whisper(string str)
 
   if (!(str=_unparsed_args()) ||
        (sscanf(str, "%s zu %s", who, msg) != 2 &&
-  sscanf(str, "%s %s", who, msg) !=2 )) {
-    write("Was willst Du wem zufluestern?\n");
+        sscanf(str, "%s %s", who, msg) !=2 )) {
+    _notify("Was willst Du wem zufluestern?",MA_SAY);
     return 1;
   }
   if (!(ob = present(who, environment(this_player()))) || !living(ob)) {
-    write(capitalize(who)+" ist nicht in diesem Raum.\n");
+    _notify(capitalize(who)+" ist nicht in diesem Raum.",MA_SAY);
     return 1;
   }
 
@@ -772,9 +1234,16 @@ static int _whisper(string str)
        !QueryProp(P_INVIS) &&
        (QueryProp(P_CAN_FLAGS) & CAN_PRESAY))?
       QueryProp(P_PRESAY) : "") + name()) || "");
-  _send(ob, permutate(msg), MSGFLAG_WHISPER, myname + " fluestert Dir zu: ");
+
+  _send(ob, permutate(msg), MT_LISTEN|MSG_DONT_STORE,
+        MSG_SAY, myname + " fluestert Dir zu: ");
+  send_room(environment(),
+            myname + " fluestert " + ob->name(WEM, 1) + " etwas zu.",
+            MT_LISTEN|MSG_DONT_STORE, MA_SAY, 0, ({this_object(),ob}));
+
   _recv(ob, msg, MSGFLAG_WHISPER, "Du fluesterst " + ob->name(WEM) + " zu: ");
-  say(myname + " fluestert " + ob->name(WEM, 1) + " etwas zu.\n", ob);
+
+
   return 1;
 }
 
@@ -790,8 +1259,8 @@ static int _remote_whisper(string str)
 
   if (!(str=_unparsed_args()) ||
        (sscanf(str, "%s zu %s", who, msg) != 2 &&
-  sscanf(str, "%s %s", who, msg) !=2 )) {
-    write("Was willst Du wem aus der Ferne zufluestern?\n");
+        sscanf(str, "%s %s", who, msg) !=2 )) {
+    _notify("Was willst Du wem aus der Ferne zufluestern?",MA_EMOTE);
     return 1;
   }
 
@@ -801,25 +1270,21 @@ static int _remote_whisper(string str)
     if (!stringp(it))
       switch(it){
       case -1:
-        write("Das war nicht eindeutig!\n");
+        _notify("Das war nicht eindeutig!",MA_EMOTE);
         return 1;
       case -2:
-        write("Kein solcher Spieler!\n");
+        _notify("Kein solcher Spieler!",MA_EMOTE);
         return 1;
       }
     ob = find_player(it);
     if(!ob) ob = find_living(it);
     if(!ob){
-      write("Kein solcher Spieler!\n");
+      _notify("Kein solcher Spieler!",MA_EMOTE);
       return 1;
     }
   }
-  if (ob->QueryProp(P_INVIS) && IS_LEARNER(this_player())) {
-    write("Kein solcher Spieler!\n");
-    return 1;
-  }
   if (environment(ob) == environment()) {
-    write("Wenn jemand neben Dir steht, nimm fluester.\n");
+    _notify("Wenn jemand neben Dir steht, nimm fluester.",MA_EMOTE);
     return 1;
   }
 
@@ -827,16 +1292,27 @@ static int _remote_whisper(string str)
        !QueryProp(P_INVIS) &&
        (QueryProp(P_CAN_FLAGS) & CAN_PRESAY))?
       QueryProp(P_PRESAY) : "") + name()) || "");
-  _send(ob, permutate(msg), MSGFLAG_WHISPER | MSGFLAG_REMOTE,
-        myname + " fluestert Dir aus der Ferne zu: ");
-  _recv(ob, msg, MSGFLAG_WHISPER | MSGFLAG_REMOTE,
+
+  // An Empfaenger senden.
+  _send(ob, permutate(msg), MT_COMM|MT_FAR|MSG_DONT_STORE, MA_EMOTE,
+         myname + " fluestert Dir aus der Ferne zu: ");
+
+  // wenn Empfaenger invis und wir kein Magier , ggf. fakefehler ausgeben.
+  if (ob->QueryProp(P_INVIS) && !IS_LEARNER(this_player())) {
+    _notify("Kein solcher Spieler!",MA_EMOTE);
+    return 1;
+  }
+  // sonst eigene Meldung via _recv() ausgeben.
+  else 
+    _recv(ob, msg, MSGFLAG_WHISPER | MSGFLAG_REMOTE,
         "Du fluesterst " + ob->name(WEM) + " aus der Ferne zu: ");
+
   return 1;
 }
 
 static int _converse(string arg)
 {
-  write("Mit '**' wird das Gespraech beendet.\n");
+  _notify("Mit '**' wird das Gespraech beendet.",MA_SAY);
   if (stringp(arg) && strstr(arg, "-s") == 0)
     input_to("_converse_more", INPUT_PROMPT, "]", 1);
   else
@@ -846,18 +1322,14 @@ static int _converse(string arg)
 
 static int _converse_more(mixed str, int silent)
 {
-  string    cmd;
-  int     i;
-  string    myname;
-
   if (str == "**") {
-    write("Ok.\n");
+    _notify("Ok.",MA_SAY);
     return 0;
   }
-  myname=capitalize((((IS_LEARNER(ME) && !QueryProp(P_INVIS) && 
-	    (QueryProp(P_CAN_FLAGS)&CAN_PRESAY))?
-          QueryProp(P_PRESAY):"")+name())||"");
-  if(str != "") _communicate(str, silent);
+
+  if(str != "")
+    _communicate(str, silent);
+
   input_to("_converse_more", INPUT_PROMPT, "]", silent);
   return 1;
 }
@@ -871,27 +1343,34 @@ static int _shout_to_wizards(mixed str)
   object   *u;
 
   str = _unparsed_args();
-  if (!str||!strlen(str)) {
-    write("Was willst Du den Magiern zurufen?\n");
+  if (!str||!sizeof(str)) {
+    _notify("Was willst Du den Magiern zurufen?",MA_SHOUT);
     return 1;
   }
+  // Kontrollzeichen rausfiltern.
+  str = regreplace(str,"[[:cntrl:]]","",RE_PCRE|RE_GLOBAL);
   myname = capitalize(getuid(this_object()));
   if (!IS_LEARNER(this_object()))
     _recv(0, str, MSGFLAG_MECHO, "Du teilst allen Magiern mit: ");
-  map(filter(users(), #'is_learner/*'*/),
-        #'_send/*'*/,
-            break_string(str, 78, myname+" an alle Magier: "),MSGFLAG_MECHO);
+
+  // mrufe ist nicht ignorierbar, da es nur fuer schwere Probleme gedacht ist.
+  filter(users(), #'is_learner)->ReceiveMsg(str,
+      MT_COMM|MT_FAR|MSG_DONT_IGNORE|MSG_DONT_STORE,
+      MA_SHOUT, myname+" an alle Magier: ", this_object());
+
   return 1;
 }
 
 static int _echo(string str) {
-  if (!IS_SEER(ME) || (!IS_LEARNER(ME) &&
-           !(QueryProp(P_CAN_FLAGS)&CAN_ECHO)))
+  if (!IS_SEER(ME) || (!IS_LEARNER(ME)
+        && !(QueryProp(P_CAN_FLAGS) & CAN_ECHO)))
     return 0;
+
   if (!(str=_unparsed_args())) {
-    write ("Was moechtest Du 'echoen'?\n");
+    _notify("Was moechtest Du 'echoen'?", 0);
     return 1;
   }
+
   if (!IS_LEARNER(this_interactive()))
   {
     if (QueryProp(P_GHOST))
@@ -909,15 +1388,50 @@ static int _echo(string str) {
     log_file("ARCH/ECHO_SEHER", sprintf("%s %s: %s\n", dtime(time()), getuid(),
            str));
   }
-  say ( str + "\n");
-  write ( str + "\n");
+  // An den Raum senden. Typ ist MT_COMM, aber das Echo soll weder in der
+  // Kommhistory noch im Kobold landen.
+  send_room(environment(ME), str, MT_COMM|MSG_DONT_STORE|MSG_DONT_BUFFER,
+            MA_UNKNOWN, 0, 0);
   return 1;
 }
 
-static mixed _set_ignore(mixed arg)
+// Dient als Verteidigung gegen Leute, die eher unbedacht reinschreiben, nicht
+// gegen Leute, die da absichtlich reinschreiben. Die werden geteert
+// und gefedert.
+static string *_set_ignore(mixed arg)
 {
-  if(stringp(arg)) arg = ({ arg });
-  if(pointerp(arg)) return Set(P_IGNORE, arg);
+  raise_error("Direktes Setzen von P_IGNORE ist nicht erlaubt. "
+      "Benutze AddIgnore/RemoveIgnore()!\n");
+}
+// Kompatibiltaet zum alten Ignore: Array von Indices liefern. Aendert aber
+// nix dran, dass alle TestIgnore() & Co benutzen sollen.
+static string *_query_ignore() {
+  mixed ign=Query(P_IGNORE, F_VALUE);
+  if (mappingp(ign))
+    return m_indices(ign);
+  return ({});
+}
+
+public int AddIgnore(string ign) {
+  // Einige strings sind nicht erlaubt, z.B. konsekutive .
+  if (!sizeof(ign)
+      || regmatch(ign,"[.]{2,}",RE_PCRE)
+      || regmatch(ign," ",RE_PCRE)
+      || sizeof(explode(ign,"."))>3)
+    return 0;
+
+  mapping ignores=Query(P_IGNORE, F_VALUE);
+  ignores[ign]=time();
+  // kein Set() noetig.
+  return 1;
+}
+
+public int RemoveIgnore(string ign)
+{
+  mapping ignores=Query(P_IGNORE,F_VALUE);
+  m_delete(ignores,ign);
+  // Kein Set() noetig
+  return 1;
 }
 
 static int _query_intermud()
@@ -1010,7 +1524,7 @@ static int tmhist(string str)
     return 0;
   }
 
-  if (str && strlen(str)) {
+  if (str && sizeof(str)) {
 
     if (tell_history_enabled < TELLHIST_ENABLED) {
       _notify_fail("Der Inhalt Deiner Mitteilungen wird nicht gespeichert.\n");
@@ -1045,11 +1559,11 @@ static int tmhist(string str)
 
     More(sprintf("%@s", map(data[ptr..MAX_SAVED_MESSAGES-1] +
                               data[0..ptr-1],
-         function string (struct msg_s msg) {
+         function string (struct stored_msg_s msg) {
              if (!structp(msg)) return "";
                return break_string( msg->msg + " <"
                  + strftime("%H:%M:%S",msg->timestamp) + ">", 78,
-                 msg->indent || "", msg->indent ? BS_LEAVE_MY_LFS : 0);
+                 msg->prefix || "", msg->prefix ? BS_LEAVE_MY_LFS : 0);
          } ) ) );
     return 1;
   }
@@ -1070,10 +1584,10 @@ static int tmhist(string str)
   return 1;
 }
 
-static string *_query_localcmds()
+static mixed _query_localcmds()
 {
   return ({
-    ({"kobold", "_flush_cache",0,0}),
+    ({"kobold", "cmd_kobold",0,0}),
      ({"sag","_communicate",0,0}),
      ({"sage","_communicate",0,0}),
      ({"'","_communicate",1,0}),
@@ -1085,6 +1599,7 @@ static string *_query_localcmds()
      ({"erzaehle","_erzaehle",0,0}),
      ({"teil","_teile",0,0}),
      ({"teile","_teile",0,0}),
+     ({"tm","_teile_mit_alias",0,0}),
      ({"fluester","_whisper",0,0}),
      ({"fluestere","_whisper",0,0}),
      ({"rfluester","_remote_whisper",0,0}),
@@ -1098,6 +1613,7 @@ static string *_query_localcmds()
      ({"erwidere","erwidere",0,0}),
      ({"klingelton","_msg_beep",0,0}),
      ({"senderwiederholung","_msg_prepend",0,0}),
+     ({"report","set_report",0,0}),
     })+channel::_query_localcmds();
 }
 
@@ -1113,3 +1629,283 @@ private string *sorted_commpartners(int reversed) {
       } );
 }
 
+// Eigentlich nur in Magierobjekten gerufen. Gehoert aber thematisch hier
+// irgendwie hin.
+static void modify_prompt() {
+    string text = Query(P_PROMPT, F_VALUE);
+
+    if ( !stringp(text) || !sizeof(text) )
+        text = "> ";
+    else {
+        string path = Query(P_CURRENTDIR, F_VALUE);
+        if (stringp(path) && sizeof(path))
+          text = regreplace(text,"\\w",path,0); // Pfad einsetzen
+    }
+
+    set_prompt( text, this_object() );
+}
+
+// Prueft auf Ingoriereeintraege.
+// Rueckgabe: 0 (nicht ignoriert) oder MSG_IGNORED
+#ifdef __LPC_UNIONS__
+public int TestIgnore(string|string* srcnames)
+#else
+public int TestIgnore(mixed srcnames)
+#endif
+{
+  mapping ign = Query(P_IGNORE, F_VALUE);
+  if (stringp(srcnames))
+    srcnames = ({srcnames});
+
+  foreach(string srcname: srcnames)
+  {
+    // einfachster Fall, exakter Match
+    if (member(ign, srcname))
+      return MSG_IGNORED;
+    // ansonsten muss aufgetrennt werden.
+    if (strstr(srcname,".") > -1)
+    {
+      string *srcparts=explode(srcname,".");
+      switch(sizeof(srcparts))
+      {
+        // case 0 und 1 kann nicht passieren.
+        case 3:
+          // zu pruefen: [sender].aktion.qualifizierer.
+          // Der Fall, dass der Spieler dies _genau_ _so_ ignoriert hat, wird
+          // oben schon geprueft. im Spieler geprueft werden muss noch:
+          // spieler, .aktion, spieler.aktion und .aktion.qualifizierer
+          if ( (sizeof(srcparts[0]) && member(ign,srcparts[0])) // spieler
+              || member(ign, "."+srcparts[1])      // .aktion
+              || member(ign, srcparts[0]+"."+srcparts[1]) // [spieler].aktion
+              || member(ign, "."+srcparts[1]+"."+srcparts[2]) // .akt.qual
+             )
+          {
+            return MSG_IGNORED;
+          }
+          break;
+        case 2:
+          // zu pruefen: spieler.aktion
+          // Der Fall, dass der Spieler das _genau_ _so_ eingegeben hat, ist
+          // oben schon geprueft. Im Spieler zu pruefen ist noch:
+          // spieler und .aktion
+          if ((sizeof(srcparts[0]) && member(ign,srcparts[0]))
+              || member(ign, "."+srcparts[1]))
+          {
+            return MSG_IGNORED;
+          }
+          break;
+        default: // mehr als 3 Teile...
+          raise_error(sprintf("TestIgnoreExt(): too many qualifiers, only 1 "
+                "is supported. Got: %s\n",srcname));
+          break;
+      }
+    }
+  }
+  // Default: nicht ignorieren.
+  return 0;
+}
+
+#ifdef __LPC_UNIONS__
+public int TestIgnoreExt(string|string* srcnames)
+#else
+public int TestIgnoreExt(mixed srcnames)
+#endif
+{
+  return TestIgnore(srcnames);
+}
+
+// Prueft fuer ReceiveMsg() auf Ingoriereeintraege. Ignoriert aber nicht alle
+// Typen. 
+// Rueckgabe: 0 oder MSG_IGNORED | MSG_VERB_IGN | MSG_MUD_IGN
+private int check_ignores(string msg, int msg_type, string msg_action,
+                            string msg_prefix, object origin)
+{
+  // Einige Dinge lassen sich nicht ignorieren.
+  if (msg_type & (MT_NEWS|MT_NOTIFICATION))
+    return 0;
+  // alles andere geht zur zeit erstmal, wenn origin bekannt UND NICHT das
+  // eigene Objekt ist. Waer ggf. sonst doof. Ausserdem muss es natuerlich
+  // eine ignorierbare msg_action geben.
+  else if (stringp(msg_action) && origin && origin != ME)
+  {
+    string srcname =
+      (query_once_interactive(origin) ? origin->query_real_name()
+                                      : origin->name(WER) || "");
+    mapping ign = Query(P_IGNORE, F_VALUE);
+
+    if (member(ign, srcname))
+      return MSG_IGNORED;
+    // vielleicht wird irgendwas a la name.aktion ignoriert?
+    // dies ignoriert auch spieler.ebenen.<ebene> (s. msg_action bei
+    // Ebenenmeldungen)
+    if (member(ign, srcname+"."+msg_action))
+      return MSG_VERB_IGN;
+    // Oder die Aktion komplett? Dies ignoriert auch .ebenen.<ebene>, obwohl
+    // das reichlich sinnfrei ist.
+    if (member(ign, "."+msg_action))
+      return MSG_VERB_IGN;
+    // Spieler auf Ebenen ignoriert?
+    // msg_action ist hier nach diesem Muster: MA_CHANNEL.<ebene>
+    if (strstr(msg_action, MA_CHANNEL) == 0)
+    {
+      // spieler.ebenen? (spieler.ebenen.<ebene> oben schon geprueft)
+      if (member(ign, srcname + "."MA_CHANNEL))
+        return MSG_IGNORED;
+      // spieler.ebenen.ebenenname ist oben schon abgedeckt.
+      // .ebenen halte ich fuer sinnfrei, nicht geprueft.
+    }
+    // Spieler aus anderem mud? *seufz*
+    if (strstr(srcname,"@") > -1)
+    {
+      string *srcparts = explode(srcname,"@");
+      if (sizeof(srcparts)==2)
+      {
+        // spieler@?
+        if (member(ign, srcparts[0]+"@"))
+          return MSG_IGNORED;
+        // oder Mud per @mud?
+        if (member(ign, "@" + srcparts[1]))
+          return MSG_MUD_IGN;
+        // BTW: spieler@mud wurde schon ganz oben erfasst.
+      }
+    }
+  }
+  // Default: nicht ignorieren.
+  return 0;
+}
+
+// Wird die nachricht wahrgenommen? Die Pruefung erfolgt aufgrund von
+// msg_type. Zur wird MT_LOOK und MT_LISTEN beruecksichtigt (Pruefung auf
+// BLindheit/Taubheit).
+// Wichtig: enthaelt msg_action weder MT_LOOK noch MT_LISTEN, wird die
+// Nachricht wahrgenommen, da davon ausgegangen wird, dass sie mit den beiden
+// Sinn gar nix zu tun hat.
+// Rueckgabe: 0 oder MSG_SENSE_BLOCK
+private int check_senses(string msg, int msg_type, string msg_action,
+                              string msg_prefix, object origin)
+{
+  int senses = msg_type & (MT_LOOK|MT_LISTEN);
+  // Wenn von vorherein kein Sinn angesprochen, dann ist es eine nachricht,
+  // die von keinem der beiden wahrgenommen wird und sollte demnach nicht
+  // unterdrueckt werden.
+  if (!senses)
+    return 0;
+
+  if ((senses & MT_LOOK) && CannotSee(1))
+    senses &= ~MT_LOOK;  // Sinn loeschen
+
+  if ((senses & MT_LISTEN) && QueryProp(P_DEAF))
+    senses &= ~MT_LISTEN;
+
+  // wenn kein Sinn mehr ueber, wird die Nachricht nicht wahrgenommen.
+  if (!senses)
+    return MSG_SENSE_BLOCK;
+
+  return 0;
+}
+
+public varargs int ReceiveMsg(string msg, int msg_type, string msg_action,
+                              string msg_prefix, object origin)
+{
+  if (!msg) return MSG_FAILED;
+
+  // Flags und Typen spalten
+  int flags = msg_type & MSG_ALL_FLAGS;
+  int type = msg_type & ~flags;
+
+  // ggf. defaults ermitteln
+  origin ||= previous_object();
+  msg_action ||= comm_guess_action();
+  type ||= comm_guess_message_type(msg_action, origin);
+
+  // Debugmeldungen nur an Magier oder Testspieler mit P_WIZ_DEBUG
+  if (msg_type & MT_DEBUG)
+  {
+    if (!QueryProp(P_WIZ_DEBUG)
+        || (!IS_LEARNER(ME) && !QueryProp(P_TESTPLAYER)) )
+    return MSG_FAILED;
+  }
+
+  // Zuerst werden Sinne und P_IGNORE sowie ggf. sonstige Filter geprueft. In
+  // dem Fall ist direkt Ende, kein Kobold, keine Komm-History, keine
+  // Weiterbearbeitung.
+  // aber bestimmte Dinge lassen sich einfach nicht ignorieren.
+  if (!(flags & MSG_DONT_IGNORE))
+  {
+    // Sinne pruefen. (nur typen uebergeben, keine Flags)
+    int res=check_senses(msg, type, msg_action, msg_prefix, origin);
+    if (res) return res;
+
+    // Spieler-definiertes Ignoriere? (nur typen uebergeben, keine Flags)
+    res=check_ignores(msg, type, msg_action, msg_prefix, origin);
+    if (res) return res;
+  }
+
+  // Fuer MT_COMM gibt es ein paar Sonderdinge zu machen.
+  if ((type & MT_COMM))
+  {
+    // erstmal in der Komm-History ablegen, wenn gewuenscht.
+    if ((!(flags & MSG_DONT_STORE)))
+    {
+      string uid;
+      if (query_once_interactive(origin))
+        uid = origin->query_real_name();
+      else
+        uid = origin->name(WER) || "<unbekannt>";
+      add_to_tell_history(uid, 0, 1, msg, msg_prefix, 0);
+    }
+
+    // ggf. Uhrzeit bei abwesenden Spielern anhaengen, aber nicht bei
+    // Ebenenmeldungen. (Die haben ggf. schon.)
+    if (stringp(msg_action) && QueryProp(P_AWAY)
+        && strstr(msg_action, MA_CHANNEL) != 0)
+    {
+      // Uhrzeit anhaengen, aber ggf. muss ein \n abgeschnitten werden.
+      if (msg[<1] == '\n')
+        msg = msg[0..<2]+" [" + strftime("%H:%M",time()) + "]\n";
+      else
+        msg = msg + " [" + strftime("%H:%M",time()) + "]";
+    }
+    // Kobold erlaubt und gewuenscht? Kobold ist fuer die
+    // direkte Kommunikation mittels MT_COMM vorgesehen.
+    // Oropax von Magiern leitet inzwischen auch nur in Kobold um statt zu
+    // ignorieren.
+    // die if-Konstruktion ist so, weil ich das _flush_cache() im else
+    // brauche.
+    if (query_editing(this_object()) || query_input_pending(this_object())
+        || QueryProp(P_EARMUFFS))
+    {
+      if (!(flags & MSG_DONT_BUFFER)
+            && QueryProp(P_BUFFER))
+      {
+        // Nachricht soll im Kobold gespeichert werden.
+        return add_to_kobold(msg, msg_type, msg_action, msg_prefix, origin);
+      }
+    }
+    else
+    {
+      // wenn nicht in Editor/input_to, mal versuchen, den Kobold zu
+      // entleeren.
+      _flush_cache(0);
+    }
+
+    // ggf. Piepston anhaengen. NACH Koboldablage, die sollen erstmal keinen
+    // Pieps kriegen.
+    if (comm_beep())
+      msg=msg + MESSAGE_BEEP;
+  }
+
+  // Ausgabenachricht bauen und an den Spieler senden.
+  if (flags & MSG_DONT_WRAP)
+    msg = (msg_prefix ? msg_prefix : "") + msg;
+  else
+  {
+    int bsflags = flags & MSG_ALL_BS_FLAGS;
+    if (QueryProp(P_MESSAGE_PREPEND))
+      bsflags |= BS_PREPEND_INDENT;
+    msg = break_string(msg, 78, msg_prefix, bsflags);
+  }
+  efun::tell_object(ME, msg);
+
+  return MSG_DELIVERED;
+}

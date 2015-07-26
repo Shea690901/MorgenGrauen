@@ -7,9 +7,9 @@
 #include <moving.h>
 #include <new_skills.h>
 
-// Ein NPC wird nicht von std/thing direkt geerbt, sondern von std/npc.
-// Da std/npc aber seinerseits wieder von std/thing erbt, sind im NPC auch
-// saemtliche Funktionen definiert, die bereits in std/thing enthalten sind.
+// Ein NPC wird nicht von /std/thing direkt geerbt, sondern von /std/npc.
+// Da /std/npc aber seinerseits wieder von /std/thing erbt, sind im NPC auch
+// saemtliche Funktionen definiert, die bereits in /std/thing enthalten sind.
 inherit "/std/npc";
 
 void create()
@@ -18,7 +18,7 @@ void create()
    // create_default_npc() setzt schon mal einige wichtige Properties wie
    // P_ATTRIBUTES automatisch...
    create_default_npc(20, 300);
-   
+
    // Keine Angst: Es muessen keineswegs immer alle diese Properties benutzt
    // werden, auch wenn ich sie jetzt einmal alle angebe, um eine Uebersicht
    // zu geben, was man alles ueber Properties steuern kann...
@@ -29,7 +29,7 @@ void create()
    SetProp(P_GENDER, MALE);
    SetProp(P_MAGIC, 0);
    SetProp(P_MATERIAL, MAT_MISC_LIVING);
-   
+
    // nun komen einige wirklich neue Properties
    SetProp(P_INFO, "Der Ork ist ein ganz gemeiner... :)\n");
    SetProp(P_ALIGN, -500); // Alignment des Gegners
@@ -70,7 +70,7 @@ void create()
    SetProp(P_GUILD, "abenteurer"); // in die Abenteuergilde mit ihm...
    SetProp(P_GUILD_LEVEL, 20);
    ModifySkill("feuerball",([SI_SKILLABILITY:10000]),1,"abenteurer");
-   
+
    // nun noch eine andere Art zu zaubern...
    SetProp(P_SPELLRATE, 10);
    AddSpell(100, 400,
@@ -79,7 +79,7 @@ void create()
 
    // was soll der NPC mit ihm gegebenen Gegenstaenden machen...
    SetProp(P_REJECT, ({REJECT_DROP, "Damit kann ich nichts anfangen.\n"}));
-   
+
    // und natuerlich auch noch eine id fuer den ork
    AddId("ork");
 
@@ -88,7 +88,7 @@ void create()
 }
 
 // Diese Funktion wird aufgerufen, wenn man einen Gegenstand bekommt...
-void give_notify(object ob)
+public void give_notify(object ob)
 {
    if (ob->id("milchflasche")) // Milch annehmen und einen Spruch aufsagen
      write("Der Ork sagt: Ohh.... Danke fuer die leckere Milch.\n");
@@ -97,17 +97,18 @@ void give_notify(object ob)
 
 // Diese Funktion wird aufgerufen, wenn uns jemand im Kampf Schaden zufuegen
 // moechte...
-int Defend(int dam, mixed dam_type, mixed spell, object enemy)
+public varargs int Defend(int dam, mixed dam_type, mixed spell, object enemy)
 {
    if (!random(4))
      write("Der Ork weicht Deinem Angriff geschickt aus.\n");
-   else return (int)::Defend(dam, dam_type, spell, enemy);
+   else
+     return ::Defend(dam, dam_type, spell, enemy);
 }
 
-void Attack(object enemy)
+public void Attack(object enemy)
 {
   // das Kommando 'Feuerball' eingeben. Da der NPC Mitglied der
-  // Abenteurergilde ist (s.o.), spricht er also den Spell, wenn er genug
+  // Abenteurergilde ist (s.o.), spricht er also den Spell, falls er genug
   // Magiepunkt dafuer hat.
   if (!random(3)) command_me("feuerball");
   ::Attack(enemy);

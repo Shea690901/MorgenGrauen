@@ -2,7 +2,7 @@
 //
 // room/description.c -- room description handling
 //
-// $Id: description.c 7476 2010-02-20 18:56:01Z Zesstra $
+// $Id: description.c 9085 2015-01-18 23:01:26Z Arathorn $
 
 #pragma strong_types
 #pragma save_types
@@ -29,24 +29,21 @@ void create()
   SetProp(P_ROOM_MSG, ({}) );
   SetProp(P_FUNC_MSG, 0);
   SetProp(P_MSG_PROB, 30);
-  SetProp(P_LIGHT_ABSORPTION, 1);
   AddId(({"raum", "hier"}));
 }
 
 void init()
 {
-  mixed roommsg;
-
-//  ::init();
   // Wenn P_ROOM_MSG gesetzt oder P_FUNC_MSG und kein Callout laeuft,
   // Callout starten.
-  if( (((roommsg=QueryProp(P_ROOM_MSG)) && sizeof(roommsg)) ||
-	QueryProp(P_FUNC_MSG) ) && 
+  mixed roommsg = QueryProp(P_ROOM_MSG);
+  if( ( (roommsg && sizeof(roommsg)) ||
+        QueryProp(P_FUNC_MSG) ) &&
       (find_call_out("WriteRoomMessage")==-1))
     call_out("WriteRoomMessage", random(QueryProp(P_MSG_PROB)));
 }
 
-varargs void AddRoomMessage(string *mesg, int prob, mixed *func)
+varargs void AddRoomMessage(string *mesg, int prob, mixed func)
 {
   if (mesg && !pointerp(mesg))
     raise_error(sprintf(
@@ -111,7 +108,7 @@ varargs string int_long(mixed viewer,mixed viewpoint,int flags)
   // ggf. Tueren hinzufuegen.
   if (QueryProp(P_DOOR_INFOS)) {
     string tmp=((string)call_other(DOOR_MASTER,"look_doors"));
-    if (stringp(tmp) && strlen(tmp))
+    if (stringp(tmp) && sizeof(tmp))
         descr += tmp;
   }
   
@@ -181,33 +178,42 @@ varargs void exit(object liv, object dest) {
     while (remove_call_out("WriteRoomMessage")!=-1);
 }
 
-static int _set_int_light(int *light)
-{
-   int tmp;
+static string _query_int_long() {return Query(P_INT_LONG, F_VALUE);}
 
-   // zur Sicherheit
-   if (!pointerp(light)) return -1;
-   if (light[0]>QueryProp(P_LIGHT)) {
-      // Licht verlaeuft sich in einem grossen Raum, daher Modifier abfragen...
-      tmp=light[0]-QueryProp(P_LIGHT_ABSORPTION);
-      // wenn sich das Vorzeichen geaendert hat, auf 0 setzen.
-      light[0]=((tmp^light[0]) & 0x80000000 ? 0 : tmp);
-   }
-   if (light[1]<QueryProp(P_LIGHT) && light[1]<0) {
-      // Licht verlaeuft sich in einem grossen Raum, daher Modifier abfragen...
-      tmp=light[1]+QueryProp(P_LIGHT_ABSORPTION);
-      // wenn sich das Vorzeichen geaendert hat, auf 0 setzen.
-      light[1]=((tmp^light[1]) & 0x80000000 ? 0 : tmp);
-   }
-   light[2]=light[0]+light[1];
-   Set(P_INT_LIGHT, light, F_VALUE);
-   // diese Prop setzen kaum Leute (offiziell gehts ja auch gar nicht. Keiner
-   // davon erwartet nen Rueckgabewert. Daher wird hier 0 zurueckgeben, statt
-   // des aufwaendig berechneten QueryProp(P_INT_LIGHT).
-   // Achja. Der Rueckgabewert vom Set() waere ein int*, was nicht geht, weil
-   // diese Funktion nur int zurueckgeben darf.
-   return 0;
+
+// Querymethode fuer P_DOMAIN - gibt die Region an, in der Raum liegt, sofern
+// er unter /d/ liegt...
+static string _query_lib_p_domain()
+{
+  string fn = object_name();
+  if (strstr(fn, "/d/") == 0)
+  {
+    return capitalize(explode(fn, "/")[2]);
+  }
+
+  return "unbekannt";
 }
 
-static string _query_int_long() {return Query(P_INT_LONG, F_VALUE);}
+<string|string*>* _set_harbour_name( <string|string*>* desc) 
+{
+  if ( sizeof(desc)!=2 )
+  {
+    raise_error(sprintf("Unacceptable data in P_HARBOUR, sizeof() was %d, "
+      "expected 2.", sizeof(desc)));
+  }
+  else if ( !stringp(desc[0]) )
+  {
+    raise_error("Wrong data type in P_HARBOUR[0]: expected 'string'.");
+  }
+  else if ( pointerp(desc[1]) && sizeof(desc[1])<1 )
+  {
+    raise_error("Insufficient data in P_HARBOUR[1]: expected 'string*', "
+      "got '({})'.");
+  }
+  else if ( stringp(desc[1]) )
+  {
+    desc[1] = ({desc[1]});
+  }
+  return Set(P_HARBOUR, desc, F_VALUE);
+}
 

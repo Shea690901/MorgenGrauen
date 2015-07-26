@@ -2,7 +2,7 @@
 //
 // www.c -- WWW Guest Client
 //
-// $Id: www.c 6142 2007-01-31 20:34:39Z Zesstra $
+// $Id: www.c 8755 2014-04-26 13:13:40Z Zesstra $
 
 #pragma strong_types
 #pragma combine_strings
@@ -22,7 +22,7 @@ private mixed pending; // pending udp requests
 private string HTMLunescape(string char)
 {
   int len;
-  if(!char || !(len = strlen(char))) return "";
+  if(!char || !(len = sizeof(char))) return "";
   if(char[0] == '%' && len = 3) {
     int val, ch;
     while(--len) {

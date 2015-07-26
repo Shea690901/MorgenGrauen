@@ -18,7 +18,7 @@ RUECKGABEWERT:
      keiner
 
 BEISPIELE:
-     siehe /obj/money.c
+     siehe /items/money.c
 
 SIEHE AUCH:
      RemoveSingularId(), AddPluralId(), AddId(), id(), /std/unit.c

@@ -2,7 +2,7 @@
 //
 // death_room_vc.c -- Das Standardobjekt fuer den VC-Todesraum
 //
-// $Id: death_room_vc.c 7013 2008-09-02 21:11:37Z Zesstra $
+// $Id: death_room_vc.c 8988 2014-12-31 13:10:19Z Zesstra $
 
 
 #pragma strict_types
@@ -28,6 +28,7 @@ public void create()
     SetProp( P_GENDER, MALE );
     SetProp( P_ARTICLE, 0 );
     SetProp( P_LIGHT,1 );
+    SetProp( P_NO_TPORT, NO_TPORT_OUT );
     SetProp( P_LOG_FILE, "TOD/Todesraum" );
     SetProp( P_INT_SHORT, "Arbeitszimmer des Todes" );
     SetProp( P_INT_LONG, break_string(
@@ -160,7 +161,7 @@ public int no_poison(int val)
   if ( val != 0 )
   {
     catch( raise_error("Poisoning dead players is illegal. Calling object "
-      "was "+object_name(previous_object(1)))+"\n";publish );
+      "was "+object_name(previous_object(1))+"\n");publish );
   }
   return 0;
 }

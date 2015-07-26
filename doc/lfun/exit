@@ -1,7 +1,7 @@
 exit()
 
 FUNKTION:
-  void exit(object liv, object dest);
+  varargs void exit(object liv, object dest);
 
 DEFINIERT IN:
   /std/room/description.c
@@ -20,7 +20,7 @@ RUeCKGABEWERT:
   keiner
 
 BEMERKUNG:
-  Man beachte, dass this_player() 0 sein kann, wenn z.B. ein Netztoter
+  Man beachte, dass this_player() 0 sein kann, wenn z.B. ein netztoter Spieler
   Spieler den Raum verlaesst.
   Man beachte ausserdem, dass this_player() nicht unbedingt das bewegte Living
   sein muss. Wenn z.B. jemand ein Lebewesen bewegt, ist TP der, der die

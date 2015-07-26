@@ -355,7 +355,7 @@ public void catch_tell( string str )
 }
 
 
-public int remove()
+public varargs int remove()
 {
     write( "Armageddon will nicht removed werden!\n" );
     return 0;

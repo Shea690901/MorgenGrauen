@@ -54,7 +54,6 @@ public void SetProperties(mapping props);
 public mapping QueryProperties();
 
 // misc/interna
-nomask private int allowed();
 public mixed *__query_properties();
 public void _set_save_data(mixed data);
 public mixed _get_save_data();

@@ -2,7 +2,7 @@ NAME:
     P_TTY_TYPE                                  "tty_type"
 
 DEFINIERT IN:
-    /sys/properties.h
+    /secure/telnetneg.h
 
 BESCHREIBUNG:
     In dieser Properties steht der Terminaltyp, den ein Spieler lokal auf

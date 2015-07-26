@@ -20,7 +20,7 @@ BEMERKUNGEN:
        gemacht.)
 
 BEISPIELE:
-     SetProp(P_LONG, break_string(
+     SetProp(P_INT_LONG, break_string(
       "Du stehst in einem total spannenden Testraum. Seine absolute "
       "Nichtigkeit erfuellt dich mit ehrfuerchtigem Grauen.",78));
 

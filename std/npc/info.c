@@ -2,7 +2,7 @@
 //
 // npc/info.c -- Behandeln von Fragen an den NPC
 //
-// $Id: info.c 7208 2009-04-06 20:39:37Z Zesstra $
+// $Id: info.c 8755 2014-04-26 13:13:40Z Zesstra $
 
 /* Letzte Aenderungen von Wim 8.1.99
  *
@@ -95,7 +95,7 @@ static void smart_npc_log(string str)
     creat = MASTER->creator_file(this_object());
     if (creat == ROOTID)
       creat = "ROOT";
-    else if( !creat || creat[0]==' ' )
+    else if( creat==BACKBONEID )
       creat="STD";
     creat_det="report/"+explode(creat, ".")[<1]+"_INFO.rep";
     creat="report/"+explode(creat, ".")[<1]+".rep";
@@ -104,14 +104,15 @@ static void smart_npc_log(string str)
            sprintf("INFO von %s [%s] (%s):\n%s\n",
                    getuid(this_interactive()),
                    explode(object_name(this_object()),"#")[0],
-                   dtime(time())[5..<11],
+                   strftime("%d. %b %Y"),
                    str));
-  log_file(creat_det,
-           sprintf("INFO von %s [%s] (%s):\n%s\n",
-                   getuid(this_interactive()),
-                   explode(object_name(this_object()),"#")[0],
-                   dtime(time())[5..<11],
-                   str));
+  if (stringp(creat_det) && sizeof(creat_det))
+    log_file(creat_det,
+             sprintf("INFO von %s [%s] (%s):\n%s\n",
+                     getuid(this_interactive()),
+                     explode(object_name(this_object()),"#")[0],
+                     strftime("%d. %b %Y"),
+                     str));
 }
 
 public int frage(string str) {
@@ -212,6 +213,7 @@ public int do_frage(string text)
     if ( intp(noanswer) && noanswer > 0)
      {
        text = DEFAULT_NOINFO;
+       info = GetInfoArr(text);
        if (closurep(info[0]) ) {
          answer=funcall(info[0]);
          if( !answer || answer=="") return 1;
@@ -293,7 +295,7 @@ public varargs void AddSpecialInfo(mixed keys, string functionname,
 
 public void RemoveInfo( string key )
 {
-  efun::m_delete(infos,key);
+  m_delete(infos,key);
 }
 
 static varargs void _set_default_info( mixed info )

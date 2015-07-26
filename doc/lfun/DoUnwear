@@ -4,7 +4,7 @@ FUNKTION:
      varargs int DoUnwear(int silent, int all);
 
 DEFINIERT IN:
-     /std/armour/combat.c
+     /std/clothing/wear.c
 
 ARGUMENTE:
      silent

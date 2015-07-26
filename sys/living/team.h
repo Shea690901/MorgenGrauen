@@ -2,7 +2,7 @@
 //
 // living/team.h -- team header
 //
-// $Id: team.h 6081 2006-10-23 14:12:34Z Zesstra $
+// $Id: team.h 8449 2013-03-04 21:06:38Z Zesstra $
 
 #ifndef __LIVING_TEAM_H__
 #define __LIVING_TEAM_H__
@@ -17,7 +17,7 @@
 #define P_TEAM_ASSOC_MEMBERS      "team_assoc_members"
 #define P_TEAM_COLORS             "team_colors"
 
-#define TEAM_OBJECT "/p/daemon/team"
+#define TEAM_OBJECT "/obj/team"
 #define TEAM_MASTER "/p/daemon/teammaster"
 #define EMPTY_TEAMARRAY ({({}),({}),({}),({}),({})})
 #define MAX_TEAMROWS 5

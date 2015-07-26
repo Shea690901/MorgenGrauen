@@ -8,7 +8,10 @@ mschau
  ARGUMENTE:
 
      <schalter>
-        `an' oder `aus'
+        'an', 'ein' oder 'ja' schaltet den Magiermodus ein
+        'aus' oder 'nein' schaltet den Magiermodus aus
+        '+debug' schaltet Debugmeldungen ein
+        '-debug' schaltet Debugmeldungen aus
 
  BESCHREIBUNG:
     Manchmal moechte man etwas ausprobieren, was nur Spielern moeglich ist,
@@ -21,6 +24,10 @@ mschau
 
     Mit `mschau an' kehrt man wieder in den Magiermodus zurueck.
 
+    Zusaetzlich kann dieses Kommando noch umschalten, ob Magier Debugmeldungen
+    (das sind Meldungen, die mit dem Typ MT_DEBUG an ReceiveMsg() uebergeben
+     werden) wahrnehmen moechten oder nicht.
+
  BEMERKUNGEN:
     Auch mit ausgeschaltetem Magiermodus unterliegt man noch den Bedingungen
     des Magiervertrags!
@@ -29,4 +36,5 @@ mschau
     vertrag, schau (an), i (=inventur)
 
  LETZTE AeNDERUNG:
-    Thu, 24.07.1997, 09:00:00 von Wargon
+    1.5.2014, Zesstra
+

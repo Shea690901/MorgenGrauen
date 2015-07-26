@@ -3,7 +3,7 @@
 // new_skills.h -- Alle noetigen Defintionen fuer Skills (Faehigkeiten),
 //                 Spells (Zaubersprueche) und Gilden.
 //
-// $Id: new_skills.h 6673 2008-01-05 20:57:43Z Zesstra $
+// $Id: new_skills.h 8610 2014-01-06 20:59:13Z Zesstra $
 
 #ifndef _NEW_SKILLS_H_
 #define _NEW_SKILLS_H_
@@ -12,7 +12,7 @@
 #include <living/skill_attributes.h>
 
 // ===== Aktuelle Version der Skills ====
-#define CURRENT_SKILL_VERSION       1
+#define CURRENT_SKILL_VERSION       2
 
 // ===== Allgemeine Defines: =====
 
@@ -147,6 +147,7 @@
   // Erschoepfung - Zeit, in der
   // keine weiteren Spells
   // aufgerufen werden koennen
+#define SI_X_SPELLFATIGUE           "std:si:xfatigue"
 
 #define SI_SKILLLEARN               "si_learn"
   // Lerngeschwindigkeit in 0.01%
@@ -155,6 +156,13 @@
 #define SI_LEARN_ATTRIBUTE          "si_learn_attribute"
   // Wenn man nicht will, dass man in Abhaengigkeit von
   // INT lernt
+
+#define SI_NO_LEARN                 "si_no_learn"
+  // Wenn man (temporaer!) nicht will, dass dieser Skill gelernt wird.
+  // Muss von den Spellbooks beachtet werden.
+  // Sollte niemals im Spieler abgespeichert werden. Oder permanent in
+  // Gilde/Spellbook gesetzt sein. Sondern im Laufe einesr Nutzung in der jew.
+  // Kopie von sinfo gesetzt werden, die gerade genutzt wird.
 
 #define SI_SKILLABILITY             "si_abil"
   // Faehigkeit, diesen Spruch zu
@@ -273,10 +281,10 @@
   // (s.u.) setzen
 
 #define SI_ATTACK_BUSY_AMOUNT       "si_attack_busy_amount"
-  // Der Spell hat ein gewisses 
-  // AttackBusy, aber das weicht 
+  // Der Spell hat ein gewisses
+  // AttackBusy, aber das weicht
   // vom Standardwert 1 ab. Der
-  // Wert kann hier gesetzt 
+  // Wert kann hier gesetzt
   // werden.
 
 #define SI_LAST_USE                 "si_last_use"
@@ -338,7 +346,7 @@
   // Eingeschlossene Gilden
 
 #define SR_GOOD                     "restr_good"
-  // Align < 
+  // Align <
 
 #define SR_BAD                      "restr_bad"
   // Align >
@@ -354,6 +362,15 @@
 
 #define SR_MAX_SIZE                 "max_size"
   // Maximalgroesse
+
+#define SR_PROP                     "restr_properties"
+  // Werte beliebiger Properties
+
+#define SR_QUEST                    "restr_quests"
+  // Quest bestanden
+
+#define SR_MINIQUEST                "restr_miniquests"
+  // Miniquest geloest
 
 // ===== Skill Modifier: =====
 

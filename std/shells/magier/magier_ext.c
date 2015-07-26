@@ -1,4 +1,4 @@
-// $Id: magier_ext.c 7499 2010-03-09 22:08:23Z Zesstra $
+// $Id: magier_ext.c 9142 2015-02-04 22:17:29Z Zesstra $
 #pragma strict_types
 #pragma save_types
 //#pragma range_check
@@ -11,9 +11,12 @@
 #include <snooping.h>
 #define NEED_PROTOTYPES
 #include <player/telnetneg.h>
+#include <player/base.h>
 #undef NEED_PROTOTYPES
 #include <properties.h>
 #include <files.h>
+#include <events.h>
+#include <player/comm.h>
 
 inherit "/std/shells/magier/parsing";
 inherit "/std/shells/magier/upd";
@@ -25,7 +28,6 @@ inherit "/std/shells/magier/players";
 inherit "/std/shells/magier/admin";
 inherit "/std/shells/magier/moving";
 inherit "/std/shells/magier/comm";
-
 
 
 //                              #######
@@ -60,9 +62,9 @@ static int _set(mixed args)
   }
   pos = member(args,' ');
   if(pos == -1)
-    if(strlen(args))
+    if(sizeof(args))
       {
-        efun::m_delete(QueryProp(P_VARIABLES), args);
+        m_delete(QueryProp(P_VARIABLES), args);
         printf("Variable %s wurde geloescht.\n",args);
         return 1;
       }
@@ -140,62 +142,22 @@ static int _cd(string cmdline)
 
 static string _set_currentdir(string path)
 {
-    string promptstring;
-    mapping TN;
-
-    if( !(promptstring = QueryProp(P_PROMPT)) || promptstring == "" )
-        promptstring = "> ";
-    else
-        promptstring = implode( explode(promptstring, "\\w"), path );
-
-    TN=query_telnet_neg();
-
-    if ( mappingp(TN) && mappingp(TN["received"])
-         && (TN["received"][TELOPT_EOR,1] == DO) )
-        set_prompt(lambda(({}),
-      ({ #'efun::binary_message,
-         ({ #'+,
-            ({ #'to_array,
-               ({ #'implode,
-                    ({ #'explode,promptstring,"\\t" }),
-                        ({ #'[..],({ #'ctime }),11, 15 })
-               })
-            }),'({ IAC, EOR })
-         })
-      })), this_object());
-  else
-    set_prompt(
-               lambda(({}),
-                       ({ #'implode,
-                               ({ #'explode,promptstring, "\\t" }),
-                               ({ #'[..],({ #'ctime }),11, 15 })
-                       })), this_object());
-
-  return Set(P_CURRENTDIR, path);
+  Set(P_CURRENTDIR, path);
+  this_object()->modify_prompt();  // Prompt mit neuem Pfad setzen, telnetneg
+  return path;
 }
 
 private string _query_currentdir()
 {
   string c;
   if(!c=Query(P_CURRENTDIR))
-    return Set(P_CURRENTDIR, "/players/"+getuid(this_object()));
+    return Set(P_CURRENTDIR, "/players/"+getuid(this_object()),F_VALUE);
   return c;
 }
 
 //                           ##########
 //############################ PROMPT #################################
 //                           ##########
-
-//
-// renew_prompt: Prompt erneuern
-// Noetig, damit telnetneg.c den Prompt auch von Ausserhalb setzen kann
-//
-
-void renew_prompt()
-{
-    _set_currentdir(_query_currentdir());
-}
-
 
 //
 // _prompt_subst: Mudnamen, Usernamen, Zeilenvorschub in Eingabeauf-
@@ -207,9 +169,11 @@ private string _prompt_subst(string str)
 {
   switch(str)
   {
-    case "\\h": return strlen(MUDNAME)?MUDNAME:"Mud ohne Namen";
+    case "\\h": return sizeof(MUDNAME)?MUDNAME:"Mud ohne Namen";
     case "\\u": return capitalize(getuid(this_object()));
     case "\\n": return "\n";
+    case "\\t": return "\t";
+    case "\\w": return "\w";
   }
   return str;
 }
@@ -225,15 +189,22 @@ static int _prompt(string args)
   string *pargs;
 
   args=(extern_call()?_unparsed_args():args);
-  if (!strlen(args)) args="> ";
+  if (!sizeof(args)) args="> ";
   if (args[0]=='"') args=args[1..<2];     //");
-  if(!sizeof(pargs = regexplode(args, "\\\\[huwn]")))
+  if(!sizeof(pargs = regexplode(args, "\\\\[thuwn]")))
     return USAGE("prompt \"<Eingabeaufforderungsdefinition>\"");
   pargs=map(pargs,#'_prompt_subst);
+
   SetProp(P_PROMPT,implode(pargs,""));
-  _set_currentdir(_query_currentdir());  // Pfad einfuegen
   return 1;
 }
+
+static string _set_prompt(string prompt) {
+  Set(P_PROMPT, prompt, F_VALUE);
+  this_object()->modify_prompt(); // neuen Prompt setzen (telnetneg.c)
+  return prompt;
+}
+
 
 //                           ##############
 //############################ SHOWPRESAY ###############################
@@ -244,7 +215,7 @@ static int _showpresay(string cmdline)
   int presay;
   presay=QueryProp(P_CAN_FLAGS)&CAN_PRESAY;
   cmdline=_unparsed_args(0);
-  if (!strlen(cmdline))
+  if (!sizeof(cmdline))
   {
     printf("Dein Presay wird im Moment %sangezeigt.\n"
            "%sschalten mit \'showpresay %s\'.\n",
@@ -318,8 +289,8 @@ static int _exec(string filename)
 //############################# SNOOPING ###############################
 //                            ############
 
-private static string snoop_allowed;
-private static object snoopee;
+private nosave string snoop_allowed;
+private nosave object snoopee;
 
 nomask int QueryAllowSnoop(object who)
 {
@@ -330,7 +301,7 @@ static int _sallow(string str)
 {
   object ob;
 
-  if (!strlen(str))
+  if (!sizeof(str))
   {
     if (!snoop_allowed) return USAGE("sallow [<name>]\n");
     str=snoop_allowed;
@@ -362,7 +333,7 @@ static int _snoop(string cmdline)
   int flags;
   string *args;
 
-  if (!strlen(cmdline=_unparsed_args())||
+  if (!sizeof(cmdline=_unparsed_args())||
       sizeof(args=parseargs(cmdline,&flags,SNOOP_OPTS,0))!=1||flags==-1)
   {
     if (!snoop(this_object())) return USAGE("snoop [-" SNOOP_OPTS
@@ -422,7 +393,19 @@ static int _mschau(string str)
       printf("Du hast den Magier-Modus doch schon ausgeschaltet.\n");
     return 1;
   }
-  return USAGE("mschau [an|ein|ja|aus|nein]\n");
+  if (str=="+debug")
+  {
+    printf("Du nimmst jetzt Debugausgaben wahr.\n");
+    SetProp(P_WIZ_DEBUG,1);
+    return 1;
+  }
+  if (str=="-debug")
+  {
+    printf("Du nimmst jetzt keine Debugausgaben mehr wahr.\n");
+    SetProp(P_WIZ_DEBUG,0);
+    return 1;
+  }
+  return USAGE("mschau [an|ein|ja|aus|nein|+debug|-debug]\n");
 }
 
 //                           ###########
@@ -433,7 +416,7 @@ static int _protect(string str)
 {
  
   if (this_object()!=this_interactive()) return 0;
-  if (!strlen(str))
+  if (!sizeof(str))
     return USAGE("protect <propertyname>\n");
   Set(str, PROTECTED, F_MODE);
   return printf("Deine Property %s ist jetzt %sgeschuetzt.\n",
@@ -455,7 +438,16 @@ static int _invis(string inform)
     return printf("Du bist doch schon unsichtbar!\n"),1;
   tell_room(environment(),sprintf("%s %s.\n",capitalize(Name()),
             QueryProp(P_MMSGOUT)),({ this_object() }));
-  if (inform=="e") "/secure/merlin"->notify_player_leave(getuid());
+  if (inform=="e") {
+    // Logout-event ausloesen
+    EVENTD->TriggerEvent(EVT_LIB_LOGOUT, ([
+            E_OBJECT: this_object(),
+            E_PLNAME: getuid(this_object()),
+            E_ENVIRONMENT: environment() ]) );
+
+    call_notify_player_change(0);
+  }
+
   SetProp(P_INVIS, QueryProp(P_AGE));
   printf("Du bist jetzt unsichtbar.\n");
   return 1;
@@ -468,7 +460,15 @@ static int _vis(string inform)
    tell_room(environment(),sprintf("%s %s.\n",capitalize(Name()),
             QueryProp(P_MMSGIN)),({ this_object() }));
   SetProp(P_INVIS, 0);
-  if (inform=="e") "/secure/merlin"->notify_player_enter(getuid());
+  if (inform=="e") {
+    // Login-event ausloesen
+    EVENTD->TriggerEvent(EVT_LIB_LOGIN, ([
+          E_OBJECT: this_object(),
+          E_PLNAME: getuid(this_object()),
+          E_ENVIRONMENT: environment() ]) );
+
+    call_notify_player_change(1);
+  }
   printf("Du bist jetzt sichtbar.\n");
   return 1;
 }
@@ -599,7 +599,7 @@ static varargs void asynchron(mixed* array, closure cmd, mixed data, mixed flags
 // _query_localcmds: Welche Kommandos werden in dieser Datei implementiert?
 //
 
-static mixed *_query_localcmds()
+static mixed _query_localcmds()
 {
   return ({
     ({"set","_set",0,LEARNER_LVL}),

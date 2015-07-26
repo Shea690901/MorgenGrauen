@@ -28,17 +28,10 @@
 #pragma range_check
 #pragma pedantic
 
-inherit "std/thing";
+inherit "/std/thing";
 #include <properties.h>
 
 // int secure_level() // ist nun in simul_efun
-
-int lies( string str )
-{
-  if( !str || !id(str) ) return 0;
-  write( QueryProp( P_READ_MSG ) );
-  return 1;
-}
 
 varargs string long(int mode)
 {

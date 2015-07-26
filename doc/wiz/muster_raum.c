@@ -8,7 +8,9 @@
  * #include eingefuegt: Rumata 10.11.98
  *----------------------------------------------------------------------
  */
-inherit "std/room";
+#pragma strong_types,rtt_checks
+
+inherit "/std/room";
 	/* Diese Zeile deutet an, dass der Raum aus der Standard mudlib */
 	/* abgeleitet wird. Diese Zeile sollte in JEDEM Raum vorkommen. */
 
@@ -17,7 +19,7 @@ inherit "std/room";
 	/* SetProp-Befehlen benutzt werden. Es gibt noch weitere *.h     */
 	/* Dateien, die andere nuetzliche Dinge definieren.              */
 
-create()
+protected void create()
 {
 	::create();
 		/* Diese Zeile initialisiert die Standard-attribute. */
@@ -65,14 +67,14 @@ create()
  *----------------------------------------------------------------------
  */
 
-go_nord()
+int go_nord()
 {
 	write( "Hmm das war wohl doch nur die Wand.\n" );
 	return 1;
 		/* Das Kommando wirde erfolgeich beendet. */
 }
 
-gib_hilfe()
+int gib_hilfe()
 {
 	write( "Gehe nach Sueden, und Du kommst in die Abenteurer-Gilde.\n" );
 	return 1;

@@ -9,6 +9,7 @@ inherit "/std/trading_price";
 #define NEED_PROTOTYPES
 #include <thing/commands.h>
 #include <thing/description.h>
+#undef NEED_PROTOTYPES
 
 #include <defines.h>
 #include <properties.h>
@@ -18,6 +19,9 @@ inherit "/std/trading_price";
 #include <routingd.h>
 #include <bank.h>
 #include <combat.h>
+#include <input_to.h>
+#include <unit.h>
+#include <money.h>
 
 // TODO: pruefen, um die Variablen private sein koennen.
 
@@ -58,10 +62,10 @@ void RemoveFixedObject(string filename)
   if(!filename || !sizeof(fixed_obj))return ;
   if(member(fixed_obj,filename)==-1)return ;
   fixed_obj -= ({ filename });
-  fixed_value = m_delete(fixed_value,filename);
+  fixed_value = m_copy_delete(fixed_value,filename);
   for(i=sizeof(en=m_indices(fixed_ids))-1;i>=0;i--)
     if(fixed_ids[en[i]] == filename)
-      fixed_ids = m_delete(fixed_ids,en[i]);
+      fixed_ids = m_copy_delete(fixed_ids,en[i]);
 }
 
 static string SetStorageRoom(string str)
@@ -76,6 +80,13 @@ string QueryStorageRoom()
 protected void create()
 {
   object router;
+  
+  if (object_name(this_object()) == __FILE__[0..<3])
+  {
+    set_next_reset(-1);
+    return;
+  }
+
   trading_price::create();
 
   SetProp( P_NAME, "Haendler" );
@@ -89,13 +100,12 @@ protected void create()
   AddCmd(({"schaetz","schaetze"}),"evaluate");
   AddCmd(({"untersuche","unt"}), "show_obj");
 
-  SetStorageRoom("d/gebirge/room/zstore");
   SetTradingData(50000,300,3);
 
   ob_anz=([]);
   fixed_obj=({});fixed_value=([]);fixed_ids=([]);
 
-  AddFixedObject("/obj/boerse", 80,({ "boerse","geldboerse"}));
+  AddFixedObject(BOERSE, 80,({ "boerse","geldboerse"}));
 
   if (!clonep(ME) && objectp(router=find_object(ROUTER)))
     router->RegisterTarget(TARGET_SHOP,object_name(ME));
@@ -218,7 +228,7 @@ static int list(string str)
   _notify_fail("Bitte 'zeige', 'zeige waffen', 'zeige ruestungen' oder\n'zeige verschiedenes' eingeben.\n");
   if (!str) return DoList("AlwaysTrue");
   if (!stringp(str)) return 0;
-  if (strlen(str)<3) return 0;
+  if (sizeof(str)<3) return 0;
   str=str[0..2];
   if (str=="waf") return DoList("IsWeapon");
   if (str=="ver") return DoList("NoWeaponNoArmour");
@@ -244,7 +254,7 @@ static void UpdateCounter(object ob, int num)
   a=ob_anz[tmp]+num;
   if (a<0) a=0;
   if (!a)
-    efun::m_delete(ob_anz,tmp);
+    m_delete(ob_anz,tmp);
   else ob_anz[tmp]=a;
 }
 
@@ -366,9 +376,9 @@ static int buy(string str)
   {
     _notify_fail(break_string("Du koenntest "+ob->name(WEN,2)+" nicht "
      "verwenden. Grund: "+res+"Moechtest Du "+ob->QueryPronoun(WEN)+
-     " dennoch kaufen? (ja/nein)",78,Name(WER)+" sagt: "));
+     " dennoch kaufen?",78,Name(WER)+" sagt: "));
  
-    input_to("really_buy",0,val,PL,ob);
+    input_to("really_buy",INPUT_PROMPT, "(ja/nein) ", val,PL,ob);
     return 0;
   }
  
@@ -381,10 +391,10 @@ static int buy(string str)
   {
     _notify_fail(break_string("Du koenntest "+ob->name(WEN,2)+" nicht "
      "zuecken, da Deine Geschicklichkeit dafuer nicht ausreicht. Moechtest "
-     "Du "+ob->QueryPronoun(WEN)+" dennoch kaufen? (ja/nein)",78,
+     "Du "+ob->QueryPronoun(WEN)+" dennoch kaufen?",78,
      Name(WER)+" sagt: "));
  
-    input_to("really_buy",0,val,PL,ob);
+    input_to("really_buy",INPUT_PROMPT, "(ja/nein) ", val,PL,ob);
     return 0;
   }
   
@@ -401,7 +411,7 @@ static int buy(string str)
   return 1;
 }
 
-private static void give_money(int value)
+private void give_money(int value)
 // Geld gutschreiben...
 {
   if (!value) return;
@@ -411,7 +421,7 @@ private static void give_money(int value)
      object mon;
 
      write("Du kannst das Geld nicht mehr tragen!\n");
-     mon=clone_object("/obj/money");
+     mon=clone_object(GELD);
      mon->SetProp(P_AMOUNT,value);
      mon->move(ME,M_MOVE_ALL|M_NOCHECK);
   }
@@ -471,7 +481,8 @@ static int make_to_money(object ob, int value)
       write(break_string("Du kannst "+ob->name(WEN,1)+" nicht verkaufen!", 78));
       return 0;
     }
-    else write(break_string(ob->Name(WER)+" interessiert mich nicht.", 78,
+    else
+      write(break_string(ob->Name(WER)+" interessiert mich nicht.", 78,
                Name(WER, 1)+" sagt: "));
   }
   else if ((ret=(ob->move(storage,M_PUT|M_GET)))>0) {
@@ -489,13 +500,29 @@ static int make_to_money(object ob, int value)
   return 0;
 }
 
-static void ask_sell(string str, object ob, int val)
+static void ask_sell(string str, object ob, int val, int u_req)
 // Wenn ein einzelnen Stueck unter Wert verkauft werden soll, wird nachgefragt
+// u_req ist bei Unitobjekten die Anzahl an zu verkaufenden Einheiten. Bei
+// normalen Objekten ist u_req 0.
 {
   str=lower_case(str||"");
   if (str=="ja"||str=="j")
+  {
+     // In Unitobjekten U_REQ (wieder) setzen.
+     if (u_req>0)
+     {
+       // Das QueryProp() ist nicht unnoetig. Bei der Abfrage von U_REQ wird
+       // U_REQ genullt, wenn das aktuelle query_verb() != dem letzten ist.
+       // Bei der ersten Abfrage wuerde als das hier gesetzt U_REQ wieder
+       // geloescht. Daher muss das jetzt hier als erstes einmal abgefragt
+       // werden...
+         ob->QueryProp(U_REQ);
+         ob->SetProp(U_REQ, u_req);
+     } 
      give_money(make_to_money(ob,val));
-  else write(break_string("Ok, dann behalts!", 78,
+  }
+  else
+     write(break_string("Ok, dann behalts!", 78,
              Name(WER, 1)+" sagt: "));
 }
 
@@ -504,7 +531,7 @@ static string sell_obj(object ob, int short)
 // die der Haendler sagen soll.
 {  mixed nosell;
 
-   if (BLUE_NAME(ob)=="/obj/money")
+   if (BLUE_NAME(ob)==GELD)
       return "Das waere ja wohl Unsinn, oder ...?";
    if (nosell=ob->QueryProp(P_NOSELL))
    {
@@ -513,7 +540,14 @@ static string sell_obj(object ob, int short)
      return ("Du kannst "+ob->name(WEN,1)+" nicht verkaufen!");
    }
    if (ob->QueryProp(P_CURSED))
-     return (ob->Name(WER,1)+" ist mir irgendwie ungeheuer! Das kannst Du nicht verkaufen!");
+     return ob->Name(WER,1)
+         +" ist mir irgendwie ungeheuer! Das kannst Du nicht verkaufen!";
+   // man sollte keine COntainer mit Inhalt verkaufen koennen, ggf. kauft sie
+   // dann ein anderer Spieler.
+   if (first_inventory(ob))
+   {
+     return ob->Name(WER, 1) + " ist nicht leer!";
+   }
    return 0;
 }
 
@@ -597,9 +631,15 @@ static varargs int sell(string str, int f)
           +obs[0]->name(WER)+" eigentlich "+oval+" Muenze"
           +(oval==1?"":"n")+" wert waere. Willst Du "
           +(QueryProp(P_PLURAL) ? "sie" : "es")
-          +" mir dafuer ueberlassen? (ja/nein)", 78));
+          +" mir dafuer ueberlassen?", 78));
      }
-     input_to("ask_sell",0,obs[0],val);
+     // in ask_sell() gibt es das query_verb() nicht mehr, weswegen U_REQ in
+     // Unitobjekten zurueckgesetzt wird. Damit geht die info verloren,
+     // wieviele Objekte der Spieler angegeben hat. Diese muss gerettet und
+     // via ask_sell() in make_to_money() ankommen. In normalen Objekten ist
+     // U_REQ 0.
+     input_to("ask_sell",INPUT_PROMPT, "(ja/nein) ",obs[0], val,
+              (obs[0])->QueryProp(U_REQ) );
      return 1;
   }
   for (--i; i>=0 && get_eval_cost()>50000; i--) {
@@ -673,17 +713,19 @@ static int evaluate(string str)
   if (rval) {
     val=QuerySellValue(ob, PL);
     if (rval==val) {
-      write("Naja, ich denke, " +val+ " Muenze"+
-            (val==1 ? "" : "n") +
-            " waere"+(ob->QueryProp(P_AMOUNT)>1?"n ":" ")+
-            (ob->QueryPronoun(WER))+" schon wert.\n");
+      tell_object(this_player(),break_string(
+         "Naja, ich denke, " +val+ " Muenze"
+         + (val==1 ? "" : "n")
+         + " waere"+(ob->QueryProp(P_AMOUNT)>1?"n ":" ")
+         + (ob->QueryPronoun(WER))+" schon wert.\n",78));
     }
     else if (val) {
-        write("Oh, nach der aktuellen Marktlage kann ich nur "+val+" Muenze"+
-              (val==1?"":"n")+" bezahlen, obwohl "
-              +(QueryProp(P_PLURAL) ? "sie" : "es")
-              +" eigentlich "+rval+
-              " Muenze"+(rval==1?"":"n")+" wert ist.\n");
+        tell_object(this_player(),break_string(
+          "Oh, nach der aktuellen Marktlage kann ich nur "+val+" Muenze"+
+          (val==1?"":"n")+" bezahlen, obwohl "
+          + (QueryProp(P_PLURAL) ? "sie" : "es")
+          + " eigentlich "+rval
+          + " Muenze"+(rval==1?"":"n")+" wert ist.\n",78));
     }
     else write("Ich bin vollkommen pleite. Tut mir leid.\n");
   }
@@ -751,7 +793,7 @@ void reset()
   for (i=sizeof(keys)-1;i>=0;i--) {
     ob_anz[keys[i]]=ob_anz[keys[i]]*7/8;
     if (!ob_anz[keys[i]])
-       efun::m_delete(ob_anz,keys[i]);
+       m_delete(ob_anz,keys[i]);
   }
 }
 

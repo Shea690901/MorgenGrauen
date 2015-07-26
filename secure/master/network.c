@@ -2,7 +2,7 @@
 //
 // master/network.c - UDP-Handling
 //
-// $Id: network.c 7483 2010-02-21 16:43:28Z Zesstra $
+// $Id: network.c 8934 2014-09-10 21:57:12Z Zesstra $
 
 #pragma strict_types
 
@@ -11,8 +11,8 @@
 
 /*
 #undef DEBUG
-#define DEBUG(x) if (funcall(symbol_function('find_player),"zesstra")) \
-                 tell_object(funcall(symbol_function('find_player),"zesstra"),x);
+#define DEBUG(x) if (call_sefun("find_player","zesstra")) \
+                 tell_object(call_sefun("find_player","zesstra"),x);
 */
 
 //ich will hieraus momentan kein Debug, ist zuviel. Zesstra
@@ -41,17 +41,17 @@ static string *mk_rec_list( string str )
 static int CheckPasswd( string name, string passwd ) {
     mixed *uinf;
 
-    if (!stringp(passwd) || !strlen(passwd))
+    if (!stringp(passwd) || !sizeof(passwd))
  return 0;
     if ( sizeof(uinf = get_full_userinfo(name)) < 2 )
         return 0;
 
     string pwhash = uinf[USER_PASSWORD+1];
-    if (strlen(pwhash) > 13) {
+    if (sizeof(pwhash) > 13) {
  // MD5-Hash
  passwd = md5_crypt(passwd, pwhash);
     }
-    else if (strlen(pwhash) > 2) {
+    else if (sizeof(pwhash) > 2) {
  // Crypt-Hash
  passwd = crypt(passwd, pwhash[0..1]);
     }
@@ -282,7 +282,7 @@ static int doReadMail( string file )
     if ( !stringp(message[MSG_RECIPIENT]) ){
         str = explode( file, "/" )[<1];
         i = 0;
-        j = strlen(str);
+        j = sizeof(str);
 
         while ( i < j && str[i] <= '9' && str[i] >= '0' )
             i++;
@@ -357,7 +357,7 @@ static void udp_query( string query, string host, int port )
         break;
 
     case "uptime":
-        data = ({ funcall( symbol_function("uptime") ) });
+        data = ({ call_sefun("uptime") });
         break;
 
     case "finger":
@@ -385,7 +385,8 @@ static void udp_query( string query, string host, int port )
 #endif
 }
 
-#define UDP_DEBUG(x) (write_file("/log/ARCH/udp.log",(x)))
+#define UDP_DEBUG(x) 
+//#define UDP_DEBUG(x) (write_file("/log/ARCH/udp.log",(x)))
 
 void receive_udp(string host, string message, int port)
 {
@@ -401,6 +402,11 @@ void receive_udp(string host, string message, int port)
 
   if( message[0..8]=="IPLOOKUP\n" ) {
     "/p/daemon/iplookup"->update( message );
+    return;
+  }
+
+  if( message[0..9]=="DNSLOOKUP\n" ) {
+    "/p/daemon/dnslookup"->update( message );
     return;
   }
 

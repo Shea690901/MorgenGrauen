@@ -29,6 +29,8 @@ varargs int move(mixed dest, int method ) {
 
   if ((method&M_NOCHECK) || (!(object)QueryProp(P_WORN)))
     return ::move(dest, method);
+
+  return ME_CANT_BE_DROPPED;
 }
 
 varargs int remove(int silent) {
@@ -37,7 +39,7 @@ varargs int remove(int silent) {
     DoUnwear(M_SILENT|M_NOCHECK);
 
   if (!(object)QueryProp(P_WORN))
-    return ::remove();
+    return ::remove(silent);
   // Ausziehen hat irgendwie nicht geklappt. :-(
   return 0;
 }

@@ -2,7 +2,7 @@
 //
 // explorer.c -- Tool zur FP-Verwaltung
 //
-// $Id: explorer.c 6437 2007-08-18 22:58:58Z Zesstra $
+// $Id: explorer.c 8357 2013-02-09 11:16:14Z Zesstra $
 
 inherit "/std/secure_thing";
 
@@ -34,7 +34,7 @@ create()
 	  +"          here fuer den aktuellen Raum, oder ein Dateiname)\n"
 	  +"<bonus> - n fuer normale EPs, b fuer Bonus-EPs (z.B. Para-EPs)\n"
 	  +"<typ>   - detail, rdetail, exit/ausgang, cmd/befehl/kommando, info, pub, misc,\n"
-	  +"          smell/geruch, sound/noise\n"
+	  +"          smell/geruch, sound/noise, taste/touch\n"
 	  +"<key>   - Liste der Schluesselwoerter, mit Kommata getrennt\n"
 	  +"<wie>   - obj, key, bonus oder typ 1\n"
 	  +"<neu>   - Je nach <wie>; siehe <was>, <key>, <typ>\n"
@@ -95,6 +95,9 @@ static int getType(string s)
   case "sou":
   case "noi":
     return EP_SOUND;
+  case "tas":
+  case "tou":
+    return EP_TOUCH;
   }
   return -1;
 }
@@ -289,7 +292,8 @@ static int info(string str)
     printf("Nummer: %d\nBonus: %d\nTyp: %s\nSchluessel: %s\n",
 	   info[MPOS_NUM],
 	   info[MPOS_TYPE+1],
-	   ({ "Detail", "Ausgang", "Kommando", "Info", "Misc", "ReadDetail", "Kneipe", "Geruch", "Geraeusch" })[info[MPOS_TYPE]],
+	   ({ "Detail", "Ausgang", "Kommando", "Info", "Misc", "ReadDetail",
+         "Kneipe", "Geruch", "Geraeusch", "Tastdetail"})[info[MPOS_TYPE]],
 	   strArr(info[MPOS_KEY] ));
 
   return 1;

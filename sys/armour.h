@@ -2,7 +2,7 @@
 //
 // armour.h -- armour header
 //
-// $Id: armour.h 6306 2007-05-20 11:32:03Z Zesstra $
+// $Id: armour.h 9092 2015-01-19 23:57:50Z Zesstra $
  
 #ifndef __ARMOUR_H__
 #define __ARMOUR_H__
@@ -29,7 +29,7 @@
 #define __ARMOUR_H_PROTO__
 
 // prototypes
-int QueryDefend (string *dam_type, mixed spell, object enemy);
+int QueryDefend (string|string* dam_type, int|mapping spell, object enemy);
 
 // TO BE REMOVED
 

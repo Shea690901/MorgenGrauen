@@ -2,12 +2,18 @@
 //
 // master/userinfo.c -- Cache mit Spielerinfos
 //
-// $Id: userinfo.c 7406 2010-02-05 23:12:46Z Zesstra $
+// $Id: userinfo.c 8809 2014-05-08 19:52:48Z Zesstra $
 
 #pragma strict_types
 
 #include "/secure/master.h"
 #include "/sys/files.h"
+
+// Makro aus wizlevels.h ersetzen, da secure_level ne sefun ist. *seufz*
+#undef ARCH_SECURITY
+#define ARCH_SECURITY (call_sefun("secure_level") >= ARCH_LVL)
+
+private string*  ExpandUIDAlias(string alias, int rec);
 
 nosave mapping userlist;
 string name, password;
@@ -22,18 +28,70 @@ nosave string* lateplayers;
 // hier wird ein Mapping von UID-zu-Magier-Zuordnungen gespeichert. Als Keys
 // werden UIDs verwendet, der Value ist jeweils ein Array mit den magiern, die
 // dafuer zustaendig sind.
-nosave private mapping userids=([]);
+nosave private mapping userids = ([]);
 // Ein Cache fuer UID-Aliase, damit ExpandUIDAlias() nicht staendig ganze
 // Verzeichnisse einlesen muss, sondern der Master das nur im Reset machen
 // muss.
-nosave private mapping uidaliase=([]);
+nosave private mapping uidaliase = ([]);
+
+#ifdef _PUREFTPD_
+// Liste von FTP-berechtigten Usern
+nosave private mapping ftpuser = ([]);
+
+public void read_ftp_users() {
+  string str = read_file("/"SECUREDIR"/ARCH/pureftpd.passwd") || "";
+  string *data = explode(str, "\n");
+  if (!sizeof(data)) return;
+  ftpuser = m_allocate(sizeof(data), 1);
+  foreach(str : data) {
+    string *tmp=explode(str, ":");
+    if(sizeof(tmp) >= 2)
+      m_add(ftpuser, tmp[0], tmp[1]);
+  }
+}
+
+public int write_ftp_users() {
+  string *record = allocate(18,"");
+  mapping tmp = m_allocate(sizeof(ftpuser));
+  // set UID/GID of system user
+  record[2] = "1000";
+  record[3] = "1000";
+  foreach(string u, string pwhash : ftpuser) {
+    record[0] = u;  // UID
+    record[1] = pwhash;
+    record[5] = "/home/mud/mudlib/"WIZARDDIR"/" + u + "/./";
+    m_add(tmp, implode(record, ":"));
+  }
+  write_file("/"SECUREDIR"/ARCH/pureftpd.passwd", implode(m_indices(tmp),"\n"),1);
+  return sizeof(tmp);
+}
+
+// geloeschte Magier oder Magier, die 2 Wochen nicht da waren, expiren
+public void expire_ftp_user() {
+  foreach(string u : ftpuser) {
+    mixed uinfo = get_full_userinfo(u);
+    if (!uinfo) {
+      m_delete(ftpuser,u);
+      continue;
+    }
+    int zeit = call_sefun("file_time",
+                     "/"SECURESAVEPATH + u[0..0] + "/" + u + ".o");
+    if (zeit < time()-1209600) {
+      m_delete(ftpuser,u);
+      continue;
+    }
+  }
+  call_out(#'write_ftp_users, 2);
+}
+
+#endif // _PUREFTPD_
 
 // ********** oeffentliche Funktionen ***********************
 
 //Verantwortliche Magier fuer eine UID ausgeben
 public varargs string* QueryWizardsForUID(string uid, int recursive) {
 
-    if (!stringp(uid) || !strlen(uid))
+    if (!stringp(uid) || !sizeof(uid))
         return(({}));
 
     string *tolookup=({uid}); //diese spaeter in userids nachgucken.
@@ -92,7 +150,7 @@ public void ResetUIDAliase() {
   // RM+ duerfen den Cache loeschen (wenn sie z.B. nen neues Verzeichnis
   // angelegt haben.)
   if (extern_call() 
-      && funcall(symbol_function('secure_level)) < LORD_LVL)
+      && call_sefun("secure_level") < LORD_LVL)
       return;
 
   uidaliase=([]);
@@ -104,7 +162,7 @@ public void ResetUIDAliase() {
 // Nutzt Eintrag aus dem uidalias-Cache, sofern vorhanden. 
 public varargs string* QueryUIDAlias(string alias, int rec) {
   string *uids;
-  if (!stringp(alias) || !strlen(alias))
+  if (!stringp(alias) || !sizeof(alias))
       return ({});
   // Wen im cache, gehts schnell.
   if (member(uidaliase, alias))
@@ -127,7 +185,7 @@ public varargs string* QueryUIDsForWizard(string wizuid, int recursive) {
     string *uids, *tmp, *uidstoadd;
     int i;
 
-    if (!stringp(wizuid) || !strlen(wizuid) || !IS_LEARNER(wizuid))
+    if (!stringp(wizuid) || !sizeof(wizuid) || !IS_LEARNER(wizuid))
         return(({}));
 
     if (!find_userinfo(wizuid))
@@ -188,7 +246,7 @@ public varargs string* QueryUIDsForWizard(string wizuid, int recursive) {
         if ( sizeof(userids)+(i=sizeof(uidstoadd))               
             >= __MAX_MAPPING_KEYS__) {
             foreach(string tmpuid: m_indices(userids)[0..i])        
-              efun::m_delete(userids,tmpuid);  
+              m_delete(userids,tmpuid);  
         }
         foreach(string tmpuid: uidstoadd) {  
             if (member(userids,tmpuid)) {  
@@ -207,14 +265,14 @@ public varargs string* QueryUIDsForWizard(string wizuid, int recursive) {
 
 //Einen Magier als verantwortlich fuer eine bestimmte UID eintragen
 public string* AddWizardForUID(string uid, string wizuid) {
-    if (!stringp(wizuid) || !strlen(wizuid)
+    if (!stringp(wizuid) || !sizeof(wizuid)
         || !IS_LEARNER(wizuid))
         return(({}));
 
     //Zugriff nur als EM oder jemand, der fuer die UID zustaendig ist.
-    if ( funcall(symbol_function('secure_level)) < ARCH_LVL 
+    if ( !ARCH_SECURITY
         && member(
-            QueryUIDsForWizard(funcall(symbol_function('secure_euid))),
+            QueryUIDsForWizard(call_sefun("secure_euid")),
             uid) == -1)
         return(userlist[wizuid,USER_UIDS_TO_TAKE_CARE]);
 
@@ -230,7 +288,7 @@ public string* AddWizardForUID(string uid, string wizuid) {
     }
     save_userinfo(wizuid);
     // aus dem UID-Alias-Cache werfen
-    efun::m_delete(uidaliase, wizuid);
+    m_delete(uidaliase, wizuid);
     // Aufruf, um userids und uidaliase zu aktualisieren
     QueryUIDsForWizard(wizuid);
     return(userlist[wizuid,USER_UIDS_TO_TAKE_CARE]);
@@ -238,14 +296,14 @@ public string* AddWizardForUID(string uid, string wizuid) {
 
 // Einen Magier wieder austragen, wenn er nicht mehr zustaendig ist.
 public string* RemoveWizardFromUID(string uid, string wizuid) {
-    if (!stringp(wizuid) || !strlen(wizuid)
+    if (!stringp(wizuid) || !sizeof(wizuid)
         || !find_userinfo(wizuid))
         return(({}));
 
     //Zugriff nur als EM oder jemand, der fuer die UID zustaendig ist.
-    if ( funcall(symbol_function('secure_level)) < ARCH_LVL 
+    if ( !ARCH_SECURITY
         && member(
-            QueryUIDsForWizard(funcall(symbol_function('secure_euid))),
+            QueryUIDsForWizard(call_sefun("secure_euid")),
             uid)==-1)
         return copy(userlist[wizuid,USER_UIDS_TO_TAKE_CARE]);
 
@@ -274,7 +332,7 @@ public string* RemoveWizardFromUID(string uid, string wizuid) {
 
 //entfernt einen user aus dem usercache
 void RemoveFromCache(string user) {
-  efun::m_delete(userlist,user);
+  m_delete(userlist,user);
 }
 
 //loescht den gesamten Usercache
@@ -291,7 +349,7 @@ int ResetUIDCache() {
   // da diese Funktion auch das UID<->Magier-Lookup loescht, darf das nicht
   // jeder rufen.
   if (extern_call() &&
-      funcall(symbol_function('secure_level)) < ELDER_LVL)
+      call_sefun("secure_level") < ELDER_LVL)
       return -1;
   userids=([]);
   clear_cache();
@@ -346,7 +404,7 @@ public mixed *show_cache() {
 public int find_userinfo(string user) {
   string file;
   int i;
-  if (!stringp(user) || !strlen(user) 
+  if (!stringp(user) || !sizeof(user) 
       || member(user,' ')!=-1 || member(user,':')!=-1)
     return 0;
   if (!member(userlist,user)) {
@@ -362,7 +420,7 @@ public int find_userinfo(string user) {
       if ( ( (i=sizeof(userlist)+1) >= __MAX_MAPPING_KEYS__) 
           || (( i * (widthof(userlist)+1)) >
                  __MAX_MAPPING_SIZE__))    
-          //efun::m_delete(userlist,m_indices(userlist)[0]);
+          //m_delete(userlist,m_indices(userlist)[0]);
           userlist=m_allocate(1,widthof(userlist));
 
       // Usersavefile finden
@@ -434,7 +492,7 @@ public int good_password( string str, string name )
         return 0;
     }
 
-    if ( strlen(str) < 6 ){
+    if ( sizeof(str) < 6 ){
         tell_object( this_player() || this_object(),
                      "Das Passwort muss wenigstens 6 Zeichen lang sein.\n" );
         return 0;
@@ -445,12 +503,12 @@ public int good_password( string str, string name )
 
     // Zahlen/Sonderzeichen am Anfang oder Ende des Passwortes
     // (z.B. "merlin99") sind nicht wirklich einfallsreich.
-    while ( strlen(str) && (str[0] > 'z' || str[0] < 'a') ){
+    while ( sizeof(str) && (str[0] > 'z' || str[0] < 'a') ){
         rts += str[0..0];
         str = str[1..];
     }
 
-    while ( strlen(str) && (str[<1] > 'z' || str[<1] < 'a') ){
+    while ( sizeof(str) && (str[<1] > 'z' || str[<1] < 'a') ){
         rts += str[<1..];
         str = str[0..<2];
     }
@@ -459,7 +517,7 @@ public int good_password( string str, string name )
     n = sizeof( mkmapping(efun::explode( rts, "" )) );
     rts = "";
 
-    for ( i = strlen(str); i--; )
+    for ( i = sizeof(str); i--; )
         rts += str[i..i];
 
     // Eigener Name als Passwort bzw. eigener Name rueckwaerts
@@ -469,8 +527,8 @@ public int good_password( string str, string name )
          // Name von der Banish-Liste
          QueryBanished(str) || QueryBanished(rts) ||
          // Name eines vorhandenen NPC o.ae.
-         funcall( symbol_function( 'find_living/*'*/ ), str ) ||
-         funcall( symbol_function( 'find_living/*'*/ ), rts ) ||
+         call_sefun("find_living", str ) ||
+         call_sefun("find_living", rts ) ||
          // Zuwenig verschiedene Zeichen
          sizeof( mkmapping(efun::explode( str, "" )) ) + n < 4 ){
         tell_object( this_player() || this_object(),
@@ -520,7 +578,7 @@ public int query_wiz_level( mixed player )
     return 0;
 }
 
-// Savefile aus /secure/save* zurueckliefern (inkl. save_inactive)
+// Savefile aus /secure/save* zurueckliefern
 public string secure_savefile(string name)
 {
   if(!name||name=="")
@@ -528,24 +586,42 @@ public string secure_savefile(string name)
   name=explode(name,".")[0];
   if (file_size(SECURESAVEPATH+name[0..0]+"/"+name+".o")>=0)
     return SECURESAVEPATH+name[0..0]+"/"+name;
-  else if (file_size("secure/save_inactive/"+name[0..0]+"/"+name+".o")>=0)
-    return "secure/save_inactive/"+name[0..0]+"/"+name;
+
   return "";
 }
-
-// savefile aus /secure/save_inactive/ zurueckliefern (und nur von dort)
-public string secure_isavefile(string name)
-{
-  if(!name||name=="")
-    return "";
-  name=explode(name,".")[0];
-  if (file_size("secure/save_inactive/"+name[0..0]+"/"+name+".o")>=0)
-    return "secure/save_inactive/"+name[0..0]+"/"+name;
-  return "";
-}
-
 
 // *************** 'halb-oeffentliche Funktionen *********************
+#ifdef _PUREFTPD_
+// FTP-Berechtigung fuer Magier
+int update_ftp_access(string user, int state) {
+  // wenn nicht EM+ oder ROOT, darf nur fuer this_interactive geaendert
+  // werden.
+  if (getuid(PO) != ROOTID && extern_call()
+      && !ARCH_SECURITY) {
+    if (this_interactive())
+      user = getuid(this_interactive());
+    else
+      user = 0;
+  }
+  if (!user || !sizeof(user))
+    return -1;
+
+  if (!find_userinfo(user))
+    return 0;
+
+  // Passwort muss manuell vom Magier neu gesetzt werden, da es keine
+  // Moeglichkeit gibt, an das aktuelle im Klartext heranzukommen.
+  if (state) {
+    if (!member(ftpuser,user))
+      m_add(ftpuser, user, "*");
+  }
+  else
+    m_delete(ftpuser, user);
+  
+  call_out(#'write_ftp_users, 4);
+  return state;
+}
+#endif
 
 // Spieler ein neues Wizlevel verpassen.
 int update_wiz_level(string user,int lev) {
@@ -649,8 +725,8 @@ int set_player_object( string user, string objectname )
     string prev;
 
     // nur EM und ROOT duerfen die Shell eines Charakters aendern
-    if ( (funcall(symbol_function('secure_level/*'*/)) < ARCH_LVL) &&
-         (!previous_object() || getuid(previous_object()) != ROOTID) ){
+    if ( !ARCH_SECURITY &&
+         (!previous_object() || getuid(previous_object()) != ROOTID) ) {
         return -1;
     }
 
@@ -692,9 +768,9 @@ int set_player_object( string user, string objectname )
     if (load_name(this_interactive()) != "/secure/login"
         || prev != "") {
       if (prev == "") prev ="<keine>";
-      funcall( symbol_function('log_file), "ARCH/SHELL_AENDERUNGEN",
+      call_sefun("log_file", "ARCH/SHELL_AENDERUNGEN",
         sprintf( "%s: %O aendert die Shell von %s von %s auf %s (PO: %O)\n",
-          funcall(symbol_function('strftime),"%Y%m%d-%H%M%S",time()), 
+          strftime("%Y%m%d-%H%M%S"), 
           this_interactive(), capitalize(user), prev, objectname,
           previous_object()) );
     }
@@ -717,11 +793,11 @@ int update_password( string old, string new )
 
     string pwhash = userlist[user, USER_PASSWORD];
     string oldpwhash;
-    if (strlen(pwhash) > 13) {
+    if (sizeof(pwhash) > 13) {
         // MD5-Hash
         oldpwhash = md5_crypt(old, pwhash);
     }
-    else if (strlen(pwhash) > 2) {
+    else if (sizeof(pwhash) > 2) {
         // Crypt-Hash
         oldpwhash = crypt(old, pwhash[0..1]);
     }
@@ -729,7 +805,7 @@ int update_password( string old, string new )
     // wenn es einen PW-hash gibt, also ein PW gesetzt wird, muss der Hash von
     // old mit dem pwhash uebereinstimmen. Leerer Hash oder gar kein Hash
     // erlaubt jedes beliebige PW.
-    if ( stringp(pwhash) && strlen(pwhash) && pwhash != oldpwhash)
+    if ( stringp(pwhash) && sizeof(pwhash) && pwhash != oldpwhash)
         return 0;
     // an dieser Stelle stimmt 'old' wohl mit dem gesetzten Passwort ueberein.
     // Wenn allerdings die Funktion mit old==new aufgerufen wurde, wird hier
@@ -741,6 +817,14 @@ int update_password( string old, string new )
     // dann mal neu setzen
     userlist[ user, USER_PASSWORD ] = md5_crypt( new, 0 );
     save_userinfo(user);
+#ifdef _PUREFTPD_
+    // Bedauerlicherweise versteht pureftpd unser md5_crypt nicht. :-(
+    if (member(ftpuser,user)) {
+      ftpuser[user] = crypt(new);
+      if (find_call_out(#'write_ftp_users) == -1)
+        call_out(#'write_ftp_users,4);
+    }
+#endif
     return 1;
 }
 
@@ -766,14 +850,21 @@ int delete_player(string passwd, string real_name)
   rm("/"LIBSAVEDIR"/"+part_filename);
   rm("/"MAILDIR"/"+part_filename);
   
-  efun::m_delete(userlist,real_name);
+  m_delete(userlist,real_name);
   
   if (wlevel >= LEARNER_LVL)
     TO->BanishName(real_name, "So hiess mal ein Magier hier");
   else if (wlevel >= SEER_LVL)
     TO->BanishName(real_name, "So hiess mal ein Seher hier");
-  
-  funcall( symbol_function('log_file), "USERDELETE",
+
+#ifdef _PUREFTPD_
+    if (member(ftpuser,real_name)) {
+      m_delete(ftpuser,real_name);
+      call_out(#'write_ftp_users,4);
+    }
+#endif
+
+  call_sefun("log_file", "USERDELETE",
            sprintf("%s: %s %s(%s)\n",
                    ctime(time()),real_name,
                    (stringp(erstie)?sprintf("[Erstie: %s] ",erstie):""),
@@ -782,8 +873,8 @@ int delete_player(string passwd, string real_name)
   return 1;
 }
 
-// ermittelt alle existierenden Spieler, die ein Savefile in /secure/save oder
-// /secure/save_inactive haben
+// ermittelt alle existierenden Spieler, die ein Savefile in /secure/save
+// haben.
 // ([ "a": ({...namen...}), "b": ({...namen...}), ... ]) 
 public mapping get_all_players() {
   string *dirs=({"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o",
@@ -792,7 +883,6 @@ public mapping get_all_players() {
   string *tmp;
   foreach(string dir: dirs) {
     tmp=get_dir("/secure/save/"+dir+"/*")
-      + get_dir("/secure/save_inactive/"+dir+"/*")
       - ({".","..",".KEEP",".svn"});
     allplayer[dir] = map(tmp,function string (string fn) 
                      { return explode(fn,".")[0]; } );
@@ -805,6 +895,9 @@ protected void create()
 {
   userlist=m_allocate(0,12);
   update_late_players();
+#ifdef _PUREFTPD_
+  read_ftp_users();
+#endif
 }
 
 //verstorbene Spieler einlesen
@@ -814,7 +907,7 @@ void update_late_players() {
   
   lateplayers=0;
   
-  read=read_file("/secure/LATE_PLAYERS");
+  read=read_file("/"SECUREDIR"/LATE_PLAYERS");
   if(!read || read=="")
   {
     return;
@@ -879,10 +972,6 @@ protected void save_userinfo(string user) {
           "Savefile %O konnte nicht erstellt werden!\n",
           SECURESAVEPATH+name[0..0]+"/"+name));
   }
-  // Savefile aus save_inactive loeschen
-  string inactive = secure_isavefile(user);
-  if (stringp(inactive) && strlen(inactive))
-      rm("/"+inactive);
 }
 
 // In welchen Regionen ist der Spieler Regionsmagier?
@@ -897,7 +986,7 @@ protected void set_domains(string player, string *domains)
       RemoveWizardFromUID(uid, player);
   }
   // gecachtes Alias fuer player loeschen
-  efun::m_delete(uidaliase,player);
+  m_delete(uidaliase,player);
   userlist[player, USER_DOMAIN]=domains;
   save_userinfo(player);
   // UID-zu-Magier-Mapping aktualisieren
@@ -916,7 +1005,7 @@ protected void set_guilds(string player, string *guilds)
       RemoveWizardFromUID(uid, player);
   }
   // gecachtes Alias fuer player loeschen
-  efun::m_delete(uidaliase,player);
+  m_delete(uidaliase,player);
   userlist[player, USER_GUILD]=guilds;
   save_userinfo(player);
   // UID-zu-Magier-Mapping aktualisieren
@@ -926,13 +1015,11 @@ protected void set_guilds(string player, string *guilds)
 // Userinfo-Cache expiren...
 protected void _cleanup_uinfo()
 {
-    mixed users;
-    int i;
-        
-    for (users=m_indices(userlist),i=sizeof(users)-1; i>=0;i--)
-        if ((time()-userlist[users[i],USER_TOUCH]) > 1800
-            && !funcall(symbol_function('find_player/*'*/),users[i]))
-            efun::m_delete(userlist,users[i]);
+    foreach(string user: userlist) {
+        if ((time() - userlist[user,USER_TOUCH]) > 1800
+            && !call_sefun("find_player",user))
+          m_delete(userlist,user);
+    }
 }
 
 // expandiert einige 'Aliase' in ein Array von allen UIDs, fuer die sie
@@ -944,7 +1031,7 @@ protected void _cleanup_uinfo()
 // recht aufwaendig. Damit das ganze nicht jedesmal erfolgen muss, wird das
 // Ergebnis gecacht und QueryUIDAlias() nutzt den Cache.
 private string* ExpandUIDAlias(string alias, int rec) {
-  
+
   string *uids=({});
 
   // Regionsname?
@@ -987,7 +1074,7 @@ private string* ExpandUIDAlias(string alias, int rec) {
       object guild;
       catch(guild=load_object(GUILDDIR"/"+alias));
       if (objectp(guild) 
-          && (strlen(spbook=(string)
+          && (sizeof(spbook=(string)
                  guild->QueryProp(P_GUILD_DEFAULT_SPELLBOOK)))
                 && spbook!=alias)
           uids += ({GUILDID"."+spbook});

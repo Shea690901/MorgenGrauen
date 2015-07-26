@@ -1,42 +1,46 @@
 GetPhiolenInfos(L)
+
 FUNKTION:
      mixed *GetPhiolenInfos();
+
 BESCHREIBUNG:
+
      Wird von der Phiole aufgerufen:
      /d/inseln/miril/sternquest/obj/phiole.c
      Der Raum muss /p/service/miril/phiole.h includen.     
      Mit der Phiole kann ein Spieler durch Tueren schauen. Bei Tueren, die
      vom Doormaster (/obj/doormaster.c) verwaltet werden, klappt dies auto-
-     matisch. Moechte man das verbieten, so muss die Funktion GetPhiolenInfos()
-     im entsprechenden Raum definiert sein.
+     matisch. Moechte man das verbieten, so muss die Funktion 
+     GetPhiolenInfos() im entsprechenden Raum definiert sein.
      Befinden sich Tueren im Raum, die nicht vom Doormaster verwaltet werden,
      aber bei denen die Phiole funktionieren soll, so kann dies ebenfalls
      mittels GetPhiolenInfos() geschehen.
      
-     Kurz zur Funktion der Phiole:
+     Funktion der Phiole:
      Sie projiziert ein Bild dessen, was hinter der Tuer liegt auf die Tuer.
      Steht die Tuer offen, so sieht der Spieler nur eine Wand, denn es wird
      gezeigt, was hinter dieser Tuer ist.
+     
      Ist die Tuer jedoch ge- oder verschlossen, so sieht er auf der Tuer
      die Langbeschreibung des Raumes, der hinter der Tuer liegt, sowie das
      Inventar dieses Raumes. 
-    
+
      Aufbau der Funktion:
-     mixed *GetPhiolenInfos(){
+     mixed *GetPhiolenInfos() {
        return ({
                 ([
-                  PHIOLE_DEST:string,       
-                  PHIOLE_IDS:*string,             
-                  PHIOLE_GENDER:int,           
-                  PHIOLE_STATUS:int,         (optional)  
-                  PHIOLE_LONG:string,        (optional)
-                  PHIOLE_VERBOTEN:int        (optional)  
+                  PHIOLE_DEST:     string,       
+                  PHIOLE_IDS:      *string,             
+                  PHIOLE_GENDER:   int,           
+                  PHIOLE_STATUS:   int,     (optional)
+                  PHIOLE_LONG:     string,  (optional)
+                  PHIOLE_VERBOTEN: int      (optional)
                 ]),
                 ([
-                ... Naechste Tuer
+                  ... Naechste Tuer
                 ])
               });
-     }  
+     }
      
      PHIOLE_DEST      Dateiname des Zielraums
      PHIOLE_IDS	      Array der Strings, mit denen sich die Tuer 
@@ -49,7 +53,7 @@ BESCHREIBUNG:
      PHIOLE_LONG      Beschreibung des Zielraums (z.B. bei einer 
                       Faketuer)
      PHIOLE_VERBOTEN  0 erlaubt, 1 verboten
-                                
+
 BEISPIEL:
      Ein Raum enthaelt eine Holztuer und ein Portal. Erstere ist mittels 
      NewDoor(...) gebaut, soll aber nicht zu durchschauen sein, letztere ist 
@@ -57,6 +61,7 @@ BEISPIEL:
      ist nur ein Fake und immer geschlossen. Bei vom Doormaster erzeugten 
      Tueren sollte PHIOLE_STATUS nicht gesetzt werden, da dies automatisch
      abgefragt wird.
+     
      #include "/p/service/miril/phiole.h"
      ...
      mixed *GetPhiolenInfos(){
@@ -87,6 +92,6 @@ BEISPIEL:
       Drachen sehen soll, der sich ebenfalls im Raum befindet.
       
 SIEHE AUCH:
-      NewDoor(),QueryDoorStatus(),SetDoorStatus(),QueryAllDoors()
+      NewDoor(), QueryDoorStatus(), SetDoorStatus(), QueryAllDoors()
 -----------------------------------------------------------------------------
 Letzte Aenderung: Sam, 14. Jan 2006, 12:21, Miril

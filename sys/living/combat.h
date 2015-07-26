@@ -2,7 +2,7 @@
 //
 // living/combat.h -- combat header
 //
-// $Id: combat.h 7470 2010-02-20 17:48:21Z Zesstra $
+// $Id: combat.h 9008 2015-01-06 17:20:17Z Zesstra $
 
 #ifndef __LIVING_COMBAT_H__
 #define __LIVING_COMBAT_H__
@@ -47,6 +47,7 @@
 #define P_MURDER_MSG              "murder_msg"
 #define P_FORCE_MURDER_MSG        "force_murder_msg"
 #define P_ENEMY_DEATH_SEQUENCE    "enemy_death_sequence"
+#define P_NEXT_DEATH_SEQUENCE     "p_lib_next_death_sequence"
 #define P_DEATH_MSG               "death_msg"
 
 #define P_HUNTTIME                "p_lib_hunttime"
@@ -74,6 +75,9 @@
 // Wenn gesetzt, ist der Helfer 'aktiv', d.h. nicht nur Schlagfaenger
 #define ACTIVE_HELPER    0x20000000
 
+// individuelle Schadensmeldungen eines Lebewesens
+#define P_DAMAGE_MSG     "std_p_dam_msg"
+
 #endif // __LIVING_COMBAT_H__
 
 #ifdef NEED_PROTOTYPES
@@ -88,13 +92,13 @@ public void Attack(object enemy);
 public void AddDefender(object friend);
 public void RemoveDefender(object friend);
 public void InformDefend(object enemy);
-public mixed DefendOther(int dam, mixed dam_type, mixed spell, object enemy);
-public int Defend(int dam, mixed dam_type, mixed spell, object enemy);
+public mixed DefendOther(int dam, string|string* dam_type, int|mapping spell, object enemy);
+public int Defend(int dam, string|string* dam_type, int|mapping spell, object enemy);
 public void CheckWimpyAndFlee();
 public varargs void Flee(object oldenv, int force);
 
-public varargs int StopHuntFor(mixed arg, int silent);
-public varargs mixed StopHuntingMode(int silent);
+public varargs int StopHuntFor(object arg, int silent);
+public varargs mapping StopHuntingMode(int silent);
 
 public void UpdateResistanceStrengths();
 public varargs int AddResistanceModifier(mapping mod, string add);
@@ -107,16 +111,20 @@ public int IsEnemy(object wer);
 public object *PresentEnemies();
 public object QueryPreferedEnemy();
 public varargs object SelectEnemy(object *here);
-public mixed QueryEnemies();
+public <object*|int*>* QueryEnemies();
 public mapping GetEnemies();
-public mapping SetEnemies(object *myenemies);
+#if __VERSION_MAJOR__>=3 && __VERSION_MINOR__>=5 && (__VERSION_MICRO__>0 || (__VERSION_MICRO__==0 && __VERSION_PATCH__>=2))
+public mapping SetEnemies(<object*|int*>* myenemies);
+#else
+public mapping SetEnemies(mixed *myenemies);
+#endif
 public mixed EnemyPresent();
 public mixed InFight();
 public int CheckEnemy(object ob);
 
 public int SpellDefend(object caster, mapping sinfo);
 
-public mixed QueryArmourByType(string type);
+public object|object* QueryArmourByType(string type);
 
 public varargs int UseHands(object ob, int num);
 public varargs int FreeHands(object ob);
@@ -128,7 +136,6 @@ public int Pacify(object caster);
 
 public varargs int StopHuntID(string str, int silent);
 public void StopHuntText(object arg);
-public varargs mixed StopHuntingMode(int silent);
 public varargs void ExecuteMissingAttacks(object *remove_attackers);
 
 // Query- und Set-Methoden
@@ -151,7 +158,7 @@ static int     _set_wimpy(int i);
 // Internal
 protected void SkillResTransfer(mapping from_M, mapping to_M);
 protected void InternalModifyAttack(mapping ainfo);
-protected void InternalModifyDefend(int dam, mixed dt, mapping spell, object enemy);
+protected void InternalModifyDefend(int dam, string* dt, mapping spell, object enemy);
 protected string mess(string msg,object me,object enemy);
  
 #endif // __LIVING_COMBAT_H_PROTO__

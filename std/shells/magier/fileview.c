@@ -2,7 +2,7 @@
 //
 // fileview.c
 //
-// $Id: fileview.c 7358 2010-01-06 20:48:40Z Zesstra $
+// $Id: fileview.c 9142 2015-02-04 22:17:29Z Zesstra $
 #pragma strict_types
 #pragma save_types
 //#pragma range_check
@@ -20,14 +20,14 @@
 #include <thing/properties.h>
 #include <player.h>
 
-private static mapping colorstrings;
-private static mapping oldman_result;
+private nosave mapping colorstrings;
+private nosave mapping oldman_result;
 
 //                        ###################
 //######################### INITIALISIERUNG #############################
 //                        ###################
 
-mixed *_query_localcmds()
+mixed _query_localcmds()
 {
   return ({({"ls","_ls",0,LEARNER_LVL}),
            ({"more","_more",0,LEARNER_LVL}),
@@ -110,7 +110,7 @@ private string _ls_output_short(mixed filedata,
 {
   string tmp;
   tmp=filedata[BASENAME];
-  maxlen-=strlen(tmp);
+  maxlen-=sizeof(tmp);
   switch(filedata[FILESIZE])
   {
     case -2: tmp=sprintf(colorstrings[DIR],tmp);
@@ -124,7 +124,7 @@ private string _ls_output_short(mixed filedata,
              }
   }
   if (!maxcount) return tmp+"\n";
-  return sprintf("%-*s%s",(maxlen+strlen(tmp)),tmp,
+  return sprintf("%-*s%s",(maxlen+sizeof(tmp)),tmp,
 	((counter++)==maxcount?(counter=0,"\n"):"  "));
 }
 
@@ -135,9 +135,9 @@ private int _ls_maxlen(mixed filedata,int flags,int maxlen)
   base=filedata[BASENAME];
   if (!(flags&LS_A)&&(base[0]=='.')) return 0;
 #if __VERSION__ < "3.2.9"
-  if (strlen(base)>maxlen) maxlen=strlen(base);
+  if (sizeof(base)>maxlen) maxlen=sizeof(base);
 #else
-  maxlen=max(maxlen,strlen(base));
+  maxlen=max(maxlen,sizeof(base));
 #endif
   return 1;
 }
@@ -150,7 +150,7 @@ private string _ls_output_long(mixed filedata, int flags,closure valid_read,
   object ob;
   
   base=filedata[BASENAME];
-  if (!(strlen(base))||((!(flags&LS_A))&&(base[0]=='.')))
+  if (!(sizeof(base))||((!(flags&LS_A))&&(base[0]=='.')))
     return 0;
   size=filedata[FILESIZE];
   path=filedata[PATHNAME];
@@ -406,12 +406,12 @@ static int _man(string cmdline)
   
   if (flags==-1 ||
       (sizeof(args)!=1 &&
-       (sizeof(args)<2 || strlen(args[1])>1 || !(i=to_int(args[1])))))
+       (sizeof(args)<2 || sizeof(args[1])>1 || !(i=to_int(args[1])))))
     return USAGE("man [-" MAN_OPTS "] <hilfeseite>");
   tmp=explode(args[0],"/");
 
   if (oldman_result && sizeof(tmp)==1 && sizeof(args)==1 &&
-      strlen(tmp[0])==1 && (i=to_int(tmp[0])) && member(oldman_result,i)) {
+      sizeof(tmp[0])==1 && (i=to_int(tmp[0])) && member(oldman_result,i)) {
    tmp=({oldman_result[i,0],oldman_result[i,1]});
    i=0;
   }
@@ -643,7 +643,7 @@ private int grep_file(mixed filedata, string rexpr, int flags)
     }
     index+=nol;
   }
-  while(strlen(data)==MAXLEN);
+  while(sizeof(data)==MAXLEN);
   if (carry!="")
   {
     if (flags&GREP_I) carry=lower_case(carry);

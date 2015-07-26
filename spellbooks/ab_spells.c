@@ -4,6 +4,8 @@
      Lichtkugel herbeizaubern: licht
        Magiepunkte 5, Stufe 4
        Dauer: Level * 20 Sekunden
+     Identifizieren: identifiziere
+       Magiepunkte 10, Stufe 3
      Monster einschaetzen: schaetz <name>
        Magiepunkte 3, Stufe 10
      Pfeilangriff: pfeil <name>
@@ -34,10 +36,8 @@
 #include <new_skills.h>
 
 #define LICHTKUGEL "/gilden/files.abenteurer/lichtkugel"
-#define LICHTMASTER "/gilden/files.abenteurer/lichtmaster"
 
 inherit "/std/spellbook";
-
 
 void create() {
   ::create();
@@ -46,64 +46,115 @@ void create() {
             SI_SKILLLEARN:5,         // 0.05% pro 2 A_INT
             OFFSET(SI_SKILLLEARN):10 // plus 0.1% in jedem Fall
             ]));
-  AddSpell("licht",5,4);
-  AddSpell("schaetz",3,
-       ([SI_SKILLRESTR_LEARN:([P_LEVEL:10]),
+
+    AddSpell("steinschlag",5,
+        ([SI_SKILLRESTR_LEARN:([P_LEVEL:1]),
+         SI_SKILLDAMAGE:40,
+         OFFSET(SI_SKILLDAMAGE):40,
+         SI_SKILLDAMAGE_TYPE: ({DT_BLUDGEON}),
+         SI_MAGIC_TYPE:({MT_ANGRIFF}),
+         SI_SPELL:([SP_NAME:"steinschlag"])]));
+
+  AddSpell("identifiziere",10,
+       ([SI_SKILLRESTR_LEARN:([P_LEVEL:3]),
          SI_MAGIC_TYPE: ({ MT_HELLSICHT }),
-         SP_NAME: "schaetz"]));
+         SI_SPELL: ([P_NAME: "identifiziere"]),
+         ]) );
+  AddSpell("licht",5,
+      ([SI_SKILLRESTR_LEARN:([P_LEVEL:6]),
+        SI_SPELL: ([P_NAME: "licht"]) 
+       ]) );
+  AddSpell("schaetz",3,
+       ([SI_SKILLRESTR_LEARN:([P_LEVEL:8]),
+         SI_MAGIC_TYPE: ({ MT_HELLSICHT }),
+         SI_SPELL: ([SP_NAME: "schaetz"]),
+         ]));
   AddSpell("pfeil",10,
-           ([SI_SKILLRESTR_LEARN:([P_LEVEL:11]),
+           ([SI_SKILLRESTR_LEARN:([P_LEVEL:10]),
              // Um diesen Spruch lernen zu koennen muss
              // der Level mindestens 11 sein
              SI_SKILLDAMAGE:200,
              // Schaden: Random(200) ...
-             SI_SKILLDAMAGE_TYPE:DT_MAGIC,
+             SI_SKILLDAMAGE_TYPE:({DT_MAGIC}),
              // Damage Type: Magic
              SI_MAGIC_TYPE: ({ MT_ANGRIFF }),
-            SP_NAME: "pfeil",
-            // Boni für hintere Kampfreihen
-            SI_SKILLDAMAGE_BY_ROW: ([2:110,3:50,4:10]),
-            OFFSET(SI_SKILLDAMAGE_BY_ROW): ([2:50,3:20,4:5])
+             SI_SPELL: ([ SP_NAME: "pfeil" ]),
+             // Boni für hintere Kampfreihen
+             SI_SKILLDAMAGE_BY_ROW: ([2:110,3:50,4:10]),
+             OFFSET(SI_SKILLDAMAGE_BY_ROW): ([2:50,3:20,4:5])
              ]));
-  AddSpell("ausweichen", 10, 12);
+  AddSpell("ausweichen", 10,
+      ([SI_SKILLRESTR_LEARN:([P_LEVEL:13]),
+        SI_SPELL: ([P_NAME: "ausweichen"]),
+        ]));
   AddSpell("kampfschrei", 30,
-       ([SI_SKILLRESTR_LEARN:([P_LEVEL:13]),
+       ([SI_SKILLRESTR_LEARN:([P_LEVEL:16]),
          SI_MAGIC_TYPE: ({ MT_PSYCHO }),
-         SP_NAME: "kampfschrei"]));
-  AddSpell("identifiziere",10,
-       ([SI_SKILLRESTR_LEARN:([P_LEVEL:8]),
-         SI_MAGIC_TYPE: ({ MT_HELLSICHT }),
-         SP_NAME: "identifiziere"]));
+         SI_SPELL: ([SP_NAME: "kampfschrei"]),
+         ]));
   AddSpell("feuerball",20,
-           ([SI_SKILLRESTR_LEARN:([P_LEVEL:15]),
+           ([SI_SKILLRESTR_LEARN:([P_LEVEL:18]),
              SI_SKILLDAMAGE:300,
              // Schaden: Random(300) ...
              OFFSET(SI_SKILLDAMAGE):100,
              // ... plus 100
-             SI_SKILLDAMAGE_TYPE:DT_FIRE,
+             SI_SKILLDAMAGE_TYPE:({DT_FIRE}),
              // Damage Type: Fire
             SI_MAGIC_TYPE: ({ MT_ANGRIFF }),
-            SP_NAME: "feuerball",
+            SI_SPELL: ([SP_NAME: "feuerball"]),
             SI_SKILLDAMAGE_BY_ROW: ([2:80,3:150,4:80,5:20]),
             OFFSET(SI_SKILLDAMAGE_BY_ROW): ([2:30,3:80,4:30,5:10])
              ]));
-  AddSpell("schnell",100,17);
+  AddSpell("schnell",100,
+      ([SI_SKILLRESTR_LEARN:([P_LEVEL:21]),
+        SI_SPELL: ([P_NAME: "schnell"]) ]));
   AddSpell("saeurestrahl",25,
-       ([SI_SKILLRESTR_LEARN:([P_LEVEL:30]),
-         OFFSET(SI_SKILLLEARN):1,
-         FACTOR(SI_SKILLLEARN):20,
+       ([SI_SKILLRESTR_LEARN:([P_LEVEL:28]),
+             OFFSET(SI_SKILLLEARN):1,
+             FACTOR(SI_SKILLLEARN):20,
              SI_SKILLDAMAGE:400,
              // Schaden: Random(400) ...
              OFFSET(SI_SKILLDAMAGE):200,
              // ... plus 200
-             SI_SKILLDAMAGE_TYPE:DT_ACID,
+             SI_SKILLDAMAGE_TYPE:({DT_ACID}),
              // Damage Type: Saeure
              SI_MAGIC_TYPE: ({ MT_ANGRIFF }),
-             SP_NAME: "saeurestrahl",
+             SI_SPELL: ([SP_NAME: "saeurestrahl"]),
              SI_SKILLDAMAGE_BY_ROW:([2:60,3:150,4:210,5:150,6:60]),
              OFFSET(SI_SKILLDAMAGE_BY_ROW):([2:30,3:80,4:120,5:80,6:30])
              ]));
 
+}
+
+int
+steinschlag(object caster, mapping sinfo) {
+  object victim;
+  int hands;
+  string vn, vnw, cn;
+  int suc;
+
+  victim=FindEnemyVictim(sinfo[SI_SKILLARG],caster,
+         "Ueber wem willst Du einen Steinschlag niedergehen lassen?\n");
+  if (!victim)
+    return 0;
+  if ((suc=SpellSuccess(caster,sinfo))<=0)
+    return MISSERFOLG;
+  if (suc < victim->SpellDefend(caster, sinfo))
+  {
+    tell_object(caster, victim->Name() + " wehrt Deinen Spruch ab.\n");
+    return ERFOLG;
+  }
+
+  cn = caster->Name();
+  vnw = victim->name(WEN, 2);
+  say(sprintf("%s laesst kleine Kiesel auf %s fallen.\n",cn, vnw),
+      victim);
+  printf("Du konzentrierst Dich darauf, kleine Kiesel auf %s fallen zu lassen.\n", vnw);
+  tell_object(victim,sprintf("%s laesst kleine Kiesel auf Dich fallen.\n",
+                             cn));
+  TryDefaultAttackSpell(victim,caster,sinfo,
+            ([SP_NAME:"steinschlag", SP_PHYSICAL_ATTACK:1,SP_SHOW_DAMAGE:1]));
+  return ERFOLG;
 }
 
 int
@@ -249,7 +300,7 @@ int kampfschrei(object caster, mapping sinfo)
   dauer = 1 + (suc/1000 + random(caster->QueryProp(P_LEVEL)/2))/2;
   if (dauer>25)
     dauer = 25;
-  ob->ModifySkillAttribute(caster, SA_SPEED, 50, dauer);
+  ob->ModifySkillAttribute(SA_SPEED, -50, dauer);
 
   return ERFOLG;
 }
@@ -322,12 +373,6 @@ identifiziere(object caster, mapping sinfo) {
   else result+="Du kannst sonst nichts besonderes an "+ob->QueryPronoun(WEM)
               +" erkennen.";
   write(break_string(result, 78, 0, 1));
-/*
-  if (result=ob->QueryProp(P_INFO))
-    printf("Du identifizierst %s.\n%s", ob->name(WEN, 1), result);
-  else
-    printf("Du kannst nichts besonderes an %s erkennen.\n", ob->name(WEM, 1));
-*/
   return ERFOLG;
 }
 
@@ -336,23 +381,41 @@ licht(object caster, mapping sinfo)
 {
    object l;
 
-   printf("Du machst eine magische Bewegung.\n");
-   say(sprintf("%s macht eine magische Bewegung.\n",
-           capitalize(caster->name())));
-
-   if (SpellSuccess(caster,sinfo)<=0)
+   tell_object(caster, "Du machst eine magische Bewegung.\n");
+   tell_room(environment(caster),
+       sprintf("%s macht eine magische Bewegung.\n",
+           capitalize(caster->name(WER))), ({caster}));
+   
+   int suc=SpellSuccess(caster,sinfo);
+   if (suc<=0)
       return MISSERFOLG;
 
    l = clone_object(LICHTKUGEL);
    if (l->move(this_player()) > 0)
    {
-      LICHTMASTER->add_kugel(l, caster->QueryProp(P_LEVEL)*20);
-      printf("Wie aus dem Nichts erscheint eine leuchtende Kugel.\n");
+      int lvl;
+      // fuer Spruchrollen-Support.
+      if (!sinfo[SI_USR] || !(lvl=sinfo[SI_USR][P_LEVEL]) )
+        lvl = caster->QueryProp(P_LEVEL);
+      lvl = min(lvl,42);
+      // wenn der Spell nicht ganz so gut gelingt, ist die Kugel auch etwas
+      // dunkler.
+      if (suc<6000)
+      {
+        l->SetProp(P_LIGHT,1);
+        tell_object(caster,
+            "Wie aus dem Nichts erscheint eine leuchtende Kugel.\n");
+      }
+      else
+        tell_object(caster,
+            "Wie aus dem Nichts erscheint eine hell leuchtende Kugel.\n");
+      l->start_remove(lvl * 20 * min(suc+3333,10000) / 10000);
    }
    else
    {
       l->remove();
-      printf("Eine Lichtkugel erscheint, zerplatzt aber sofort mit einem sanften 'plopp'.\n");
+      tell_object(caster,
+          "Eine Lichtkugel erscheint, zerplatzt aber sofort mit einem sanften 'plopp'.\n");
    }
 
    return ERFOLG;
@@ -466,7 +529,7 @@ schnell(object caster, mapping sinfo) {
            random(sinfo[SI_SKILLABILITY]/1000));
   if (dauer>60)
     dauer = 60;
-  caster->ModifySkillAttribute(caster,SA_SPEED,200,dauer);
+  caster->ModifySkillAttribute(SA_SPEED, 100, dauer);
 
   return ERFOLG;
 }

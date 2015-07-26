@@ -1,7 +1,7 @@
 PreventInsertLiving()
 
 FUNKTION:
-     varargs int PreventInsertLiving(object ob);
+     int PreventInsertLiving(object ob);
 
 DEFINIERT IN:
      /std/container/restrictions.c

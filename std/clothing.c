@@ -13,6 +13,7 @@
 inherit "/std/thing/properties";
 inherit "/std/thing/commands";
 inherit "/std/thing/restrictions";
+inherit "/std/thing/light";
 inherit "/std/clothing/description";
 inherit "/std/clothing/moving";
 inherit "/std/clothing/wear";
@@ -32,6 +33,7 @@ protected void create()
 {
   properties::create();
   commands::create();
+  light::create();
   restrictions::create();
   description::create();
   wear::create();

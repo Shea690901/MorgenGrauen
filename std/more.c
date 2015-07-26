@@ -2,7 +2,7 @@
 //
 // more.c -- more files
 //
-// $Id: more.c 6371 2007-07-17 22:46:50Z Zesstra $
+// $Id: more.c 9142 2015-02-04 22:17:29Z Zesstra $
 
 #pragma strict_types
 #pragma save_types
@@ -46,7 +46,7 @@ q,x        -- Quit or eXit more.\n\
 /<regexp>  -- Search for the regular expression <regexp>.\n"
 #endif
 
-private static string cprompt = "";
+private nosave string cprompt = "";
 
 string prompt(mixed pinfo, string add)
 {
@@ -124,9 +124,9 @@ varargs int eval_command(mixed in, mixed pinfo)
         pinfo[CURL] = l;
         break;
       }
-      if(strlen(in) && in[0] == '/')
+      if(sizeof(in) && in[0] == '/')
       {
-	if(strlen(in) == 1)
+	if(sizeof(in) == 1)
 	{
 	  if(!pinfo[REGX]) return (cprompt = MSG_NO_REGX, 0);
 	}

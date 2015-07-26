@@ -1,5 +1,3 @@
-QueryAllDoors()
-
 FUNKTION:
      mapping QueryAllDoors();
 
@@ -12,14 +10,23 @@ ARGUMENTE:
 BESCHREIBUNG:
      Es werden die Zustaende ALLER Tueren im MorgenGrauen ermittelt.
 
-RUeCKGABEWERT:
+RUECKGABEWERT:
      Ein Mapping mit den Zustaenden aller Tueren im MorgenGrauen. Als
      Schluessel dienen die Dateinamen der Start- und Zielraeume in
-     alphabetischer Reihenfolge, getrennt durch ":".
+     lexikographischer (alphabetischer) Reihenfolge, getrennt durch ":",
+     der Wert des Keys ist der aktuelle Zustand dieser Tuer, z.B.:
+
+    ([ "/d/inseln/schiffe/jolle:/d/inseln/schiffe/jolle/masch" : -1,
+       ...
+     ]);
+
+     Es gibt also eine Tuer zwischen Jolle und Maschinenraum, die
+     momenten geschlossen ist (-1 = D_STATUS_CLOSED).
+
 
 SIEHE AUCH:
-     SetDoorStatus(), QueryDoorStatus(), NewDoor(), /obj/doormaster.c,
-     /std/room/doors.c
+    NewDoor(), QueryDoorKey(), QueryDoorStatus(), SetDoorStatus(),
+    /std/room/doors.c, /obj/doormaster.c, GetPhiolenInfos(), P_DOOR_INFOS
 
-----------------------------------------------------------------------------
-Last modified: Wed May 8 10:21:42 1996 by Wargon
+-----------------------------------------------------------------------------
+Letzte Aenderung: Don, 08.05.2014, Gabylon

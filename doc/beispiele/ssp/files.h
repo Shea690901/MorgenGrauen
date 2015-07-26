@@ -11,36 +11,3 @@
 #define LOG_OBJ "/players/boing/obj/logobj"
 #define PFLANZE "/doc/beispiele/ssp/mon/pflanze"
 #define MMONST "/doc/beispiele/ssp/mon/metallmonster"
-
-#define GUARDED_EXIT(direction, dest, monster, message)\
-  AddSpecialExit(direction, \
-		 lambda(({}), \
-({#',,\
-  ({ #'?, \
-    ({#'present, monster }),\
-    ({ #'write, message }),\
-    ({ #'call_other, \
-      ({ #'this_player }), "move", dest, M_GO, \
-        ({#'+, "nach ", \
-          ({ #'?, \
-            ({ #'||, \
-              ({#'==, direction, "oben"}), \
-	      ({#'==, direction, "unten"}) \
-            }),\
-            direction, \
-            ({#'capitalize, direction }) \
-	  })\
-	})\
-    }) \
-  }), 1 \
-})\
-))
-
-
-/* --- Von Paracelsus geklaut --- */
-#define MURDER(message)\
-    SetProp(P_MURDER_MSG, lambda(({}),\
-        ({ #'sprintf,message, \
-            ({ #'capitalize, ({#'call_other,\
-                ({#'call_other, ({#'this_object}), "QueryProp", P_KILLER }),\
-                     "name" }) }) }) ), F_QUERY_METHOD);

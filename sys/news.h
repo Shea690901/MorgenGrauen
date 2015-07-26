@@ -2,7 +2,7 @@
 //
 // news.h -- Definitionen fuer die Zeitung
 //
-// $Id: news.h 5187 2006-09-23 10:26:19Z root $
+// $Id: news.h 8809 2014-05-08 19:52:48Z Zesstra $
 
 #define G_NAME 0
 #define G_OWNER 1
@@ -29,7 +29,6 @@
 #define M_TITLE 4
 #define M_MESSAGE 5
 
-private int security( string name );
 static string user_euid();
 static void save_group_list();
 static void save_group(string grp,mixed group);

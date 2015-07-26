@@ -2,7 +2,7 @@
 //
 // newsclient.c -- Nachrichtenbretter
 //
-// $Id: newsclient.c 6689 2008-01-17 19:56:12Z Zesstra $
+// $Id: newsclient.c 8349 2013-02-04 21:15:28Z Zesstra $
 
 /* 1992 JOF */
 #pragma strong_types
@@ -20,6 +20,7 @@ inherit "/std/more";
 #include <wizlevels.h>
 #include <language.h>
 #include <defines.h>
+#include <input_to.h>
 
 string GROUP;
 string writer;
@@ -86,7 +87,7 @@ string QueryLong()
     desc+=""+(i+1)+". ";
     desc+=(ladj(messages[i][M_TITLE],45)+" ("+
 	   ladj(messages[i][M_WRITER]+",",13)+
-	   extract(dtime(messages[i][M_TIME]),4,24)+")\n");
+	   dtime(messages[i][M_TIME])[4..24] + ")\n");
   }
   return desc;
 }
@@ -127,8 +128,7 @@ int schreib(string str)
   if (IS_WIZARD(this_player()))
     write("Als Magier"+(this_player()->QueryProp(P_GENDER)==FEMALE ? "in" : "")+
 	  " kannst Du per '~r<filename>' ein File in die Notiz einlesen.\n");
-  input_to("get_note_line");
-  write(":");
+  input_to("get_note_line", INPUT_PROMPT, ":");
   return 1;
 }
 
@@ -162,22 +162,20 @@ int get_note_line(string str)
     if (str[0]==' ') str=str[1..<1];
     if (!str || catch(err=file_size(str);publish) || err<0) {
       write("File nicht gefunden.\n");
-      write(":");
-      input_to("get_note_line");
+      input_to("get_note_line", INPUT_PROMPT, ":");
       return 1;
     }
     str=read_file(str);
     if (!str){
-      write("Zu gross!\n:");
-      input_to("get_note_line");
+      write("Zu gross!\n");
+      input_to("get_note_line", INPUT_PROMPT, ":");
       return 1;
     }
     write("Ok.\n");
   }
   if (message[M_MESSAGE] && message[M_MESSAGE]!="") message[M_MESSAGE]+="\n";
   message[M_MESSAGE]+=str;
-  write(":");
-  input_to("get_note_line");
+  input_to("get_note_line", INPUT_PROMPT, ":");
   return 1;
 }
 
@@ -199,7 +197,7 @@ int lies(string str)
     return 0;
   }
   this_player()->More(messages[num][M_TITLE]+" ("+messages[num][M_WRITER]+", "+
-       extract(dtime(messages[num][M_TIME]),5,26)+"):\n"+
+      dtime(messages[num][M_TIME])[5..26] + "):\n" + 
        messages[num][M_MESSAGE]);
   return 1;
 }
@@ -226,6 +224,7 @@ int loesche(string str)
 	    default: write("Interner Fehler. Bitte Erzmagier verstaendigen !\n");
 	    return 1;
 	  }
+  return 0;
 }
 
 void Crumble()

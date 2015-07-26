@@ -5,7 +5,7 @@
 // Testversion mit support fuer AddItem
 // soll spaeter in npc.c aufgehen
 //
-// $Id: npc.c 7319 2009-10-26 22:41:20Z Zesstra $
+// $Id: npc.c 9164 2015-03-01 21:54:05Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -15,6 +15,7 @@
 inherit "/std/thing/properties";
 inherit "/std/hook_provider";
 inherit "/std/living/description";
+inherit "/std/living/light";
 inherit "/std/living/life";
 inherit "/std/living/attributes";
 inherit "/std/living/moving";
@@ -31,6 +32,7 @@ inherit "/std/npc/info";
 inherit "/std/npc/put_and_get";
 inherit "/std/npc/items";
 inherit "/std/thing/envchk";
+inherit "/std/living/helpers";
 
 #include <config.h>
 #include <properties.h>
@@ -53,6 +55,7 @@ protected void create()
   properties::create();
   restrictions::create();
   commands::create();
+  light::create();
   description::create();
   attributes::create();
   clothing::create();
@@ -65,6 +68,8 @@ protected void create()
   add_team_commands();
   items::create();
   envchk::create();
+  moving::create();
+
   add_action("UseSpell","",1);
 
   SetProp(P_LIGHT_MODIFIER, 1);
@@ -152,9 +157,6 @@ void init()
   commands::init();
 //  description::init();
 }
-
-void catch_tell(string str)
-{}
 
 // items initialisieren?
 protected void NotifyMove(object dest, object oldenv, int method) {

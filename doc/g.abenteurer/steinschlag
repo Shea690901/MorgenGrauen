@@ -1,0 +1,35 @@
+
+Steinschlag
+-----------
+
+ ZAUBERSPRUCH:
+    steinschlag [<gegner>]
+
+ ARGUMENTE:
+    
+    <gegner> (optional)
+       Das arme, unschuldige Opfer, das Du mit Steinen bewerfen moechtest.
+       Wenn Du Dich bereits im Kampf befindest, musst Du es nicht benennen,
+       ausser Du kaempfst gegen mehrere Gegner und moechtest einen von
+       ihnen gezielt treffen.
+
+
+ FUNKTION:
+    Mit diesem Zauber kann ein Abenteurer kleine Steinchen in seiner Umgebung
+    dazu bringen, ueber einem Gegner herabzufallen. 
+    Merkwuerdigerweise funktioniert das sogar, wenn in der Umgebung gar keine
+    Steinchen zu sehen sind. 
+
+    Der Spruch kostet 5 Magiepunkte und kann ab Stufe 1 erlernt werden.
+
+
+ SIEHE AUCH:
+    abenteurer, gilden,
+    identifiziere, licht, schaetz, pfeil, ausweichen, kampfschrei, feuerball,
+    schnell, saeurestrahl
+
+    *Ist man Mitglied einer anderen Gilde, so muss man fuer die Hilfen zu den
+    Spruechen `hilfe gilde abenteurer <name>' benutzen!*
+
+ LETZTE AeNDERUNG:
+    04.11.2012, Arathorn

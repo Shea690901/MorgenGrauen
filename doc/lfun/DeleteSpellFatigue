@@ -6,6 +6,7 @@ FUNKTION:
 DEFINIERT IN:
     /std/living/skills.c
     /std/player/skills.c
+    /sys/living/skills.h
 
 ARGUMENTE:
     string key  : Eindeutiger Name des Spruches, einer Gruppe von Spruechen

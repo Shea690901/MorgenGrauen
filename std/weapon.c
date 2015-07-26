@@ -2,7 +2,7 @@
 //
 // weapon.c -- weapon standard object
 //
-// $Id: weapon.c 6903 2008-08-06 13:01:25Z Zesstra $
+// $Id: weapon.c 7804 2011-07-10 20:37:52Z Zesstra $
 
 #pragma strict_types
 #pragma save_types
@@ -10,10 +10,11 @@
 #pragma pedantic
 #pragma range_check
 
-inherit "std/thing/properties";
-inherit "std/thing/language";
-inherit "std/thing/commands";
-inherit "std/thing/restrictions";
+inherit "/std/thing/properties";
+inherit "/std/thing/language";
+inherit "/std/thing/commands";
+inherit "/std/thing/restrictions";
+inherit "/std/thing/light";
 inherit "/std/weapon/moving";
 inherit "/std/weapon/combat";
 inherit "/std/weapon/description";
@@ -32,6 +33,7 @@ void create()
   seteuid(getuid());
   properties::create();
   commands::create();
+  light::create();
   restrictions::create();
   combat::create();
   description::create();

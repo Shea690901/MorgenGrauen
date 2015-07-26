@@ -43,6 +43,7 @@
 #define FLAG_LONG 2
 #define FLAG_SPONSOR 4
 #define FLAG_VIS_LOGOUT 8
+#define FLAG_AVATAR 16
 
 
 mapping properties;
@@ -63,6 +64,10 @@ string timediff(int time)
   string ret;
 
   ret="";
+  if ( time >= 86400*365 ) {
+    ret+=time/(86400*365)+"a ";
+    time%=(86400*365);
+  }
   if(time>=86400) {
     ret+=time/86400+"d ";
     time%=86400;
@@ -131,8 +136,9 @@ varargs string finger_single(string str,int local)
   if (member(h,"-l")>=0) flags|=FLAG_LONG;
   if (member(h,"-s")>=0) flags|=FLAG_SPONSOR;
   if (member(h,"-v")>=0) flags|=FLAG_VIS_LOGOUT;
+  if (member(h,"-a")>=0) flags|=FLAG_AVATAR;
 
-  h=(h-({"-n","-p","-l","-s", "-v"}));
+  h=(h-({"-n","-p","-l","-s", "-v","-a"}));
   if (!sizeof(h)) {
     text="Du solltest schon sagen, wer Dich interessiert!\n";
     if (local) return write(text),0;
@@ -271,7 +277,7 @@ varargs string finger_single(string str,int local)
   if (!(h=properties[P_RACE]) && userinfo && pointerp(userinfo) && sizeof(userinfo)>4 &&
       stringp(userinfo[4]) && sizeof(h=old_explode(userinfo[4],"/"))>2) {
     h=capitalize(h[2]);
-    h=(["Human":"Mensch","Dwarf":"Zwerg","Darkelf":"Dunkelelf"])[h] || h;
+    h=(["Human":"Mensch","Dwarf":"Zwerg","Darkelf":"Dunkelelf","Orc":"Ork"])[h] || h;
   }
 
   if (!stringp(h)) h="<keine>";
@@ -393,6 +399,11 @@ data=filter(data-({"erzmagier"}),#'stringp);
     if (sizeof(data))
       text += "Gildenmagier"+IN+" von      : "+implode(map(data, #'capitalize), ", ")+".\n";   /* #' */
   }
+
+  // ggf. Avatar-URI mit ausgeben.
+  if (flags & FLAG_AVATAR
+      && stringp(properties[P_AVATAR_URI]))
+    text += "Avatar-URI: " + properties[P_AVATAR_URI] + "\n";
 
   if (flags & FLAG_SPONSOR)
     text+=sponsoring(str);

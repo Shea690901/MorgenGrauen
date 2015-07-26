@@ -7,16 +7,20 @@
 #ifndef __LIB_MONEY_H__
 #define __LIB_MONEY_H__
 
-#include <living/moneyhandler.h>
+#include <container/moneyhandler.h>
 #include <bank.h>
 
-#define GELD       "/obj/money"
-#define BOERSE     "/obj/boerse"
-#define SEHERKARTE "/obj/seercard"
+#define GELD       "/items/money"
+#define BOERSE     "/items/boerse"
+#define SEHERKARTE "/items/seercard"
 
 #define GELDID       "\ngeld"
-#define BOERSEID     "\ngeldboerse2"
+#define BOERSEID     "\ngeldboerse"
 #define SEHERKARTEID "\ngeldkarte"
+// Id fuer eine Boerse mit Geld drin...
+#define GELDBOERSE_MIT_GELD "\ngeldboerse_mit_geld"
+// ID fuer aktive Geldkarte
+#define SEHERKARTEID_AKTIV "\ngeldkarte_aktiv"
 
 #endif
 

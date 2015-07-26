@@ -15,5 +15,9 @@ BESCHREIBUNG:
     Ein direktes setzen dieser Property ist NICHT moeglich, hierzu bitte
     P_LIGHT benutzen!
 
+BEMERKUNGEN:
+    Das ist die VON einem Objekt ausgehende Lichtstaerke. Fuer das IN einem
+    Raum herrschende Licht bitte P_INT_LIGHT abfragen!
+
 SIEHE AUCH:
     P_LIGHT, P_INT_LIGHT, P_PLAYER_LIGHT, P_LIGHT_MODIFIER, CannotSee()

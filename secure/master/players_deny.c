@@ -17,7 +17,7 @@
 #define WHITELISTDUMP "/secure/ARCH/players_deny_whitelist.dump"
 #define TARGETLISTDUMP "/secure/ARCH/players_deny_targets.dump"
 
-#define PLDENY_LEARNMODE
+//#define PLDENY_LEARNMODE
 
 #include "/secure/wizlevels.h"
 #include "/secure/master.h"
@@ -48,7 +48,7 @@ private void ParseTargetList() {
 
 private void DumpList(mapping list, string file) {
   if (!stringp(file) || !mappingp(list)
-      || !strlen(file) || !sizeof(list))
+      || !sizeof(file) || !sizeof(list))
     return;
   
   write_file(file, implode(m_indices(list),"\n"), 1);
@@ -64,7 +64,7 @@ private void DumpTargetList() {
 }
 
 public void DumpPLDenyLists() {
-  if ( extern_call() && funcall(symbol_function('secure_level)) < ARCH_LVL )
+  if ( extern_call() && call_sefun("secure_level") < ARCH_LVL )
     return;
   DEBUG("Dumping PLDenylists\n");
   limited(#'DumpWhiteList);
@@ -72,7 +72,7 @@ public void DumpPLDenyLists() {
 }
 
 public void SavePLDenyLists() {
-  if ( extern_call() && funcall(symbol_function('secure_level)) < ARCH_LVL )
+  if ( extern_call() && call_sefun("secure_level") < ARCH_LVL )
     return;
   DEBUG("Saving PLDenyLists\n");
   write_file(WHITELIST,
@@ -84,7 +84,7 @@ public void SavePLDenyLists() {
 public void LoadPLDenylists() {
   mixed tmp;
 
-  if ( extern_call() && funcall(symbol_function('secure_level)) < ARCH_LVL )
+  if ( extern_call() && call_sefun("secure_level") < ARCH_LVL )
     return;
 
   write("Loading PLDenylists\n");
@@ -116,7 +116,7 @@ mixed include_file(string file, string compiled_file, int sys_include) {
     DEBUG("include_file(): Whitelisting: "+compiled_file+"\n");
     m_add(whitelist, compiled_file);
     m_add(targets, file);
-    funcall( symbol_function('log_file), "PLAYERSWHITELIST", 
+    call_sefun("log_file", "PLAYERSWHITELIST",
         sprintf("%s (inkludiert %s)\n",compiled_file, file),
         1000000);
 #else
@@ -138,7 +138,7 @@ mixed inherit_file(string file, string compiled_file) {
     DEBUG("include_file(): Whitelisting: "+compiled_file+"\n");
     m_add(whitelist, compiled_file);
     m_add(targets, file);
-    funcall( symbol_function('log_file), "PLAYERSWHITELIST", 
+    call_sefun("log_file", "PLAYERSWHITELIST", 
         sprintf("%s (erbt %s)\n",compiled_file, file),
         1000000);
 #else

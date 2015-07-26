@@ -7,7 +7,7 @@
 //                Weiters derjenige, der die Seheranforderungen 
 //                prueft. 
 //
-// $Id: lepmaster.c 7391 2010-01-25 22:52:51Z Zesstra $
+// $Id: lepmaster.c 9168 2015-03-05 00:04:22Z Zesstra $
 
 // Hier kommen Funktionen fuer die Levelpunkte
 #pragma strict_types
@@ -26,10 +26,15 @@
 #include <exploration.h>
 #include <questmaster.h>
 #include <scoremaster.h>
+#include <wizlevels.h>
 
 #include "lepmaster.h"
 
-#define XP_FAC ([1:10,2:40,3:150,4:600,5:2250,6:9000,7:35000,8:140000,9:500000])
+// Das Programm zur Foerderung der kleinen Level aktivieren. ;-)
+#define __PFOERKL__ 1
+
+// die ersten 8 Level, d.h. Level 1 bis 8 entsprechen diesen LEPs.
+int *LOW_LEVEL_LEP_LIST = ({100,120,140,180,220,300,360,420}); // 9. Level: 500 LEP
 
 #define REQ_TEXT1  ([0:"unglaublich viel", \
                   1:"unglaublich viel", \
@@ -62,17 +67,14 @@ void create()
   seteuid(getuid());
 }
 
-public nomask int query_prevent_shadow()
+int QueryLEPForPlayer(object pl)
 {
-    return 1;
-}
-
-nomask int QueryLEP()
-{
-  object pl;
   int ret, val, i, l;
 
-  if (!pl=previous_object()) return 0;
+  if (extern_call() && !IS_ARCH(geteuid(previous_object())))
+    return -1;
+  if (!pl || !query_once_interactive(pl))
+    return -2;
 
   //  Grundoffset 100, da man mit Level 1 statt 0 startet
   ret = 100;
@@ -111,11 +113,6 @@ nomask int QueryLEP()
 
   ret += 5*i + ([ 0: 100, 1: 60, 2: 30, 3: 10])[val];
 
-  // Keine Stufenpunkte fuer gefundene "fremde" ZTs mehr, da diese
-  // von neuen Spielern nicht mehr erreichbar sind.
-  // ret += QueryProp(P_BONUS_POTIONS);
-  DEBUG("Nach ZT: ret = %d\n", ret);
-
   // Beitrag F: Forscherpunkte
   //  Pro FP gibt es 6 Stufenpunkte
   ret += 6 * (int)EPMASTER->QueryExplorationPoints(pl);
@@ -132,6 +129,63 @@ nomask int QueryLEP()
   ret -= ret%20;
 
   return (ret > 100) ? ret : 100;
+
+}
+
+nomask int QueryLEP()
+{
+  if (!previous_object())
+    return 0;
+  return QueryLEPForPlayer(previous_object());
+}
+
+nomask int QueryLevel(int lep) {
+  if (lep<=0)
+    lep=QueryLEP();
+
+  if (lep<=0)
+    return 0;
+
+#ifdef __PFOERKL__
+  // normale Level alle 100 LEP
+  if (lep >= 500)
+    return lep/100 + 4;
+  else {
+    // level mit weniger LEP am Anfang (1-8)
+    // Level aus der LOW_LEVEL_LEP_LIST raussuchen.
+    int lev = sizeof(LOW_LEVEL_LEP_LIST) - 1;
+    for ( ; lev >= 0; --lev) {
+      if (LOW_LEVEL_LEP_LIST[lev] <= lep)
+        break;  // gefunden
+    }
+    return lev+1;
+  }
+#else
+  return lep/100;
+#endif // __PFOERKL__
+  return 0;
+}
+
+// Wieviele LEP fehlen zum naechsten Level?
+nomask int QueryNextLevelLEP(int lvl, int lep) {
+  int needed;
+
+  if (QueryLevel(lep) > lvl)
+    return 0;
+
+#ifdef __PFOERKL__
+  if (lvl < sizeof(LOW_LEVEL_LEP_LIST))
+    needed = LOW_LEVEL_LEP_LIST[lvl];
+  else
+    needed = (lvl-3) * 100; // (lvl + 1 - 4) * 100
+#else
+  needed = (lvl+1) * 100;
+#endif // __PFOERKL__
+
+  // needed sind jetzt die insgesamt benoetigten LEP. Vorhandene abziehen.
+  needed -= lep;
+  // nix < 0 zurueckliefern
+  return max(needed,0);
 }
 
 string QueryForschung()
@@ -287,19 +341,21 @@ nomask mixed QueryWizardRequirements(object player)
     	 REQ_TEXT2[(z*10/REQ_K)] );;
     i--;
   }
-    
+
+  int minlevel = QueryLevel(REQ_LEP);
+
   // Restliche Stufenpunkte 
   DEBUG("Stufenpunkte: %d ("+REQ_LEP+")\n", player->QueryProp(P_LEP));
   if ((int)(player->QueryProp(P_LEP)) < REQ_LEP) {
     s += sprintf(" * Du musst mindestens %d Stufenpunkte, entspricht Stufe %d, "
-		 "erreichen.\n", REQ_LEP, REQ_LEP/100);
+        "erreichen.\n", REQ_LEP, minlevel);
     i--;
   }
   
   // Demnach mindestens REQ/100-Level 
   DEBUG("Level: %d ("+REQ_LEP/100+")\n", player->QueryProp(P_LEVEL));
-  if ((int)player->QueryProp(P_LEVEL) < (REQ_LEP/100)) {
-    s += sprintf(" * Du musst mindestens Stufe %d erreichen.\n", REQ_LEP/100);
+  if ((int)player->QueryProp(P_LEVEL) < minlevel) {
+    s += sprintf(" * Du musst mindestens Stufe %d erreichen.\n", minlevel);
     i--;
   }
   

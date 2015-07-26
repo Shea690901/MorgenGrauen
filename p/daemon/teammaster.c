@@ -19,9 +19,9 @@ static mixed DoRegisterTeam(object ob, string name) {
   mixed old;
 
   old=team_names[ob];
-  efun::m_delete(team_names_reverse,old); // Namen Freigeben
+  m_delete(team_names_reverse,old); // Namen Freigeben
   if (!name) { // UnRegister
-    efun::m_delete(team_names,ob);
+    m_delete(team_names,ob);
     return name;
   }
   team_names[ob]=name;

@@ -18,15 +18,10 @@ inherit "/std/thing";
 // Die Funktion folgender Zeile kann man sich recht einfach wie folgt
 // vorstellen: Wenn der Game-Driver dieses Objekt hier compiliert, dann
 // tut er so, als wuerde die Datei /sys/properties.h genau an dieser Stelle
-// hier im Code stehen.  (auch moeglich #include "/sys/properties.h")
+// hier im Code stehen.
 //
-// Die Datei properties.h beinhaltet einfach nur haufenweise Defines.
-// Ein Define waere z.B.: #define WORLD write("Hello World.\n")
-// Von nun an kann ich im Code immer WORLD; anstelle von
-//  write("Hello World.\n"); schreiben.
-// Auch dieser Befehl ist also eigentlich nichts weiter als ein einfaches
-// Suchen und Ersetzen, wie man es aus jedem Textverarbeitungsprogramm
-// kennt.
+// Die Datei properties.h beinhaltet einfach nur haufenweise Defines fuer
+// die haufenweise Properties.
 //
 // Anmerkung: Alle Defines in dieser Datei starten uebrigens mit einem 'P_'.
 // Am Besten solltest Du einfach mal kurz in /doc/properties.h reinsehn
@@ -34,22 +29,16 @@ inherit "/std/thing";
 //  (keine Angst, die muss man nicht alle kennen :).
 #include <properties.h>
 
-
-void create()
+protected void create()
 {
-  // Aehnlich der efun::write() ist auch diese Funktion.
   // Die Funktion create() wurde naemlich bereits in /std/thing.c
   // beschrieben, kann aber nicht mehr ueber create() aufgerufen werden, da
   // dann ja wieder diese Funktion hier aufgerufen wuerde
-  //  (wodurch wir dann eine Endlos-Rekursion haetten).
+  // (wodurch wir dann eine Endlos-Rekursion haetten).
   // Kurzschreibweise waere ::create(); wenn man nur von einem Objekt erbt.
   thing::create(); // oder auch einfach ::create();
 
-  // Auch diese Funktion wurde aus /std/thing geerbt. Da man diese Funktion
-  // jedoch praktisch nie ueberschreibt, kann man auch direkt SetProp()
-  // anstatt thing::SetProp(); schreiben (Wie Du bereits immer wieder
-  //  merkst, kuerzt man ueberall dort, wo es der Uebersichtlichkeit dient,
-  //  die Schreibweisen ab).
+  // Auch diese Funktion wurde aus /std/thing geerbt.
   // SetProp() ist eine der wichtigsten Funktionen ueberhaupt, wenn es darum
   // geht, ein Objekt zu beschreiben. Mit dieser Funktion kannst Du naemlich
   // zahlreiche Eigenschaften (engl. properties) des Objektes festlegen.

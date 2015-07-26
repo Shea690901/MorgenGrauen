@@ -2,7 +2,7 @@
 //
 // player/soul.c -- Die Seele des Spielers
 //
-// $Id: soul.c 7513 2010-03-26 15:46:38Z Zesstra $
+// $Id: soul.c 9011 2015-01-07 13:05:52Z Rumata $
 
 // Letzte Aenderung vom 08.09.95  Wargon
 
@@ -247,7 +247,11 @@ QueryStdAdverbs()  {
 }
 
 mapping
-QueryAdverbs() { return deep_copy(plr_adverbs); }
+QueryAdverbs() {
+  if (extern_call())
+    return deep_copy(plr_adverbs);
+  return plr_adverbs;
+}
 
 string
 MatchAdverb(string a)  {
@@ -320,7 +324,7 @@ ParseRemote(string arg)  {
 
   adverb = 0; // Adverb vom letzten Mal keinesfalls wiederverwenden. ;-)
 
-  if (!stringp(arg) || !strlen(arg)) return 0;
+  if (!stringp(arg) || !sizeof(arg)) return 0;
   
   words=explode(arg," ");
 
@@ -330,15 +334,17 @@ ParseRemote(string arg)  {
   
   if (who) {
     // Ziel ist ein Spieler.
-    if (!who->QueryProp(P_INVIS) || IS_WIZARD(ME)) {
+    if (!who->QueryProp(P_INVIS) || IS_WIZARD(ME))
+    {
       // Spieler ist nicht Invis oder ich bin Magier.
       string nam = (query_once_interactive(ME) ? getuid() : 
 	             lower_case(name(RAW)));
       if (query_verb()[0..5]=="rknudd" &&
-	  who->TestIgnore( ({"rknuddel",nam,nam+".knuddel"}) ) ) {
-	// ich oder das Kommando werde ignoriert.
-	write(who->Name(WER)+" ignoriert Deinen Knuddelversuch.\n");
-	return 1;
+	  who->TestIgnore(nam+".rknuddel") )
+      {
+        // ich oder das Kommando werde ignoriert.
+        write(who->Name(WER)+" ignoriert Deinen Knuddelversuch.\n");
+        return 1;
       }
     }
     else
@@ -394,10 +400,7 @@ varargs string GetPlayerAdverb( string s, int fuzzy ) {
     // genauester Treffer = String mit groesster Laenge
     search_result = sort_array(
       (m_indices(QueryStdAdverbs()) | m_indices(plr_adverbs))&search_pattern, 
-      function int (string x, string y){ 
-             return lower_case(x) > lower_case(y) ;
-      } 
-    );
+         #'>);
 
     // Adverb zum genauesten Treffer zurueckgeben
     if (sizeof(search_result)) 
@@ -476,14 +479,27 @@ private mixed MixedOut(int casus)  {
   if (!sizeof(vics))
     RETURN("Keiner da. Schau Dich naechstes Mal besser um.\n");
   aufz=CountUp(names);
-  for (count=sizeof(vics); count--;)  {
+  for (count=sizeof(vics); count--;)
+  {
     out=implode(explode(out_vic, "@@alle@@"),aufz);
         out = regreplace( out, "\\<"+vics[count]->name(casus)+"\\>",
                           capitalize(vics[count]->QueryDu(casus)), 0 );
 
-    msg=vics[count]->Message(break_string(convert_string(out+LF), 78),MSGFLAG_SOUL);
-    if (msg==-1)
-      write(vics[count]->name()+" ignoriert Dich oder diesen Befehl.\n");
+    msg=vics[count]->ReceiveMsg(convert_string(out),MT_COMM,MA_EMOTE,
+                                0,this_object());
+    switch(msg)
+    {
+      case MSG_DELIVERED:
+      case MSG_BUFFERED:
+        break;
+      case MSG_IGNORED:
+      case MSG_VERB_IGN:
+      case MSG_MUD_IGN:
+        write(vics[count]->Name()+" ignoriert Dich oder diesen Befehl.\n");
+        break;
+      default:
+        write(vics[count]->Name()+" konnte Dich gerade nicht lesen.\n");
+    }
   }
   write(break_string(convert_string(implode(explode(out_sel,"@@alle@@"),aufz)
     +LF), 78));
@@ -550,20 +566,20 @@ FeelIt()  {
   // NPC haben keine TM-Hist (comm.c). Leider erben aber div. Magier die Soul
   // (trotzdem sie in /std/player/ liegt) in ihren NPC... *fluch*
   if (query_once_interactive(ME))
-    _recv(who, convert_string(out_sel), flg);
+    _recv(who, break_string(convert_string(out_sel),78), flg);
   else
-    tell_object(ME, convert_string(out_sel)+LF);
+    tell_object(ME, break_string(convert_string(out_sel),78));
 
   if (out_vic && who)  {
     if (query_once_interactive(who))  {
-      msg=who->Message( convert_string( out_vic )+LF, flg);
+      msg=who->Message( break_string(convert_string( out_vic ),78), flg);
       if (msg==-1)
         write(who->name()+" ignoriert Dich oder diesen Befehl.\n");
     } else
-      tell_object(who,convert_string( out_vic )+LF);
+      tell_object(who,break_string(convert_string( out_vic ),78));
   }
   if (out_oth)
-  say( convert_string( out_oth )+LF, ({who,this_player()}) );
+  say( break_string(convert_string( out_oth ),78), ({who,this_player()}) );
   out_sel=out_vic=out_oth=0;
   return 1;
 }
@@ -600,22 +616,13 @@ private int zeige_adverbs(int mine)  {
     out += " keine.\n";
   else
     // Ueber alle Elemente der indizies der Adverbienliste gehen
-    // Die Closure sagt dem sort_array nur, wie es die Liste zu 
-    // sortieren hat: Aufsteigend, gross-klein-schreibung ignorierend
-    foreach ( s : sort_array(m_indices(adverb_list),
-                    lambda( ({'x,'y}), 
-                      ({ #'>, 
-                           ({ #'lower_case , 'x }), 
-                           ({ #'lower_case , 'y }) 
-                      })
-                    )
-                  )
-           )  /* bis hierher geht das foreach :) */
-      out += break_string(adverb_list[s],78, 
+   foreach ( s : sort_array(m_indices(adverb_list), #'> ) ) {
+      out += break_string(adverb_list[s],78,
                           sprintf("  %-6s  ",s),BS_INDENT_ONCE);
+    }
 
-  More(
-     out+"\nWie diese Adverbien benutzt werden ist in <hilfe adverb> beschrieben.\n");
+  More(out+"\nWie diese Adverbien benutzt werden ist in <hilfe adverb> "
+    "beschrieben.\n");
 
   return 1;
 }
@@ -629,7 +636,7 @@ SoulComm(string str, string _verb)  {
   if (interactive(ME)) str=_unparsed_args(); // NPCs haben das nicht :(
   if (str=="") str=0;
   vb=_verb||query_verb();
-  if (strlen(vb)>1 && vb[<1]=='e' && vb!="noe") vb=vb[0..<2];
+  if (sizeof(vb)>1 && vb[<1]=='e' && vb!="noe") vb=vb[0..<2];
   sfoo = 0;
   switch (vb)  {
     /**************** Aechzen ***************/
@@ -1044,7 +1051,7 @@ SoulComm(string str, string _verb)  {
       Return("Furze wie?\n");
     out_sel="Du furzt"+(adverb ? "@@adverb@@." : " hemmungslos.");
     out_oth="@@name@@ laesst@@adverb@@ einen Stinkefurz fahren.";
-    ofoo=clone_object("/obj/furz");
+    ofoo=clone_object("/items/furz");
     ofoo->set_furzer(this_player());
     ofoo->move(environment(this_player()));
     return FeelIt();
@@ -1703,7 +1710,7 @@ SoulComm(string str, string _verb)  {
       Return("Wen oder was willst Du loben?\n");
     ParseRest(str);
     if (who==ME)  {
-      ofoo=clone_object("/obj/furz");
+      ofoo=clone_object("/items/furz");
       ofoo->set_furzer(this_player());
       ofoo->set_eigenlob();
       ofoo->move(environment(this_player()));
@@ -2838,7 +2845,7 @@ SoulComm(string str, string _verb)  {
       str1="Schuppen";
     else if (who->is_class_member(({CL_BIRD, "elster","greif"})))
       str1="Federn";
-    else if (who->is_class_member(({CL_MAMMAL_LAND,"feline","tiger",
+    else if (who->is_class_member(({CL_MAMMAL_LAND,CL_FELINE,"tiger",
                                     "steinbeisser","knuddeleisbaer"})))
       str1="Fell";
     else str1="Haare";
@@ -3148,10 +3155,12 @@ SoulComm(string str, string _verb)  {
     if (!str || str=="#" || str=="$")
       return zeige_adverbs((str=="#" ? 1 : (str=="$" ? 2 : 0)));
     if (sscanf(str, "%s %s", f1,f2)==2)  {
+      f1 = lower_case(f1); // kleingeschrieben speichern, spart Umwandlung
       if (f1=="")
         Return("Hm, da muss wohl ein Leerzeichen zu viel gewesen sein. Bitte "
           +"nochmal,\naber ohne zuviele Leerzeichen.\n");
       if (f1=="?")  {
+        f2 = lower_case(f2);
         string match;
         if ((match=QueryStdAdverbs()[f2] || plr_adverbs[f2]))
           write("Die Abkuerzung "+f2+" gehoert zu dem Adverb:\n"+match+LF);
@@ -3162,13 +3171,18 @@ SoulComm(string str, string _verb)  {
       if (QueryStdAdverbs()[f1])
         Return("Die Standardabkuerzungen koennen nicht neu definiert "
           +"werden.\n");
+      if (sizeof(plr_adverbs)>=100) 
+      {
+        write("Mehr als 100 eigene Adverbien kannst Du nicht definieren.\n");
+        return 1;
+      }
       if (plr_adverbs[f1])  {
         plr_adverbs[f1]=f2;
         write("OK, Adverb mit der Abkuerzung \""+f1+"\" auf \""+f2
           +"\" gesetzt.\n");
       }
       else  {
-        if (strlen(f1) > 6)
+        if (sizeof(f1) > 6)
           Return("Die Abkuerzung ist zu lang, bitte nicht mehr als "
             +"6 Zeichen.\n");
         plr_adverbs[f1]=f2;
@@ -3176,6 +3190,7 @@ SoulComm(string str, string _verb)  {
       }
     }
     else  {
+      str = lower_case(str);
       if (QueryStdAdverbs()[str])
         Return("Die Standardadverben koennen nicht geloescht werden.\n");
       else if (!plr_adverbs[str])
@@ -3192,7 +3207,7 @@ SoulComm(string str, string _verb)  {
             +"zu loeschen,\n");
       else  {
         write("OK, Adverb \""+plr_adverbs[str]+"\" geloescht.\n");
-        plr_adverbs=m_delete(plr_adverbs, str);
+        plr_adverbs=m_copy_delete(plr_adverbs, str);
       }
     }
     return 1; 

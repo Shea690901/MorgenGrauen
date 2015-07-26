@@ -2,12 +2,14 @@
 //
 // living/moving.c -- moving of living objects
 //
-// $Id: moving.c 7159 2009-02-25 22:45:01Z Zesstra $
+// $Id: moving.c 9163 2015-03-01 21:53:38Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
 #pragma no_clone
 #pragma pedantic
+
+inherit "/std/thing/moving";
 
 #define NEED_PROTOTYPES
 #include <hook.h>
@@ -28,10 +30,14 @@
 #include <defines.h>
 
 
-public void create() { 
+protected void create()
+{
+    if (object_name(this_object()) == __FILE__[0..<3])
+    {
+      return;
+    }
     offerHook(H_HOOK_MOVE,1);
 }
-
 
 public void AddPursuer(object ob)
 {
@@ -42,9 +48,9 @@ public void AddPursuer(object ob)
 
   if (!pointerp(pur=Query(P_PURSUERS)))
     pur=({0,({})});
-  else
-    if (member(pur[1],ob)!=-1)
-      return;
+  else if (member(pur[1],ob)!=-1)
+    return;
+  
   SetProp(P_PURSUERS,({ pur[0], pur[1]+({ob})-({0}) }));
   ob->_SetPursued(ME);
 }
@@ -53,10 +59,12 @@ public void RemovePursuer(object ob)
 {
   mixed *pur;
 
-  if (pointerp(pur=Query(P_PURSUERS)) && member(pur[1],ob)!=-1)
+  if (pointerp(pur=Query(P_PURSUERS,F_VALUE)) 
+      && member(pur[1],ob)!=-1)
   {
     pur[1]-=({ob,0});
-    ob->_RemovePursued(ME);
+    if (ob)
+      ob->_RemovePursued(ME);
     if (!pur[0]&&!sizeof(pur[1]))
       pur=0;
     SetProp(P_PURSUERS,pur);
@@ -112,8 +120,8 @@ protected int PreventMove(object dest, object oldenv, int method) {
   // aber PreventInsert/PreventLeave() rufen und ignorieren.
   if ((method&M_NOCHECK)) {
       // erst PreventLeaveLiving() rufen...
-      if(environment())	
-	  environment()->PreventLeaveLiving(this_object(), dest);
+      if(environment())        
+          environment()->PreventLeaveLiving(this_object(), dest);
       // dann PreventInsertLiving() im Ziel-Env.
       dest->PreventInsertLiving(this_object());
       // und raus...
@@ -175,7 +183,7 @@ protected void NotifyMove(object dest, object oldenv, int method) {
 
 }
 
-varargs public int move( mixed dest, int method, string direction,
+varargs public int move( object|string dest, int method, string direction,
                          string textout, string textin )
 {
     int para, nightvis, invis, tmp;
@@ -186,8 +194,8 @@ varargs public int move( mixed dest, int method, string direction,
 
     if (!objectp(dest) && !stringp(dest))
       raise_error(sprintf("Wrong argument 1 to move(). 'dest' must be a "
-	    "string or object! Argument was: %.100O\n",
-	    dest));
+            "string or object! Argument was: %.100O\n",
+            dest));
 
     // altes Env erstmal merken.
     oldenv = environment();
@@ -200,33 +208,38 @@ varargs public int move( mixed dest, int method, string direction,
 
         // Falls der Zielraum nicht schon explizit in der Parallelwelt ist,
         // neuen Zielraum suchen. Aber nur, wenn fn kein # enthaelt (also kein
-	// Clone ist), sonst wuerde eine Bewegung nach raum#42^para versucht,
-	// was dann buggt. ;-) Problem wird offenbar, wenn ein Para-Lebewesen
-	// im create() eines VC-Raums in Para in den Raum bewegt wird, da
-	// dieser dann noch nicht vom Driver umbenannt wurde und raum#42
-	// heisst.
+        // Clone ist), sonst wuerde eine Bewegung nach raum#42^para versucht,
+        // was dann buggt. ;-) Problem wird offenbar, wenn ein Para-Lebewesen
+        // im create() eines VC-Raums in Para in den Raum bewegt wird, da
+        // dieser dann noch nicht vom Driver umbenannt wurde und raum#42
+        // heisst.
         if ( !sizeof(regexp( ({ fn }), "\\^[1-9][0-9]*$" )) &&
-	    strrstr(fn,"#")==-1 ) {
+            strrstr(fn,"#")==-1 )
+        {
             fn += "^" + para;
 
           // Der Parallelwelt-Raum muss existieren und fuer Spieler
           // freigegeben sein, damit er zum neuen Ziel wird. Ansonsten
           // duerfen nur NPCs, Testspieler und Magier herein.
           if ( (find_object(fn) 
-		|| ((file_size(fn+".c")>0 ||
+                || ((file_size(fn+".c")>0 ||
                     (file_size(vc=implode(explode(fn,"/")[0..<2],"/")+
                           "/virtual_compiler.c")>0 &&
                     !catch(tmp=(int)call_other(vc,"QueryValidObject",fn);
-		           publish) && tmp>0)) &&
+                           publish) && tmp>0)) &&
                     !catch(load_object(fn);publish) )) &&
                   (!interactive(ME) || !fn->QueryProp(P_NO_PLAYERS) || 
                   (method & M_NOCHECK) || IS_LEARNER(ME) ||
                   (stringp(res = QueryProp(P_TESTPLAYER)) &&
                    IS_LEARNER( lower_case(res) ))) )
-                dest = fn;
-            else
-                // Wir bleiben in der Normalwelt.
-                para = 0;
+          {
+              dest = fn;
+          }
+          else
+          {
+              // Wir bleiben in der Normalwelt.
+              para = 0;
+          }
         }
     }
 
@@ -256,7 +269,7 @@ varargs public int move( mixed dest, int method, string direction,
     hookRes=HookFlow(H_HOOK_MOVE,hookData);
     if(hookRes && pointerp(hookRes) && sizeof(hookRes)>H_RETDATA) {
       if(hookRes[H_RETCODE]==H_CANCELLED) {
-	return ME_CANT_LEAVE_ENV;
+        return ME_CANT_LEAVE_ENV;
       }
     else if(hookRes[H_RETCODE]==H_ALTERED && hookRes[H_RETDATA] &&
           pointerp(hookRes[H_RETDATA]) && sizeof(hookRes[H_RETDATA])>=5 ){
@@ -276,9 +289,9 @@ varargs public int move( mixed dest, int method, string direction,
       // auf gueltigen Fehler pruefen, wer weiss, was Magier da evtl.
       // versehentlich zurueckgeben.
       if (VALID_MOVE_ERROR(tmp))
-	return(tmp);
+        return(tmp);
       else
-	return(ME_DONT_WANT_TO_BE_MOVED);
+        return(ME_DONT_WANT_TO_BE_MOVED);
     }
   
     if ( invis = QueryProp(P_INVIS) )
@@ -292,13 +305,13 @@ varargs public int move( mixed dest, int method, string direction,
                     textout = (string) QueryProp(P_MMSGOUT) ||
                         (string) QueryProp(P_MSGOUT);
                 else 
-		    textout = (mout = explode( (string)
-						QueryProp(P_MSGOUT) || "",
+                    textout = (mout = explode( (string)
+                                                QueryProp(P_MSGOUT) || "",
                                                       "#" ))[0]
                          || (string)QueryProp(P_MMSGOUT);
             }
 
-            if ( !strlen(direction) )
+            if ( !sizeof(direction) )
                 direction = 0;
 
             inv = all_inventory(environment()) - ({ this_object() });
@@ -336,11 +349,11 @@ varargs public int move( mixed dest, int method, string direction,
 
         // Nackenschlag kann ME in den Todesraum bewegt haben...
         if ( oldenv == environment() ) {
-	    // Fuer alle anwesenden gegner kampfende() aufrufen
-	    filter((QueryEnemies()[0] & all_inventory(oldenv))-({0}),
-		#'kampfende);
-	    // Bugs im exit() sind ohne catch() einfach mist.
-	    catch(environment()->exit(ME, dest);publish);
+            // Fuer alle anwesenden gegner kampfende() aufrufen
+            filter((QueryEnemies()[0] & all_inventory(oldenv))-({0}),
+                #'kampfende);
+            // Bugs im exit() sind ohne catch() einfach mist.
+            catch(environment()->exit(ME, dest);publish);
         }
     }
 
@@ -365,7 +378,7 @@ varargs public int move( mixed dest, int method, string direction,
     // Meldungen an nicht-Blinde ausgeben, falls keine 'stille' Bewegung
     if ( !(method & M_SILENT) ) {
       if ( !textin ) {        
-	if ( method & M_TPORT )
+        if ( method & M_TPORT )
               textin = (string) QueryProp(P_MMSGIN);
         else
               textin = (string) QueryProp(P_MSGIN);
@@ -383,7 +396,7 @@ varargs public int move( mixed dest, int method, string direction,
       inv = (all_inventory(environment()) & users()) - ({this_object()});        
       inv = filter( inv, #'_is_learner/*'*/ );        
       if ( invis )
-	fn = "(" + capitalize(getuid(ME)) + ") taucht unsichtbar auf.\n";
+        fn = "(" + capitalize(getuid(ME)) + ") taucht unsichtbar auf.\n";
       else
         fn = capitalize(getuid(ME)) + " schleicht leise herein.\n";        
       filter( inv, #'tell_object, fn );    
@@ -418,12 +431,12 @@ public void TakeFollowers()
       //meth=M_NOCHECK;
       meth=M_GO;
       if (follower->Query(P_FOLLOW_SILENT))
-	  meth|=M_SILENT|M_NO_SHOW;
+          meth|=M_SILENT|M_NO_SHOW;
       catch(r=follower->PreventFollow(env);publish);
       if (!r)
-	  follower->move(env,meth);
+          follower->move(env,meth);
       else if (r==2)
-	  RemovePursuer(follower);
+          RemovePursuer(follower);
     }
   }
 }

@@ -2,11 +2,11 @@ move()
 
 FUNKTION: 
      Fuer unbelebte Gegenstaende (/std/thing):
-       varargs int move(mixed dest, int method);
+       varargs int move(object|string dest, int method);
 
      Fuer Lebewesen (/std/living, /std/npc, usw.):
-       varargs int move(mixed dest, int method, string dir, string textout,
-                        string textin);
+       varargs int move(object|string dest, int method, string dir, 
+                        string textout, string textin);
 
 DEFINIERT IN:
      /std/thing/moving.c
@@ -67,7 +67,8 @@ BESCHREIBUNG:
           Begruessungsschlag, wenn ein Feind im Zielraum steht.
 
      M_SILENT
-          Es werden beim Bewegen keine Meldungen ausgegeben.
+          Es werden beim Bewegen keine Meldungen ausgegeben. Dieser
+          Parameter wirkt sich nur auf das Bewegen von Lebenwesen aus.
 
      M_GET
           Das Objekt wird von einem unbelebten Objekt (zB. einem Raum, einer
@@ -84,10 +85,6 @@ BESCHREIBUNG:
 
      M_MOVE_ALL (Nur fuer Objekte, die /std/unit.c erben)
           Es wird die gesamte Menge bewegt, nicht nur ein Teil.
-
-     M_FORCE_SPLIT(Nur fuer Objekte, die /std/unit.c erben)
-          Obsolet, da Relikt aus vergangenen Tagen (wird gehandhabt wie
-          M_MOVE_ALL).
 
      Soll das Objekt auf jeden Fall und ohne jede Abfrage bewegt werden, so
      reicht es, als method M_NOCHECK zu uebergeben.
@@ -173,9 +170,10 @@ RUeCKGABEWERT:
           Testspielern und Magiern betreten werden. Bei Spielern oder
           Gildentesties gibt es diese Fehlermeldung.
      ME_WAS_DESTRUCTED
-          Das Objekt hat sich entweder im init() selbst zerstoert oder wurde
-          im init() zerstoert, sodass move() nicht erfolgreich beendet werden
-          konnte.
+          Das Objekt hat sich entweder im Verlaufe der Bewegung selbst
+          zerstoert oder wurde zerstoert, sodass move() nicht erfolgreich
+          beendet werden konnte. (Bsp: sensitive Objekte)
+
      ME_DONT_WANT_TO_BE_MOVED
           Das Objekt moechte nicht bewegt werden.
 
@@ -211,5 +209,4 @@ SIEHE AUCH:
      NotifyMove(), NotifyRemove(), init(), exit(),
      P_NO_PLAYERS, P_PARA, /std/thing/moving.c, /std/living/moving.c
      -----------------------------------------------------------------------
-05.08.2007, Zesstra
-
+2015-Jan-19, Arathorn

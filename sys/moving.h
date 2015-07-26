@@ -4,7 +4,7 @@
 //             Dieser Header sollte IMMER benutzt werden, wenn ein Objekt
 //             move() benutzt!
 //
-// $Id: moving.h 7180 2009-03-10 22:44:45Z Zesstra $
+// $Id: moving.h 8801 2014-05-04 21:30:59Z Zesstra $
 
 #ifndef _MOVING_
 #define _MOVING_
@@ -33,8 +33,6 @@
 
 /* Hier folgt noch was fuer die Unit */
 #define M_MOVE_ALL 32
-#define M_FORCE_SPLIT 64
-
 
 /* Errors when moving things */
 #define MOVE_OK                   1 // gar kein Fehler. ;-)

@@ -16,9 +16,6 @@ BESCHREIBUNG
         das Einschalten eines bereits eingeschalteten Heartbeats) zaehlt
         als Fehler.
 
-        heart_beat()s werden nur aufgerufen, wenn sich ein interaktiver
-        Benutzer im Spiel befindet.
-
 BEMERKUNGEN
         __HEARTBEAT_INTERVAL__ ist in MG = 2 Sekunden
 

@@ -21,7 +21,7 @@ ignoriere
     nicht ignoriert.
 
     '-deb backtrace' liefert ein Backtrace zu dem letzten aufgetretenen Bug,
-    voellig unabhaengig, ob der Aufrufende das Bug ignoriert.
+    voellig unabhaengig, ob der Aufrufende den Bug ignoriert.
 
  SIEHE AUCH:
     ignoriere (Spielerkommando)

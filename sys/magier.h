@@ -2,7 +2,7 @@
 //
 // magier.h -- Magiererweiterung der Shell
 //
-// $Id: magier.h 6393 2007-08-04 08:50:11Z Zesstra $
+// $Id: magier.h 8850 2014-06-13 21:34:44Z Zesstra $
 
 #ifndef _MAGIER_H_
 #define _MAGIER_H_
@@ -17,8 +17,8 @@
 #define NO_WRITE        "%s: Keine Schreibrechte!\n"
 #define DOESNT_EXIST    "%s: Datei existiert nicht!\n"
 #define ALREADY_EXISTS  "%s: Datei existiert schon.\n"
-#define NO_DIRS  	"%s ist ein Verzeichnis.\n"
-#define SAME_FILE	"%s: Gleiches Quell- und Zielfile: uebergangen.\n"
+#define NO_DIRS          "%s ist ein Verzeichnis.\n"
+#define SAME_FILE        "%s: Gleiches Quell- und Zielfile: uebergangen.\n"
 #define NO_CREATE_DIR   "%s: Verzeichnis konnte nicht erstellt werden.\n"
 #define DEST_IS_DIR     "%s: Zieldatei ist ein Verzeichnis.\n"
 #define DEST_NO_DELETE  "%s: Zieldatei konnte nicht geloescht werden.\n"
@@ -43,10 +43,11 @@
 #define MAN_R            2           // Regexp-Matchen
 #define MAN_I            4           // Interaktive Hilfe (deaktiviert)
 
-#define MKDIR_OPTS "vr"
+#define MKDIR_OPTS "vrp"
 #define MKDIR_V          1           // Verbose: Ausgeben, was gemacht wird
 #define MKDIR_R          2           // Rekursiv alle hoeheren
                                      // Verzeichnisse erstellen
+#define MKDIR_P          2           // das gleiche wie MKDIR_R
 
 #define RMDIR_OPTS "v"
 #define RMDIR_V          1           // Verbose: Ausgeben, was gemacht wird
@@ -57,12 +58,12 @@
 #define RM_M            4            // DateiMASKE beachten
 #define RM_I            8            // Interaktiv loeschen (immer fragen)
 
-#define UPD_OPTS  "afilrmbvcdhs"
-#define UPD_A		 1	     // Alle Instanzen bearbeiten
-#define UPD_F		 2	     // Alle Instanzen finden und anzeigen
-#define UPD_I		 4	     // Geerbte Klassen aktualisieren
-#define UPD_L		 8	     // zerstoeren und neu laden
-#define UPD_R		16	     // neu laden, falls zerstoert
+#define UPD_OPTS  "afilrmbvcdhsC"
+#define UPD_A            1           // Alle Instanzen bearbeiten
+#define UPD_F            2           // Alle Instanzen finden und anzeigen
+#define UPD_I            4           // Geerbte Klassen aktualisieren
+#define UPD_L            8           // zerstoeren und neu laden
+#define UPD_R           16           // neu laden, falls zerstoert
 #define UPD_M           32           // alle geerbten Klassen auf
                                      // aktualitaet Testen und
                                      // ggf. aktualisieren
@@ -72,6 +73,8 @@
 #define UPD_D          512           // Objektinhalt komplett destructen
 #define UPD_H         1024           // Hard-Destruct (kein remove())
 #define UPD_S         2048           // Silent
+#define UPD_CONF      4096           // Configure() erzwingen (d.h. kein Update,
+                                     // wenn Configure() nicht definiert ist)
 #define UPD_LOAD      8192           // laden, falls nicht geladen (nur
                                      // intern fuer 'load)
 

@@ -34,7 +34,7 @@ BESCHREIBUNG:
      F_QUERY_METHOD
           Ein eventuell fuer die Property eingetragene F_QUERY_METHOD wird
           zurueckgegeben.
-          (_query_'name'()-Methoden werden so nicht aufgeführt!)
+          (_query_'name'()-Methoden werden so nicht aufgefuehrt!)
 
 RUeCKGABEWERT:
      Die gewuenschte Eigenschaft, abhaengig von 'Type'.

@@ -20,11 +20,6 @@ P_ATTRIBUTES_MODIFIER : Hier werden Attribut-Modifier gespeichert, die
                         werden
                         Siehe auch: bman attribute
 
-P_BALANCED_WEAPON     : In Waffen gesetzt. Gibt an, ob die Waffe balanciert
-                        ist oder nicht. Werte hierbei WP_BALANCED oder
-                        WP_UNBALANCED (default). Wird von der Tanjian-Gilde
-                        genutzt
-
 P_COMBATCMDS          : Beinhaltet Befehle, Schadenshoehe und -arten in 
                         Kampfobjekten, damit diese auch von NPC benutzt
                         werden koennen.
@@ -160,13 +155,6 @@ P_SP                  : SpellPoints, aktuelle Konzentrationspunkte eines
 
 P_SP_DELAY            : Numerischer Wert, der angibt, wieviele HeartBeats
                         notwendig sind, damit sich die P_SP um 1 regenieren
-
-P_TECHNIQUE           : Mit welcher Technik kann diese Waffe im Kampf ein-
-                        gesetzt werden. Es gibt TQ_STROKE (Streichtechnik),
-                        TQ_THRASH (Schlagtechnik), TQ_THRUST (Stosstechnik)
-                        und TQ_WHIP (Peitschtechnik). Wird von den Tanjian
-                        verwendet
-                        Siehe auch: bman techniken
 
 P_UNWIELD_FUNC        : Funktion, die vor dem Wegstecken einer Waffe auf-
                         gerufen wird

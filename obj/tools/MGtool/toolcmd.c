@@ -74,7 +74,7 @@ int Xcall(string str)
 	else
 	WLN("Result: "+mixed_to_string(res, MAX_RECURSION));
 	if(objectp(res))
-	  variable=insert_alist("result", res, variable);
+    m_add(variable, "result", res);
       }
     }
     rm(file);
@@ -192,7 +192,7 @@ int Xcd(string str)
     path="";
 
   TK("Xcd: path: "+(path?path:"(NULL)"));
-  if(!strlen(path))
+  if(!sizeof(path))
     path=str;
   PL->_cd(path);
 
@@ -229,8 +229,8 @@ int Xclone(string str)
   if(file_size(errlog)>0) rm(errlog);
   WLN("Clone: "+short_path(file));
   if(!(error=catch(obj=clone_object(file))))
-  {
-    variable=insert_alist("clone", obj, variable);
+  { 
+    m_add(variable, "clone", obj);
     if(!MoveObj(obj, ENV(cloner), TRUE))
       WDLN("Cannot move object into this room");
     else if(!obj->QueryNoGet())
@@ -262,7 +262,7 @@ int Xuclone(string str)
     WLN("Clone: "+short_path(file));
   if(!(error=catch(obj=clone_object(file))))
   {
-    variable=insert_alist("clone", obj, variable);
+    variable["clone"] = obj;
     if(!MoveObj(obj, ENV(cloner), TRUE))
       WDLN("Cannot move object into this room");
     else if(!obj->QueryNoGet())
@@ -431,8 +431,8 @@ int Xdupdate(string str)
   USAGE2(str, "xdu(pdate) <filename>");
   if(!(file=XFindFile(str)))
     return TRUE;
-  if(SUBSTR(file, -2, -1)==".c")
-    file=SUBSTR(file, 0, -3);
+  if(file[<2..<1]==".c")
+    file=file[0..<3];
   if(obj=XFindObj(file))
   {
     PrintShort("Deep updating: ", obj);
@@ -497,11 +497,11 @@ int Xeval(string str)
       WDLN("Evaluation time: "+(xtime<0 ? 0 : xtime)+" ms");
       PIPE_DELETE(pipe_of);
       if(pipe_out&&pipe_of)
-	write_file(pipe_of,mixed_to_string(res,MAX_RECURSION)+"\n");
+        write_file(pipe_of,mixed_to_string(res,MAX_RECURSION)+"\n");
       else
-	WLN("Result: "+mixed_to_string(res, MAX_RECURSION));
+        WLN("Result: "+mixed_to_string(res, MAX_RECURSION));
       if(objectp(res))
-	variable=insert_alist("result", res, variable);
+        variable["result"] = res;
     }
   }
   rm(file);
@@ -1094,15 +1094,16 @@ int Xlpc(string str)
   if(obj=find_object(LPC_FILE))
     Destruct(obj);
   write_file(file,
-		  "#include <properties.h>\n"+
-		  "#include <thing/properties.h>\n"+
-		  "#include <defines.h>\n"+
-                  "#include <wizlist.h>\n"+
-		  "#include <moving.h>\n"+
-		  "#include \"/secure/wizlevels.h\"\n"+
-		  (file_size(PRIVATE_HEADER)>=0?"#include \""+PRIVATE_HEADER+"\"\n":"")+
-	     "get(str){return previous_object()->XFindObj(str);}\n"+
-	     "eval(me,here){"+str+"}");
+      "#pragma no_warn_missing_return,strong_types,warn_deprecated,rtt_checks\n"
+      "#include <properties.h>\n"
+      "#include <thing/properties.h>\n"
+      "#include <defines.h>\n"
+      "#include <wizlist.h>\n"
+      "#include <moving.h>\n"
+      "#include \"/secure/wizlevels.h\"\n"
+      +(file_size(PRIVATE_HEADER)>=0?"#include \""+PRIVATE_HEADER+"\"\n":"")+
+      "object get(string str){return previous_object()->XFindObj(str);}\n"+
+      "mixed eval(mixed me, mixed here){"+str+"}");
   if(error=catch(obj=clone_object(file)))
     W("Error: "+error[1..0]);
   else
@@ -1118,7 +1119,7 @@ int Xlpc(string str)
       WDLN("Evaluation time: "+(time<0 ? 0 : time)+" ms");
       WLN("Result: "+mixed_to_string(res, MAX_RECURSION));
       if(objectp(res))
-	variable=insert_alist("result", res, variable);
+        variable["result"] = res;
     }
   }
   rm(file);
@@ -1470,23 +1471,16 @@ int Xquit(string str)
 }
 
 int Xscan(string str)
-{
-  int i, s;
-  string *oldvars, *desvars;
-  
+{  
   SECURE2(TRUE);
   USAGE1(str, "xsc(an)");
   W("Destructed variable(s): ");
-  oldvars=(string*)variable[0];
+  string* oldvars=m_indices(variable);
   VarCheck(FALSE);
-  desvars=oldvars-(string*)variable[0];
-  s=sizeof(desvars);
-  for(i=0; i<s; i++)
-  {
-    W("$"+desvars[i]);
-    if(i<s-1)
-      W(", ");
-  }
+  string* desvars=oldvars-m_indices(variable);
+  desvars = map(desvars, function string (string k)
+      {return "$"+k;} );
+  W(CountUp(desvars));
   WLN("");
   return TRUE;
 }
@@ -1500,14 +1494,14 @@ int Xset(string str)
   SECURE2(TRUE);
   USAGE1(str, "xse(t) [$<name>=<object>]");
   if(str) {
-    if(member_array(str,({"$me","$m","$here","$h"}))!=-1)
+    if(member(({"$me","$m","$here","$h"}),str)!=-1)
       WDLN("Sorry, this is a reserved variable ["+str+"]");
     else if(sscanf(str, "$%s=%s", name, tmp))
     {
       if(obj=XFindObj(tmp))
       {
-	variable=insert_alist(name, obj, variable);
-	WLN(" $"+name+"="+ObjFile(obj));
+        variable[name] = obj;
+        WLN(" $"+name+"="+ObjFile(obj));
       }
     }
     else
@@ -1517,10 +1511,12 @@ int Xset(string str)
   {
     VarCheck(FALSE);
     WLN("Current settings:");
-    for(i=0; i<sizeof(variable[0]); i++) {
-      if(variable[1][i])
-	WLN(" $"+variable[0][i]+"="+ObjFile(variable[1][i]));
-      else variable=remove_alist(variable[0][i--], variable);
+    foreach(string key, mixed val : variable)
+    {
+      if (val)
+        WLN(" $"+key+"="+ObjFile(val));
+      else
+        m_delete(variable, key);
     }
     WLN(" $me="+ObjFile(cloner));
     WLN(" $here="+ObjFile(ENV(cloner)));
@@ -1823,7 +1819,7 @@ int Xtrace(string str)
   {
     PrintShort("Tracing: ", obj);
     file=object_name(obj);
-    file=SUBSTR(file, 1, -1);
+    file=file[1..<1];
     traceprefix(file);
     trace(TRACE_LEVEL);
   }
@@ -1858,8 +1854,8 @@ int Xupdate(string str)
   USAGE2(str, "xup(date) <filename>");
   if(!(file=XFindFile(str)))
     return TRUE;
-  if(SUBSTR(file, -2, -1)==".c")
-    file=SUBSTR(file, 0, -3);
+  if(file[<2.. <1]==".c")
+    file=file[0.. <3];
   if((obj=XFindObj(file))&&(obj=find_object(pure_file_name(obj))))
   {
     PrintShort("Updating: ", obj);
@@ -1889,7 +1885,7 @@ int Xwc(string str)
     USAGE2(str, "xwc [-cwl] <file>");
     if(str[0]=='-')
     {
-      while((str=str[1..])[0]!=' '&&strlen(str))
+      while((str=str[1..])[0]!=' '&&sizeof(str))
 	switch(str[0])
 	{
 	  case 'c':
@@ -1918,7 +1914,7 @@ int Xwc(string str)
     if(str)
       if(str[0]=='-')
       {
-	while((str=str[1..])[0]!=' '&&strlen(str))
+	while((str=str[1..])[0]!=' '&&sizeof(str))
 	  switch(str[0])
 	  {
 	    case 'c':
@@ -1964,7 +1960,7 @@ int Xwc(string str)
     }
   if(chars)
     for(i=sizeof(tmp2)-1;i>=0;i--)
-      nchars+=strlen(tmp2[i])+1;
+      nchars+=sizeof(tmp2[i])+1;
   tmp2=0;
   tmp="";
   if(lines)

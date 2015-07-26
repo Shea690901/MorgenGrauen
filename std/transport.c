@@ -2,21 +2,22 @@
 //
 // transport.c -- Basisklasse fuer Schiffe und aehnliche Transporter
 //
-// $Id: transport.c 7527 2010-04-04 19:24:27Z Arathorn $
+// $Id: transport.c 9087 2015-01-18 23:58:28Z Arathorn $
 #pragma strong_types
 //#pragma save_types
 #pragma range_check
 #pragma no_clone
 #pragma pedantic
 
-inherit "std/thing/moving";
-inherit "std/room";
+inherit "/std/thing/moving";
+inherit "/std/room";
 
 #include <properties.h>
 #include <moving.h>
 #include <defines.h>
 #include <language.h>
 #include <transport.h>
+#include <regexp.h>
 
 /* transport.c
  * 
@@ -25,10 +26,6 @@ inherit "std/room";
  * Basierend auf      : transport.c@SilberLand (Woody@SilberLand), 05.12.99
  * Basierend auf      : Hates und Rumatas generisches Transport Objekt
  *                      MorgenGrauen 15.02.93
- *
- * Dokumentation in /doc/std/transport
- *                  /doc/beispiele/transporter/
- *                  /doc/wiz/transporter
  */
      
 /*
@@ -36,6 +33,20 @@ inherit "std/room";
  */
 
 // TODO: langfristig waer ja private schoen...
+//
+// Datenstruktur von 'route' (bei HP_ROOM)
+// 0 ({string ID,      : HP_ROOM
+// 1   string room,    : Dateiname Zielraum
+// 2   int stay,       : Dauer Haltezeit
+// 3   int next,       : Dauer naechste Fahrtzeit
+// 4   string code,    : Haltestellenname fuer QueryArrived
+// 5   mixed dest,     : Haltestellen-IDs fuer HasRoute (reise nach)
+// 6   mixed deststr }): unbenutzt.
+//
+// Datenstruktur von 'route' (bei HP_MSG, HP_FUN)
+// 0 ({string ID,      : HP_MSG
+// 1   string message, : Meldung    oder    string fun : Funktionsname
+// 2   int next})      : Dauer bis zum naechsten Ereignis
 nosave mixed *route;    /* Liste der Haltepunkte. */
 nosave int rpos;        /* Momentane Position in obiger Liste. */
 nosave string roomCode; /* Code des aktuellen Raumes (oder 0). */
@@ -103,7 +114,7 @@ mixed HasRoute(mixed dest)
       if (member(route[i%s][5],dest) != -1 &&
           objectp(ob=load_object(route[i%s][1])) &&
           pointerp(harb=ob->QueryProp(P_HARBOUR)) &&
-	  sizeof(harb))
+          sizeof(harb))
       {
         return ({ route[i%s][1], harb[0] });
       }
@@ -112,20 +123,68 @@ mixed HasRoute(mixed dest)
   return 0;
 }
 
-public varargs void AddRoute(string room, int stay, int next, string code, 
-                             mixed dest, string deststr)
+
+
+public varargs void AddRoute(string room, int stay, int next, 
+    string harbour_desc, string|string* dest_ids, string deststr)
 {
-  object ob;
-  int i;
-  if (!pointerp(dest))
+  // Daten aus dem Zielanleger abfragen.
+  <string|string*>* harbour = room->QueryProp(P_HARBOUR)||({});
+  string* harbour_ids = ({});
+
+  // IDs des Zielanlegers fuer Syntaxpruefung 
+  if ( sizeof(harbour)==2 )
   {
-    if (stringp(dest))
-      dest = ({ dest });
+    if ( pointerp(harbour[1]) )
+      harbour_ids = harbour[1];
     else
-      dest = map(filter(explode(code," "),lambda( ({'x}),
-                      ({ #'==, 'x, ({#'capitalize, 'x}) }) ) ),#'lower_case);
+      harbour_ids = ({harbour[1]});
   }
-  route += ({ ({ HP_ROOM, room, stay, next, code, dest, deststr }) });
+  
+  // <dest_ids> in ein Array umwandeln, ist dann ggf. leer
+  if ( !dest_ids )
+  {
+    dest_ids = ({});
+  }
+  if ( stringp(dest_ids) )
+  {
+    dest_ids = ({dest_ids});
+  }
+
+  // explizit angegebene IDs stehen jetzt in <dest_ids>, die IDs des 
+  // Zielhafens aus P_HARBOUR werden addiert.
+  dest_ids += harbour_ids;
+
+  // Ist <dest> immer noch leer, versuchen wir, aus <harbour_desc> ein paar
+  // Stichwoerter zu erzeugen, die man als Zielangabe in der Syntax 
+  // "reise nach <ziel>" verwenden kann.
+  if ( !sizeof(dest_ids) )
+  {
+    // Grossgeschriebene Begriffe in <harbour_desc> in <dest> eintragen. Dazu:
+    // 1) <code> erstmal so zerschneiden, dass alle ueblichen Satzzeichen
+    // rausfliegen (es gibt Transporter, die sowas in <harbour_desc> 
+    // uebergeben).
+    dest_ids = regexplode(harbour_desc, "[(),.;:&\+_ ]", 
+                          RE_OMIT_DELIM|RE_GLOBAL);
+    // 2a) So filtern, dass nur grossgeschriebene Woerter uebrig bleiben,
+    //     von 1) uebriggebliebene Leerstrings gleich mit wegwerfen.
+    // 2b) Ergebnis kleinschreiben, damit die Syntaxpruefung damit arbeiten
+    //     kann.
+    dest_ids = map( filter(dest_ids, function int (string key) { 
+                  return (key!="" && key[0]>='A' && key[0]<='Z');
+               }), #'lower_case);
+  }
+  // Sollte <dest> jetzt immer noch leer sein, wurde an allen drei Stellen
+  // nichts oder nur Muell uebergeben.
+  if ( !sizeof(dest_ids) )
+  {
+    raise_error("Transporterfehlfunktion in AddRoute(): Identifikations"
+      "matrix unzureichend definiert. Transporter unbenutzbar fuer "
+      "Spieler. Bitte mindestens eine Ziel-ID via P_HARBOUR oder als "
+      "Argument to AddRoute().");
+  }
+  route += ({ ({ HP_ROOM, room, stay, next, harbour_desc, dest_ids, 
+                 deststr }) });
   
   if(!QueryProp(P_NO_TRAVELING))
   {
@@ -155,7 +214,8 @@ object* QueryPassengers()
 varargs string *QueryHarbours(int textflag)
 {
   int i,j,k;
-  string *ret, *s, h, *h2;
+  string *ret, h, *h2;
+  string* s;
 
   ret = ({});
 
@@ -165,10 +225,10 @@ varargs string *QueryHarbours(int textflag)
     for (i=0;i<j;i++)
       if (route[i][0] == HP_ROOM)
       {
-        s = route[i][1]->QueryProp(P_HARBOUR);
+        s = route[i][1]->QueryProp(P_HARBOUR)[1];
         if (pointerp(s) && sizeof(s))
         {
-          h2 = explode(s[1]," ");
+          h2 = explode(s[0]," ");
           k=sizeof(h2);
           while(k--) h2[k]=capitalize(h2[k]);
           ret+=({ implode(h2," ") });
@@ -303,7 +363,7 @@ static int GoInAndOutside(string str)
   string to;
 
   _notify_fail("Was moechtest Du denn genau?\n");
-  if (!strlen(str)) return 0;  
+  if (!sizeof(str)) return 0;  
   if ((sscanf(str,"auf %s",to) == 1 || sscanf(str,"in %s",to) == 1) && id(to))
     return Enter(),1;
   if ((sscanf(str,"von %s",to) == 1 || sscanf(str,"aus %s",to) == 1) && id(to))
@@ -391,11 +451,11 @@ static varargs void connect(string room, string code)
   i=sizeof(trav);
   while(i--)
   {
-    if (pointerp(t = trav[i]->QueryProp(P_TRAVEL_INFO))&&
+    if (objectp(trav[i]) && pointerp(t = trav[i]->QueryProp(P_TRAVEL_INFO))&&
         t[0] == environment(trav[i]) && t[1] == this_object())
     {
-      if (trav[i]->InFight() && find_player(trav[i]))
-        tell_object(find_player(trav[i]),
+      if ( trav[i]->InFight() )
+        tell_object(trav[i],
            break_string("Du solltest Deinen Kampf schnell beenden, denn "
                         "eigentlich wolltest Du mit "+name(WEM,1)+
                         " reisen.",78));

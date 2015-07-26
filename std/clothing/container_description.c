@@ -114,7 +114,7 @@ private void stringenize(mixed obj, int flags, mixed objs, mixed info)
 
 private string collect(mixed obj)
 {
-  if(!strlen(obj[0])) return 0;
+  if(!sizeof(obj[0])) return 0;
   return obj[0] + (obj[1] > 1 ? " ("+obj[1]+")" : "");
 }
 

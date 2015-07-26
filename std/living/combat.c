@@ -2,13 +2,14 @@
 //
 // living/combat.c -- Basis-Kampfmodul
 //
-// $Id: combat.c 7528 2010-04-05 15:18:38Z Arathorn $
+// $Id: combat.c 9142 2015-02-04 22:17:29Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
 #pragma no_clone
 #pragma pedantic
 
+inherit "/std/living/skill_utils";
 inherit "/std/living/inventory";
 inherit "/std/living/team";
 
@@ -19,17 +20,21 @@ inherit "/std/living/team";
 #include <hook.h>
 #include <living/skills.h>
 #include <thing/properties.h>
+#include <player/comm.h>
+#include <living/skill_attributes.h>
+#include <combat.h>
+#include <living.h>
+#undef NEED_PROTOTYPES
 
 #include <config.h>
 #include <properties.h>
 #include <language.h>
 #include <wizlevels.h>
 #include <attributes.h>
-#include <living.h>
-#include <combat.h>
-#include <doors.h>
-#include <defines.h>
 #include <new_skills.h>
+
+#include <defines.h>
+
 #include <sensitive.h>
 
 #define HUNTTIME 300 //300 HBs sind 10 Minuten
@@ -51,7 +56,7 @@ private nosave mapping peace_tries;
 // Cache fuer QueryArmourByType()
 private nosave mapping QABTCache;
 
-static void create()
+protected void create()
 {
   Set(P_WIMPY, SAVE, F_MODE_AS);
   Set(P_TOTAL_AC, PROTECTED, F_MODE_AS);
@@ -85,7 +90,7 @@ public void UpdateResistanceStrengths() {
     return;
 
   //erstmal die alte Aufsummation loeschen
-  efun::m_delete(resmods,"me");
+  m_delete(resmods,"me");
 
   //wenn jetzt leer: Abbruch, keine Res-Modifier da.
   if (!sizeof(resmods))
@@ -97,13 +102,13 @@ public void UpdateResistanceStrengths() {
   foreach(string mod, mapping resmap, object ob: resmods) {
     if ( !mappingp(resmap) || !sizeof(resmap)
         || !objectp(ob) ) {
-      efun::m_delete(resmods, mod);
+      m_delete(resmods, mod);
       continue; // Resi ungueltig, weg damit.
     }
     // jetzt noch ueber die Submappings laufen, die die Resis der Objekte
     // beinhalten.
     foreach(string reskey, float resi: resmap) {
-	strmap[reskey] = ((strmap[reskey]+1.0)*(resi+1.0))-1.0;
+        strmap[reskey] = ((strmap[reskey]+1.0)*(resi+1.0))-1.0;
     }
   }
 
@@ -154,7 +159,7 @@ public varargs void RemoveResistanceModifier(string add)
   if ( !mappingp(res = Query(P_RESISTANCE_MODIFIER)) )
     return;
 
-  efun::m_delete(res, key);
+  m_delete(res, key);
   Set(P_RESISTANCE_MODIFIER, res);
   UpdateResistanceStrengths();
 }
@@ -213,7 +218,7 @@ static mixed _set_vulnerability(mixed arg)
  */
 public int Kill(object ob)
 { int   res, arena;
-  mixed no_attack;
+  int|string no_attack;
 
   if ( !objectp(ob) )
     return 0;
@@ -238,10 +243,14 @@ public int Kill(object ob)
     return -3;
 
   res=InsertEnemy(ob);
-  tell_object(ME,(res?"Ok.":"Jajaja, machst Du doch schon!")+"\n");
+  if (res)
+    tell_object(ME, "Ok.\n");
+  else if (IsEnemy(ob))
+    tell_object(ME, "Jajaja, machst Du doch schon!\n");
+  //else //kein gueltiger Feind, ob wurde nicht eingetragen.
 
   if ( !res )
-    return -4;
+    return -4;  // nicht aendern ohne Kill in player/combat.c
 
   return 1;
 }
@@ -249,7 +258,7 @@ public int Kill(object ob)
 public int InsertSingleEnemy(object ob)
 {
     if ( !living(ob) )
-        return 1;
+        return 0;
 
     // Wie lange verfolgt dieses Living? Wenn Prop nicht gesetzt oder 
     // ungueltig, d.h. kein int oder <= 0, dann wird die Defaultzeit genommen.
@@ -298,7 +307,7 @@ public int InsertEnemy(object ob)
 
 public object QueryPreferedEnemy()
 { int    sz,r;
-  mixed  pref;
+  <int|object>*  pref;
   object enemy;
 
   enemy=0;
@@ -330,15 +339,15 @@ public object *PresentEnemies() {
 
   object *here=({});
   object *netdead=({});
-  string no_attack;
+  mixed no_attack;
   foreach(object pl: enemies) {
     if (no_attack = (mixed)pl->QueryProp(P_NO_ATTACK)) {
-      efun::m_delete(enemies,pl);
+      m_delete(enemies,pl);
       // Und auch im Gegner austragen, sonst haut der weiter zu und dieses
       // Living wehrt sich nicht. (Zesstra, 26.11.2006)
       if (stringp(no_attack)) {
-	tell_object(ME, no_attack);
-	pl->StopHuntFor(ME, 1);
+        tell_object(ME, no_attack);
+        pl->StopHuntFor(ME, 1);
       }
       else pl->StopHuntFor(ME, 0);
     }
@@ -382,7 +391,8 @@ protected void heart_beat() {
 
   // Paralyse pruefen, ggf. reduzieren
   int dis_attack = QueryProp(P_DISABLE_ATTACK);
-  if ( intp(dis_attack) && (dis_attack > 0) ) {
+  if ( intp(dis_attack) && (dis_attack > 0) )
+  {
       SetProp(P_DISABLE_ATTACK, --dis_attack);
   }
 
@@ -435,7 +445,7 @@ protected void heart_beat() {
     // ggf. Meldungen ausgeben und Gegner austragen und dieses Living beim
     // Gegner austragen.
     if (no_attack=enemy->QueryProp(P_NO_ATTACK)) {
-      efun::m_delete(enemies,enemy);
+      m_delete(enemies,enemy);
         if ( stringp(no_attack) ) {
             write( no_attack );
             enemy->StopHuntFor( ME, 1 );
@@ -470,20 +480,20 @@ protected void heart_beat() {
     foreach(int i: hbs) {
       // Feind in Nahkampfreichweite finden
       if ( objectp(enemy=SelectNearEnemy(here)) ) {
-	// Flucht erwuenscht?
-	if ( QueryProp(P_WIMPY) > QueryProp(P_HP) ) {
-	  Flee();
-	  // Flucht gelungen?
-	  if ( enemy && (environment(enemy)!=environment()) ) {
-	    here = 0; // naechste Runde neue Feinde suchen
-	    enemy = 0;
-	    continue; // kein Kampf, Runde ueberspringen
-	  }
-	}
+        // Flucht erwuenscht?
+        if ( QueryProp(P_WIMPY) > QueryProp(P_HP) ) {
+          Flee();
+          // Flucht gelungen?
+          if ( enemy && (environment(enemy)!=environment()) ) {
+            here = 0; // naechste Runde neue Feinde suchen
+            enemy = 0;
+            continue; // kein Kampf, Runde ueberspringen
+          }
+        }
       }
       else {
-	// keine Feinde gefunden... Abbrechen.
-	break;
+        // keine Feinde gefunden... Abbrechen.
+        break;
       }
       // Paralyse gesetzt? -> Abbrechen. Dieses Pruefung muss hier passieren,
       // damit ggf. die automatische Flucht des Lebewesens durchgefuehrt wird,
@@ -493,10 +503,10 @@ protected void heart_beat() {
       // Kampf durch Spell-Prepare blockiert?
       // Keine genaue Abfrage, wird spaeter noch genau geprueft.
       if ( pspell && QueryProp(P_GUILD_PREPAREBLOCK) )
-	break; // keine Angriffe in diesem HB.
+        break; // keine Angriffe in diesem HB.
       // wenn Feind da: hit'em hard.
       if ( objectp(enemy) )
-	Attack(enemy);
+        Attack(enemy);
       // ggf. hat Attack() no_more_attacks gesetzt. Zuruecksetzen
       no_more_attacks = 0;
       // naechste Kampfrunde neue Feinde suchen
@@ -556,7 +566,7 @@ public varargs int StopHuntFor(object arg, int silent)
   if (!silent)
     StopHuntText(arg);
 
-  efun::m_delete(enemies,arg);
+  m_delete(enemies,arg);
   last_attack_msg=0;
 
   return 1;
@@ -570,31 +580,6 @@ public void Attack2(object enemy)
 
   att2_time=time() + __HEART_BEAT_INTERVAL__;
   Attack(enemy);
-}
-
-// Diese Funktion sollte immer ein exaktes Abbild der Funktion
-// aus /std/ranged_weapon.c sein. Die Funktion existiert doppelt,
-// weil interne Funktionsaufrufe schneller sind - und beim combat muss
-// man sparen, wo es nur geht.
-protected void SkillResTransfer(mapping from_M, mapping to_M)
-{
-  if ( !mappingp(from_M) || !mappingp(to_M) )
-    return;
-
-  if ( member(from_M,SI_SKILLDAMAGE) )
-    to_M[SI_SKILLDAMAGE] = (int)from_M[SI_SKILLDAMAGE];
-
-  if ( member(from_M,SI_SKILLDAMAGE_MSG) )
-    to_M[SI_SKILLDAMAGE_MSG] = (string)from_M[SI_SKILLDAMAGE_MSG];
-
-  if ( member(from_M,SI_SKILLDAMAGE_MSG2) )
-    to_M[SI_SKILLDAMAGE_MSG2] = (string)from_M[SI_SKILLDAMAGE_MSG2];
-
-  if ( member(from_M,SI_SKILLDAMAGE_TYPE) )
-    to_M[SI_SKILLDAMAGE_TYPE] = from_M[SI_SKILLDAMAGE_TYPE];
-
-  if ( member(from_M,SI_SPELL) )
-    to_M[SI_SPELL] = from_M[SI_SPELL];
 }
 
 // Fuer evtl. Attack-Aenderungen, ohne dass man gleich das ganze
@@ -916,8 +901,10 @@ public void InformDefend(object enemy)
   // This is only experimental... ;)
 }
 
-public mixed DefendOther(int dam, mixed dam_type, mixed spell, object enemy)
-{ mixed res;
+public <int|string*|mapping>* DefendOther(int dam, string|string* dam_type,
+                                          int|mapping spell, object enemy)
+{
+  <int|string*|mapping>* res;
 
   if ( (res=UseSkill(SK_DEFEND_OTHER,([ SI_SKILLDAMAGE : dam,
                                         SI_SKILLDAMAGE_TYPE : dam_type,
@@ -934,7 +921,7 @@ public void CheckWimpyAndFlee()
 {
   if ( (QueryProp(P_WIMPY)>QueryProp(P_HP)) && !TeamFlee()
       && find_call_out("Flee")<0 )
-    call_out("Flee",1,environment());
+    call_out(#'Flee,0,environment());
 }
 
 protected string mess(string msg,object me,object enemy)
@@ -967,12 +954,12 @@ protected string mess(string msg,object me,object enemy)
 
 // Fuer evtl. Defend-Aenderungen, ohne dass man gleich das ganze
 // Attack ueberlagern muss:
-protected void InternalModifyDefend(int dam, mixed dt, mapping spell, object enemy)
+protected void InternalModifyDefend(int dam, string* dt, mapping spell, object enemy)
 {
   return;
 }
 
-public int Defend(int dam, mixed dam_type, mixed spell, object enemy)
+public int Defend(int dam, string|string* dam_type, int|mapping spell, object enemy)
 {
   int     i,k;
   mixed   res,res2;
@@ -983,8 +970,10 @@ public int Defend(int dam, mixed dam_type, mixed spell, object enemy)
   //  string  what, how;
   string enname, myname;
 
+  // this_player(), wenn kein enemy bekannt...
+  enemy ||= this_player();
   // Testen, ob dieses Lebewesen ueberhaupt angegriffen werden darf
-  if ( !(enemy=(enemy||this_player())) || QueryProp(P_NO_ATTACK)
+  if ( !this_object() || !enemy || QueryProp(P_NO_ATTACK)
       || ( query_once_interactive(enemy) && ! interactive(enemy) ) )
     return 0;
 
@@ -998,15 +987,15 @@ public int Defend(int dam, mixed dam_type, mixed spell, object enemy)
   // testen ob eine erweiterte defendinfo vorhanden ist
   if(!member(spell,EINFO_DEFEND))
   {
-  	//spell+=([EINFO_DEFEND:([])]); // ggf hinzufuegen
-	// use a temporary mapping to avoid recursive
-	// val[x][y] = deep_copy(val);
-	mapping tmpdefend = ([
-		ORIGINAL_AINFO:deep_copy(spell),
-		ORIGINAL_DAM:dam,
-  		ORIGINAL_DAMTYPE:dam_type,
-	]);
-  	spell[EINFO_DEFEND]=tmpdefend;
+          //spell+=([EINFO_DEFEND:([])]); // ggf hinzufuegen
+        // use a temporary mapping to avoid recursive
+        // val[x][y] = deep_copy(val);
+        mapping tmpdefend = ([
+                ORIGINAL_AINFO:deep_copy(spell),
+                ORIGINAL_DAM:dam,
+                  ORIGINAL_DAMTYPE:dam_type,
+        ]);
+          spell[EINFO_DEFEND]=tmpdefend;
   }
 
   // Schadenstyp ueberpruefen
@@ -1051,10 +1040,10 @@ public int Defend(int dam, mixed dam_type, mixed spell, object enemy)
       if ( objectp(defender) && (member(defs,defender)<0) )
       {
         defs+=({defender});
-	//  Verteidiger muessen im gleichen Raum oder im Living selber
-	//  enthalten sein.
+        //  Verteidiger muessen im gleichen Raum oder im Living selber
+        //  enthalten sein.
         if ( environment(defender) == environment()
-	    || environment(defender) == ME)
+            || environment(defender) == ME)
         {
           call_other(defender,"InformDefend",enemy);
           defs_here += ({ defender });
@@ -1097,7 +1086,7 @@ public int Defend(int dam, mixed dam_type, mixed spell, object enemy)
         if ( mappingp(res[2]) )
         {
           spell=res[2];
-	  // teuer, aber geht nicht anders (Rekursion vermeiden)
+          // teuer, aber geht nicht anders (Rekursion vermeiden)
           edefendtmp[DEF_SPELL]=deep_copy(res[2]);
         }
         spell[EINFO_DEFEND][CURRENT_DAMTYPE]=dam_type;
@@ -1120,13 +1109,13 @@ public int Defend(int dam, mixed dam_type, mixed spell, object enemy)
         // Ein P_TMP_DEFEND_HOOK kann den Schaden vollstaendig abfangen,
         // das Defend wird dann hier abgebrochen *SICK* und es wird nur
         // noch getestet, ob man in die Flucht geschlagen wurde
-	spell[EINFO_DEFEND][DEFEND_HOOK]=DI_HOOKINTERRUPT;
+        spell[EINFO_DEFEND][DEFEND_HOOK]=DI_HOOKINTERRUPT;
         CheckWimpyAndFlee();
-	return 0;
+        return 0;
       }
       else
       {
-	spell[EINFO_DEFEND][DEFEND_HOOK]=DI_HOOK;
+        spell[EINFO_DEFEND][DEFEND_HOOK]=DI_HOOK;
         if ( pointerp(res) && (sizeof(res)>=3)
             && intp(res[0] && pointerp(res[1])) )
         {
@@ -1141,7 +1130,7 @@ public int Defend(int dam, mixed dam_type, mixed spell, object enemy)
           if ( mappingp(res[2]) )
           {
             spell=res[2];
-	    // Waeh. Teuer. Aber geht nicht anders.
+            // Waeh. Teuer. Aber geht nicht anders.
             edefendtmp[HOOK_SPELL]=deep_copy(spell);
           }
           spell[EINFO_DEFEND][DEFEND_HOOK]=edefendtmp;
@@ -1159,12 +1148,12 @@ public int Defend(int dam, mixed dam_type, mixed spell, object enemy)
   hookRes=HookFlow(H_HOOK_DEFEND,hookData);
   if(hookRes && pointerp(hookRes) && sizeof(hookRes)>H_RETDATA){
     if(hookRes[H_RETCODE]==H_CANCELLED){
-	spell[EINFO_DEFEND][DEFEND_HOOK]=DI_HOOKINTERRUPT;
+        spell[EINFO_DEFEND][DEFEND_HOOK]=DI_HOOKINTERRUPT;
         CheckWimpyAndFlee();
-	return 0;
+        return 0;
     }
     else if(hookRes[H_RETCODE]==H_ALTERED && hookRes[H_RETDATA]){
-	spell[EINFO_DEFEND][DEFEND_HOOK]=DI_HOOK;
+        spell[EINFO_DEFEND][DEFEND_HOOK]=DI_HOOK;
         if ( pointerp(hookRes[H_RETDATA]) && (sizeof(hookRes[H_RETDATA])>=3)
             && intp(hookRes[H_RETDATA][0] && pointerp(hookRes[H_RETDATA][1])) )
         {
@@ -1179,7 +1168,7 @@ public int Defend(int dam, mixed dam_type, mixed spell, object enemy)
           if ( mappingp(hookRes[H_RETDATA][2]) )
           {
             spell=hookRes[H_RETDATA][2];
-	    // Teuer, teuer... :-(
+            // Teuer, teuer... :-(
             edefendtmp[HOOK_SPELL]=deep_copy(spell);
           }
           spell[EINFO_DEFEND][DEFEND_HOOK]=edefendtmp;
@@ -1227,17 +1216,17 @@ public int Defend(int dam, mixed dam_type, mixed spell, object enemy)
       if ( objectp(armour) ) {
         aty=(string)armour->QueryProp(P_ARMOUR_TYPE);
 
-	if ( member(spell[SP_REDUCE_ARMOUR],aty)
+        if ( member(spell[SP_REDUCE_ARMOUR],aty)
             && intp(res2=spell[SP_REDUCE_ARMOUR][aty]) && (res2>=0) )
           dam -= (res2*armour->QueryDefend(dam_type, spell, enemy))/100;
         else
           dam -= (int)(armour->QueryDefend(dam_type, spell, enemy));
-	// Schaden NACH DefendFunc vermerken. 
-	// Schutzwirkung VOR DefendFunc (DEF_ARMOUR_PROT) vermerkt
-	// das QueryDefend() selber.
-	spell[EINFO_DEFEND][DEFEND_ARMOURS][armour,DEF_ARMOUR_DAM]=dam;
+        // Schaden NACH DefendFunc vermerken. 
+        // Schutzwirkung VOR DefendFunc (DEF_ARMOUR_PROT) vermerkt
+        // das QueryDefend() selber.
+        spell[EINFO_DEFEND][DEFEND_ARMOURS][armour,DEF_ARMOUR_DAM]=dam;
         // akt. Schaden vermerken und Schutz der aktuellen Ruestung (vor
-	// DefendFunc) wieder auf 0 setzen fuer den naechsten Durchlauf.
+        // DefendFunc) wieder auf 0 setzen fuer den naechsten Durchlauf.
         spell[EINFO_DEFEND][CURRENT_DAM]=dam;
         spell[EINFO_DEFEND][DEFEND_CUR_ARMOUR_PROT]=0;
       }
@@ -1281,16 +1270,21 @@ public int Defend(int dam, mixed dam_type, mixed spell, object enemy)
 
   // Die Resistenzen des Lebewesens (natuerliche und durch Ruestungen
   // gesetzte) beruecksichtigen
-  dam = (int)(CheckResistance(dam_type)*dam);
+  dam = to_int(CheckResistance(dam_type)*dam);
   spell[EINFO_DEFEND][DEFEND_RESI]=dam;
 
   spell[EINFO_DEFEND][CURRENT_DAM]=dam;
 
   // Bei physikalischen Angriffen wird die natuerliche Panzerung und die
   // Geschicklichkeit des Lebewesens beruecksichtigt
+  object stat = find_object("/d/erzmagier/zesstra/pacstat"); // TODO: remove
   if ( spell[SP_PHYSICAL_ATTACK] )
   {
-    res2=random(QueryProp(P_BODY)+QueryAttribute(A_DEX)+1);
+    // Minimum ist auch hier 1.
+    int body = QueryProp(P_BODY)+QueryAttribute(A_DEX);
+    res2 = (body/4 + random(body*3/4 + 1)) || 1;
+    if (stat)
+      stat->bodystat(body, res2, random(body)+1);
 
     // Reduzierbare Wirksamkeit des Bodies?
     if ( member(spell[SP_REDUCE_ARMOUR], P_BODY)
@@ -1307,244 +1301,256 @@ public int Defend(int dam, mixed dam_type, mixed spell, object enemy)
     dam = 0;
   spell[EINFO_DEFEND][CURRENT_DAM]=dam;
 
+  // fuer die Statistik
+  // TODO: entfernen nach Test-Uptime
+  if (stat)
+    stat->damagestat(spell[EINFO_DEFEND]);
+
   // Die Anzahl der abzuziehenden Lebenspunkte ist der durch 10 geteilte
   // Schadenswert
   dam = dam / 10;
   spell[EINFO_DEFEND][DEFEND_LOSTLP]=dam;
 
+  // evtl. hat entweder der Aufrufer oder das Lebewesen selber eigene
+  // Schadensmeldungen definiert. Die vom Aufrufer haben Prioritaet.
+  mixed dam_msg = spell[SP_SHOW_DAMAGE];
+  // Wenn != 0 (d.h. Treffermeldungen grundsaetzlich erwuenscht), aber kein
+  // Array, hier im Living fragen.
+  if (dam_msg && !pointerp(dam_msg))
+    dam_msg = QueryProp(P_DAMAGE_MSG);
 
   // In den meisten Faellen soll auch eine Schadensmeldung ausgegeben
   // werden, die die Hoehe des Schadens (grob) anzeigt
-  if (spell[SP_SHOW_DAMAGE] && !pointerp(spell[SP_SHOW_DAMAGE])) {
+  if (spell[SP_SHOW_DAMAGE] && !pointerp(dam_msg)) {
     myname=name(WEN);
     enname=enemy->Name(WER);
     if (enemy->QueryProp(P_PLURAL)) {
       switch (dam) {
       case 0:
-	tell_object(enemy,sprintf("  Ihr verfehlt %s.\n",myname));
-	tell_object(this_object(),sprintf("  %s verfehlen Dich.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
- 	  sprintf("  %s verfehlen %s.\n",enname,myname),
-	          ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Ihr verfehlt %s.\n",myname));
+        tell_object(this_object(),sprintf("  %s verfehlen Dich.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+           sprintf("  %s verfehlen %s.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 1:
-	tell_object(enemy,sprintf("  Ihr kitzelt %s am Bauch.\n",myname));
-	tell_object(this_object(),
-	  sprintf("  %s kitzeln Dich am Bauch.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s kitzeln %s am Bauch.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Ihr kitzelt %s am Bauch.\n",myname));
+        tell_object(this_object(),
+          sprintf("  %s kitzeln Dich am Bauch.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s kitzeln %s am Bauch.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 2..3:
-	tell_object(enemy,sprintf("  Ihr kratzt %s.\n",myname));
-	tell_object(this_object(),sprintf("  %s kratzen Dich.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s kratzen %s.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Ihr kratzt %s.\n",myname));
+        tell_object(this_object(),sprintf("  %s kratzen Dich.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s kratzen %s.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 4..5:
-	tell_object(enemy,sprintf("  Ihr trefft %s.\n",myname));
-	tell_object(this_object(),sprintf("  %s treffen Dich.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s treffen %s.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Ihr trefft %s.\n",myname));
+        tell_object(this_object(),sprintf("  %s treffen Dich.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s treffen %s.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 6..10:
-	tell_object(enemy,sprintf("  Ihr trefft %s hart.\n",myname));
-	tell_object(this_object(),sprintf("  %s treffen Dich hart.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s treffen %s hart.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Ihr trefft %s hart.\n",myname));
+        tell_object(this_object(),sprintf("  %s treffen Dich hart.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s treffen %s hart.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 11..20:
-	tell_object(enemy,sprintf("  Ihr trefft %s sehr hart.\n",myname));
-	tell_object(this_object(),
-	  sprintf("  %s treffen Dich sehr hart.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s treffen %s sehr hart.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Ihr trefft %s sehr hart.\n",myname));
+        tell_object(this_object(),
+          sprintf("  %s treffen Dich sehr hart.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s treffen %s sehr hart.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 21..30:
-	tell_object(enemy,
-	  sprintf("  Ihr schlagt %s mit dem Krachen brechender Knochen.\n",
-		  myname));
-	tell_object(this_object(),
-	  sprintf("  %s schlagen Dich mit dem Krachen brechender Knochen.\n",
-		  enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s schlagen %s mit dem Krachen brechender Knochen.\n",
-		  enname,myname), ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,
+          sprintf("  Ihr schlagt %s mit dem Krachen brechender Knochen.\n",
+                  myname));
+        tell_object(this_object(),
+          sprintf("  %s schlagen Dich mit dem Krachen brechender Knochen.\n",
+                  enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s schlagen %s mit dem Krachen brechender Knochen.\n",
+                  enname,myname), ({ enemy, this_object() }));
+        break;
       case 31..50:
-	tell_object(enemy,
-	  sprintf("  Ihr zerschmettert %s in kleine Stueckchen.\n",myname));
-	tell_object(this_object(),
-	  sprintf("  %s zerschmettern Dich in kleine Stueckchen.\n",
-					  enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s zerschmettern %s in kleine Stueckchen.\n",
-		  enname,myname), ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,
+          sprintf("  Ihr zerschmettert %s in kleine Stueckchen.\n",myname));
+        tell_object(this_object(),
+          sprintf("  %s zerschmettern Dich in kleine Stueckchen.\n",
+                                          enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s zerschmettern %s in kleine Stueckchen.\n",
+                  enname,myname), ({ enemy, this_object() }));
+        break;
       case 51..75:
-	tell_object(enemy,sprintf("  Ihr schlagt %s zu Brei.\n",myname));
-	tell_object(this_object(),
-	  sprintf("  %s schlagen Dich zu Brei.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s schlagen %s zu Brei.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Ihr schlagt %s zu Brei.\n",myname));
+        tell_object(this_object(),
+          sprintf("  %s schlagen Dich zu Brei.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s schlagen %s zu Brei.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 76..100:
-	tell_object(enemy,sprintf("  Ihr pulverisiert %s.\n",myname));
-	tell_object(this_object(),sprintf("  %s pulverisieren Dich.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s pulverisieren %s.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Ihr pulverisiert %s.\n",myname));
+        tell_object(this_object(),sprintf("  %s pulverisieren Dich.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s pulverisieren %s.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 101..150:
-	tell_object(enemy,sprintf("  Ihr zerstaeubt %s.\n",myname));
-	tell_object(this_object(),sprintf("  %s zerstaeuben Dich.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s zerstaeuben %s.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Ihr zerstaeubt %s.\n",myname));
+        tell_object(this_object(),sprintf("  %s zerstaeuben Dich.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s zerstaeuben %s.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 151..200:
-	tell_object(enemy,sprintf("  Ihr atomisiert %s.\n",myname));
-	tell_object(this_object(),sprintf("  %s atomisieren Dich.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s atomisieren %s.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Ihr atomisiert %s.\n",myname));
+        tell_object(this_object(),sprintf("  %s atomisieren Dich.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s atomisieren %s.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       default:
-	tell_object(enemy,sprintf("  Ihr vernichtet %s.\n",myname));
-	tell_object(this_object(),sprintf("  %s vernichten Dich.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s vernichten %s.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Ihr vernichtet %s.\n",myname));
+        tell_object(this_object(),sprintf("  %s vernichten Dich.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s vernichten %s.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       }
 
     }
     else {
       switch (dam) {
       case 0:
-	tell_object(enemy,sprintf("  Du verfehlst %s.\n",myname));
-	tell_object(this_object(),sprintf("  %s verfehlt Dich.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s verfehlt %s.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Du verfehlst %s.\n",myname));
+        tell_object(this_object(),sprintf("  %s verfehlt Dich.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s verfehlt %s.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 1:
-	tell_object(enemy,sprintf("  Du kitzelst %s am Bauch.\n",myname));
-	tell_object(this_object(),
-	  sprintf("  %s kitzelt Dich am Bauch.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s kitzelt %s am Bauch.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Du kitzelst %s am Bauch.\n",myname));
+        tell_object(this_object(),
+          sprintf("  %s kitzelt Dich am Bauch.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s kitzelt %s am Bauch.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 2..3:
-	tell_object(enemy,sprintf("  Du kratzt %s.\n",myname));
-	tell_object(this_object(),sprintf("  %s kratzt Dich.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s kratzt %s.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Du kratzt %s.\n",myname));
+        tell_object(this_object(),sprintf("  %s kratzt Dich.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s kratzt %s.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 4..5:
-	tell_object(enemy,sprintf("  Du triffst %s.\n",myname));
-	tell_object(this_object(),sprintf("  %s trifft Dich.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s trifft %s.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Du triffst %s.\n",myname));
+        tell_object(this_object(),sprintf("  %s trifft Dich.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s trifft %s.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 6..10:
-	tell_object(enemy,sprintf("  Du triffst %s hart.\n",myname));
-	tell_object(this_object(),sprintf("  %s trifft Dich hart.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s trifft %s hart.\n",enname,myname),
-	    ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Du triffst %s hart.\n",myname));
+        tell_object(this_object(),sprintf("  %s trifft Dich hart.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s trifft %s hart.\n",enname,myname),
+            ({ enemy, this_object() }));
+        break;
       case 11..20:
-	tell_object(enemy,sprintf("  Du triffst %s sehr hart.\n",myname));
-	tell_object(this_object(),
-	  sprintf("  %s trifft Dich sehr hart.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s trifft %s sehr hart.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Du triffst %s sehr hart.\n",myname));
+        tell_object(this_object(),
+          sprintf("  %s trifft Dich sehr hart.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s trifft %s sehr hart.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 21..30:
-	tell_object(enemy,
-	  sprintf("  Du schlaegst %s mit dem Krachen brechender Knochen.\n",
-		  myname));
-	tell_object(this_object(),
-	  sprintf("  %s schlaegt Dich mit dem Krachen brechender Knochen.\n",
-		  enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s schlaegt %s mit dem Krachen brechender Knochen.\n",
-		  enname,myname), ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,
+          sprintf("  Du schlaegst %s mit dem Krachen brechender Knochen.\n",
+                  myname));
+        tell_object(this_object(),
+          sprintf("  %s schlaegt Dich mit dem Krachen brechender Knochen.\n",
+                  enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s schlaegt %s mit dem Krachen brechender Knochen.\n",
+                  enname,myname), ({ enemy, this_object() }));
+        break;
       case 31..50:
-	tell_object(enemy,
-	  sprintf("  Du zerschmetterst %s in kleine Stueckchen.\n",myname));
-	tell_object(this_object(),
-	  sprintf("  %s zerschmettert Dich in kleine Stueckchen.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s zerschmettert %s in kleine Stueckchen.\n",
-		  enname,myname), ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,
+          sprintf("  Du zerschmetterst %s in kleine Stueckchen.\n",myname));
+        tell_object(this_object(),
+          sprintf("  %s zerschmettert Dich in kleine Stueckchen.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s zerschmettert %s in kleine Stueckchen.\n",
+                  enname,myname), ({ enemy, this_object() }));
+        break;
       case 51..75:
-	tell_object(enemy,sprintf("  Du schlaegst %s zu Brei.\n",myname));
-	tell_object(this_object(),
-	  sprintf("  %s schlaegt Dich zu Brei.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s schlaegt %s zu Brei.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Du schlaegst %s zu Brei.\n",myname));
+        tell_object(this_object(),
+          sprintf("  %s schlaegt Dich zu Brei.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s schlaegt %s zu Brei.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 76..100:
-	tell_object(enemy,sprintf("  Du pulverisierst %s.\n",myname));
-	tell_object(this_object(),sprintf("  %s pulverisiert Dich.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s pulverisiert %s.\n",enname,myname),
-	          ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Du pulverisierst %s.\n",myname));
+        tell_object(this_object(),sprintf("  %s pulverisiert Dich.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s pulverisiert %s.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 101..150:
-	tell_object(enemy,sprintf("  Du zerstaeubst %s.\n",myname));
-	tell_object(this_object(),sprintf("  %s zerstaeubt Dich.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s zerstaeubt %s.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Du zerstaeubst %s.\n",myname));
+        tell_object(this_object(),sprintf("  %s zerstaeubt Dich.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s zerstaeubt %s.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       case 151..200:
-	tell_object(enemy,sprintf("  Du atomisierst %s.\n",myname));
-	tell_object(this_object(),sprintf("  %s atomisiert Dich.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s atomisiert %s.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Du atomisierst %s.\n",myname));
+        tell_object(this_object(),sprintf("  %s atomisiert Dich.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s atomisiert %s.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       default:
-	tell_object(enemy,sprintf("  Du vernichtest %s.\n",myname));
-	tell_object(this_object(),sprintf("  %s vernichtet Dich.\n",enname));
-	tell_room(environment(enemy)||environment(this_object()),
-	  sprintf("  %s vernichtet %s.\n",enname,myname),
-		  ({ enemy, this_object() }));
-	break;
+        tell_object(enemy,sprintf("  Du vernichtest %s.\n",myname));
+        tell_object(this_object(),sprintf("  %s vernichtet Dich.\n",enname));
+        tell_room(environment(enemy)||environment(this_object()),
+          sprintf("  %s vernichtet %s.\n",enname,myname),
+                  ({ enemy, this_object() }));
+        break;
       }
     }
   }
 
   // Man kann auch selbst-definierte Schadensmeldungen ausgeben lassen
-  else if( (res=spell[SP_SHOW_DAMAGE]) && pointerp(res) )
+  else if( spell[SP_SHOW_DAMAGE] && pointerp(dam_msg) )
   {
-    for( i=sizeof(res)-1 ; i-- ; )
+    for( i=sizeof(dam_msg) ; --i >= 0 ; )
     {
-      if ( dam>res[i][0] )
+      if ( dam>dam_msg[i][0] )
       {
-        tell_object(ME,mess(res[i][1],ME,enemy));
-        tell_object(enemy,mess(res[i][2],ME,enemy));
-        say(mess(res[i][3],ME,enemy), enemy);
+        tell_object(ME,mess(dam_msg[i][1],ME,enemy));
+        tell_object(enemy,mess(dam_msg[i][2],ME,enemy));
+        say(mess(dam_msg[i][3],ME,enemy), enemy);
         break;
       }
     }
   }
-  // else keine Schadensmeldung.
+  // else (!spell[SP_SHOW_DAMAGE]) keine Schadensmeldung.
 
   // Informationen ueber den letzten Angriff festhalten
   Set(P_LAST_DAMTYPES, dam_type);
@@ -1593,13 +1599,6 @@ public float CheckResistance(string *dam_type) {
   if ( !mappingp(mod) )
     mod = ([]);
 
-  if (!pointerp(dam_type))
-  {
-    log_file("bad_damage",
-             sprintf ("in %O\n\t%O\n",this_object(),dam_type));
-    dam_type=({dam_type});
-  }
-
   if ( (i=sizeof(dam_type))<1 )
     return 1.0;
 
@@ -1616,7 +1615,7 @@ public float CheckResistance(string *dam_type) {
   return 1.0+(faktor/n);
 }
 
-public varargs mixed StopHuntingMode(int silent)
+public varargs mapping StopHuntingMode(int silent)
 { mapping save_enemy;
   int     i;
 
@@ -1630,7 +1629,7 @@ public varargs mixed StopHuntingMode(int silent)
   return save_enemy;
 }
 
-public mixed QueryEnemies()
+public <object*|int*>* QueryEnemies()
 {
   return ({m_indices(enemies),m_values(enemies)});
 }
@@ -1640,7 +1639,7 @@ public mapping GetEnemies()
   return enemies;
 }
 
-public mapping SetEnemies(object *myenemies)
+public mapping SetEnemies(<object*|int*>* myenemies)
 {
   enemies=mkmapping(myenemies[0],myenemies[1]);
   return enemies;
@@ -1688,7 +1687,7 @@ public varargs void Flee( object oldenv, int force )
   exits += m_indices(tmp);
 
   if ( query_once_interactive(ME) )
-	exits = map( exits, #'_kill_alias/*'*/ );
+        exits = map( exits, #'_kill_alias/*'*/ );
 
   // die Fluchtrichtung von Magiern wird aus Sicherheitsgruenden
   // nicht ausgewertet
@@ -1723,7 +1722,7 @@ public varargs void Flee( object oldenv, int force )
     tell_object( ME, "Dein Fluchtversuch ist gescheitert.\n" );
 }
 
-public mixed EnemyPresent()
+public object EnemyPresent()
 {
   foreach(object en: enemies) {
     if (environment()==environment(en))
@@ -1732,7 +1731,7 @@ public mixed EnemyPresent()
   return 0;
 }
 
-public mixed InFight()
+public object InFight()
 {
   return EnemyPresent();
 }
@@ -1810,21 +1809,39 @@ static int _set_wimpy(int i)
   if ( !intp(i) || (i>QueryProp(P_MAX_HP)) || (i<0) )
     return 0;
 
+  // ggf. Statusreport ausgeben
+  if (interactive(ME))
+    status_report(DO_REPORT_WIMPY, i);
+
   return Set(P_WIMPY, i);
+}
+
+static string _set_wimpy_dir(string s) {
+  // ggf. Statusreport ausgeben
+  if (interactive(ME))
+    status_report(DO_REPORT_WIMPY_DIR, s);
+  return Set(P_WIMPY_DIRECTION, s, F_VALUE);
 }
 
 static mixed _set_hands(mixed h)
 { 
   if ( sizeof(h)==2 )
-    h += ({ DT_BLUDGEON });
-
-  return Set(P_HANDS, h);
+    h += ({ ({DT_BLUDGEON}) });
+  if (!pointerp(h[2]))
+    h[2] = ({h[2]});
+  return Set(P_HANDS, h, F_VALUE);
 }
 
+//TODO normalisieren/korrigieren in updates_after_restore().
 static mixed _query_hands()
 {
-  if ( !Query(P_HANDS) )
-    return Set(P_HANDS, ({ " mit blossen Haenden", 30, DT_BLUDGEON }));
+  mixed *hands = Query(P_HANDS);
+  if ( !hands )
+    return Set(P_HANDS, ({ " mit blossen Haenden", 30, ({DT_BLUDGEON})}));
+  else if ( sizeof(hands)<3 )
+    return Set(P_HANDS, ({hands[0], hands[1], ({DT_BLUDGEON})}));
+  else if ( !pointerp(hands[2]) )
+    return Set(P_HANDS, ({hands[0], hands[1], ({ hands[2] })}));
 
   return Query(P_HANDS);
 }
@@ -1891,30 +1908,38 @@ static mapping _query_resistance_strengths() {
 static int _set_disable_attack(int val)
 {
   if (val<-100000)
-	   {
-	  	log_file("PARALYSE_TOO_LOW",
-			  sprintf("Wert zu klein: %s, Wert: %d, "
-				  "Aufrufer: %O, Opfer: %O",
-				  ctime(time()),
-					  val,previous_object(1),
-					  this_object()));
-	   }
+           {
+                  log_file("PARALYSE_TOO_LOW",
+                          sprintf("Wert zu klein: %s, Wert: %d, "
+                                  "Aufrufer: %O, Opfer: %O",
+                                  ctime(time()),
+                                          val,previous_object(1),
+                                          this_object()));
+           }
   if ( val>30 )
     val=30;
-  if ( (val>=20) && previous_object(1) && query_once_interactive(ME) )
+  if ( (val>=20) && previous_object(1)!=ME && query_once_interactive(ME) )
     log_file("PARALYSE",sprintf("%s %d Taeter: %O Opfer: %O\n",
                                 ctime(time())[4..15],
                                 val,previous_object(1),this_object()));
-  // Neu: Disable Attack nur noch wenn innerhalb der letzten
-  // Zeit kein Disable Attack aufgerufen wurde
-  // UND natuerlich nur, wenn der Wert HOCH gesetzt wird
-  if (time()<QueryProp(P_NEXT_DISABLE_ATTACK) && (val>0)
-		  && val>=QueryProp(P_DISABLE_ATTACK))
+ 
+  if (time()<QueryProp(P_NEXT_DISABLE_ATTACK))
   {
-	return DISABLE_TOO_EARLY;
+    // gueltige Zeitsperre existiert.
+    // Erhoehen von P_DISABLE_ATTACK geht dann nicht. (Ja, auch nicht erhoehen
+    // eines negativen P_DISABLE_ATTACK)
+    if (val >= QueryProp(P_DISABLE_ATTACK))
+      return DISABLE_TOO_EARLY;
+    // val ist kleiner als aktuelles P_DISABLE_ATTACK - das ist erlaubt, ABER es
+    // darf die bestehende Zeitsperre nicht verringern, daher wird sie nicht
+    // geaendert.
+    return Set(P_DISABLE_ATTACK,val,F_VALUE);
   }
-
-  SetProp(P_NEXT_DISABLE_ATTACK,time()+val*4);
+  // es existiert keine gueltige Zeitsperre - dann wird sie nun gesetzt.
+  // (Sollte val < 0 sein, wird eine Zeitsperre in der Vergangenheit gesetzt,
+  // die schon abgelaufen ist. Das ist ueberfluessig, schadet aber auch
+  // nicht.)
+  SetProp(P_NEXT_DISABLE_ATTACK,time()+val*2*__HEART_BEAT_INTERVAL__);
   return Set(P_DISABLE_ATTACK,val);
 }
 
@@ -2076,7 +2101,7 @@ public void ExitAttack()
   ExecuteMissingAttacks();
 }
 
-public mixed QueryArmourByType(string type)
+public object|object*|mapping QueryArmourByType(string type)
 {
   // Rueckgabewert:
   // DIE Ruestung vom Typ <type>, falls <type> nicht AT_MISC,

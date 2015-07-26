@@ -1,4 +1,4 @@
-// $Id: todo.c 6371 2007-07-17 22:46:50Z Zesstra $
+// $Id: todo.c 9142 2015-02-04 22:17:29Z Zesstra $
 #pragma strict_types
 #pragma save_types
 #pragma range_check
@@ -13,10 +13,10 @@
 
 #define SAVEFILENAME sprintf("/players/%s/.todoliste",getuid())
 
-private static status todo_initialized;
-private static mixed *todo_data;
+private nosave status todo_initialized;
+private nosave mixed *todo_data;
 mixed *todo_data_public;
-static mixed *_query_localcmds()
+static mixed _query_localcmds()
 {
   return ({
     ({"todo","_todo",0,WIZARD_LVL})});
@@ -65,7 +65,7 @@ static void initialize()
 
 static void _todo_neu2(string input,string carry)
 {
-  if (input=="q"||(input=="."&&!strlen(carry)))
+  if (input=="q"||(input=="."&&!sizeof(carry)))
   {
     printf("Abbruch!");
     return;
@@ -205,7 +205,7 @@ static int _todo(string cmdline)
   
   cmdline=_unparsed_args(1);
   notify_fail("Falsche Syntax. 'todo hilfe' zeigt eine Hilfe an.\n");
-  if (strlen(cmdline))
+  if (sizeof(cmdline))
   {
     args=explode(cmdline," ");
     switch(args[0])

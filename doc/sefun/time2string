@@ -17,24 +17,26 @@ BESCHREIBUNG:
 
 	Folgende Ersetzungssymbole sind erlaubt:
 	%%	wird durch ein Prozent (%) ersetzt.
-	%d,%h,%m,%s
-		werden durch die Anzahl der Tage, Stunden, Minuten
-		oder Sekunden ersetzt.
-		Die Routine erkennt, welches die groesste benutzte
-		Zeiteinheit ist und rechnet die keineren so um,
-		dass sie zwischen 0 und 59(bzw. 23) liegen.
+	%n, %w, %d, %h, %m, %s
+		  werden durch die Anzahl der Monate, Wochen, Tage, Stunden, Minuten oder
+      Sekunden ersetzt. Die Funktion erkennt, welches die groesste benutzte
+		  Zeiteinheit ist und rechnet die keineren so um, dass sie zwischen 0 und
+      jeweiligen Maximum der Zeiteinheit liegen (59, 23 etc.) liegen.
+ 	%N	wird durch die Worte 'Woche' oder 'Wochen' ersetzt,
+      je nachdem welchen Wertd %n haette.
+ 	%W	wird durch die Worte 'Woche' oder 'Wochen' ersetzt,
+		  je nachdem welchen Wert %w haette.
 	%D	wird durch die Worte 'Tag' oder 'Tage' ersetzt,
-		je nachdem welchen Wert %d haette.
+		  je nachdem welchen Wert %d haette.
 	%H,%M,%S
-		werden durch die Worte 'Stunde(n)', 'Minute(n)'
-		bzw. 'Sekunde(n)' ersetzt.
-	%X	wird durch die groesste Zeiteinheit ersetzt, die
-		nicht Null ist. Wenn bei %X die Feldbreite 0 angegeben
-		wird (also %0X), dann wird nicht der ausgeschriebene
-		Name, sonder eine Abkuerzung fuer die Zeiteinheit
-		ausgegeben. (Das sind dann 'd','h','m' oder 's'.)
+		  werden durch die Worte 'Stunde(n)', 'Minute(n)' bzw. 'Sekunde(n)'
+      ersetzt.
+	%X	wird durch die groesste Zeiteinheit ersetzt, die nicht Null ist. Wenn
+      bei %X die Feldbreite 0 angegeben wird (also %0X), dann wird nicht der
+      ausgeschriebene Name, sonder eine Abkuerzung fuer die Zeiteinheit
+      ausgegeben. (Das sind dann 'd','h','m' oder 's'.)
 	%x	wird durch den numerischen Wert dieser Zeiteinheit
-		ersetzt.
+		  ersetzt.
 			
 BEISPIELE:
 	time2string( "%m %M", 60 ) -> "1 Minute"

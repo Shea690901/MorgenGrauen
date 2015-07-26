@@ -1,25 +1,25 @@
 NAME:
-	P_DETAILS			"details"
+    P_DETAILS            "details"
 
 DEFINIERT IN:
-	/sys/properties.h
+    /sys/thing/description.h
 
 BESCHREIBUNG:
-	Diese Property enthaelt ein Mapping, in der Details im Objekt
-	definiert werden und Beschreibungen, die ausgegeben werden, wenn man
-	sich diese Details anschaut.
+    Diese Property enthaelt ein Mapping, in der Details im Objekt
+    definiert werden und Beschreibungen, die ausgegeben werden, wenn man
+    sich diese Details anschaut.
 
 BEMERKUNGEN:
-	Man sollte diese Property nicht per Hand veraendern, sondern die
-	Funktionen AddDetail(), RemoveDetail() und GetDetail() nutzen.
-	AddSpecialDetail() und RemoveSpecialDetail() koennen durch oben
-	genannte Funktionen emuliert werden und sollten keine Verwendung
-	mehr finden!
+    Man kann diese Property nicht per SetProp() veraendern, sondern muss die
+    entsprechenden Funktionen nutzen.
+    AddSpecialDetail() und RemoveSpecialDetail() sollten nicht mehr
+    verwendet werden.
 
 SIEHE AUCH:
-	AddDetail(), RemoveDetail(), GetDetail(), /std/thing/description.c,
-	AddSpecialDetail(), RemoveSpecialDetail(),
-	P_SMELLS, P_SOUNDS
+    Setzen:    AddDetail()
+    Loeschen:  RemoveDetail()
+    Aehnlich:  P_SPECIAL_DETAILS
+    Veraltet:  AddSpecialDetail(), RemoveSpecialDetail()
+    Sonstiges: GetDetail(), break_string()
 
-----------------------------------------------------------------------------
-Last modified: Wed Jan 14 19:17:06 1998 by Patryn
+27. Jan 2013 Gloinson

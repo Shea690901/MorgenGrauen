@@ -72,7 +72,6 @@ void create()
   add("dinfo");
   add("disco");
   add("dump_lists");
-  add("dumphists");
   add("dup");
   add("env");
   add("here");
@@ -96,7 +95,6 @@ void create()
   add("swap");
   add("swho");
   add("vars");
-  add("hl");
   add2("#","lock");
   add2(".","sel");
   add2("/","file");
@@ -182,7 +180,7 @@ int cmdline(string str)
   }
   str=PL->_unparsed_args();
   for (i=0;i<maxverb;i++)
-    if (commands[i]==verb[0..strlen(commands[i])-1])
+    if (commands[i]==verb[0..sizeof(commands[i])-1])
       if (ret=evalcmd(str))
 	return ret;
   return(0); // non-void function, Zesstra
@@ -257,7 +255,7 @@ string getarg(string args)
     if (arg=="")
       arglen=2;
     else
-      arglen=strlen(arg)+2;
+      arglen=sizeof(arg)+2;
     return arg;
   }
   if (sscanf(args,"%s %s",arg,rest)==2)
@@ -271,7 +269,7 @@ string getarg(string args)
   if (args=="")
     arglen=0;
   else
-    arglen=strlen(args);
+    arglen=sizeof(args);
   return args;
 }
 
@@ -279,9 +277,9 @@ string getrest(string str)
 {
   if (arglen==0)
     return str;
-  if (arglen==strlen(str))
+  if (arglen==sizeof(str))
     return "";
-  return strip(extract(str,arglen,strlen(str)-1));
+  return strip(str[arglen..sizeof(str)-1]);
 }
 
 int interactiveMode(string str)
@@ -690,7 +688,7 @@ string string_desc(string str)
   return "\""+out+"\"";
 }
 
-mixed rec_desc(object ob)
+mixed rec_desc(mixed ob)
 {
   if (intp(ob))
     return ""+ob;
@@ -709,7 +707,7 @@ string array_desc(mixed arr)
   mixed tmp;
   int i,j;
   str=rec_desc(arr);
-  if (strlen(str)<=MAXLINELEN-4)
+  if (sizeof(str)<=MAXLINELEN-4)
     return "--> "+str+"\n";
   tmp=old_explode(str," ");
   res="";
@@ -718,12 +716,12 @@ string array_desc(mixed arr)
   line="--> "+tmp[0]+" ";
   for (;;)
   {
-    while (i<sizeof(tmp) && strlen(line)+strlen(tmp[i]+1)<=MAXLINELEN-1)
+    while (i<sizeof(tmp) && sizeof(line)+sizeof(tmp[i]+1)<=MAXLINELEN-1)
     {
       line+=tmp[i]+" ";
       i++;
     }
-    if (strlen(line)==0)
+    if (sizeof(line)==0)
     {
       line=tmp[i]+" ";
       i++;
@@ -1015,51 +1013,6 @@ string cln(string arg)
     write(desc(ob)+" cleaned up.\n");
   }
   recursive=0;
-  return arg;
-}
-
-string hl(string arg)
-{
-  object ob,master;
-  int i,hnum;
-  string *hls;
-
-  ob=pop();
-  if (!objectp(ob) || !query_once_interactive(ob))
-  {
-    printf("%O ist kein Spieler.\n",ob);
-    return arg;
-  }
-  master=find_object("/secure/master");
-  printf("%O:n",ob);
-  hls=master->__query_variable(ob,"hist2");
-  hnum=master->__query_variable(ob,"hist_now2");
-  for (i=1;i<=50;i++) printf("%2d.%s\n",i,hls[(i+hnum-1)%50]);
-  return arg;
-}
-
-string dumphists(string arg)
-{
-  string pl;
-  object *ob,master;
-  int j,i,hnum;
-  string *hls;
-
-  if (!IS_ARCH(this_interactive())) return arg;
-  rm("/log/ARCH/HD");
-  ob=users();master=find_object("/secure/master");
-  for (j=sizeof(ob)-1;j>=0;j--)
-  {
-    pl=getuid(ob[j]);
-    hls=master->__query_variable(ob[j],"hist2");
-	if (!hls||sizeof(hls)<50) hls=allocate(50);
-    hnum=master->__query_variable(ob[j],"hist_now2");
-    for (i=1;i<=50;i++)
-      if (hls[(i+hnum-1)%50]!="")
-	write_file("/log/ARCH/HD",
-		   sprintf("%s: %2d.%s\n",pl,i,hls[(i+hnum-1)%50]||""));
-    write_file("/log/ARCH/HD","\n");
-  }
   return arg;
 }
 
@@ -1409,7 +1362,7 @@ mixed rusage(string arg)
   mixed *resusage;
   int i,j;
 /*
-  resusage=({mixed *})efun::rusage()+({mixed *})efun::query_comm_stat();
+  resusage=({mixed *})efun::rusage();
   for (i=0;i<18;i++){
     write(align(({"User time","System time","Max res set size",
 		  "Page reclaims","Page faults",
@@ -1428,7 +1381,7 @@ mixed rusage(string arg)
 }
 
 string align(string s,int x){
-  return extract(s+"                                          ",0,x-1);
+  return (s+"                                          ")[0..x-1];
 }
 
 static string swho(string arg)
@@ -1518,7 +1471,8 @@ string idle(string arg)
 
 string stat(string arg)
 {
-  object ob,*quests;
+  object ob;
+  mapping quests;
   mixed stats, *arr, tmp,tmp2, list;
   string titel, level, stat_str,weapon,armour;
   int pl;
@@ -1639,7 +1593,7 @@ string stat(string arg)
     armour = "Keine" ;
   else
   {
-    tmp = old_explode(break_string(extract(armour, 0, strlen(armour) - 3),
+    tmp = old_explode(break_string(armour[0..sizeof(armour) - 3],
 			       63), "\n") ;
     armour = tmp[ 0 ] ;
     tmp=tmp[1..];
@@ -1666,28 +1620,11 @@ string stat(string arg)
   // 8.Zeile : Geloeste Aufgaben
   if(pl)
   {
-    quests = ob->QueryProp(P_QUESTS) ;
-    tmp2  = "" ;
-    for(quests = ob->QueryProp(P_QUESTS); sizeof(quests); 
-	quests=quests[1..])
-    {
-      tmp = quests[ 0 ] ;
-      if(sizeof(tmp))
-	tmp2 += (tmp[ 0 ] + ", ") ;
-    }
-    
-    if(tmp2 == "")
-      tmp2 = "Keine" ;
-    else
-    {
-      tmp = old_explode(break_string(tmp2[0..<3],63), "\n") ;
-      tmp2 = tmp[ 0 ] ;
-      tmp=tmp[1..];
-      for(; sizeof(tmp); tmp=tmp[1..])
-	tmp2 += "\n                " + tmp[ 0 ] ;
-    }
-    
-    printf("     Aufgaben : %s.\n", tmp2) ;
+    printf( break_string( 
+              CountUp(m_indices(ob->QueryProp(P_QUESTS))), 
+              75,
+              "     Aufgaben : ",
+              BS_INDENT_ONCE));
     if(((tmp2 = ob->QueryProp(P_MAILADDR)) != "none") && tmp2 &&
        (tmp2 != ""))
       tmp2 = " (" + tmp2 + ")" ;
@@ -1720,7 +1657,7 @@ string scan(string arg)
     printf("Monster, UID: %s, EUID: %s, Level: %d\n",
 	   getuid(ob), (geteuid(ob)?geteuid(ob):"0"), ob->QueryProp(P_LEVEL));
   tmp=ob->short();
-  if (!stringp(tmp)||!strlen(tmp))
+  if (!stringp(tmp)||!sizeof(tmp))
     tmp=sprintf("(%s %s %s %s)",ob->QueryProp(P_PRESAY)+"",
 		ob->QueryProp(P_NAME)+"",ob->QueryProp(P_TITLE)+"",
 		(interactive(ob)?"":"(netztot"));

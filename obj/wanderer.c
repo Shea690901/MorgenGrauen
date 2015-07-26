@@ -1,3 +1,6 @@
+#pragma strong_types, save_types, rtt_checks
+#pragma no_clone, no_inherit, no_shadow
+
 inherit "std/npc";
 
 #define DELAY 60
@@ -8,13 +11,8 @@ inherit "std/npc";
 #include <moving.h>
 #include "/secure/questmaster.h"
 
-create()
+protected void create()
 {
-  if ( clonep(this_object()) ){
-	  destruct(this_object());
-	  return;
-  }
-  
   ::create();
   SetProp(P_NAME,"Wanderer");
   set_living_name("orakel");
@@ -29,7 +27,7 @@ create()
   SetProp(P_GENDER,MALE);
   SetProp(P_ALIGN, 1000);
   SetProp(P_XP, 1000);
-  SetProp(P_HANDS, ({" mit seinem Hirtenstab", 50}) );
+  SetProp(P_HANDS, ({" mit seinem Hirtenstab", 50, ({DT_BLUDGEON})}) );
   SetProp(P_NO_ATTACK, 1);
   SetProp(P_REJECT, ({ REJECT_GIVE, Name(WER) + " sagt: Danke, aber das "
 			  "brauche ich nicht.\n" }) );
@@ -38,17 +36,17 @@ create()
   AddCmd( ({"frag","frage"}), "frag" );
 }
 
-frag(str)
+static int frag(mixed str)
 {
   int i,j,geredet;
   mixed *quests;
-  string tmp;
+  mixed tmp;
   
-  if (!str) return;
-  str=lower_case(str);
-  str=old_explode(str," ");
-  if (!sizeof(str)) return;
-  if (!id(str[0])) return;
+  if (!str) return 0;
+  str = this_player()->_unparsed_args(1);
+  str = old_explode(str," ");
+  if ( !sizeof(str) ) return 0;
+  if ( !id(str[0]) ) return 0;
   if (sizeof(str)<3 || (str[1]!="nach" && str[1]!="ueber"))
   {
     tell_object(this_player(),"Der Wanderer sagt: Ich versteh dich nicht.\n");
@@ -56,10 +54,13 @@ frag(str)
   }
   geredet=0;
   str=implode(str[2..]," ");
-  if (str=="aufgabe" || str=="aufgaben" || str=="abenteuer")
+  quests=QM->QueryQuests();
+  if (str=="aufgabe" || str=="aufgaben" || str=="abenteuer" || str=="quests"
+      || str == "quest")
   {
-    tell_object(this_player(),"Der Wanderer sagt: Folgende Aufgaben gibt es hier:\n");
-    quests=QM->QueryQuests();
+    tell_object(this_player(),"Der Wanderer sagt: Folgende Aufgaben gibt "
+        "es hier:\n");
+    quests[0] = sort_array(quests[0], #'>);
     for (i=0;i<sizeof(quests[0]);i++)
     {
       tell_object(this_player(),quests[0][i]);
@@ -69,36 +70,36 @@ frag(str)
     }
     return 1;
   }
-  quests=QM->QueryQuests();
   for (i=0;i<sizeof(quests[0]);i++)
   {
-    if (member_array(str,old_explode(lower_case(quests[0][i])," "))>=0
-	|| strstr(lower_case(quests[0][i]), str)>=0)
+    if (member(old_explode(lower_case(quests[0][i])," "),str)>=0
+	      || strstr(lower_case(quests[0][i]), str)>=0)
     {
       tmp=quests[0][i]+"? Dazu kann ich Dir folgendes sagen: ";
       tmp+=quests[1][i][3];
       tmp=old_explode(break_string(tmp,60),"\n");
       geredet=1;
       for (j=0;j<sizeof(tmp);j++)
-	tell_object(this_player(),"Der Wanderer sagt: "+tmp[j]+"\n");
+        tell_object(this_player(),"Der Wanderer sagt: "+tmp[j]+"\n");
     }
   }
   if (!geredet) 
-    tell_object(this_player(),"Der Wanderer sagt: "+capitalize(str+" ")+"? Interessiert mich nicht !\n"); 
+    tell_object(this_player(),"Der Wanderer sagt: "+capitalize(str)+
+      "? Interessiert mich nicht!\n");
   return 1;
 }
 
-lauf()
+void lauf()
 {
-  int i;
-  mapping liste;
-  string *dirs;
-  string *dirs2;
-  int ok;
-  
-  liste = environment()->QueryProp(P_EXITS);
-  dirs = m_indices(liste);
-  dirs2 = ({ });
+  int i, ok;
+ 
+  // wenn keine Environment, dann laeuft das Ding einfach nicht.
+  if ( !objectp(environment()) )
+    return;
+
+  mapping liste = environment()->QueryProp(P_EXITS);
+  string *dirs = m_indices(liste);
+  string *dirs2 = ({ });
   for (i=0;i<sizeof(liste);i++)
     if (!catch(ok=liste[dirs[i]]->QueryProp(P_ORAKEL)) && ok) 
       dirs2 += ({ dirs[i] });

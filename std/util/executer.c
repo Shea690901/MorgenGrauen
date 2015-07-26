@@ -9,23 +9,31 @@
 #pragma no_clone
 #pragma pedantic
 
-protected mixed execute_anything(mixed fun, mixed args)
-{ object ob;
-
+protected mixed execute_anything(mixed fun, varargs mixed args)
+{
   if ( closurep(fun) && objectp(query_closure_object(fun)) )
-    return funcall(fun,args);
+    return apply(fun, args);
 
-  if ( !pointerp(fun) || sizeof(fun)<2 )
-    return 0;
+  if (stringp(fun))
+    return call_other(this_object(), fun, args...);
 
-  if ( stringp(fun[0]) )
-    ob=find_object(fun[0]);
-  else
-    ob=fun[0];
+  if ( pointerp(fun) && sizeof(fun)==2 )
+  {
+    object ob;
+    if (sizeof(fun)>2)
+      raise_error(sprintf("execute_anything(): first argument may only "
+                         "have 2 elements if array.\n"));
 
-  if ( !objectp(ob) || !stringp(fun[1]) )
-    return 0;
+    if ( stringp(fun[0]) )
+      ob=find_object(fun[0]);
+    else
+      ob=fun[0];
 
-  return call_other(ob,fun[1],args);
+    if ( !objectp(ob) || !stringp(fun[1]) )
+      return 0;
+
+    return call_other(ob, fun[1], args...);
+  }
+  return 0;
 }
 

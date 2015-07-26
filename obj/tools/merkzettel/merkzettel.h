@@ -63,8 +63,8 @@ varargs int remove(int silent);
 //int. Funktionen
 static status sort_prio(int key1, int key2);
 static nomask status check_allowed();
-static int restore_me();
-varargs void save_me(int delay);
+protected int restore_me();
+varargs protected void save_me(int delay);
 static string query_autoloadobj();
 static string set_autoloadobj(mixed arg);
 varargs static int checkStatus(int nocache);

@@ -26,7 +26,7 @@ public void create() {
 
   SetDefaultHome("/d/wald/kessa/waaagh/room/starthut/hut[" + 
     getuid(this_object()) +"]");
-  SetPrayRoom("/d/wald/nibel/lichtung/room/lichtung_45");
+  SetDefaultPrayRoom("/d/wald/nibel/lichtung/room/lichtung_45");
   
   SetProp(P_AVERAGE_SIZE, 80);
   SetProp(P_AVERAGE_WEIGHT, 32000);
@@ -127,6 +127,7 @@ public string _query_default_guild() {return "abenteurer";}
 public string _query_visible_guild() {
   switch(lower_case(QueryProp(P_GUILD))) {
     case "abenteurer": return "abentoira";
+    case "wipfellaeufer": return "wiffelloifa";
     case "chaos": return "kaos";
     case "zauberer": return "zaubara";
     case "bierschuettler": return "biaschuettla";
@@ -138,8 +139,9 @@ public string _query_visible_guild() {
 	  case "karate": return "karatae";
 	  case "werwoelfe": return "weawoelf";
 	  case "magus": return "magia";
-	  default: return QueryProp(P_GUILD);
+    case "urukhai": return "urugai";
   }
+  return QueryProp(P_GUILD);
 }
 
 public mixed RaceDefault(string arg) {
@@ -153,33 +155,59 @@ public mixed RaceDefault(string arg) {
   return base::RaceDefault(arg);
 }
 
-static string *_query_localcmds() {
+static mixed _query_localcmds() {
   return ({({"waaagh", "GoblinCmdWaaagh", 0, 0})}) +
     base::_query_localcmds();
 }
 
 // "knuddel alle" ist deutlich teurer also who cares :-)
 static varargs int GoblinCmdWaaagh(string arg) {
-  object *obs; string s, w; int i;
+  object *obs;
+  string s, w;
+  
   if(!objectp(environment())) return 0;
   obs = filter(all_inventory(environment()) - ({this_object()}), #'living);
   obs = obs - filter_objects(obs, "QueryProp", P_INVIS);
   // levelabhaengige Anzahl aaaaaaa's
   w = "W"+ sprintf("%'a'"+ (QueryProp(P_LEVEL) / 10 + 3) +"s", "aaa") +"gh!";
-  if(!i = sizeof(obs))
-    return tell_object(this_object(), break_string("Du ballst die "
-      "Faeustchen und kreischst laut: "+ w +"\n", 78, 0, 1)),1;
-  s = CountUp(map_objects(obs, "name", WER));
-  foreach(object o : obs) {
-    if(!interactive(o)) continue;
-    if(o->Message(break_string(Name(WER) +" ballt die Faeustchen und "
-      "kreischt laut: "+ w +"\n"+ capitalize(regreplace(s, "\\<"+
-      o->name(WER) +"\\>", capitalize(o->QueryDu(WER)), 0)) +" zuck"+
-      (i > 1 ? "en" : "st") +" erschrocken zusammen.", 78, 0, 1)) == -1)
-    tell_object(this_object(), o->Name(WER) +" ignoriert Dich oder diesen "
-      "Befehl.\n");
+
+  foreach(object o : obs)
+  {
+    string str=(break_string(Name(WER) +" ballt die Faeustchen und "
+      "kreischt laut: "+ w +"\n"
+      + capitalize(o->QueryDu(WER)) + " zuckst erschrocken zusammen.",
+      78, 0, BS_LEAVE_MY_LFS));
+
+    int res=o->ReceiveMsg(str,MT_LISTEN,MA_EMOTE,0,this_object());
+    if (res<0)
+    {
+      obs-=({o}); // unten nicht mehr mit anzeigen.
+      if (res==MSG_SENSE_BLOCK)
+        ReceiveMsg(o->Name(WER) +" kann Dich nicht hoeren.",
+                   MT_NOTIFICATION|MSG_DONT_IGNORE|MSG_DONT_STORE,
+                   MA_EMOTE,0,this_object());
+      else
+        ReceiveMsg(o->Name(WER) +" ignoriert Dich oder diesen Befehl.",
+                   MT_NOTIFICATION|MSG_DONT_IGNORE|MSG_DONT_STORE,
+                   MA_EMOTE,0,this_object());
+    }
   }
-  return tell_object(this_object(), break_string("Du ballst die Faeustchen "
-    "und kreischst laut: "+ w +"\n"+ capitalize(s) +" zuck"+
-    (i > 1 ? "en" : "t") +" erschrocken zusammen.", 78, 0, 1)),1;
+  int anzahl=sizeof(obs);
+  if(!anzahl)
+  {
+    ReceiveMsg("Du ballst die Faeustchen und kreischst laut: "
+               + w, MT_NOTIFICATION|MSG_DONT_IGNORE,MA_EMOTE,0,this_object());
+  }
+  else
+  {
+    s = CountUp(map_objects(obs, "name", WER));
+    ReceiveMsg(break_string("Du ballst die Faeustchen und kreischst laut: "
+               + w +"\n"+ capitalize(s) +" zuck"
+               +(anzahl > 1 ? "en" : "t") +" erschrocken zusammen.",
+               78, 0, BS_LEAVE_MY_LFS),
+               MT_NOTIFICATION|MSG_DONT_STORE|MSG_DONT_IGNORE,
+               MA_EMOTE,0,this_object());
+  }
+  return 1;
 }
+

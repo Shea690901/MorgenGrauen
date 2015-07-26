@@ -12,6 +12,7 @@
 #define DINFO_DUMP    5  /* Dump some special information into files */
 #define DINFO_DATA    6  /* Return internal information */
 #define DINFO_TRACE   7  /* Return the current call trace */
+#define DINFO_EVAL_NUMBER 8 /* Return the current eval number */
 
 /* Sub-request values for debug_info(DINFO_DATA) */
 
@@ -25,6 +26,7 @@
 #define DIT_ERROR          1  /* Return the last error call chain as an array */
 #define DIT_UNCAUGHT_ERROR 2  /* Return the last uncaught error call chain */
 #define DIT_STR_CURRENT    3  /* Return the current call chain as a string */
+#define DIT_CURRENT_DEPTH  4  /* Return the current control stack depth */
 
 /* Indices into the array resulting from debug_info(DINFO_DATA, DID_STATUS)
  */
@@ -158,25 +160,18 @@
 #define DID_MEM_SBRK_SIZE       2
 #define DID_MEM_LARGE           3
 #define DID_MEM_LARGE_SIZE      4
-#define DID_MEM_MMAP            (DID_MEM_LARGE)
-#define DID_MEM_MMAP_SIZE       (DID_MEM_LARGE_SIZE)
 #define DID_MEM_LFREE           5
-#define DID_MEM_FREE_CHUNKS     (DID_MEM_LFREE)
 #define DID_MEM_LFREE_SIZE      6
 #define DID_MEM_LWASTED         7
 #define DID_MEM_LWASTED_SIZE    8
-#define DID_MEM_KEEP_COST       (DID_MEM_LWASTED_SIZE)
 #define DID_MEM_CHUNK           9
 #define DID_MEM_CHUNK_SIZE     10
 #define DID_MEM_SLAB            (DID_MEM_CHUNK)
 #define DID_MEM_SLAB_SIZE       (DID_MEM_CHUNK_SIZE)
-#define DID_MEM_MAX_ALLOCATED   (DID_MEM_CHUNK_SIZE)
 #define DID_MEM_SMALL          11
 #define DID_MEM_SMALL_SIZE     12
 #define DID_MEM_SFREE          13
 #define DID_MEM_SFREE_SIZE     14
-#define DID_MEM_FFREE          (DID_MEM_SFREE)
-#define DID_MEM_FFREE_SIZE     (DID_MEM_SFREE_SIZE)
 #define DID_MEM_SWASTED        15
 #define DID_MEM_SWASTED_SIZE   16
 #define DID_MEM_SMALL_OVERHEAD_SIZE  (DID_MEM_SWASTED_SIZE)
@@ -226,10 +221,6 @@
 #define TRACE_PROGRAM 2
 #define TRACE_OBJECT  3
 #define TRACE_LOC     4
-//TODO: remove after reboot.
-#if __BOOT_TIME__ < 1232034534
-#define __EVAL_COST_TRACE__
-#endif
 #ifdef __EVAL_COST_TRACE__
 #define TRACE_EVALCOST 5
 

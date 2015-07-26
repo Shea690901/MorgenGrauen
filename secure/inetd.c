@@ -9,13 +9,17 @@
 #pragma no_shadow
 #pragma no_inherit
 #pragma verbose_errors
-#pragma combine_strings
 //#pragma pedantic
-//#pragma range_check
-#pragma warn_deprecated
+#pragma no_range_check
+#pragma no_warn_deprecated
 
+/*
+#include <living/comm.h>
 #define ZDEBUG(x)        if (find_player("zesstra"))\
-            tell_object(find_player("zesstra"),"Inetd: "+x+"\n")
+            find_player("zesstra")->ReceiveMsg(x, \
+                MT_DEBUG|MSG_DONT_STORE,0,"IM: ",this_object())
+*/
+#define ZDEBUG(x)
 
 #include <udp.h>
 
@@ -206,6 +210,8 @@ void set_host_list() {
 
 }
 
+mixed get_hosts() {return copy(hosts);}
+
 int  dump_hosts_list() {
   
   write_file(HOST_FILE+".dump", sprintf(
@@ -213,8 +219,8 @@ int  dump_hosts_list() {
 
   foreach(string mudname, mixed tmp : hosts) {
     // skip muds we did not hear from for 2 days.
-    if (tmp[HOST_STATUS] + 172800 < time())
-      continue;
+//    if (tmp[HOST_STATUS] + 172800 < time())
+//      continue;
     write_file(HOST_FILE+".dump",
         sprintf("%s:%s:%d:%s:%s\n",tmp[0],tmp[1],tmp[2],implode(tmp[3],","),
           implode(tmp[4],",")));
@@ -250,7 +256,7 @@ void startup(string *muds) {
  * Remove a buffered packet from the "incoming_packets" mapping.
  */
 void remove_incoming(string id) {
-    incoming_packets = m_delete(incoming_packets, id);
+    m_delete(incoming_packets, id);
 }
 
 /*
@@ -259,7 +265,7 @@ void remove_incoming(string id) {
  */
 mixed decode(string arg) {
 
-    if (strlen(arg) && arg[0] == '$')
+    if (sizeof(arg) && arg[0] == '$')
         return arg[1..];
 #ifdef RESTRICTED_CASTS
     if (to_string(to_int(arg)) == arg)
@@ -285,7 +291,7 @@ mixed decode_packet(string packet, string delimiter) {
     int i, id, n;
 
     /* If this packet has been split, handle buffering. */
-    if (packet[0..strlen(PACKET)] == PACKET + ":") {
+    if (packet[0..sizeof(PACKET)] == PACKET + ":") {
         if (sscanf(packet, PACKET + ":%s:%d:%d/%d" + delimiter + "%s",
         class, id, i, n, tmp) != 5)
             return 0;
@@ -386,7 +392,7 @@ string valid_request(mapping data) {
                     ") -> " + data[NAME] + "\n\n");
                 host_data[HOST_NAME] = data[NAME];
                 hosts[lower_case(data[NAME])] = host_data;
-                hosts = m_delete(hosts, muds[i]);
+                m_delete(hosts, muds[i]);
                 i = -2;
                 break;
             }
@@ -444,7 +450,7 @@ void _receive_udp(string sender, string packet) {
     }
 #endif
 
-    //ZDEBUG(sprintf("%O -> %.500O\n",sender, packet));
+    ZDEBUG(sprintf("%O -> %.500O\n",sender, packet));
     if (
 #ifdef DELIMITER_COMPAT
 #ifdef USE_EXTRACT
@@ -506,7 +512,6 @@ void _receive_udp(string sender, string packet) {
         if (!data[RECIPIENT] && pending[SENDER])
             data[RECIPIENT] = pending[SENDER];
 #endif
-        pending_data =
         m_delete(pending_data, lower_case(data[NAME]) + ":" + data[ID]);
     }
     else if (data[ID]) {
@@ -535,7 +540,7 @@ void _receive_udp(string sender, string packet) {
 }
 
 int do_match(string mudname, string match_str) {
-    return mudname[0..strlen(match_str)-1] == match_str;
+    return mudname[0..sizeof(match_str)-1] == match_str;
 }
 
 #ifdef NO_CLOSURES
@@ -566,7 +571,8 @@ string *expand_mud_name(string name) {
 string encode(mixed arg) {
     if (objectp(arg))
         return object_name(arg);
-    if (stringp(arg) && (arg[0] == '$' ||
+    if (stringp(arg) && sizeof(arg) &&
+        (arg[0] == '$' ||
 #ifdef RESTRICTED_CASTS
     to_string(to_int(arg)) == (string)arg))
 #else
@@ -617,7 +623,7 @@ string *explode_packet(string packet, int len) {
 
   // Variablen initialisieren
   m_ptr=ptr=0;
-  size=strlen(packet);
+  size=sizeof(packet);
   result=({});
 
   // Um Arrayadditionen zu vermeiden wird vorher allokiert. Die Division 
@@ -694,7 +700,7 @@ varargs string _send_udp(string mudname, mapping data, int expect_reply) {
     }
     if (!(packet = encode_packet(data))) {
         if (expect_reply)
-            pending_data = m_delete(pending_data, mudname + ":" + packet_id);
+            pending_data = m_copy_delete(pending_data, mudname + ":" + packet_id);
         log_file(INETD_LOG_FILE, DATE + ": Illegal packet sent by " +
         object_name(previous_object()) + "\n\n");
         return "inetd: Illegal packet.\n";
@@ -702,7 +708,7 @@ varargs string _send_udp(string mudname, mapping data, int expect_reply) {
     if (expect_reply)
         call_out("reply_time_out", REPLY_TIME_OUT, mudname + ":" + packet_id);
 
-    if (strlen(packet) <= MAX_PACKET_LEN)
+    if (sizeof(packet) <= MAX_PACKET_LEN)
         packet_arr = ({ packet });
     else {
         string header;
@@ -716,15 +722,16 @@ varargs string _send_udp(string mudname, mapping data, int expect_reply) {
         
         /* Allow 8 extra chars: 3 digits + "/" + 3 digits + DELIMITER */
         packet_arr = explode_packet(packet,
-            MAX_PACKET_LEN - (strlen(header) + 8));
+            MAX_PACKET_LEN - (sizeof(header) + 8));
 
         for(i = max = sizeof(packet_arr); i--; )
             packet_arr[i] =
             header + (i+1) + "/" + max + DELIMITER + packet_arr[i];
     }
     
-    for(i = sizeof(packet_arr); i--; ) {
-            
+    for(i = sizeof(packet_arr); i--; )
+    {
+      ZDEBUG(sprintf("%O <- %.500O\n",host_data[HOST_IP], packet_arr[i]));
       if (!send_udp(
         host_data[HOST_IP], host_data[HOST_UDP_PORT], packet_arr[i]))
             return "inetd: Error in sending packet.\n";
@@ -748,18 +755,18 @@ void reply_time_out(string id) {
             /* We must use a copy so the NAME field in pending_data[id]
              * isn't corrupted by _send_udp(). */
             send = deep_copy(data);
-            send = m_delete(send, RETRY);
+            send = m_copy_delete(send, RETRY);
 #ifdef INETD_DIAGNOSTICS
-            send = m_delete(send, PACKET_LOSS);
-            send = m_delete(send, RESPONSE_TIME);
+            send = m_copy_delete(send, PACKET_LOSS);
+            send = m_copy_delete(send, RESPONSE_TIME);
 #endif
             call_out("reply_time_out", REPLY_TIME_OUT, id);
             _send_udp(data[NAME], send);
             return;
         }
-        data = m_delete(data, RETRY);
+        data = m_copy_delete(data, RETRY);
 #ifdef INETD_DIAGNOSTICS
-        data = m_delete(data, RESPONSE_TIME);
+        data = m_copy_delete(data, RESPONSE_TIME);
 #endif
         catch(call_other(UDP_CMD_DIR + REPLY, "udp_" + REPLY,
         add_system_field(data, TIME_OUT));publish);
@@ -768,7 +775,7 @@ void reply_time_out(string id) {
             hosts[lower_case(data[NAME])][HOST_STATUS] = DOWN;
         remove_incoming(lower_case(data[NAME]) + ":" + id);
     }
-    pending_data = m_delete(pending_data, id);
+    pending_data = m_copy_delete(pending_data, id);
 }
 
 void remove_received_id(string id) {

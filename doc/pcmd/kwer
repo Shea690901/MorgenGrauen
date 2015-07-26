@@ -14,9 +14,9 @@ kwer
  ARGUMENTE:
 
      <stadt>
-        Name der gewuenschten Stadt
+        Name der gewuenschten Stadt (Herkunft des Login)
      <region>
-        Name der gewuenschten Region
+        Name der gewuenschten Region (in Morgengrauen)
      <spieler>
         Name eines Spielers
      <gilde>

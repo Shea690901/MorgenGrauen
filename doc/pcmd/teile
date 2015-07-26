@@ -6,12 +6,11 @@ teile (mit)
     teile <wem> mit <text>
     teile .[<nr>] mit <text>
     teile <wem>@<mud> mit <text>
-
+    (Abkuerzung: tm <wem> <text>)
+    
     erzaehle <wem> <text>
     erzaehle .[<nr>] <text>
     erzaehle <wem>@<mud> <text>
-
-    tmhist
 
  ARGUMENTE:
 

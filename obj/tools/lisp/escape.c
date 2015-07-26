@@ -30,7 +30,7 @@ string unescape(string str)
     case "\\r" : return "\r";
     case "\\t" : return "\t";
     case "\\\\": return "\\";
-    default   : if(str && strlen(str)>1 && str[0]=='\\') 
+    default   : if(str && sizeof(str)>1 && str[0]=='\\') 
                 return str[1..]; 
   }
   return str;

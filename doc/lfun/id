@@ -5,13 +5,14 @@ FUNKTION:
 
 DEFINIERT IN:
      /std/thing/description.c
+     /std/player/base.c
 
 ARGUMENTE:
-     str
+     string str
           String, auf den getestet werden soll.
-     lvl
-          Nur fuer Spieler von Bedeutung (?): Wenn der Spieler unsichtbar
-          ist und lvl kleiner ist als sein Level, wird 0 zurueckgegeben.
+     int lvl
+          In /std/player/base.c benutzt. Wenn der Spieler unsichtbar ist
+          und lvl kleiner ist als sein Level, wird 0 zurueckgegeben.
 
 BESCHREIBUNG:
      Es wird geprueft, ob sich das Objekt mit str ansprechen laesst. Dazu
@@ -22,15 +23,15 @@ BESCHREIBUNG:
      Besondere Bedeutung hat diese Funktion bei Mengenobjekten: Anhand von
      str wird vermerkt, welche Menge des Objektes angesprochen wird. Es
      werden dabei mehrere Faelle unterschieden:
-        o str ist einer der mit AddId() angegebener Bezeichner. In diesem
-          Fall ist die angesprochene Menge die Gesamtmenge.
-        o str ist einer der mit AddSingularId() angegebenen Bezeichner. Die
-          angesprochene Menge ist in diesem Fall 1.
-        o str ist einer der mit AddPluralId() angegebenen Bezeichner. Die
-          angesprochene Menge ist in diesem Fall . die Gesamtmenge.
-        o Hat str die Form "<n> <id>", wobei <n>=1 und <id> eine SingularId
-          oder 1 < <n> <= der Gesamtmenge und <id> eine PluralId, so ist die
-          angesprochene Menge = <n>.
+     o str ist einer der mit AddId() angegebener Bezeichner. In diesem
+       Fall ist die angesprochene Menge die Gesamtmenge.
+     o str ist einer der mit AddSingularId() angegebenen Bezeichner. Die
+       angesprochene Menge ist in diesem Fall 1.
+     o str ist einer der mit AddPluralId() angegebenen Bezeichner. Die
+       angesprochene Menge ist in diesem Fall . die Gesamtmenge.
+     o Hat str die Form "<n> <id>", wobei <n>=1 und <id> eine SingularId
+       oder 1 < <n> <= der Gesamtmenge und <id> eine PluralId, so ist die
+       angesprochene Menge = <n>.
      Wie gesagt, gilt dies einzig und allein bei Mengenobjekten!
 
 RUeCKGABEWERT:
@@ -72,5 +73,4 @@ SIEHE AUCH:
      AddId(), AddAdjective(), AddSingularId(), AddPluralId(), present(),
      match_ids(), /std/thing/description.c, /std/unit.c
 
-----------------------------------------------------------------------------
-Last modified: Wed May 8 10:19:44 1996 by Wargon
+6. Sep 2012 Gloinson

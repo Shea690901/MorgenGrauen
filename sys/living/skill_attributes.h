@@ -31,8 +31,11 @@
 // Reichweite
 #define SA_RANGE                    "sa_range"
 
-// Rettungsmoeglichkeit des Gegners
+// Je hoeher, desto groesser die Chance, dass nen vom Lebewesen gecasteter
+// Spell durch das gegnerische P_NOMAGIC durchschlaegt.
+// (SA_ENEMY_SAVE obsolet!)
 #define SA_ENEMY_SAVE               "sa_save"
+#define SA_SPELL_PENETRATION        "sa_save"
 
 // welche Skill-Attribute gibt es?
 #define VALID_SKILL_ATTRIBUTES ({ SA_QUALITY, SA_DAMAGE, SA_SPEED,\
@@ -79,10 +82,6 @@
 #define __SKILL_ATTRIBUTES_H_PROTO__
 
 // prototypes
-
-private void  UpdateSACache(string *attr);
-private int   InternalModifySkillAttribute(object caster, string atrname,
-                                mixed value, int duration);
 
 public int    ModifySkillAttribute(string atrname, mixed value,
                                     int duration);

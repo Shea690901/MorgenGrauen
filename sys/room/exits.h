@@ -2,15 +2,12 @@
 //
 // room/exits.h -- exit specific defines
 //
-// $Id: exits.h 6624 2007-12-01 21:05:49Z Zesstra $
+// $Id: exits.h 8797 2014-05-02 20:10:08Z Arathorn $
 
 #ifndef __ROOM_EXITS_H__
 #define __ROOM_EXITS_H__
 
 // Properties
-
-#define P_DOORS              "doors"
-#define P_DOORS2             "doors2"
 
 #define P_EXITS              "exits"
 #define P_SPECIAL_EXITS      "special_exits"

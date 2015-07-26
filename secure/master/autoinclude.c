@@ -4,13 +4,12 @@
 //
 // $Id: master.c 7041 2008-10-13 18:18:27Z Zesstra $
 
-
 #define PRAGMA(x) "#pragma "x"\n"
 
 // fuer alte Homemuds...
 #if __VERSION__ >= "3.5.0"
 #define RTTCHECKS PRAGMA("rtt_checks")
-#define DEFAULTS ""
+#define DEFAULTS PRAGMA("save_types")
 #else
 #define RTTCHECKS ""
 #define DEFAULTS PRAGMA("combine_strings, verbose_errors, warn_deprecated")
@@ -20,27 +19,30 @@
 // Wichtig: jede Hierarchiebene _muss_ ein Mapping sein, welches einen Eintrag
 //          0 als Default enthaelt, welcher einen Strings als Wert hat.
 //          Ausnahme: die letzte Ebene (Magierebene), die muss ein String ein.
-private mapping autoincludes = ([
+private nosave mapping autoincludes = ([
     "d":      ([
                  "inseln": ([
                              0: "",
-                             "zesstra": PRAGMA("strong_types,save_types") RTTCHECKS,
+                             "zesstra": PRAGMA("strong_types") RTTCHECKS,
                             ]),
                  0: "",
                ]),
     "std":    ([
-                 0: PRAGMA("strong_types,save_types") RTTCHECKS,
+                 0: PRAGMA("strong_types,pedantic") RTTCHECKS,
+               ]),
+    "items":    ([
+                 0: PRAGMA("strong_types,pedantic") RTTCHECKS,
                ]),
     "secure": ([
-                 0: PRAGMA("strong_types,save_types") RTTCHECKS,
+                 0: PRAGMA("strong_types,range_check,pedantic") RTTCHECKS,
                ]),
     "p":      ([
                  0: "",
                  "daemon": ([
-                             0: PRAGMA("strong_types,save_types") RTTCHECKS
+                             0: PRAGMA("strong_types") RTTCHECKS
                             ]),
                  "service": ([
-                              0: PRAGMA("save_types")
+                              0: ""
                             ]),
                ]),
     0: DEFAULTS,
@@ -77,16 +79,16 @@ string autoincludehook(string base_file, string current_file, int sys_include)
     }
   }
   // Fuer aeltere Files schalten wir einige Warnungen explizit aus. :-(
-  // (1258662508 == "Don, 19. Nov 2009, 21:28:28")
+  // (1407179680 == "Mon,  4. Aug 2014, 21:14:40")
 #if MUDHOST == __HOST_NAME__
-  if (funcall(symbol_function('file_time), base_file) < 1258662508) {
-      res += PRAGMA("no_warn_empty_casts, no_warn_missing_return, no_warn_function_inconsistent");
+  if (call_sefun("file_time", base_file) < 1407179680) {
+      res += PRAGMA("no_warn_missing_return");
   }
 #else
   // Auf anderen Rechnern als dem Mudrechner werden die Warnungen unabhaengig
   // vom Zeitpunt der letztes Aenderung abgeschaltet, weil bei kopierten
   // Mudlibs oft die mtimes geaendert werden und dann auf einmal alles scrollt.
-  res += PRAGMA("no_warn_empty_casts, no_warn_missing_return, no_warn_function_inconsistent");
+  res += PRAGMA("no_warn_missing_return");
 
 #endif
   //DEBUG(res);

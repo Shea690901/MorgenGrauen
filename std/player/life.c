@@ -2,17 +2,20 @@
 //
 // player/life.c -- player life handling
 //
-// $Id: life.c 7506 2010-03-21 15:34:17Z Zesstra $
+// $Id: life.c 9073 2015-01-15 20:37:19Z Zesstra $
 
 // Defines some things which are different than in living.c
 // One example is the heart_beat().
-#pragma strong_types
-#pragma save_types
+
+// Properties
+//  P_AGE           -- Age
+
+#pragma strong_types, save_types, rtt_checks
 #pragma range_check
 #pragma no_clone
 #pragma pedantic
 
-inherit "std/living/life";
+inherit "/std/living/life";
 
 #include <rtlimits.h>
 #include <debug_info.h>
@@ -20,7 +23,10 @@ inherit "std/living/life";
 #define NEED_PROTOTYPES
 #include <thing/properties.h>
 #include <player/base.h>
+#include <player/life.h>
 #include <moving.h>
+#include <player/comm.h>
+#include <player/gmcp.h>
 #undef NEED_PROTOTYPES
 
 #include <config.h>
@@ -30,6 +36,7 @@ inherit "std/living/life";
 #include <properties.h>
 #include <hook.h>
 
+#include <living/life.h>
 #include <player/pklog.h>
 #include <player/combat.h>
 #include <health.h>
@@ -42,6 +49,7 @@ inherit "std/living/life";
 #define SUFFER_TIME 7200
 #define P_DEATH_INFO "death_info"
 
+int age;                  /* Number of heart beats of this character. */
 
 private int suffer_time;
 static int time_to_save;  /* when to next save player */
@@ -52,6 +60,8 @@ static int _set_playerkills( int val );
 protected void create()
 {
     ::create();
+    Set(P_AGE, -1, F_SET_METHOD);
+    Set(P_AGE, PROTECTED, F_MODE);
     Set( P_KILLS, SAVE|SECURED, F_MODE_AS );
     Set( P_GHOST, SAVE, F_MODE_AS );
     Set( P_TIMING_MAP, SAVE|SECURED, F_MODE_AS );
@@ -64,7 +74,7 @@ protected void create()
     Set( P_DEFUEL_AMOUNT_FOOD,PROTECTED,F_MODE_AS);
     Set( P_DEFUEL_AMOUNT_DRINK,PROTECTED,F_MODE_AS);
     offerHook(H_HOOK_HP,1);
-    offerHook(H_HOOK_KP,1);
+    offerHook(H_HOOK_SP,1);
     // P_TIMING_MAP aufraeumen, aber zeitverzoegert, weil jetzt die Daten noch
     // nicht aus dem Savefile geladen wurden.
     call_out(#'expire_timing_map, 4);
@@ -85,7 +95,7 @@ static int _set_playerkills( int val )
     // zuruecksetzen koennen.)
     if ( previous_object(1) && environment(previous_object(1)) &&
          (tmp = object_name(environment(previous_object(1)))) &&
-	 CheckArenaFight(previous_object(1)) )
+         CheckArenaFight(previous_object(1)) )
         return 0;
 
     tmp = sprintf( "%O: %s %O %s",
@@ -124,6 +134,8 @@ protected void heart_beat()
 {
     mapping di, mods;
 
+    ++age; // erstmal altern ;-)
+
     ::heart_beat();
 
     if ( age > time_to_save ){
@@ -148,50 +160,50 @@ protected void heart_beat()
     if (!mappingp(mods)) return;
 
     if ( mods[A_STR] && --di[A_STR] <= 0) {
-	// einen Attributspunkt regenerieren
+        // einen Attributspunkt regenerieren
         if ( mods[A_STR] < -1 ) {
             mods[A_STR]++;
             di[A_STR] = (110 + 5 * (di[A_STR, 1] + mods[A_STR])) / 10;
         }
         else {
-            efun::m_delete( mods, A_STR );
-            efun::m_delete( di, A_STR );
+            m_delete( mods, A_STR );
+            m_delete( di, A_STR );
         }
     }
 
     if ( mods[A_CON] && --di[A_CON] <= 0) {
-	// einen Attributspunkt regenerieren
+        // einen Attributspunkt regenerieren
         if ( mods[A_CON] < -1 ){
             mods[A_CON]++;
             di[A_CON] = (110 + 5 * (di[A_CON, 1] + mods[A_CON])) / 10;
         }
         else {
-            efun::m_delete( mods, A_CON );
-            efun::m_delete( di, A_CON );
+            m_delete( mods, A_CON );
+            m_delete( di, A_CON );
         }
     }
 
     if ( mods[A_DEX] && --di[A_DEX] <= 0) {
-	// einen Attributspunkt regenerieren
+        // einen Attributspunkt regenerieren
         if ( mods[A_DEX] < -1 ){
             mods[A_DEX]++;
             di[A_DEX] = (110 + 5 * (di[A_DEX, 1] + mods[A_DEX])) / 10;
         }
         else {
-            efun::m_delete( mods, A_DEX );
-            efun::m_delete( di, A_DEX );
+            m_delete( mods, A_DEX );
+            m_delete( di, A_DEX );
         }
     }
 
     if ( mods[A_INT] && --di[A_INT] <= 0) {
-	// einen Attributspunkt regenerieren
+        // einen Attributspunkt regenerieren
         if ( mods[A_INT] < -1 ){
             mods[A_INT]++;
             di[A_INT] = (110 + 5 * (di[A_INT, 1] + mods[A_INT])) / 10;
         }
         else {
-            efun::m_delete( mods, A_INT );
-            efun::m_delete( di, A_INT );
+            m_delete( mods, A_INT );
+            m_delete( di, A_INT );
         }
     }
 
@@ -280,7 +292,6 @@ nomask public int do_damage( int dam, object enemy )
 
 
 // Loescht im sterbenden Spieler die 'koerperabhaengigen' Properties
-// und sichert sie in P_LAST_DEATH_PROPS fuer weitere Verwendung
 private void reset_my_properties()
 {
   // Loeschen der Properties
@@ -332,8 +343,6 @@ varargs protected int second_life( object corpse )
         return 1;
     }
 
-    SetProp( P_GHOST, 1 );
-
     if ( !IS_SEER(ME) || (level = QueryProp(P_LEVEL)) < 20 )
         lost_exp = QueryProp(P_XP) / 3;
     else
@@ -373,13 +382,11 @@ varargs protected int second_life( object corpse )
         // die suffer_time wird via death_suffering() von
         // QuerySkillAttribute() abgefragt und geht dann als Malus in
         // SA_QUALITY mit ein.
-        if ( suffer_time < 2*SUFFER_TIME )
-            suffer_time += (SUFFER_TIME)-1;
+        if ( suffer_time <= 2*SUFFER_TIME )
+            suffer_time += SUFFER_TIME - 1;
+        else
+            suffer_time = 3 * SUFFER_TIME - 1;
     }
-
-    object env = environment();
-
-    clone_object( "room/death/death_mark" )->move( ME, M_NOCHECK );
 
     // Die verschiedenen NotifyPlayerDeath-Funktionen koennen u.U. schlecht
     // programmiert sein und zuviel Rechenzeit ziehen. Deshalb werden sie mit
@@ -396,9 +403,9 @@ varargs protected int second_life( object corpse )
     // jedes Objekt nur einmal, aber nicht via m_indices(mkmapping)) wegen
     // Verlust der Reihenfolge.
     object *items = ({killer});
-    if (env != killer)
-        items += ({env});
-    if (gi != killer && gi != env)
+    if (environment() != killer)
+        items += ({environment()});
+    if (gi != killer && gi != environment())
         items += ({gi});
     foreach(object item: items) {
         if (get_eval_cost() < limits[LIMIT_EVAL] + 20000)
@@ -411,7 +418,7 @@ varargs protected int second_life( object corpse )
     }
     // jetzt den Rest.
     limits[LIMIT_EVAL] = 80000;
-    foreach(object item: (env ? all_inventory(env) : ({}))
+    foreach(object item: (environment() ? all_inventory(environment()) : ({}))
                         + deep_inventory(ME)
                         + (objectp(corpse) ? deep_inventory(corpse) : ({}))
                         - items ) {
@@ -425,9 +432,17 @@ varargs protected int second_life( object corpse )
         }
     }
 
-    // Properties zuruecksetzen
+    // Properties zuruecksetzen, sollte nach dem NotifyPlayerDeath()
+    // passieren, weil Objekte sich darin evtl. erstmal noch aufraeumen und
+    // props manipulieren.
     reset_my_properties();
     UpdateAttributes(); // Beim Tod werden Dinge entfernt, Attribute pruefen
+    
+    // Auch Bewegung erst nach den NPD(), da diese den Spieler bewegen
+    // koennten, was eine Bewegung aus dem Todesraum waere, wenn die Bewegung
+    // vor dem NPD() stattfaende.
+    SetProp( P_GHOST, 1 ); // nach reset_my_properties() !
+    clone_object( "room/death/death_mark" )->move( ME, M_NOCHECK ); 
 
     return 1;
 }
@@ -465,24 +480,32 @@ public int RemoveHpHook( object ob )
 }
 
 
+static int _query_age() {
+    return Set(P_AGE, age, F_VALUE);
+}
+
 static int _set_hp( int hp )
 {
     object *hooks;
     int ret, i, old;
 
-    if ( (old = Query(P_HP)) == hp )
+    if ( (old = Query(P_HP, F_VALUE)) == hp )
         return old;
 
     ret = life::_set_hp(hp);
 
-    if ( ret == old || !pointerp(hooks = Query(P_HP_HOOKS)) )
-        return hp;
+    if ( ret == old )
+        return ret;
 
     // Call old hooks in all objects... destructed objects will be ignored.
-    call_other(hooks, "NotifyHpChange");
+    if (pointerp(hooks = Query(P_HP_HOOKS)))
+      call_other(hooks, "NotifyHpChange");
 
     // Call new hooks.
     HookFlow(H_HOOK_HP,ret);
+
+    // Report-ausgabe
+    status_report(DO_REPORT_HP, ret);
 
     return ret;
 }
@@ -493,21 +516,78 @@ static int _set_sp( int sp )
     object *hooks;
     int ret, i, old;
 
-    if ( (old = Query(P_SP)) == sp )
+    if ( (old = Query(P_SP,F_VALUE)) == sp )
         return old;
 
     ret = life::_set_sp(sp);
 
-    if ( ret == old || !pointerp(hooks = Query(P_HP_HOOKS)) )
-        return sp;
+    if ( ret == old )
+        return ret;
 
     // Call old hooks in all objects... destructed objects will be ignored.
-    call_other(hooks, "NotifyHpChange");
+    if (pointerp(hooks = Query(P_HP_HOOKS)))
+      call_other(hooks, "NotifyHpChange");
 
     // Call new hooks.
-   HookFlow(H_HOOK_KP,ret);
+    HookFlow(H_HOOK_SP,ret);
+
+    // Report-ausgabe
+    status_report(DO_REPORT_SP, ret);
 
     return ret;
+}
+
+static int _set_poison(int n)
+{
+  int old = Query(P_POISON, F_VALUE);
+  if (old == n )
+      return old;
+  n = life::_set_poison(n);
+  if ( n == old )
+      return n;
+  // ggf. Statusreport ausgeben
+  if (interactive(ME))
+    status_report(DO_REPORT_POISON, n);
+  return n;
+}
+
+static int _set_max_poison(int n)
+{
+  if (n >= 0)
+  {
+    Set(P_MAX_POISON, n, F_VALUE);
+    int maxp=QueryProp(P_MAX_POISON); // koennte ne Querymethode drauf sein...
+    if (QueryProp(P_POISON) > maxp)
+      SetProp(P_POISON, maxp);
+  }
+  GMCP_Char( ([P_MAX_POISON: n]) );
+  return n;
+}
+
+static int _set_max_hp( int hp )
+{
+  if (hp >= 0)
+  {
+    Set(P_MAX_HP, hp, F_VALUE);
+    int maxhp=QueryProp(P_MAX_HP); // koennte ne Querymethode drauf sein...
+    if (QueryProp(P_HP) > maxhp)
+      SetProp(P_HP, maxhp);
+  }
+  GMCP_Char( ([P_MAX_HP: hp]) );
+  return hp;
+}
+
+static int _set_max_sp( int sp )
+{
+  if (sp >= 0)
+  {
+    Set(P_MAX_SP, sp, F_VALUE);
+    int maxsp=QueryProp(P_MAX_SP); // koennte ne Querymethode drauf sein...
+    if (QueryProp(P_SP) > maxsp)
+      SetProp(P_SP, maxsp);
+  }
+  GMCP_Char( ([P_MAX_SP: sp]) );
+  return sp;
 }
 
 static int _set_ghost( int g ) {
@@ -526,6 +606,7 @@ static int _set_ghost( int g ) {
 
     return g;
 }
+
 
 public int undie()
 {
@@ -561,9 +642,9 @@ public int undie()
 
     if ( mappingp(di = QueryProp(P_DEATH_INFO)) ){
         // Beim naechsten heart_beat checken
-	// Zesstra: Wieso eigentlich? Die Modifier werden doch direkt hier
-	// geloescht. So expired man auch einen Teil von nicht-undie-ten Toden
-	// vorzeitig...? Mal auskommentiert. 29.10.2007
+        // Zesstra: Wieso eigentlich? Die Modifier werden doch direkt hier
+        // geloescht. So expired man auch einen Teil von nicht-undie-ten Toden
+        // vorzeitig...? Mal auskommentiert. 29.10.2007
         //di[A_STR] = 1;
         //di[A_DEX] = 1;
         //di[A_INT] = 1;
@@ -578,20 +659,20 @@ public int undie()
     mods[A_CON] = ((4 * (attr[A_CON] + mods[A_CON])) / 3) - attr[A_CON];
 
     if ( mods[A_STR] >= 0 ) {
-        efun::m_delete( mods, A_STR );
-	efun::m_delete( di, A_STR);
+        m_delete( mods, A_STR );
+        m_delete( di, A_STR);
     }
     if ( mods[A_DEX] >= 0 ) {
-        efun::m_delete( mods, A_DEX );
-	efun::m_delete( di, A_DEX);
+        m_delete( mods, A_DEX );
+        m_delete( di, A_DEX);
     }
     if ( mods[A_INT] >= 0 ) {
-        efun::m_delete( mods, A_INT );
-	efun::m_delete( di, A_INT);
+        m_delete( mods, A_INT );
+        m_delete( di, A_INT);
     }
     if ( mods[A_CON] >= 0 ) {
-        efun::m_delete( mods, A_CON );
-	efun::m_delete( di, A_CON);
+        m_delete( mods, A_CON );
+        m_delete( di, A_CON);
     }
 
     SetProp( P_ATTRIBUTES_MODIFIER, ({ "#death", mods }) );
@@ -615,28 +696,22 @@ varargs public void die( int poisondeath, int extern)
     // laeuft schon ein die()? Fehler ausloesen, Ursache rekursiver die() soll
     // gefunden werden. DINFO_EVAL_NUMBER wird in jedem Top-Level Call im
     // driver erhoeht, d.h. gleiche Zahl signalisiert ein rekursives die().
-#ifdef DINFO_EVAL_NUMBER
+
     if (die_in_progress == debug_info(DINFO_EVAL_NUMBER))
-#else
-    if (die_in_progress == time()) {
-#endif
+    {
       // TODO: ist das die_in_progress aus dem letzten Backend-Cycle?
       raise_error(sprintf(
             "die() in %O gerufen, aber die() laeuft bereits!\n",
             this_object()));
     }
-#ifdef DINFO_EVAL_NUMBER
     die_in_progress = debug_info(DINFO_EVAL_NUMBER);
-#else
-    die_in_progress = time();
-#endif
-
+    
     // Fuer HC-Player ists jetzt gelaufen...
     if(query_hc_play()==1)
     {
       set_hc_play(capitalize(geteuid(ME)),time());
       SetDefaultHome("/room/nirvana");
-      SetPrayRoom("/room/nirvana");
+      SetDefaultPrayRoom("/room/nirvana");
       SetProp(P_START_HOME,"/room/nirvana");
       log_file("HCDEAD",dtime(time())+" "+capitalize(geteuid(ME))
           +" geht in das Nirvana ein!\n");
@@ -699,11 +774,11 @@ int defuel_food()
     
     if(ret<=0)
     {
-    	call_other(FUELSTAT,"addDefuelStatEntry",prev,this_object(),0,1,0,1);
+            call_other(FUELSTAT,"addDefuelStatEntry",prev,this_object(),0,1,0,1);
     }
     else
     {
-    	call_other(FUELSTAT,"addDefuelStatEntry",prev,this_object(),0,0,ret,1);
+            call_other(FUELSTAT,"addDefuelStatEntry",prev,this_object(),0,0,ret,1);
     }
     return ret;
 }
@@ -722,13 +797,35 @@ int defuel_drink()
     
     if(ret<=0)
     {
-    	call_other(FUELSTAT,"addDefuelStatEntry",prev,this_object(),0,1,0,0);
+            call_other(FUELSTAT,"addDefuelStatEntry",prev,this_object(),0,1,0,0);
     }
     else
     {
-    	call_other(FUELSTAT,"addDefuelStatEntry",prev,this_object(),0,0,ret,0);
+            call_other(FUELSTAT,"addDefuelStatEntry",prev,this_object(),0,0,ret,0);
     }
     return ret;
 }
 
+public void show_age()
+{ int i,j;
+
+    write("Alter:\t");
+    i = QueryProp(P_AGE);
+    if ((j=i/43200))
+    {
+      write(j + " Tag"+(j==1?" ":"e "));
+      i %= 43200;
+    }
+    if ((j=i/1800))
+    {
+      write(j + " Stunde"+(j==1?" ":"n "));
+      i %= 1800;
+    }
+    if ((j=i/30))
+    {
+      write(j + " Minute"+(j==1?" ":"n "));
+      i %= 30;
+    }
+    write(i*2 + " Sekunden.\n");
+}
 

@@ -32,7 +32,6 @@
 
 int string_compare(string a, string b);
 string cap_string(string str);  
-mixed *remove_alist(mixed key, mixed *alist);
 string short_path(string file);
 string long_path(string file);
 //string *old_explode(string str, string del);

@@ -2,7 +2,7 @@
 //
 // living/life.c -- life variables
 //
-// $Id: life.c 7498 2010-03-09 22:05:19Z Zesstra $
+// $Id: life.c 9107 2015-01-21 21:40:35Z Zesstra $
 
 // living object life variables
 //
@@ -13,13 +13,11 @@
 //  P_ALCOHOL       -- value of intoxication
 //  P_DRINK         -- value of soakness
 //  P_FOOD          -- value of stuffness
-//  P_AGE           -- Age
 //  P_XP            -- experience
 //  P_POISON        -- level of poison
 //  P_CORPSE        -- corpse-object
 //  P_DEAF          -- if living is deaf
-#pragma strong_types
-#pragma save_types
+#pragma strong_types,save_types,rtt_checks
 #pragma range_check
 #pragma no_clone
 #pragma pedantic
@@ -28,33 +26,31 @@
 #include <hook.h>
 #include <living/skills.h>
 #include <thing/properties.h>
-#include <thing.h>
-#include <properties.h>
-#include <config.h>
+#include <living/life.h>
+#include <living/moving.h>
+#include <living/combat.h>
+#include <living/attributes.h>
+#include <thing/description.h>
+#include <thing/language.h>
+#undef NEED_PROTOTYPES
 #include <health.h>
-#include <wizlevels.h>
-#include <language.h>
-#include <moving.h>
 #include <defines.h>
-#include <combat.h>
 #include <new_skills.h>
-#include <living.h>
 #include <scoremaster.h>
 #include <defuel.h>
+#include <properties.h>
+#include <events.h>
+#include <wizlevels.h>
 
 #define ALCOHOL_VALUE(n) n
 
 #include <debug_info.h> //voruebergehend
 
-#undef NEED_PROTOTYPES
-#include <events.h>
 
 // 'private'-Prototypen
 private void DistributeExp(object enemy, int exp_to_give);
 
 // Variablen
-int age;                  /* Number of heart beats of this character. */
-
 nosave int delay_alcohol; /* time until next alcohol effect */
 nosave int delay_drink;   /* time until next drink effect */
 nosave int delay_food;    /* time until next food effect */
@@ -93,9 +89,8 @@ protected void create()
   SetProp(P_HP_DELAY,HEAL_DELAY);
   SetProp(P_SP_DELAY,HEAL_DELAY);
   SetProp(P_POISON_DELAY,POISON_DELAY);
-
-  Set(P_AGE, -1, F_SET_METHOD);
-  Set(P_AGE, PROTECTED, F_MODE);
+  // default fuer alle Lebewesen (NPC + Spieler):
+  SetProp(P_MAX_POISON, 10);
   SetProp(P_CORPSE, "/std/corpse");
 
   nextdefueltimefood=time()+QueryProp(P_DEFUEL_TIME_FOOD);
@@ -119,6 +114,14 @@ protected void create()
   offerHook(H_HOOK_ALCOHOL,1);
   offerHook(H_HOOK_POISON,1);
   offerHook(H_HOOK_CONSUME,1);
+}
+
+// Wenn der letzte Kampf lang her ist und das Lebewesen wieder vollgeheilt
+// ist, wird P_ENEMY_DAMAGE zurueckgesetzt.
+protected void ResetEnemyDamage() {
+  if (time() > QueryProp(P_LAST_COMBAT_TIME) + __RESET_TIME__ * 4
+      && QueryProp(P_HP) == QueryProp(P_MAX_HP))
+    enemy_damage=([:2 ]);
 }
 
 private void DistributeExp(object enemy, int exp_to_give) {
@@ -149,7 +152,7 @@ private void DistributeExp(object enemy, int exp_to_give) {
         tmp=endmg[object_name(ob)];
         total_damage+=tmp;
         present_enemies[ob] = tmp/2;
-        efun::m_delete(endmg,object_name(ob)); //s.u.
+        m_delete(endmg,object_name(ob)); //s.u.
       }
     }
     int mitglieder = sizeof(present_enemies);
@@ -172,7 +175,7 @@ private void DistributeExp(object enemy, int exp_to_give) {
     {
       total_damage += tmp;
       present_enemies[ob] = tmp;
-      efun::m_delete(endmg,object_name(ob)); // Nur einmal pro Leben Punkte :)
+      m_delete(endmg,object_name(ob)); // Nur einmal pro Leben Punkte :)
     }
   }
   if ( !total_damage )
@@ -206,7 +209,7 @@ private void DistributeExp(object enemy, int exp_to_give) {
  * heart_beat() from another player.
  * Compare this function to reduce_hit_points(dam).
  */
-public int do_damage(int dam, mixed enemy)
+public int do_damage(int dam, object enemy)
 { int hit_point,al,al2;
 
   if ( extern_call()
@@ -255,6 +258,7 @@ public int do_damage(int dam, mixed enemy)
 
   if ( hit_point<0 )
   {
+    //TODO: Warum nicht das ganze Zeug ins die() verlegen?
     if ( enemy )
     {
       enemy->StopHuntFor(ME,1);
@@ -281,7 +285,7 @@ public int do_damage(int dam, mixed enemy)
 }
 
 
-private void _transfer( object *obs, mixed dest, int flag )
+private void _transfer( object *obs, string|object dest, int flag )
 {   int i;
 
     i = sizeof(obs);
@@ -308,7 +312,7 @@ private void _transfer( object *obs, mixed dest, int flag )
 }
 
 
-public varargs void transfer_all_to( mixed dest, int isnpc ) {
+public varargs void transfer_all_to( string|object dest, int isnpc ) {
     int flags;
     object *obs;
 
@@ -341,10 +345,24 @@ protected varargs void create_kill_log_entry(string killer, object enemy) {
     lost_exp = QueryProp(P_XP)/(level-17);
   
   log_file("KILLS",sprintf("%s %s (%d,%d) %s\n", strftime("%e %b %H:%M"),
-               capitalize(REAL_UID(ME)), level, lost_exp/1000, killer));
+               capitalize(REAL_UID(ME)), level, lost_exp/1000, killer)); 
+}
 
-  catch(call_other("/p/service/rochus/killstat/killmaster","AddKill",enemy);
-      publish);
+// Liefert im Tod (nach dem toetenden do_damage()) das Spielerobjekt, was den
+// Tod wohl zu verantworten hat, falls es ermittelt werden kann. Es werden vor
+// allem registrierte Helfer-NPC und einige Sonderobjekte beruecksichtigt.
+protected object get_killing_player()
+{
+  object killer=QueryProp(P_KILLER);
+  // koennte sein, wenn ausserhalb des Todes gerufen oder eine Vergiftung uns
+  // umgebracht hat.
+  if (!objectp(killer))
+    return 0;
+
+  while (killer && !query_once_interactive(killer))
+    killer = killer->QueryUser();
+
+  return killer;
 }
 
 protected object GiveKillScore(object pl, int npcnum)
@@ -423,13 +441,22 @@ public varargs void die( int poisondeath, int extern )
     if ( !objectp(this_object()) || QueryProp(P_GHOST) )
         return; // Ghosts dont die ...
 
+    // direkt von extern aufgerufen und nicht ueber heart_beat() oder
+    // do_damage() hierher gelangt?
+    if (extern_call() && previous_object() != this_object()) {
+      extern=1;
+      SetProp(P_KILLER, previous_object());
+    }
+
     if ( res = QueryProp(P_TMP_DIE_HOOK) ){
         if ( pointerp(res) && sizeof(res)>=3
             && intp(res[0]) && time()<res[0]
             && objectp(res[1]) && stringp(res[2]) )
         {
-            if ( res = call_other( res[1], res[2], poisondeath ) )
+            if ( res = call_other( res[1], res[2], poisondeath ) ) {
+              SetProp(P_KILLER,0);
               return;
+            }
         }
         else
             SetProp(P_TMP_DIE_HOOK,0);
@@ -439,7 +466,8 @@ public varargs void die( int poisondeath, int extern )
     hookData=poisondeath;
     hookRes=HookFlow(H_HOOK_DIE,hookData);
     if (pointerp(hookRes) && sizeof(hookRes)>H_RETDATA){
-      if(hookRes[H_RETCODE]==H_CANCELLED){
+      if(hookRes[H_RETCODE]==H_CANCELLED) {
+        SetProp(P_KILLER,0);
         return;
       }
       else if (hookRes[H_RETCODE]==H_ALTERED)
@@ -449,14 +477,8 @@ public varargs void die( int poisondeath, int extern )
     if ( IS_LEARNING(ME) && query_once_interactive(ME) ){
        tell_object( ME, "Sei froh dass Du unsterblich bist, sonst waere es "
                         "eben Dein Ende gewesen.\n");
+       SetProp(P_KILLER,0);
        return;
-    }
-
-    // direkt von extern aufgerufen und nicht ueber heart_beat() oder
-    // do_damage() hierher gelangt?
-    if (extern_call() && previous_object() != this_object()) {
-      extern=1;
-      SetProp(P_KILLER, previous_object());
     }
 
     // Gegner befrieden.
@@ -544,7 +566,7 @@ public varargs void die( int poisondeath, int extern )
           transfer_all_to( environment(), 0 );
       else
           // Aber sie ziehen sich aus.
-          filter_objects(QueryProp(P_ARMOURS),"DoUnwear",1,1);
+          filter_objects(QueryProp(P_ARMOURS),"DoUnwear",M_NOCHECK,0);
   }
   else
   // sonst in die Leiche legen.
@@ -558,7 +580,7 @@ public varargs void die( int poisondeath, int extern )
           transfer_all_to( corpse, !query_once_interactive(ME) );
       else
           // Aber sie ziehen sich aus.
-          filter_objects(QueryProp(P_ARMOURS),"DoUnwear",1,1);
+          filter_objects(QueryProp(P_ARMOURS),"DoUnwear",M_NOCHECK,0);
   }
 
   if ( query_once_interactive(ME) ) {
@@ -872,7 +894,7 @@ protected void update_buffers()
   for(i=1;i<=20;i++){
     if(member(hp_buffer, i+1))
       if(hp_buffer[i+1]<=0)
-        hp_buffer = efun::m_delete(hp_buffer,i+1);
+        hp_buffer = m_delete(hp_buffer,i+1);
       else{
         max+=hp_buffer[i+1];
         rate=i;
@@ -886,7 +908,7 @@ protected void update_buffers()
   for(i=1;i<=20;i++){
     if(member(sp_buffer, i+1))
       if(sp_buffer[i+1]<=0)
-        sp_buffer = efun::m_delete(sp_buffer,i+1);
+        sp_buffer = m_delete(sp_buffer,i+1);
       else{
         max+=sp_buffer[i+1];
         rate=i;
@@ -896,27 +918,43 @@ protected void update_buffers()
   sp_buffer[1]=rate;
 }
 
-public int check_and_update_timed_key(int duration,string key) {
-  mapping tmap;
+public int check_timed_key(string key) {
 
-  if (!intp(duration) || !stringp(key))
+  // keine 0 als key (Typ wird per RTTC geprueft)
+  if (!key)
     return 0;
-  if (!mappingp(tmap=Query(P_TIMING_MAP))) {
+  mapping tmap=Query(P_TIMING_MAP, F_VALUE);
+  if (!mappingp(tmap)) {
     tmap=([]);
-    SetProp(P_TIMING_MAP, tmap);
+    Set(P_TIMING_MAP, tmap, F_VALUE);
   }
-  if (duration < 0)
-    return tmap[key];
-  if (tmap[key] >= time())
-    return tmap[key];
-  
+  // Wenn key noch nicht abgelaufen, Ablaufzeitpunkt zurueckgeben.
+  // Sonst 0 (key frei)
+  return (time() < tmap[key]) && tmap[key];
+}
+
+public int check_and_update_timed_key(int duration,string key) {
+
+  // wenn key noch gesperrt, die zeit der naechsten Verfuegbarkeit
+  // zurueckgeben.
+  int res = check_timed_key(key);
+  if (res) {
+    return res;
+  }
+
+  // duration <= 0 ist unsinnig. Aber key ist nicht mehr gesperrt, d.h. time()
+  // ist ein sinnvoller Rueckgabewert.
+  if (duration <= 0)
+    return time();
+ 
+  mapping tmap = Query(P_TIMING_MAP,F_VALUE);
   tmap[key]=time()+duration;
   
   // speichern per SetProp() unnoetig, da man das Mapping direkt aendert,
   // keine Kopie.
   //SetProp(P_TIMING_MAP, tmap);
   
-  return -1;
+  return -1; // Erfolg.
 }
 
 protected void expire_timing_map() {
@@ -926,7 +964,7 @@ protected void expire_timing_map() {
     return;
   foreach(string key, int endtime: tmap) {
     if (endtime < time())
-      efun::m_delete(tmap, key);
+      m_delete(tmap, key);
   }
   // speichern per SetProp() unnoetig, da man das Mapping direkt aendert,
   // keine Kopie.
@@ -934,30 +972,28 @@ protected void expire_timing_map() {
 
 protected void heart_beat()
 {
-    int hpoison, alc, rate, val, rlock, hp, sp;
-
     if ( !this_object() )
         return;
 
-    age++;
-
     attribute_hb();
-    
+
     // Als Geist leidet man nicht unter so weltlichen Dingen wie
     // Alkohol, Gift&Co ...
     if ( QueryProp(P_GHOST) )
         return;
 
-    hpoison = QueryProp(P_POISON);
-    rlock = QueryProp(P_NO_REGENERATION);
-    hp = QueryProp(P_HP);
-    sp = QueryProp(P_SP);
-    
+    int hpoison = QueryProp(P_POISON);
+    int rlock = QueryProp(P_NO_REGENERATION);
+    int hp = QueryProp(P_HP);
+    int sp = QueryProp(P_SP);
+    int alc;
+
+    // Wenn Alkohol getrunken: Alkoholauswirkungen?
     if ( (alc = QueryProp(P_ALCOHOL)) && !random(40) ){
         int n;
         string gilde;
         object ob;
-        
+
         n = random( 5 * (alc - 1)/QueryProp(P_MAX_ALCOHOL) );
 
         switch (n){
@@ -982,7 +1018,8 @@ protected void heart_beat()
             write( "Du ruelpst.\n" );
             break;
         }
-        
+       
+        // Gilde und Environment informieren ueber Alkoholauswirkung.
         if ( stringp(gilde = QueryProp(P_GUILD))
              && objectp(ob = find_object( "/gilden/" + gilde )) )
             ob->InformAlcoholEffect( ME, n, ALC_EFFECT_AREA_GUILD );
@@ -991,6 +1028,7 @@ protected void heart_beat()
             environment()->InformAlcoholEffect( ME, n, ALC_EFFECT_AREA_ENV );
     }
     
+    // Alkohol abbauen und etwas extra heilen, falls erlaubt.
     if ( alc && (--delay_alcohol < 0)
          && !(rlock & NO_REG_ALCOHOL) ){
 
@@ -1004,40 +1042,51 @@ protected void heart_beat()
         delay_alcohol = QueryProp(P_ALCOHOL_DELAY);
     }
 
+    // P_DRINK reduzieren, falls erlaubt.
     if ( (--delay_drink < 0) && !(rlock & NO_REG_DRINK) ){
         delay_drink = QueryProp(P_DRINK_DELAY);
         SetProp( P_DRINK, QueryProp(P_DRINK) - 1 );
     }
 
+    // P_FOOD reduzieren, falls erlaubt.
     if ( (--delay_food < 0) && !(rlock & NO_REG_FOOD) ){
         delay_food = QueryProp(P_FOOD_DELAY);
         SetProp( P_FOOD, QueryProp(P_FOOD) - 1 );
     }
 
-    /* normal regeneration */
-    if ( hp_buffer[0] && !(rlock & NO_REG_BUFFER_HP) ){
-        rate = hp_buffer[1];
+    // Regeneration aus dem HP-Puffer
+    // Hierbei wird zwar nur geheilt, wenn das erlaubt ist, aber der Puffer
+    // muss trotzdem abgearbeitet/reduziert werden, da Delfen sonst eine
+    // mobile Tanke kriegen. (Keine Heilung im Hellen, Puffer bleibt sonst
+    // konstant und kann bei Bedarf ueber dunkelmachende Items abgerufen
+    // werden.)
+    int val;
+    if (hp_buffer[0]) {
+        int rate = hp_buffer[1];
         val = hp_buffer[rate + 1];
-        
+    
         if ( val > rate )
             val = rate;
-        
         hp_buffer[0] -= val;
         hp_buffer[rate + 1] -= val;
-        hp += val;
-        
         if ( hp_buffer[rate + 1] <= 0 )
             update_buffers();
     }
+    // Jetzt Regeneration aus dem Puffer durchfuehren, aber nur wenn erlaubt.
+    if ( val && !(rlock & NO_REG_BUFFER_HP) )
+        hp += val; 
+    // normales Heilen, falls keine Regeneration aus dem Puffer erfolgte und
+    // es erlaubt ist.
     else if ( (--delay_heal < 0) && !(rlock & NO_REG_HP) ){
         delay_heal = QueryProp(P_HP_DELAY);
-        
         if ( !hpoison )
             hp++;
     }
 
-    if ( sp_buffer[0] && !(rlock & NO_REG_BUFFER_SP) ){
-        rate = sp_buffer[1];
+    // Gleiches Spiel jetzt fuer den SP-Puffer (s.o.)
+    val=0;
+    if ( sp_buffer[0] ) {
+        int rate = sp_buffer[1];
         val = sp_buffer[rate + 1];
         
         if ( val > rate )
@@ -1045,24 +1094,27 @@ protected void heart_beat()
         
         sp_buffer[0] -= val;
         sp_buffer[rate + 1] -= val;
-        sp += val;
-        
+ 
         if ( sp_buffer[rate + 1] <= 0 )
             update_buffers();
     }
+    // Regeneration erlaubt?
+    if ( val && !(rlock & NO_REG_BUFFER_SP) )
+         sp += val;
+    // Wenn nicht, normales Hochideln versuchen.
     else if ( (--delay_sp < 0) && !(rlock & NO_REG_SP) ){
         delay_sp = QueryProp(P_SP_DELAY);
-        
         if ( !hpoison )
             sp++;
     }
 
     if ( hpoison && (interactive(ME) || !query_once_interactive(ME)) ){
-	// Vanion, 26.10.03
-	// Wenn _set_poison() per SET_METHOD ueberschrieben wird, kann
-	// nicht sichergestellt werden, dass poison immer groesser 0 ist
-	// Daher muss hier ein Test rein, so teuer das auch ist :(
-	if (--hpoison < 0) hpoison=0;
+        // Vanion, 26.10.03
+        // Wenn _set_poison() per SET_METHOD ueberschrieben wird, kann
+        // nicht sichergestellt werden, dass poison immer groesser 0 ist
+        // Daher muss hier ein Test rein, so teuer das auch ist :(
+        if (--hpoison < 0)
+          hpoison=0;
         
         if ( --delay_poison < 0 ){
             delay_poison = QueryProp(P_POISON_DELAY)
@@ -1087,25 +1139,15 @@ protected void heart_beat()
             }
             
             if ( (hpoison < 3 || !query_once_interactive(ME) )
-                 && --drop_poison < 0){
-                switch (hpoison) {
-                case 1:
-                    drop_poison += 15 + random(6);  // Das werden etwa 50...
-                    
-                case 2:
-                    drop_poison += 25 + random(10);
-                    
-                case 0:
-                    Set( P_POISON, hpoison );
-                    if ( !hpoison )
-                        tell_object( ME, "Du scheinst die Vergiftung "
-                                     "ueberwunden zu haben.\n" );
-                    break;
-                    
-                default:
-                    drop_poison += (20 - 2*hpoison + random(40 - 3*hpoison));
-                    Set( P_POISON, hpoison );
-                }
+                 && --drop_poison < 0)
+            {
+                // Giftlevel eins reduzieren. hpoison wurde oben schon
+                // reduziert, d.h. einfach hpoison in P_POISON schreiben.
+                // dabei wird dann auch ggf. drop_poison richtig gesetzt.
+                SetProp( P_POISON, hpoison );
+                if ( !hpoison )
+                    tell_object( ME, "Du scheinst die Vergiftung "
+                                     "ueberwunden zu haben.\n" );  
             }
         }
         
@@ -1153,30 +1195,6 @@ protected void heart_beat()
     SetProp( P_SP, sp );
 }
 
-
-public void show_age()
-{ int i,j;
-
-  write("Alter:\t");
-  i = QueryProp(P_AGE);
-  if ((j=i/43200))
-  {
-    write(j + " Tag"+(j==1?" ":"e "));
-    i %= 43200;
-  }
-  if ((j=i/1800))
-  {
-    write(j + " Stunde"+(j==1?" ":"n "));
-    i %= 1800;
-  }
-  if ((j=i/30))
-  {
-    write(j + " Minute"+(j==1?" ":"n "));
-    i %= 30;
-  }
-  write(i*2 + " Sekunden.\n");
-}
-
 public int AddExp( int e )
 {
   int experience;
@@ -1202,7 +1220,7 @@ public int AddExp( int e )
   return SetProp( P_XP, experience );
 }
 
-static mixed *_set_last_xp( mixed last )
+static <string|int>* _set_last_xp( <int|string>* last )
 {
     if ( !pointerp(last) || sizeof(last) != 2 || !stringp(last[0]) ||
          !intp(last[1]) )
@@ -1234,15 +1252,15 @@ static int _set_hp( int hp )
     }
 
     if ( QueryProp(P_GHOST) )
-        return hp;
+        return QueryProp(P_HP);
 
     if ( hp < 0 )
         return Set( P_HP, 0 );
 
     if ( hp > QueryProp(P_MAX_HP) )
-        return Set( P_HP, QueryProp(P_MAX_HP) );
+        return Set( P_HP, QueryProp(P_MAX_HP), F_VALUE );
 
-    return Set( P_HP, hp );
+    return Set( P_HP, hp, F_VALUE );
 }
 
 static int _set_sp( int sp )
@@ -1259,15 +1277,15 @@ static int _set_sp( int sp )
     }
 
     if ( QueryProp(P_GHOST) )
-        return sp;
+        QueryProp(P_SP);
 
     if ( sp < 0 )
         return Set( P_SP, 0 );
 
     if ( sp > QueryProp(P_MAX_SP) )
-        return Set( P_SP, QueryProp(P_MAX_SP) );
+        return Set( P_SP, QueryProp(P_MAX_SP), F_VALUE );
 
-    return Set( P_SP, sp );
+    return Set( P_SP, sp, F_VALUE );
 }
 
 static int _set_alcohol(int n)
@@ -1387,7 +1405,8 @@ static int _set_poison(int n)
   if (QueryProp(P_GHOST))
     return Query(P_POISON, F_VALUE);
 
-  n = (n<0 ? 0 : (n>MAX_POISON ? MAX_POISON : n));
+  int mp = QueryProp(P_MAX_POISON);
+  n = (n<0 ? 0 : (n>mp ? mp : n));
 
   // nur >=0 zulassen.
   n = n < 0 ? 0 : n;
@@ -1425,9 +1444,15 @@ static int _set_poison(int n)
   case 3:
     drop_poison = 18+random(4);
     break;
+  default:
+    // nur relevant fuer NPC, da Spieler bei >3 Gift nicht mehr regegenieren.
+    drop_poison = 22 - 2*n + random(43 - 3*n);
+    break;
   }
 
-  log_file("POISON", sprintf("%s - %s: %d von %O (%s)\n",
+  // fuer Setzen der Prop von aussen ein Log schreiben
+  if (previous_object(1) != ME)
+    log_file("POISON", sprintf("%s - %s: %d von %O (%s)\n",
            dtime(time())[5..],
            (query_once_interactive(this_object()) ?
              capitalize(geteuid(this_object())) :
@@ -1437,10 +1462,7 @@ static int _set_poison(int n)
            (this_player() ? capitalize(geteuid(this_player())) : "???")));
 
   return Set(P_POISON, n, F_VALUE);
-
 }
-
-static int _query_age() { return Set(P_AGE, age, F_VALUE); }
 
 static int _set_xp(int xp) { return Set(P_XP, xp < 0 ? 0 : xp, F_VALUE); }
 

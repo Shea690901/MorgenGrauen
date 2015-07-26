@@ -2,7 +2,7 @@
 //
 // room/restrictions.c -- weight property handling for rooms
 //
-// $Id: restrictions.c 6493 2007-09-23 21:47:40Z Zesstra $
+// $Id: restrictions.c 9020 2015-01-10 21:49:41Z Zesstra $
 
 inherit "std/container/restrictions";
 #pragma strong_types
@@ -35,7 +35,7 @@ int MayAddWeight(int w)
 int MayAddObject(object ob)
 {  return 1;  }
 
-varargs int PreventInsert(object ob)
+int PreventInsert(object ob)
 {
   return 0;
 }

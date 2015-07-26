@@ -58,14 +58,13 @@ alias
     Erst mal ein paar (mehr oder weniger nuetzliche) Aliase anlegen:
 
     > alias ul untersuche leiche
-    > alias tm teile $1 mit $2*
     > alias tmh teile highlander mit $*
+    > alias tmz teile zook mit $*
     > alias weg teile $1 mit Ich bin jetzt weg, \$ verdienen!
 
     Wenn man sich die Aliase ansehen will:
 
     > alias
-     tm     = teile $1 mit $2*
      tmh    = teile highlander mit $*
      ul     = untersuche leiche
      weg    = teile $1 mit Ich bin jetzt weg, \$ verdienen!
@@ -74,16 +73,16 @@ alias
      weg    = teile $1 mit Ich bin jetzt weg, \$ verdienen!
 
     > alias tm*
-     tm     = teile $1 mit $2*
      tmh    = teile highlander mit $*
+     tmz    = teile zook mit $*
 
     Und folgendermassen lassen sich die Aliase benutzen:
 
     > tmh Hi Sheriff!
     Du teilst Highlander mit: Hi Sheriff!
 
-    > tm jof Na, wieder idle?
-    Du teilst Jof mit: Na, wieder idle?
+    > tmz Oh mein Gott! :-)
+    Du teilst Zook mit: Oh mein Gott!
 
     > weg boing
     Du teilst Boing mit: Ich bin jetzt weg, $ verdienen!

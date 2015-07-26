@@ -326,7 +326,7 @@ int CloneStamp(string m)
  
       if (!stamps[m])
 	{
-	  stamps = efun::m_delete(stamps,m);
+	  stamps = m_delete(stamps,m);
 	}
  
       ob = clone_object(STAMP);

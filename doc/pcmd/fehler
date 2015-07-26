@@ -1,58 +1,30 @@
-
 fehler
 ------
 
 KOMMANDO:
-    fehler <text>
-    fehler <objekt>:<text>
-   
-ARGUMENTE:
-
-     <text>
-        Eine Mitteilung
-     <objekt>
-        Ein Objekt, das neben Dir liegt oder in Deinem Inventar ist
+    fehler
 
 BESCHREIBUNG:
-    Nobody's perfect. Dies gilt besonders fuer unsere Magier :)
+    Wer viel programmiert, kann auch viele Fehler machen. Die meisten
+    Probleme werden zwar schon vor dem Anschluss des neuen Gebietes oder
+    Objektes entdeckt, aber einiges bleibt bis zum Anschluss unentdeckt.
+    Manche Idee ist dem Magier auch nicht so klar, wie dem Spieler, der
+    spaeter einmal durchlaeuft.
 
-    Wer viel programmiert, kann auch viele Fehler machen. Die meisten Fehler
-    werden zwar schon in der Testphase gefunden und ausgemerzt, aber einige
-    Fehler bleiben bis zum Anschluss eines neuen Gebietes oder Objekts
-    unentdeckt.
-
-    Wenn Du einen solchen Fehler gefunden hast, sei es, weil ein `Fehler im
-    Raum-Zeit-Gefuege' aufgetreten ist, sei es, weil irgendwelche seltsamen
-    Zeichen in der Beschreibung eines Objektes auftauchen, so kannst Du den
-    Verantwortlichen mit diesem Befehl davon unterrichten.
-
-    Wenn Du weisst, dass der Fehler von einem Objekt verursacht wird, kannst
-    Du dieses angeben, damit der fuer das Objekt verantwortliche Magier die
-    Meldung bekommt.
-
-    Wenn kein solches Objekt zu finden ist, wird die ganze Eingabe als Meldung
-    aufgefasst und dem Magier mitgeteilt, der den Raum programmiert hat, in
-    dem Du gerade stehst.
-
-    Nicht zoegern, wenn Du einen Fehler findest, Fehlermitteilungen sind
-    *sehr* willkommen!
-    Solltest Du Dir einmal nicht sicher sein, ob es sich bei einem bestimmten
-    Verhalten um einen Fehler handelt oder nicht, zoegere nicht, bei dem
-    zustaedigen Magier oder auch bei Spielern und anderen eingeloggten Magiern
-    zu fragen.
-
-    Ein Hinweis auf die Regeln hier noch: Das Verschweigen und Ausnutzen von
-    Fehlern ist anderen Spielern gegenueber unfair. Bitte unterlasst das,
-    sondern berichtet die Fehler. Bugausnutzung zu eigenem Vorteil oder
-    anderer Nachteil ist ansonsten durchaus ein Fall fuer Sheriff. ;-)
+    Zum Melden dieser Fehler gibt es vier Kommandos, die durch das Kommando
+    'fehler' gelistet werden:
+    * 'bug'    - Meldung eines Fehlers / einer Fehlfunktion
+    * 'typo'   - Meldung eines Tippfehler
+    * 'detail' - Vorschlaege, ein fehlendes Detail zu ergaenzen
+    * 'idee'   - Vorschlaege mit Ideen zur Erweiterung
 
 BEMERKUNG:
-    Statt 'fehler' kann auch das kuerzere, englische Wort, 'bug' verwendet
-    werden.
+    Frueher hatte dieses Kommando die gleiche Funktionalitaet wie 'bug',
+    zu viele Spieler haben aber all die verschiedenen Fehlerarten nur als
+    'fehler' abgesetzt, daher wurde das geaendert.
 
 SIEHE AUCH:
-    typo, idee, detail
+    bug, typo, idee, detail
 
 LETZTE AeNDERUNG:
-    15.04.2007 von Zesstra
-
+    12. Okt 2011 Gloinson

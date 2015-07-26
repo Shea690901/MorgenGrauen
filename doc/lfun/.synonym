@@ -9,3 +9,5 @@ A_DEX QueryAttribute
 A_STR QueryAttribute
 A_CON QueryAttribute
 A_INT QueryAttribute
+TestIgnoreExt TestIgnore
+qpp QueryPossPronoun

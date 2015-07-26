@@ -23,7 +23,7 @@ protected void check_for_environment(string cloner)
     // werden, aber zumindest hinterher noch einfach auffindbar sind. (Und
     // entweder per hand oder automatisch aufgeraeumt werden koennen.)
     move("/room/muellraum",M_NOCHECK|M_SILENT);
-    if ( !stringp(cloner) || !strlen(cloner) )
+    if ( !stringp(cloner) || !sizeof(cloner) )
       cloner = "<Unbekannt>";
     raise_error("Objekt hat kein Environment. Cloner: ["+cloner+"] ");
   }

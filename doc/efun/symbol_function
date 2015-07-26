@@ -19,8 +19,12 @@ BESCHREIBUNG
         get_type_info() gefunden werden kann).
 
         Als "private" deklarierte Funktionen koennen auf diese Weise nie
-        aufgerufen werden, "static" und "protected" deklarierte Lfuns nur
-        dann, wenn <obj> das gueltige Objekt ist.
+        zu einer Closure gewandelt werden, "static" und "protected"
+        deklarierte Lfuns nur dann, wenn <obj> das gueltige Objekt
+        (d.h. this_object()) ist.
+        Expord.h. tiert man die Closures, koennen sie unabhaengig vom Modifier der
+        Ursprungsfunktionen von jedem gerufen werden.
+        umgehen).
 
 BEISPIELE
         symbol_function("efun::users");

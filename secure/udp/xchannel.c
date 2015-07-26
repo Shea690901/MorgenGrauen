@@ -12,7 +12,7 @@ int udp_channel(mapping data) {
 	    /* A channel emote. */
 			prefix = "["+capitalize(data["CHANNEL"]+"]:";
 			message=old_explode(break_string(capitalize(data[SENDER]+"@"+
-			                capitalize(data[NAME])+" "+data[data],79-strlen(prefix)),
+			                capitalize(data[NAME])+" "+data[data],79-sizeof(prefix)),
 			                "\n");
 			msg="\n";
 			for (i=0;i<sizeof(message);i++)

@@ -2,7 +2,7 @@
 //
 // living/moving.h -- Props/Prototypen fuer living/moving.c
 //
-// $Id: moving.h 7280 2009-09-01 19:40:05Z Zesstra $
+// $Id: moving.h 8892 2014-08-04 19:48:28Z Zesstra $
 
 #ifndef __LIVING_MOVING_H__
 #define __LIVING_MOVING_H__
@@ -21,16 +21,17 @@ public void RemovePursuer(object ob);
 
 public void TakeFollowers();
 
-public varargs int move( mixed dest, int methods, string direction,
+#ifdef __THING_MOVING_H_PROTO__
+// das darf nicht passieren, weil move in thing anders ist als hier. *seufz*
+inconsistent_move_protoyp_error
+#endif
+public varargs int move( object|string dest, int methods, string direction,
                          string textout, string textin );
-public varargs int remove();
+public varargs int remove(int silent);
 
 // internal
 public void _SetPursued(object ob);
 public void _RemovePursued(object ob);
-
-private void kampfende( object en );
-private int _is_learner(object pl);
 
 
 #endif // __LIVING_MOVING_H_PROTO__

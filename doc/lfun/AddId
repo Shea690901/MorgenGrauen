@@ -1,7 +1,7 @@
 AddId()
 
 FUNKTION:
-     void AddId(mixed ids);
+     void AddId(string|string* ids);
 
 DEFINIERT IN:
      /std/thing/description.c
@@ -46,4 +46,5 @@ SIEHE AUCH:
      AddAdjective(), RemoveId(), id(), present(), /std/thing/description.c
 
      -----------------------------------------------------------------------
-     Last modified: Wed May 8 10:16:51 1996 by Wargon
+20.01.2015, Zesstra
+

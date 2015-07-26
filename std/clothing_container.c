@@ -14,6 +14,7 @@ inherit "/std/thing/properties";
 inherit "/std/thing/commands";
 inherit "/std/thing/language";
 inherit "/std/thing/envchk";
+inherit "/std/container/light";
 inherit "/std/container/restrictions";
 inherit "/std/container/inventory";
 inherit "/std/container/items";
@@ -28,12 +29,16 @@ inherit "/std/clothing/container_description";
 protected void create() {
   properties::create();
   commands::create();
+  light::create();
   container_description::create();
   restrictions::create();
   items::create();
   wear::create();
   envchk::create();
   SetProp(P_CONTAINER,1);
+  SetProp(P_PREPOSITION, "in");
+  SetProp(P_SOURCE_PREPOSITION, "aus");
+  SetProp(P_DEST_PREPOSITION, "in");
   AddId("Ding");
 }
 

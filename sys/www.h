@@ -2,7 +2,7 @@
 //
 // www.h -- World Wide Web Services
 //
-// $Id: www.h 5748 2006-09-23 10:37:52Z root $
+// $Id: www.h 7724 2011-01-05 22:32:26Z Zesstra $
 
 // how do you spell your mud name
 #ifndef MUDNAME
@@ -78,9 +78,7 @@
 #endif /* MUDNAME */
 
 // Property specific defines
-#if MUDNAME == "MorgenGrauen"
-# define P_WWWINFO      "wwwinfo"
-#endif
+#define P_WWWINFO      "wwwinfo"
 
 // The error message to view in any case
 #define ERROR(str)      "<H1>Ein Fehler ist aufgetreten!</H1><HR>"+str

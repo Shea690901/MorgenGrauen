@@ -2,7 +2,7 @@
 //
 // questmaster.h -- header file for questmaster object
 //
-// $Id: questmaster.h 6067 2006-09-30 18:06:38Z Zook $
+// $Id: questmaster.h 8261 2012-12-04 22:56:29Z Zesstra $
 
 #ifndef __QUESTMASTER_H__
 #define __QUESTMASTER_H__
@@ -42,9 +42,9 @@
 
 // quest groups
 
-#define QGROUP_1 5
-#define QGROUP_2 15
-#define QGROUP_3 25
+#define QGROUP_1 8
+#define QGROUP_2 18
+#define QGROUP_3 29
 #define QGROUP_S -1
 
 #define QGROUPS ({0,QGROUP_1,QGROUP_2, QGROUP_3})
@@ -61,6 +61,7 @@
 #define Q_WIZ     7
 #define Q_SCNDWIZ 8
 #define Q_ATTR    9
+#define Q_AVERAGE 10
 
 // Sternchen fuer die Klasse
 
@@ -78,8 +79,8 @@
 #define QATTR_LEGENDAER 4
 
 #define QATTR_STRINGS ([0: "", \
-			QATTR_FLEISSIG: "fleissig", \
-		        QATTR_HEROISCH:  "heroisch", \
+                        QATTR_FLEISSIG: "fleissig", \
+                        QATTR_HEROISCH:  "heroisch", \
                         QATTR_EPISCH: "episch", \
                         QATTR_LEGENDAER: "legendaer"])
 

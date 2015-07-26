@@ -3,7 +3,7 @@
 // npcmaster.c - Verwaltung der eindeutigen Nummernvergabe fuer NPCs und
 //               der Stufenpunkte, die sie geben
 //
-// $Id: npcmaster.c 6189 2007-02-07 18:59:19Z Zesstra $
+// $Id: npcmaster.c 9142 2015-02-04 22:17:29Z Zesstra $
 //
 /*
  * $Log: npcmaster.c,v $
@@ -33,7 +33,7 @@
 
 private int lastNum;
 private mapping npcs;
-private static mapping by_num;
+private nosave mapping by_num;
 
 void make_num(string key) {
   by_num += ([ npcs[key,NPC_NUMBER] : key; npcs[key,NPC_SCORE] ]);
@@ -113,10 +113,10 @@ int Recalculate(string s)
 {
   int i, j;
 
-  if (!s || !strlen(s))
+  if (!s || !sizeof(s))
     return 0;
 
-  for (j=0, i=6*strlen(s)-1; i>0; i--) {
+  for (j=0, i=6*sizeof(s)-1; i>0; i--) {
     if (test_bit(s,i))
       j+=by_num[i,NPC_SCORE];
   }

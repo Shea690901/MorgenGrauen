@@ -28,6 +28,7 @@
 #include <properties.h>
 #include <wizlevels.h>
 #include <defines.h>
+#include <input_to.h>
 
 #define TP this_player()
 
@@ -42,7 +43,7 @@ static int cur; 	  // Aktuelle Zeile
 static int len; 	  // Laenge des Gesamttextes
 static int flags;	  // Overwritemodus
 
-static string get_edit_line(string str);
+static int get_edit_line(string str);
 static int ShowWritten(int f, int l, int num);
 static string killctrl( string str );
 static int ShowHelp();
@@ -55,10 +56,10 @@ void init_rescue() {
   add_action("RescueText","~r");
 }
 
-private static void nedit_prompt()
+private string nedit_prompt()
 {
   if (sizeof(nedittext) <= MAX_LINES)
-    write("]");
+    return("]");
   else {
     nedittext = nedittext[0..MAX_LINES-1];
     len = MAX_LINES;
@@ -68,7 +69,7 @@ private static void nedit_prompt()
       bstart = MAX_LINES-1;
     if (bend >= MAX_LINES)
       bend = MAX_LINES-1;
-    printf("*** Mehr als %d Zeilen! Text wurde abgeschnitten! ***\n]", MAX_LINES);
+    return sprintf("*** Mehr als %d Zeilen! Text wurde abgeschnitten! ***\n]", MAX_LINES);
   }
 }
 
@@ -88,13 +89,13 @@ static varargs int nedit(string exitfunc,string pretext) {
   if (pretext)
     get_edit_line("~z");
   else {
-    nedit_prompt();
-    input_to("get_edit_line");
+    //nedit_prompt();
+    input_to("get_edit_line", INPUT_PROMPT, nedit_prompt());
   }
   return 1;
 }
 
-static mixed get_edit_line(string str) {
+static int get_edit_line(string str) {
   int err;
   int spaces;
   int fflag;
@@ -104,7 +105,7 @@ static mixed get_edit_line(string str) {
   str=killctrl(str); /* kleiner hack wegen CTRL-chars. */
   fflag = 0;
 
-  sl = strlen(str);
+  sl = sizeof(str);
 
   if (str=="**" || str=="~." || str==".") {
     editor_used=0;
@@ -264,7 +265,7 @@ static mixed get_edit_line(string str) {
       }
 
     // Ersetzen:
-      if ((strlen(str) >= 8) && str[0..1] == "~s") {
+      if ((sizeof(str) >= 8) && str[0..1] == "~s") {
 	string *s1, *s2;
 	int m;
 
@@ -279,38 +280,38 @@ static mixed get_edit_line(string str) {
 	      printf("%s\n", nedittext[cur]);
 	    else
 	      write("OK.\n");
-	    nedit_prompt();
+	    //nedit_prompt();
 	  }
 	  else {
 	    printf("\"%s\" nicht gefunden!\n", s1[1]);
-	    nedit_prompt();
+	    //nedit_prompt();
 	  }
 
-	  input_to("get_edit_line");
+	  input_to("get_edit_line", INPUT_PROMPT, nedit_prompt());
 	  return 1;
 	}
       }
     } // if (sl > 2)
   } // if (str[0..0] == "~")
 
-  spaces=(strlen(str) && (str[0]==' ' || str[0]=='\t'));
+  spaces=(sizeof(str) && (str[0]==' ' || str[0]=='\t'));
   if (spaces) str="$"+str;  /* Kleiner hack wegen fuehrenden Leerzeichen */
   str=break_string(str,78,0,(flags&F_BLK) ? BS_BLOCK|BS_NO_PARINDENT : 0);
   if (spaces) str=str[1..<1];
-  if (((str[0..1]=="~r" && strlen(str)>2) || str[0..1]=="~i") && IS_LEARNER(TP)) {
+  if (((str[0..1]=="~r" && sizeof(str)>2) || str[0..1]=="~i") && IS_LEARNER(TP)) {
     str=str[2..<2];
     if (str[0..0]==" ") str=str[1..<1];
     if (!str || catch(err=file_size(str=(string)"/secure/master"->_get_path(str,getuid(TP)))) || err<0) {
       write("File nicht gefunden.\n");
-      nedit_prompt();
-      input_to("get_edit_line");
+      //nedit_prompt();
+      input_to("get_edit_line", INPUT_PROMPT, nedit_prompt());
       return 1;
     }
     str=read_file(str);
     if (!str){
       write("Zu gross!\n");
-      nedit_prompt();
-      input_to("get_edit_line");
+      //nedit_prompt();
+      input_to("get_edit_line", INPUT_PROMPT, nedit_prompt());
       return 1;
     }
     write("Ok.\n");
@@ -343,15 +344,16 @@ static mixed get_edit_line(string str) {
       len++;
     }
   }
-  nedit_prompt();
-  input_to("get_edit_line");
+  //nedit_prompt();
+  input_to("get_edit_line", INPUT_PROMPT, nedit_prompt());
   return 1;
 }
 
 static int delLine(int l)
 {
+  string pr;
   if (l < 0)
-    write("Da ist nix mehr zum Loeschen!\n]");
+    pr="Da ist nix mehr zum Loeschen!\n]";
   else {
     if (bstart >= l)
       bstart--;
@@ -362,9 +364,9 @@ static int delLine(int l)
     len--;
     nedittext=(nedittext[0..l-1]+nedittext[l+1..]);
     write("Vorherige Zeile geloescht.\n");
-    nedit_prompt();
+    pr=nedit_prompt();
   }
-  input_to("get_edit_line");
+  input_to("get_edit_line", INPUT_PROMPT, pr);
   return 1;
 }
 
@@ -424,7 +426,7 @@ static string killctrl( string str )
 
     tmp = "";
     
-    for ( j = strlen(str), i = 0; i < j; i++ )
+    for ( j = sizeof(str), i = 0; i < j; i++ )
         tmp += (UMLAUT[str[i]] || str[i..i]);
 
     tmp = regreplace( tmp, "[^ -~\t]", "", 1 );
@@ -541,7 +543,7 @@ Nach ~!, oder wenn man waehrend des Schreibens netztot wird, kann man mit\n\
 }
 
 static int input_func() {
-  nedit_prompt();
-  input_to("get_edit_line");
+  //nedit_prompt();
+  input_to("get_edit_line", INPUT_PROMPT, nedit_prompt());
   return 1;
 }

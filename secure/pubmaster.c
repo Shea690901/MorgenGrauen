@@ -2,7 +2,7 @@
 //
 // Pubmaster.c -- Registrating the heal-values of pubs
 //
-// $Id: pubmaster.c 7181 2009-03-10 22:45:45Z Zesstra $
+// $Id: pubmaster.c 9142 2015-02-04 22:17:29Z Zesstra $
 
 #include <pub.h>
 
@@ -152,7 +152,7 @@ int RegisterItem(string item, mapping info)
     return 1;
 }
 
-private static int allowed()
+private int allowed()
 {
   if (previous_object() && geteuid(previous_object())==ROOTID)
     return 1;
@@ -232,11 +232,11 @@ varargs int ClearPub(string pub, string item)
     if (!member(pubs,pub))
         return 0;
     if (!item)
-        efun::m_delete(pubs,pub);
+        m_delete(pubs,pub);
     else if (!member(pubs[pub],item))
         return 0;
     else
-      efun::m_delete(pubs[pub],item);
+      m_delete(pubs[pub],item);
     save_data();
     return 1;
 }
@@ -300,7 +300,7 @@ int DumpPubs()
 public void CleanPublist() {
   foreach(string pub: pubs) {
     if (file_size(pub+".c") <= 0)
-      efun::m_delete(pubs,pub);
+      m_delete(pubs,pub);
   }
   save_data();
 }

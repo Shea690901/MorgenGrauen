@@ -3,26 +3,26 @@
 #include <properties.h> // wieder unsere allgemeinen Propertys
 #include <moving.h>     // einige Defines zum Bewegen von Objekten (s.u.)
 
-inherit "std/thing";
+inherit "/std/thing";
 
-void create()
+protected void create()
 {
   ::create();
    // Objekt ueber seine Properties beschreiben...
    SetProp(P_SHORT, "Ein Rubbellos");
    SetProp(P_LONG,
     "Du kannst dieses Los aufrubbeln um zu sehen, ob Du einen grossen "
-   +"Schatz\ngewonnen hast.\n");
+    "Schatz\ngewonnen hast.\n");
    SetProp(P_NAME, "Rubbellos");
    SetProp(P_ARTICLE, 1); // ist eigentlich bereits Defaultwert
    SetProp(P_GENDER, NEUTER);
    SetProp(P_VALUE, 1000);
    SetProp(P_WEIGHT, 500);
    SetProp(P_INFO, "Deine Gewinnchancen bei diesen Losen sind nicht "
-                  +"sonderlich gut.\n");
+                   "sonderlich gut.\n");
    SetProp(P_MAGIC, 0); // (einfach nur, um mal alle Properties zu benutzen)
    AddId("los"); // noch eine id angeben...
-   
+
    // Mit Hilfe dieser neuen wichtigen Funktion ist es moeglich, Befehle zu
    // definieren, ueber die man irgendetwas ausloesen koennen soll:
    // Und zwar wird sobald ein Spieler den Befehl rubble oder rubbel
@@ -36,9 +36,6 @@ void create()
 // create(), init() und reset(), die bisher benutzt wurden.
 // Das static am Anfang erklaert nur, dass diese Funktion nicht von aussen,
 // sondern nur von innerhalb des Objektes aufgerufen werden kann.
-// Dies spart spaeter einiges an Rechenzeit, so dass man bei jeder Funktion
-// die man schreibt, ruhig einen Moment nachdenken sollte, ob es wirklich
-// noetig ist, dass man diese von aussen aufrufen koennen soll.
 // Das "int" anstelle des "void" bedeutet, dass die Funktionen ein Ergebnis
 // zurueckliefert. Da diese Funktion in Verbindung mit AddCmd() benutzt
 // wird, hat dieser Rueckgabewert auch eine besondere Bedeutung:
@@ -53,7 +50,7 @@ void create()
 // Bsp.:   rubbel los      ->  _rubbeln("los")
 //         rubbel katze    ->  _rubbeln("katze")
 //         rubbel los auf  ->  _rubbeln("los auf")
-static int _rubbeln(string str)
+public int _rubbeln(string str)
 {
    // Die Funktion notify_fail() ist wieder eine Funktion des Gamedrivers:
    // Und zwar ist es moeglich hier eine Meldung anzugeben, die anstelle
@@ -65,7 +62,7 @@ static int _rubbeln(string str)
    // das Objekt nicht angesprochen, kann das Verb also nicht komplett
    // abarbeiten und gibt deshalb eine 0 zurueck.
    if (str!="los auf") return 0;
-   
+
    // Auch die Funktion random() ist wieder eine Funktion des Gamedriver:
    // Und zwar liefert sie eine ganzzahlige Zufallszahl zwischen 0 und n-1
    //  (wobei n die uebergebene Zahl ist). In diesem Fall also zwischen
@@ -84,21 +81,25 @@ static int _rubbeln(string str)
      // Mit clone_object() kann man ein beliebiges Objekt Clonen, indem man
      // einfach den entsprechenden Filenamen als Parameter uebergibt.
      ob=clone_object("/doc/beispiele/Praxis-Kurs/juwelen");
-     
-     // Nun kommen gleich 3 neue Funktionen auf einmal...
-     // Mit der Funktion call_other() wird eine Funktion in einem anderen
-     // Objekt aufgerufen
-     //  (alternativ auch: ob->move(this_player(), M_GET); )
+
+     // Nun kommen gleich 3 neue Dinge auf einmal...
+     // Mit -> wird eine Funktion in einem anderen Objekt aufgerufen
+     //  (alternativ auch: call_other(ob,move,this_player(), M_GET); )
      // Die Funktion, die hierbei aufgerufen werden soll, heisst move().
-     // Diese Funktion ist in allen Objekten definiert, die std/thing erben.
+     // Diese Funktion ist in allen Objekten definiert, die /std/thing erben.
      // Somit koennen wir also fest davon ausgehen, dass sie auch in unseren
      // Juwelen vorhanden ist.
      // this_player() ist eine sehr wichtige Gamedriver-Funktion, da sie
-     // uns den Spieler zurueckliefert, der gerade aktiv durch einen Befehl
+     // uns das Lebewesen zurueckliefert, das gerade aktiv durch einen Befehl
      // den aktuellen Funktionsaufruf gestartet hat.
      // M_GET ist lediglich ein Define, das in moving.h definiert ist.
      // Naeheres hierzu findet man auch in <man move>.
-     call_other(ob, "move", this_player(), M_GET);
+     ob->move(this_player(), M_GET);
+     // ACHTUNG: um dieses Beispiel simpel zu halten, wird hier darauf
+     // verzichtet, zu pruefen, ob diese Bewegung ueberhaupt funktioniert
+     // hat. Normalerweise muss man in diesem Fall (misslungene Bewegung)
+     // eine Fehlerbehandlung durchfuehren (z.B. ob wieder entfernen,
+     // Meldung an den Spieler ausgeben).
    }
 
    // Die Funktion say() gibt an alle Spieler im Raum des aktiven Spielers
@@ -108,11 +109,9 @@ static int _rubbeln(string str)
    // Fall.
    say(this_player()->Name(WER)+" rubbelt ein Los auf.\n");
 
-   // Und nun soll sich das Objekt selbst vernichten. Die Vernichtung
-   // geschieht nicht sofort, sondern erst, wenn die Funktion komplett
-   // bearbeitet wurde.
+   // Und nun soll sich das Objekt selbst entfernen (zerstoeren).
    remove();
-   
+
    // Da der Befehl ja komplett abgearbeitet wurde, geben wir eine 1
    // zurueck.
    return 1;

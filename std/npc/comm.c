@@ -2,16 +2,20 @@
 //
 // npc/comm.c -- Basiskommunikation fuer NPCs
 //
-// $Id: comm.c 6371 2007-07-17 22:46:50Z Zesstra $
+// $Id: comm.c 8788 2014-05-01 11:34:28Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
 #pragma no_clone
 #pragma pedantic
 
+inherit "/std/living/comm";
+
 #include <language.h>
+#include <living/comm.h>
 #define NEED_PROTOTYPES
 #include <thing/description.h>
+
 
 void create() {
   add_action( "sage", "sag", 1 );
@@ -33,3 +37,21 @@ int emote( string str ) {
   say( capitalize(name(WER,2))+" "+str+"\n" );
   return 1;
 }
+
+// zum ueberschreiben - DEPRECATED! USE ReceiveMsg()!
+public void catch_msg(mixed *arr, object obj) {}
+public void catch_tell(string str) {}
+
+// by default, the msg is delivered to catch_tell() for compatibility reasons
+// and otherwise ignored.
+public varargs int ReceiveMsg(string msg, int msg_typ, string msg_action,
+                              string msg_prefix, mixed origin)
+{
+  // compatibility...
+  if (msg_typ & MSG_DONT_WRAP)
+    catch_tell(sprintf("%s%s", msg_prefix||"", msg));
+  else
+    catch_tell(sprintf("%s%s\n", msg_prefix||"", msg));
+  return 1;
+}
+

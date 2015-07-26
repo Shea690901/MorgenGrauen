@@ -28,7 +28,7 @@ int CheckClockMsg(string str)
      enthaltene % folgt kein "d". */
   if ( sizeof(explode(str,"%d")) > 2 ||
        sizeof(explode(str,"%")) > 2 ||
-       (i>-1 && ( i==strlen(str)-1 || str[i+1] != 'd')))
+       (i>-1 && ( i==sizeof(str)-1 || str[i+1] != 'd')))
     return 0;
   else
     return 1;
@@ -36,23 +36,23 @@ int CheckClockMsg(string str)
 
 void QuarterReached() {
   int std, minuten;
-  string ct, str, format;
-  int i;
+  string str, format;
   int off;
 
   int *lt=localtime(time());
   minuten=lt[TM_MIN];
   std=lt[TM_HOUR];
+  mapping edata = mkmapping(
+        ({TM_SEC, TM_MIN, TM_HOUR, TM_MDAY, TM_MON, TM_YEAR, TM_WDAY, TM_YDAY,
+            TM_ISDST}),
+        lt);
 
   // Clock-Event triggern
-  EVENTD->TriggerEvent(EVT_LIB_CLOCK, ([
-	E_HOUR: std, E_MINUTES: minuten ]) );
+  EVENTD->TriggerEvent(EVT_LIB_CLOCK, edata); 
 
   // bei Datumswechsel DATECHANGE-Event ausloesen.
   if (std==0 && minuten < 15) {      
-      EVENTD->TriggerEvent(EVT_LIB_DATECHANGE, ([
-	    E_DAY: lt[TM_MDAY], E_MONTH: lt[TM_MON]+1,
-	    E_YEAR: lt[TM_YEAR] ]) );
+      EVENTD->TriggerEvent(EVT_LIB_DATECHANGE, edata);
   }
 
   if (minuten <= 2) {
@@ -78,7 +78,7 @@ void QuarterReached() {
   str = "";
   if (minuten < 10) {
     log_file("USER_STATISTIK", ulog);
-    ulog = sprintf("\n%s%02d: ",(!std?("# "+ct+":\n"):""),std);
+    ulog = sprintf("\n%s%02d: ",(!std?("# "+lt[TM_WDAY]+":\n"):""),std);
   }
   ulog += sprintf("%4d",sizeof(users()));
   WaitForQuarterHour();

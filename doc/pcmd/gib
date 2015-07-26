@@ -1,23 +1,23 @@
-
-gib (an)
---------
+gib
+---
 
  KOMMANDO:
-    gib <objekt> an <ziel>
+    gib <ziel> <objekt>
 
  ARGUMENTE:
 
-     <objekt>
-        Der zu vergebene Gegenstand
-     <ziel>
+    <objekt>
+        Der wegzugebende Gegenstand
+    <ziel>
         Ein Spieler oder NPC im gleichen Raum
 
  BESCHREIBUNG:
     Du gibst den Gegenstand <objekt> an den Spieler oder NPC <ziel>. Man
-    sollte sich genau ueberlegen, wem man was gibt.
+    sollte sich genau ueberlegen, wem man was gibt, gerade NPCs geben ungern
+    Sachen einfach zurueck.
 
  SIEHE AUCH:
     nimm [aus], hole (aus)
 
  LETZTE AeNDERUNG:
-    Thu, 24.07.1997, 09:00:00 von Wargon
+    14. Okt 2011 Gloinson

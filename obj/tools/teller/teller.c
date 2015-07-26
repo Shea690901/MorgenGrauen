@@ -10,22 +10,33 @@ inherit "std/more";
 
 #include "/secure/wizlevels.h"
 
-static mixed *tcommands;
-static string owner_name;
+nosave mapping tcommands;
+nosave string owner_name;
 
-static tAddCmd( cmd )
+void logaccess( string s );
+static void do_msg( string s, object o );
+static string|int parseNext( string str, mixed auxstack, string funname );
+static mixed nextAlpha( string s );
+static varargs void restore_stack( string* argv, int args );
+static int do_call( string fun, int mit_return );
+static int do_call_efun( string fun, int mit_return );
+static int do_lpc( string str, int mit_return );
+static int do_cmd( string str );
+int error( string s );
+
+static void tAddCmd( mixed cmd )
 {
 	int i;
 
 	//if (find_player("rikus")) tell_object(find_player("rikus"),sprintf("%O\n",cmd));
 	if( !pointerp(cmd) )
-		tcommands = insert_alist( cmd, cmd, tcommands );
+    m_add(tcommands, cmd, cmd);
 	else
 		for( i=0; i<sizeof(cmd); i++ )
-			tcommands = insert_alist( cmd[i], cmd[0], tcommands );
+      m_add(tcommands, cmd[i], cmd[0]);
 }
 
-create()
+void create()
 {
 	if( IS_BLUE(ME) ) return;
 	if( !find_player(getuid()) ) return;
@@ -39,7 +50,7 @@ create()
 	SetProp( P_NODROP, "Wozu denn?\n" );
 	SetProp( P_NEVERDROP, 1 );
 	SetProp( P_READ_MSG, "Die Gravur besagt: 'Aus der Rumata-Manufaktur'\n" );
-	tcommands = ({({}),({})});
+	tcommands = ([]);
 	
 	tAddCmd( "say" );
 	tAddCmd( ({"names","nam"}) );
@@ -96,12 +107,12 @@ create()
 	tAddCmd( "ping" );
 }
 
-init()
+void init()
 {
 	//logaccess( "init" );
 	::init();
 	if ( !IS_WIZARD(PL) || environment()!=PL )
-		return FALSE;
+		return;
 	add_action( "parse", ",", 1 );
 	add_action( "jonglier", "jonglier", 1 );
 	add_action( "message", "message" );
@@ -161,10 +172,9 @@ long()
 	return answer; 	
 }
 
-_set_autoloadobj( val )
+void _set_autoloadobj( mixed val )
 {
-	if( !pointerp(val) )
-		return FALSE;
+	if( !pointerp(val) ) return;
 	val += ({ 0,0,0,0,0,0 });
 	mit_namen = val[0];
 	mit_say = val[1];	
@@ -175,13 +185,13 @@ _set_autoloadobj( val )
 	if( do_profile ) call_out( "_load_profile", 0, this_player() );
 }
 
-_query_autoloadobj()
+mixed _query_autoloadobj()
 {
 	return ({ mit_namen, mit_say, secureinv, dologaccess, pretty,
 		do_profile });
 }
 
-_load_profile( pl )
+void _load_profile( object pl )
 {
 	string pf,errmsg;
 
@@ -192,7 +202,7 @@ _load_profile( pl )
 		printf( "Error loading profile: %O\n", errmsg );
 }
 
-logaccess( str )
+void logaccess( string str )
 {
 	if( RPL && dologaccess && getuid()!=getuid(RPL) && find_player(getuid())
 		&& previous_object() && getuid(previous_object()) != ROOTID
@@ -202,7 +212,7 @@ logaccess( str )
 			+ RPL->name(WEM) + " via ["
 			+ object_name(previous_object())+"].\n"
 		);
-	if( secureinv && find_player(getuid()) && !member_array(ME,heart_beat_info()) )
+	if( secureinv && find_player(getuid()) && !member(heart_beat_info(),ME) )
 	{
 		tell_object( find_player(getuid()), "MEMO: heart_beat restartet!.\n" );
 		set_heart_beat(TRUE);
@@ -212,7 +222,7 @@ logaccess( str )
 // ----------------------------------------------------------------------
 // Hilfe-Funktionen
 // ----------------------------------------------------------------------
-static secure()
+static int secure()
 {
 	int i;
 	if( process_call() || secure_level()<query_wiz_level(RPL) ) return 0;
@@ -222,7 +232,7 @@ static secure()
 		 && getuid()==getuid(RPL) && IS_WIZARD(RPL);
 }
 
-jonglier( str )
+int jonglier( string str )
 {
 	string arg;
 
@@ -240,9 +250,10 @@ jonglier( str )
 			);
 		return TRUE;
 	}
+  return 0;
 }
 			
-static zeige_hilfe( str )
+static int zeige_hilfe( string str )
 {
 	if( !stringp(str) ) str = "general";
 	str = implode( old_explode( HELP(str), "/../" ), "/" );
@@ -255,7 +266,7 @@ static zeige_hilfe( str )
 	return TRUE;
 }
 
-message( str )
+int message( string str )
 {
 	string pl;
 	object dest;
@@ -284,7 +295,7 @@ message( str )
 	return TRUE;
 }
 
-static do_msg( str, obj )
+static void do_msg( string str, object obj )
 {
 	if( obj )
 		tell_object( obj, str + "\n" );
@@ -292,7 +303,7 @@ static do_msg( str, obj )
 		say( str + "\n" );
 }
 
-static more_message( str, obj )
+static int more_message( string str, object obj )
 {
 	if( str != "**" )
 	{
@@ -307,7 +318,7 @@ static more_message( str, obj )
 // ----------------------------------------------------------------------
 // Parse-Funktionen
 // ----------------------------------------------------------------------
-parse( str )
+int parse( string str )
 {
 	int i;
 	string arg, rest;
@@ -340,7 +351,7 @@ parse( str )
 	return TRUE;
 }
 
-static parseNext( str, auxstack, funname )
+static string|int parseNext( string str, mixed auxstack, string funname )
 {
 	mixed *res;
 	string arg, rest;
@@ -466,7 +477,7 @@ static parseNext( str, auxstack, funname )
 	return memo( "Etwas Seltsames ist passiert" );
 }
 
-static do_cmd( str )
+static int do_cmd( string str )
 {
 	string fun, filename, *spl;
 	mixed* oldstack;
@@ -497,7 +508,7 @@ static do_cmd( str )
 		stack = stack + oldstack[(max+1)..];
 		return TRUE;
 	}
-	else if( fun=assoc(str,tcommands) )
+  else if (fun=tcommands[str])
 		return call_other(ME,"cmd_"+fun);
 
 	if( sscanf( str, "%d", i ) )
@@ -515,24 +526,24 @@ static do_cmd( str )
 	return TRUE;
 }
 
-static nextAlpha( str )
+static mixed nextAlpha( string str )
 {
 	int pos;
 
 	for( 
 		pos=0;
-		pos<strlen(str) && member_array( str[pos], " #\";,^.><" ) == -1;
+		pos<sizeof(str) && member( " #\";,^.><", str[pos] ) == -1;
 		pos++
 	)
 		;
 
-	if( pos==strlen(str) )
+	if( pos==sizeof(str) )
 		return ({ str, 0 });
 	else
 		return ({ str[0..pos-1], str[pos..] });
 }
 
-static restore_stack( argv, args )
+static varargs void restore_stack( string* argv, int args )
 {
 	int i;
 	if( !args )
@@ -542,9 +553,10 @@ static restore_stack( argv, args )
 		push(argv[i]);
 }
 
-static do_call( fun, mit_return )
+static int do_call( string fun, int mit_return )
 {
-	int args, err;
+	int args;
+	string err;
 	mixed result;
 	mixed arg, *argv;
 
@@ -581,9 +593,10 @@ static do_call( fun, mit_return )
 	return TRUE;
 }
 
-static do_call_efun( fun, mit_return )
+static int do_call_efun( string fun, int mit_return )
 {
-	int args, err;
+	int args;
+	string err;
 	mixed result;
 	mixed arg, *argv;
 
@@ -614,9 +627,10 @@ static do_call_efun( fun, mit_return )
 	return TRUE;
 }
 
-static do_lpc( str, mit_return )
+static int do_lpc( string str, int mit_return )
 {
-	int args, val, err;
+	int args, val;
+	string err;
 	string file, cmd, pre, post;
 	mixed result;
 	mixed arg, *argv;

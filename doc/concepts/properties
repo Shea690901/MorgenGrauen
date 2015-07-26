@@ -1,6 +1,6 @@
 Properties
  BESCHREIBUNG:
-     Im Gegensatz zu Varibalen innerhalb eines Objektes, kann man Properties
+     Im Gegensatz zu Variablen innerhalb eines Objektes, kann man Properties
      von aussen veraendern, ohne eine besondere Funktion geschrieben zu haben.
 
      1. Das zugrundeliegende Prinzip

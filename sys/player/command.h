@@ -10,6 +10,12 @@
 // properties
 #define P_DISABLE_COMMANDS "p_lib_disablecommands"
 
+// Indizes fuers Array von commandblock
+#define B_OBJECT  0
+#define B_TIME    1
+#define B_VALUE   2
+#define B_EXCEPTIONS 3
+
 #endif // __PLAYER_COMMAND_H__
 
 
@@ -18,14 +24,10 @@
 #ifndef __PLAYER_COMMAND_H_PROTO__
 #define __PLAYER_COMMAND_H_PROTO__
 
-// Indizes fuers Array von commandblock
-#define B_OBJECT  0
-#define B_TIME    1
-#define B_VALUE   2
-
 // prototypes
 mixed modify_command(string str);
 int command_me(string cmd);
+varargs string _unparsed_args(int level);
 
 // Set- und Query-Methoden
 static mixed _set_p_lib_disablecommands(mixed data);

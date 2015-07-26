@@ -1,7 +1,7 @@
 AddFun()
 
 FUNKTION:
-     varargs void AddFun(string fun, int next);
+     void AddFun(string fun, int next);
 
 DEFINIERT IN:
      /std/transport.c

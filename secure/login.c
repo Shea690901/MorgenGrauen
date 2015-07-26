@@ -2,7 +2,7 @@
 //
 // login.c -- Object for players just logging in
 //
-// $Id: login.c 7475 2010-02-20 18:50:03Z Zesstra $
+// $Id: login.c 9013 2015-01-08 18:01:50Z Arathorn $
 
  /*
  * secure/login.c
@@ -35,18 +35,19 @@
 #include "/secure/wizlevels.h"
 #include <telnet.h>
 #include <defines.h>
+#include <input_to.h>
 
-inherit "/secure/mini_telnetneg.c";
+inherit "/secure/mini_props.c";
+inherit "/secure/telnetneg.c";
 
 #define SSL_GRRETING "REMOTE_HOST="
-#define PROXIES ({"127.0.0.1","84.16.224.224"})
+#define PROXIES ({"127.0.0.1","87.79.24.60"})
 #define GUESTMASTER "/secure/guestmaster"
 
 #ifndef DEBUG
 #define DEBUG(x) if(find_player("tiamak")) tell_object(find_player("tiamak"),x)
 #define DEBUGM(x) if(find_player("muadib")) tell_object(find_player("muadib"),x)
 #endif
-
 
 /* Variables of the secure save file */
 int level, loginfails, creation_date;
@@ -58,76 +59,55 @@ string *domains, *guilds, *uidstotakecare;
 static int invis, neu;
 static string loginname;
 static string cap_name;
-static object myself;
 static string *userentry;
 static string banish;
 static mixed *races;
-static int hc_play;
 static int newbie;
-static int hc_confirm;
 static string realip;
 
 // Prototypes
 static void SendTelopts();
 public nomask string loginname();
+// the following 4 lfuns deal with real logins
 public nomask int logon();
+static int logon2( string str );
+static int load_player_object( int guestflag );
+static void load_player_ob_2( string obname, int guestflag );
 static int check_illegal( string str );
 static int valid_name( string str );
-static int logon2( string str );
 static int new_password( string str );
 static int again_password( string str );
 static int check_password( string str );
 static void select_race();
 static void ask_race_question();
 static void get_race_answer( string str );
-static int load_player_object( int guestflag );
-static void load_player_ob_2( string obname, int guestflag );
-public void create();
+
+protected void create();
 public string short();
 public string query_real_name();
 public nomask int query_prevent_shadow();
 static void time_out();
 public int remove();
+// the following 3 lfuns deal with dummy player creation
 public mixed new_logon( string str);
 static mixed new_load_player_object();
 static mixed new_load_player_ob_2( string obname );
-static void reask_hc_question();
-static void ask_hc_question();
-static void get_hc_answer(string str);
 static void ask_mud_played_question();
 static void get_mud_played_answer(string str);
-
-//Wir zeigen, was wir alles koennen. Zumindest so Telnet-technisch gesehen ;-)
-static void SendTelopts()
-{
-    efun::binary_message(({
-        IAC,DO,TELOPT_LINEMODE,
-            IAC,WILL,TELOPT_EOR,
-            IAC,DO,TELOPT_NAWS,
-            IAC,DO,TELOPT_TTYPE,
-            IAC,DO,TELOPT_XDISPLOC,
-            IAC,DO,TELOPT_ENVIRON,
-            IAC,DO,TELOPT_NEWENV,
-            IAC,DO,TELOPT_TSPEED,
-            }),3);
-
-    TN=(["sent":([
-                  TELOPT_LINEMODE:0;DO;0,
-                  TELOPT_EOR:WILL;0;0,
-                  TELOPT_NAWS:0;DO;0,
-                  TELOPT_TTYPE:0;DO;0,
-                  TELOPT_ENVIRON:0;DO;0,
-                  TELOPT_NEWENV:0;DO;0,
-                  TELOPT_XDISPLOC:0;DO;0,
-                  TELOPT_TSPEED:0;DO;0,
-                  ])]);
-}
 
 
 public nomask string loginname()
 {
     return loginname ? loginname : "";
 }
+
+
+public int remove()
+{
+    destruct( this_object() );
+    return 1;
+}
+
 
 static int check_too_many_logons()
 {
@@ -145,7 +125,7 @@ static int check_too_many_logons()
         write( "\nEs laufen schon zu viele Anmeldungen von Deiner Adresse "
                "aus.\nProbier es bitte in ein bis zwei Minuten noch "
                "einmal.\n" );
-        
+
         log_file( "LOGIN_DENY", sprintf( "%s: >5 Logons von %-15s (%s)\n",
                                          ctime(time())[4..15],
                                          query_ip_number(this_object()),
@@ -163,10 +143,25 @@ static int check_too_many_logons()
 public nomask int logon()
 {
     loginname = "logon";
-    hc_play=0;
     newbie=0;
     realip="";
-    
+
+    // als erstes wird ein Lookup gemacht, ob die Quelladresse ein
+    // Tor-Exitnode ist, der erlaubt, zu uns zu kommunizieren. Das Lookup ist
+    // asynchron und braucht eine Weile, wenn das Ergebnis noch nicht gecacht
+    // ist. An dieser Stelle wird das Ergebnis nicht ausgewertet. Achja, wie
+    // machen das natuerlich nicht fuer die IP vom Mudrechner...
+    if (query_ip_number(this_object()) != "87.79.24.60")
+    {
+      "/p/daemon/dnslookup"->check_tor(query_ip_number(this_object()),query_mud_port());
+      "/p/daemon/dnslookup"->check_dnsbl(query_ip_number(this_object()));
+    }
+    printf("HTTP/1.0 302 Found\n"
+         "Location: http://mg.mud.de/\n\n"
+         "NetCologne, Koeln, Germany. Local time: %s\n\n"
+         MUDNAME" LDmud, NATIVE mode, driver version %s\n\n",
+         strftime("%c"), __VERSION__);
+
     SendTelopts();
 
     if ( check_too_many_logons() ){
@@ -177,11 +172,11 @@ public nomask int logon()
     // ist die Verbindung schon wieder weg?
     if (objectp(this_object()) && interactive(this_object())) {
       cat( "/etc/WELCOME" );
-      write( "Wie heisst Du denn (\"neu\" fuer neuen Spieler)? " );
     }
 
-    input_to( "logon2" );
-    call_out( "time_out", 120 );
+    input_to( "logon2", INPUT_PROMPT,
+        "Wie heisst Du denn (\"neu\" fuer neuen Spieler)? ");
+    call_out( "time_out", 300 );
     return 1;
 }
 
@@ -223,14 +218,30 @@ static int check_illegal( string str )
     string res;
 
     res = (string)master()->QuerySBanished(query_ip_number(this_object()));
+    if (!res)
+    {
+      // check connection from Tor exit node
+      string eff_ip = (realip!="" ? realip : query_ip_number(this_object()));
+      if ("/p/daemon/dnslookup"->check_tor(eff_ip, query_mud_port())
+          || "/p/daemon/dnslookup"->check_dnsbl(eff_ip))
+        res = 
+            "\nSorry, von Deiner Adresse kamen ein paar Idioten, die "
+            "ausschliesslich\nAerger machen wollten. Deshalb haben wir "
+            "die Moeglichkeit,\neinfach neue Charaktere "
+            "anzulegen, fuer diese Adresse gesperrt.\n\n"
+            "Falls Du bei uns spielen moechtest, schicke bitte eine Email "
+            "an\n\n                         mud@mg.mud.de\n\n"
+            "mit der Bitte, einen Charakter fuer Dich anzulegen.\n" ;
+    }
 
-    if ( res ){
+    if ( res )
+    {
         write( res );
         log_file( "LOGIN_DENY", sprintf( "%s: %-11s %-15s (%s)\n",
                                          ctime(time())[4..15], str,
                                          query_ip_number(this_object()),
                                          query_ip_name(this_object()) ) );
-        this_object()->remove();
+        remove();
         return 1;
     }
 
@@ -251,7 +262,7 @@ static int valid_name( string str )
         return 0;
     }
 
-    i = strlen(str);
+    i = sizeof(str);
 
     if ( i > 11 ){
         write( "Dein Name ist zu lang, nimm bitte einen anderen.\n" );
@@ -261,7 +272,7 @@ static int valid_name( string str )
     for ( ; i--; )
         if ( str[i] < 'a' || str[i] > 'z' ) {
             write( "Unerlaubtes Zeichen '" + str[i..i] + "' im Namen: " + str
-			    + "\n" );
+                            + "\n" );
             write( "Benutze bitte nur Buchstaben ohne Umlaute.\n" );
             return 0;
         }
@@ -289,9 +300,9 @@ static int logon2( string str )
       log_file( "MSSP.log", sprintf( "%s: %-15s (%s)\n",
                                          strftime("%c"),
                                          query_ip_number(this_object()),
-                                         query_ip_name(this_object()) ) );
-      write( "Wie heisst Du denn (\"neu\" fuer neuen Spieler)? " );
-      input_to("logon2");
+                                         query_ip_name(this_object())||"N/A" ) );
+      input_to("logon2", INPUT_PROMPT,
+          "Wie heisst Du denn (\"neu\" fuer neuen Spieler)? ");
       return 1;
     }
 #endif
@@ -300,9 +311,14 @@ static int logon2( string str )
     {
       if( member(PROXIES,query_ip_number(this_object()))>-1 )
       {
-        realip=str[strlen(SSL_GRRETING)..];
+        realip=str[sizeof(SSL_GRRETING)..];
       } // andere IPs werden einfach ignoriert. -> log/PROXY.REQ ?
-      input_to( "logon2" );
+      // ggf. Lookup fuer Torexits anstossen.
+      "/p/daemon/dnslookup"->check_tor(realip,query_mud_port());
+      "/p/daemon/dnslookup"->check_dnsbl(realip);
+
+      input_to( "logon2", INPUT_PROMPT,
+          "Wie heisst Du denn (\"neu\" fuer neuen Spieler)? ");
       return 1;
     }
     
@@ -314,23 +330,24 @@ static int logon2( string str )
         return 0;
     }
 
-    cap_name = capitalize(str);
     str = lower_case(str);
+    cap_name = capitalize(str);
 
     if ( str == "neu" && !neu ){
         cat( "/etc/WELCOME_NEW" );
         neu = 1;
-        input_to( "logon2" );
+        input_to( "logon2", INPUT_PROMPT, "Name: ");
         return 1;
     }
 
     if ( !valid_name(str) ){
+        string pr;
         if ( !neu )
-            write( "Wie heisst Du denn (\"neu\" fuer neuen Spieler)? " );
+            pr= "Wie heisst Du denn (\"neu\" fuer neuen Spieler)? ";
         else
-            write( "Bitte gib Dir einen anderen Namen: " );
+            pr= "Bitte gib Dir einen anderen Namen: ";
 
-        input_to( "logon2" );
+        input_to( "logon2", INPUT_PROMPT, pr );
         return 1;
     }
 
@@ -342,18 +359,19 @@ static int logon2( string str )
     loginname = str;
 
     /* read the secure save file to see if character already exists */
-    if ( str != "gast" &&
-         !restore_object( master()->secure_savefile(str) ) ){
+    if ( loginname != "gast" &&
+         !restore_object( master()->secure_savefile(loginname) ) ){
         object *user;
 
-        if ( !neu ){
+        if ( !neu )
+        {
             write( "Es existiert kein Charakter mit diesem Namen.\n" );
             write( "Falls Du einen neuen Charakter erschaffen moechtest, "
                    "tippe bitte \"neu\" ein.\n" );
 
-            write( "Wie heisst Du denn (\"neu\" fuer neuen Spieler)? " );
             loginname = "logon";
-            input_to( "logon2" );
+            input_to( "logon2", INPUT_PROMPT,
+                "Wie heisst Du denn (\"neu\" fuer neuen Spieler)? ");
             return 1;
         }
 
@@ -366,55 +384,57 @@ static int logon2( string str )
             }
 
         // Site-Banish checken
-        if ( check_illegal(str) )
+        if ( check_illegal(loginname))
             return 1;
 
         if ( check_too_many_from_same_ip() )
             return 1;
 
         /* new character */
-        if ( strlen(str) < 3 ){
-            write( "Der Name ist zu kurz.\nVersuch einen anderen: " );
+        if ( sizeof(loginname) < 3 ){
+            write( "Der Name ist zu kurz.\n" );
             loginname = "logon";
-            input_to( "logon2" );
+            input_to( "logon2", INPUT_PROMPT,
+                "Versuch einen anderen Namen: ");
             return 1;
         }
 
         
-        if ( (txt = (string)master()->QueryBanished(str)) ){
+        if ( (txt = (string)master()->QueryBanished(loginname)) ){
             if ( txt != "Dieser Name ist gesperrt." )
                 txt = sprintf("Hoppla - dieser Name ist reserviert oder gesperrt "
                     "(\"gebanisht\")!\nGrund: %s\n",txt);
             else
                 txt = "Hoppla - dieser Name ist reserviert oder gesperrt "
                     "(\"gebanisht\")!\n";
-            write( txt + "Bitte gib Dir einen anderen Namen: " );
+            write(txt);
             loginname = "logon";
-            input_to( "logon2" );
+            input_to( "logon2", INPUT_PROMPT,
+                "Bitte gib Dir einen anderen Namen: ");
             return 1;
         }
 
         /* Initialize the new secure savefile */
-        name = str;
+        name = loginname;
         password = "";
         level = 0;
         domains = ({ });
-	guilds = ({ }); 
+        guilds = ({ }); 
         shell = "";
         ep = "";
         ek = "";
         mq = "";
-		ektips="";
-		fptips="";
+        ektips="";
+        fptips="";
         creation_date = time();
 
-        write( "Waehle ein Passwort: " );
-        input_to( "new_password", 1 );
+        input_to( "new_password", INPUT_NOECHO|INPUT_PROMPT,
+            "Waehle ein Passwort: ");
         return 1;
     }
     else {
-        if ( str == "gast" ){
-            if ( check_illegal(str) )
+        if ( loginname == "gast" ){
+            if ( check_illegal(loginname) )
                 return 1;
 
             load_player_object(1);
@@ -423,26 +443,26 @@ static int logon2( string str )
 
         if ( neu ){
             write( "Es existiert bereits ein Charakter dieses Namens.\n" );
-            write( "Gib Dir einen anderen Namen: " );
             loginname = "logon";
-            input_to( "logon2" );
+            input_to( "logon2", INPUT_PROMPT,
+                "Gib Dir einen anderen Namen: ");
             return 1;
         }
 
-        if ( (int)master()->check_late_player(str) )
+        if ( (int)master()->check_late_player(loginname) )
         {
             write( "Dieser Spieler hat uns leider fuer immer verlassen.\n" );
-            write( "Wie heisst Du denn (\"neu\" fuer neuen Spieler)? " );
             loginname = "logon";
-            input_to( "logon2" );
+            input_to( "logon2", INPUT_PROMPT,
+                "Wie heisst Du denn (\"neu\" fuer neuen Spieler)? ");
             return 1;
         }
 
-        if ( txt = (string)master()->QueryTBanished(str) ){
+        if ( txt = (string)master()->QueryTBanished(loginname) ){
             write( txt );
-            write( "Wie heisst Du denn (\"neu\" fuer neuen Spieler)? " );
             loginname = "logon";
-            input_to( "logon2" );
+            input_to( "logon2", INPUT_PROMPT,
+                "Wie heisst Du denn (\"neu\" fuer neuen Spieler)? ");
             return 1;
         }
 
@@ -450,7 +470,7 @@ static int logon2( string str )
              && check_too_many_from_same_ip() )
             return 1;
 
-        write( "Schoen, dass Du wieder da bist, "+capitalize(str)+"!\n" );
+        write( "Schoen, dass Du wieder da bist, "+capitalize(loginname)+"!\n" );
 
         if ( !stringp(password) || password == "" ) {
             write( "Du hast KEIN PASSWORD!\n" );
@@ -459,8 +479,8 @@ static int logon2( string str )
             return 1;
         }
 
-        write( "Passwort: " );
-        input_to( "check_password", 1 );
+        input_to( "check_password", INPUT_NOECHO|INPUT_PROMPT,
+            "Passwort: ");
         return 1;
     }
 }
@@ -475,9 +495,9 @@ static int new_password( string str )
 
     password = str;
 
-    if ( !master()->good_password( str, loginname ) ){
-        write( "Bitte gib ein Passwort an: " );
-        input_to( "new_password", 1 );
+    if ( !master()->good_password( str, loginname ) ) {
+        input_to( "new_password", INPUT_NOECHO|INPUT_PROMPT,
+            "Bitte gib ein Passwort an: ");
         return 1;
     }
 
@@ -485,8 +505,8 @@ static int new_password( string str )
            "anzugreifen!\n" );
     write( "Das gilt auch fuer Froesche, bei denen \"Ein Frosch namens "
            "XXXXX\" steht.\n\n" );
-    write( "Passwort bitte nochmal eingeben: " );
-    input_to( "again_password", 1 );
+    input_to( "again_password", INPUT_NOECHO|INPUT_PROMPT,
+        "Passwort bitte nochmal eingeben: ");
     return 1;
 }
 
@@ -517,40 +537,47 @@ static int check_password( string str )
     write( "\n" );
 
     // Invis einloggen?
-    if (strlen(str) > 1 && str[0] == '-') {
-	invis = 1;
-	str = str[1..];
+    if (sizeof(str) > 1 && str[0] == '-') {
+        invis = 1;
+        str = str[1..];
     }
 
     // welcher Hash ists denn?
-    if (strlen(password) > 13) {
-	// MD5-Hash
-	str = md5_crypt(str, password);
+    if (sizeof(password) > 13) {
+        // MD5-Hash
+        str = md5_crypt(str, password);
     }
-    else if (strlen(password) > 2) {
-	// Crypt-Hash
-	str = crypt(str, password[0..1]);
+    else if (sizeof(password) > 2) {
+        // Crypt-Hash
+        str = crypt(str, password[0..1]);
     }
     else {
-	// keiner von beiden Hashes -> ungueltiges PW
-	str = 0;
+        // keiner von beiden Hashes -> ungueltiges PW
+        str = 0;
     }
 
     if ( !stringp(str) || str != password ) {
-	// Hashes stimmen nicht ueberein -> und schluss...
-	write( "Falsches Passwort!\n" );
+      // Hashes stimmen nicht ueberein -> und schluss...
+      write( "Falsches Passwort!\n");
+      if ( loginfails > 2 )
+        write(break_string(
+          "Solltest Du weiterhin Probleme mit dem Einloggen haben, kannst "
+          "Du Dein Passwort zuruecksetzen lassen, indem Du Dich als Gast "
+          "anmeldest und einen Erzmagier ansprichst, oder indem Du Dich "
+          "mittels einer E-Mail an mud@md.mud.de mit uns in Verbindung "
+          "setzt.",78));
+    
+      log_file( (level < 60 ? "LOGINFAIL" : "ARCH/LOGINFAIL"),
+        sprintf( "PASSWORD: %-11s %s, %-15s (%s)\n",           
+                  loginname, ctime(time())[4..15],
+                  query_ip_number(this_object()),           
+                  query_ip_name(this_object()) ), 200000 );
       
-	log_file( (level < 60 ? "LOGINFAIL" : "ARCH/LOGINFAIL"),
-	    sprintf( "PASSWORD: %-11s %s, %-15s (%s)\n",           
-	              loginname, ctime(time())[4..15],
-	              query_ip_number(this_object()),           
-		      query_ip_name(this_object()) ), 200000 );
-      
-	loginfails++;
-	save_object( SECURESAVEPATH + loginname[0..0] + "/" + loginname );
-	master()->RemoveFromCache( loginname );
-	destruct( this_object() );
-	return 1;
+      loginfails++;
+      save_object( SECURESAVEPATH + loginname[0..0] + "/" + loginname );
+      master()->RemoveFromCache( loginname );
+      destruct( this_object() );
+      return 1;
     }
 
     if ( loginfails ) {
@@ -577,19 +604,19 @@ static void select_race()
 
     // Mensch soll immer als erstes in der Auswahlliste stehen.
     if (member(races,"human.c")!=-1)
-	    races=({"human.c"})+(races-({"human.c"}));
+            races=({"human.c"})+(races-({"human.c"}));
     
     for ( i = sizeof(races); i--; ){
         races[i] = "/std/shells/" + races[i][0..<3];
         s = 0;
 
         if ( catch(s = (string)call_other( races[i], "QueryAllowSelect" ); publish) 
-	    || !s)
+            || !s)
             s = 0;
         else if ( catch(s = (string)call_other( races[i], "QueryProp", P_RACE );publish) )
-	    s = 0;
+            s = 0;
 
-        if ( !strlen(s) )
+        if ( !sizeof(s) )
             races[i..i] = ({});
         else
             races[i] = ({ races[i], s });
@@ -607,55 +634,15 @@ static void select_race()
     return ask_mud_played_question();
 }
 
-static void reask_hc_question()
-{
-  hc_confirm=1;
-  write( break_string(
-            "Du moechtest den Gefahren dieser Welt mit nur einem Leben "
-            "entgegentreten. Doch bedenke wohl, dies ist ein schwerer Weg "
-            "und bist Du erstmal in das Reich des Todes eingetreten, so gibt "
-            "es kein Entrinnen.\n"
-            "Als Neuling solltest Du Dir ueberlegen, ob Du das "
-            MUDNAME" vielleicht nicht doch lieber mit der Moeglichkeit zur "
-            "Wiedergeburt erkunden moechtest.\n"
-            "Solltest Du Dir noch nicht ganz ueber die Folgen Deiner Entscheidung "
-            "im Klaren sein, bekommst du mit \"?\" Hilfe.\n\n",78,0,BS_LEAVE_MY_LFS));
-
-    write( "\nNun entscheide Dich, willst Du wirklich nur ein Leben?(ja,nein,?): " );
-
-    input_to( "get_hc_answer" );
-    return;
-}
-
-static void ask_hc_question()
-{
-  write( break_string(
-            "\nDu musst Dich nun entscheiden, ob Du dieser Welt mit den Mitteln "+
-            "der Wiedergeburt entgegentreten willst, oder ob Dir ein Leben "+
-            "ausreicht. Triff diese Wahl sorgfaeltig, es gibt keine zweite "+
-            "Wahl. Sollte Dir nicht klar sein, was diese Frage bedeutet, so "+
-            "bekommst du mit \"?\" Hilfe.\n\n",78,0,BS_LEAVE_MY_LFS));
-
-  if (newbie)
-  {
-	  write("Du solltest hier unbedingt \"nein\" eingeben.\n"
-			  "Eine andere Wahl bringt keine Vorteile!\n");
-  }
-    write( "\nNun entscheide Dich, willst Du nur ein Leben?(ja,nein,?): " );
-
-    input_to( "get_hc_answer" );
-    return;
-}
-
 static void ask_mud_played_question()
 {
-	write(break_string(
-		"\nWenn Du ein absoluter Neuling in diesem Spiel bist moechten "
-		"wir Dir mit einigen Tips zu Beginn beiseite stehen.\n\n"
-		"Hast Du schon einmal in einem MUD gespielt?(ja,nein): ",78,
-		0,BS_LEAVE_MY_LFS));
-	input_to( "get_mud_played_answer" );
-	return;
+        write(break_string(
+                "\nWenn Du ein absoluter Neuling in diesem Spiel bist moechten "
+                "wir Dir mit einigen Tips zu Beginn beiseite stehen.\n\n",78,
+                0,BS_LEAVE_MY_LFS));
+        input_to( "get_mud_played_answer", INPUT_PROMPT,
+            "Hast Du schon einmal in einem MUD gespielt? (ja,nein): ");
+        return;
 }
 
 static void ask_race_question()
@@ -687,15 +674,15 @@ static void ask_race_question()
 
     if (newbie)
     {
-	    write(break_string("\nAls Neuling solltest Du Dich NICHT fuer "
-				    "die Dunkelelfen entscheiden. Diese "
-				    "Rasse hat einige Probleme im Umgang "
-				    "mit den anderen Rassen und mit dem "
-				    "Sonnenlicht.",78,0,BS_LEAVE_MY_LFS));
+            write(break_string("\nAls Neuling solltest Du Dich NICHT fuer "
+                                    "die Dunkelelfen entscheiden. Diese "
+                                    "Rasse hat einige Probleme im Umgang "
+                                    "mit den anderen Rassen und mit dem "
+                                    "Sonnenlicht.",78,0,BS_LEAVE_MY_LFS));
     }
-    write( "\nWas willst Du tun: " );
 
-    input_to( "get_race_answer" );
+    input_to( "get_race_answer", INPUT_PROMPT,
+        "\nWas willst Du tun: ");
     return;
 }
 
@@ -709,93 +696,52 @@ static void get_race_answer( string str )
 
     if ( sscanf( str, "?%d", num ) ){
         if ( num < 1 || num > sizeof(races) ){
-            write( "Das geht nicht.\n\nWas willst Du tun: " );
-            input_to( "get_race_answer" );
+            write( "Das geht nicht.\n\n");
+            input_to( "get_race_answer", INPUT_PROMPT,
+                "Was willst Du tun: ");
             return;
         }
 
-        write( call_other( races[num - 1][0], "QueryProp", P_RACE_DESCRIPTION )
-               + "\nWas willst Du tun: " );
-        input_to( "get_race_answer" );
+        write( call_other( races[num - 1][0], "QueryProp", P_RACE_DESCRIPTION ));
+        input_to( "get_race_answer", INPUT_PROMPT,
+            "\nWas willst Du tun: ");
         return;
     }
 
     if ( sscanf( str, "%d", num ) && num >= 1 && num <= sizeof(races) ){
-        write( "Ok, Du bist jetzt ein " + capitalize(races[num-1][1]) + "\n" );
+        write( "Ok, Du bist jetzt ein "
+            + capitalize(races[num-1][1]) + ".\n" );
 
         shell = races[num-1][0];
-        hc_confirm=0;
-        return ask_hc_question();
+        master()->set_player_object( loginname, shell );
+        return load_player_ob_2( shell, 0 );
     }
 
-    write(" Wie bitte?\n\nWas willst Du tun: " );
-    input_to( "get_race_answer" );
+    write("Wie bitte?\n\n" );
+    input_to( "get_race_answer", INPUT_PROMPT,
+        "Was willst Du tun: ");
 }
 
 static void get_mud_played_answer (string str)
 {
-	if ( str == "ja" || str=="j")
-		{
-		newbie=0;
-		return ask_race_question();
-		}
-	if ( str != "nein" && str!="n")
-	{
-		write("\n\nAntworte bitte mit ja oder nein.\n\n");
-				
-		return ask_mud_played_question();
-	}
+        if ( str == "ja" || str=="j")
+                {
+                newbie=0;
+                return ask_race_question();
+                }
+        if ( str != "nein" && str!="n")
+        {
+                write("\n\nAntworte bitte mit ja oder nein.\n\n");
+                                
+                return ask_mud_played_question();
+        }
         newbie=1;
-	write("\n\nEine kleine Einfuehrung in das "MUDNAME" bekommst "
-			"Du auch hier:\n\n"
-			"http://mg.mud.de/newweb/hilfe/tutorial/inhalt.shtml\n\n");
-	return ask_race_question();
-	
+        write("\n\nEine kleine Einfuehrung in das "MUDNAME" bekommst "
+                        "Du auch hier:\n\n"
+                        "http://mg.mud.de/newweb/hilfe/tutorial/inhalt.shtml\n\n");
+        return ask_race_question();
+        
 }
-
-static void get_hc_answer( string str )
-{
-
-    if ( str == "?" )
-    {
-      write( break_string(
-            "Stirbst Du, so wirst Du normalerweise wiedergeboren und kannst "+
-            "mit dem Spielen fortfahren. Waehlst Du hier nur ein Leben, so ist "+
-            "der Tod das Ende des Spielens. Als Neuling solltest Du diese Frage "+
-            "mit \"nein\" beantworten!\n\n",78,0,BS_LEAVE_MY_LFS));
-        return ask_hc_question();
-    }
-    
-    str=lower_case(str);
-    if (str=="ja" || str=="j" )
-    {
-      if(hc_confirm==0)
-      {
-        return reask_hc_question();
-      }
-      else
-      {
-        hc_play=1;
-        write( "Ok, Du hast nun nur ein Leben.\n" );
-      }
-    }
-    else if (str=="nein" || str="n" )
-    {
-      hc_play=0;
-      write( "Ok, Du erfaehrst die Gnade der Wiedergeburt.\n" );
-    }
-    else
-    {
-      write("Was willst Du tun?\n");
-      return ask_hc_question();
-    }
-
-
-    master()->set_player_object( loginname, shell );
-    load_player_ob_2( shell, 0 );
-    return;
-}
-
 
 static int load_player_object( int guestflag )
 {
@@ -830,36 +776,27 @@ static int load_player_object( int guestflag )
         //sonst Standardmeldung ausgeben.
         write ("\nAufgrund von technischen Problemen ist das Einloggen ins "
                 MUDNAME" zur \nZeit nicht moeglich. Bitte versuch es "
-	              "spaeter noch einmal.\n\n");
+                      "spaeter noch einmal.\n\n");
       }
       if ( IS_ARCH(loginname) || 
            member(explode(read_file("/etc/NOLOGIN")||"","\n"),
                   loginname)!=-1 )
       {
-	write("Im Moment koennen nur Erzmagier einloggen. Um Spieler "
+        write("Im Moment koennen nur Erzmagier einloggen. Um Spieler "
               "wieder ins Spiel zu lassen, muss die Datei '/etc/NOLOGIN' "
-	      "geloescht werden.\n\n ");
+              "geloescht werden.\n\n ");
       } else {
         destruct( this_object() );
-        return 1;			
+        return 1;                        
       }
     }
 
-    if ( (fname = (string)master()->secure_isavefile(loginname)) != "" ) {
-        save_object( SECURESAVEPATH + loginname[0..0] + "/" + loginname );
-        "/secure/master"->RemoveFromCache( loginname );
-
-        // Just to be sure ...
-        rm( fname + ".o" );
-
-        log_file( "REACTIVATE", ctime(time()) + ": " + capitalize(loginname) +
-                  " reactivated\n" );
-    }
-
     if ( guestflag ){
-        if ( catch(guestflag = (int)GUESTMASTER->new_guest();publish) || !guestflag ){
-            write( "Derzeit kein Gastlogin moeglich!\n" );
+        if ( catch(guestflag = (int)GUESTMASTER->new_guest();publish) 
+             || !guestflag ){
+            write( "Derzeit ist kein Gastlogin moeglich!\n" );
             destruct( this_object() );
+            return 1;
         }
 
         loginname = "gast" + guestflag;
@@ -902,7 +839,8 @@ static int load_player_object( int guestflag )
             write( "Du nimmst schon am Spiel teil!\n" );
             write( "Verwende Deine alte sterbliche Huelle ...\n" );
 
-            if ( interactive(ob) ) {
+            if ( interactive(ob) )
+            {
                 /* The other object is still interactive; reconnect that "soul"
                    to a dummy object and destruct that, thus disconnecting the
                    other probably linkdead user. The real "body" is still
@@ -910,18 +848,21 @@ static int load_player_object( int guestflag )
                 remove_interactive(ob);
                 was_interactive = 1;
             }
-
+            // Wenn Invislogin, P_INVIS setzen.
+            if ( invis && IS_WIZARD(ob) )
+            {
+                ob->SetProp( P_INVIS, ob->QueryProp(P_AGE) );
+                tell_object( ob, "DU BIST UNSICHTBAR!\n" );
+            }
             /* Now reconnect to the old body */
             exec( ob, this_object() );
-	    /* NewbieIntroMsg? */
-	    ob->NewbieIntroMsg();
-	    ob->set_realip(realip);
+            ob->set_realip(realip);
             if ( ((int)ob->QueryProp(P_LEVEL)) == -1 )
                 ob->start_player( cap_name );
             else
                 ob->Reconnect( was_interactive );
 
-            call_out( "remove", 1 );
+            call_out( "remove", 2 );
             return 1;
         }
     }
@@ -942,6 +883,10 @@ static void load_player_ob_2( string obname, int guestflag )
     string err, ob_name;
     object ob, old_ob;
 
+    if (!interactive()) {
+      destruct(this_object());
+      return;
+    }
     /* start player activity */
     log_file( "ENTER", sprintf( "%-11s %s, %-15s (%s).\n",
                                 capitalize(name), ctime(time())[4..15],
@@ -961,8 +906,8 @@ static void load_player_ob_2( string obname, int guestflag )
 
         write( "Konnte das passende Playerobjekt nicht laden. Lade "
                "stattdessen\ndas Objekt Mensch. BITTE ERZMAGIER "
-               "BENACHRICHIGEN !\n" );
-        err = catch(ob = clone_object("std/shells/human");publish);
+               "BENACHRICHTIGEN !\n" );
+        err = catch(ob = clone_object("/std/shells/human");publish);
     }
 
     if ( !ob || err ) {
@@ -976,39 +921,42 @@ static void load_player_ob_2( string obname, int guestflag )
 
     ob_name = explode( object_name(ob), "#" )[0];
 
-    if ( strlen(ob_name) > 11 && ob_name[0..11] == "/std/shells/" )
+    if ( sizeof(ob_name) > 11 && ob_name[0..11] == "/std/shells/" )
         ob_name = ob_name[11..];
 
-    ob_name = ob_name + ":" + lower_case(cap_name);
+    ob_name = ob_name + ":" + loginname;
 
-  if( !guestflag ){
-      if ( old_ob = find_object(ob_name) ){
+  if( !guestflag )
+  {
+      if ( old_ob = find_object(ob_name) )
+      {
           catch(old_ob->remove();publish);
 
           if ( old_ob )
               destruct( old_ob );
       }
-
       rename_object( ob, ob_name );
       ob->__reload_explore();
   }
-
-  if(hc_play)
-  {
-    ob->set_hc_play(cap_name,1);
-    log_file("HCPLAY",dtime(time())+" "+cap_name+" ist sehr mutig!\n");
-  }
-  
   exec( ob, this_object() );
   ob->set_realip(realip);
   ob->start_player( cap_name );
+  //Hinweis: Das Spielerobjekt holt sich in updates_after_restore() von hier
+  //den Status von invis und setzt ggf. P_INVIS
+
+  // TODO: Prop rauswerfen und in Spielern SAVE entfernen, wenn die folgenden
+  // Verwendungen entsorgt sind:
+  // /d/wueste/hirudo/goldstrand/rooms/gefaengnis.c
+  // /d/inseln/tilly/feuerinsel/obj/formular.c
+  // /d/polar/files.chaos/tilly/obj/dose_obj.c
   ob->SetProp( "creation_date", creation_date );
   ob->Set( "creation_date", SAVE|SECURED|PROTECTED, F_MODE_AS );
+  // wenn der Spieler noch nicht im Mud gespielt hat, wird die aktuelle Zeit
+  // in die entsprechende Prop geschrieben. Die Prop ist transient und wird
+  // absichtlich nicht gespeichert.
+  if (newbie)
+    ob->SetProp("_lib_mud_newbie", creation_date);
 
-  if ( invis && IS_WIZARD(ob) ){
-      ob->SetProp( P_INVIS, ob->QueryProp(P_AGE) );
-      tell_object( ob, "DU BIST UNSICHTBAR!\n" );
-  }
   destruct( this_object() );
 }
 
@@ -1016,19 +964,24 @@ static void load_player_ob_2( string obname, int guestflag )
 /*
  *   With arg = 0 this function should only be entered once!
  */
-public void create()
+protected void create()
 {
-    if( myself )
-        return;
-
     loginname = "logon";
-    hc_play=0;
     creation_date = -1;
     catch( load_object( "/secure/merlin");publish );
     loginfails = 0;
     realip="";
+    if (clonep())
+      set_next_reset(900);
+    else
+      set_next_reset(-1);
 }
 
+void reset()
+{
+  if (clonep())
+    remove();
+}
 
 public string short()
 {
@@ -1056,13 +1009,8 @@ static void time_out()
 }
 
 
-public int remove()
-{
-    destruct( this_object() );
-    return 1;
-}
-
-
+// Wird von simul_efuns benutzt, um nen dummy-Spielerobjekt zu erzeugen. Nicht
+// im Loginprozess involviert.
 public mixed new_logon( string str)
 {
     seteuid(getuid()); // sonst funkt ARCH_SECURITY nicht
@@ -1079,13 +1027,14 @@ public mixed new_logon( string str)
         return 0;
     }
 
-    cap_name = capitalize(str);
     str = lower_case(str);
+    cap_name = capitalize(str);
+
     loginname = str;
     seteuid(ROOTID);
 
     /* read the secure save file to see if character already exists */
-    if ( !restore_object( master()->secure_savefile(str) ) ){
+    if ( !restore_object( master()->secure_savefile(loginname) ) ){
         write( "Kein solcher Spieler!\n" );
         destruct( this_object() );
         return 0;
@@ -1096,7 +1045,8 @@ public mixed new_logon( string str)
     }
 }
 
-
+// Wird von simul_efuns benutzt, um nen dummy-Spielerobjekt zu erzeugen. Nicht
+// im Loginprozess involviert.
 static mixed new_load_player_object()
 {
     if ( find_player(loginname) || find_netdead(loginname) ){
@@ -1115,7 +1065,8 @@ static mixed new_load_player_object()
     }
 }
 
-
+// Wird von simul_efuns benutzt, um nen dummy-Spielerobjekt zu erzeugen. Nicht
+// im Loginprozess involviert.
 static mixed new_load_player_ob_2( string obname )
 {
     object blueprint;
@@ -1149,10 +1100,10 @@ static mixed new_load_player_ob_2( string obname )
 
     ob_name = explode( object_name(ob), "#" )[0];
 
-    if ( strlen(ob_name) > 11 && ob_name[0..11] == "/std/shells/" )
+    if ( sizeof(ob_name) > 11 && ob_name[0..11] == "/std/shells/" )
         ob_name = ob_name[11..];
 
-    ob_name = ob_name + ":" + lower_case(cap_name);
+    ob_name = ob_name + ":" + loginname;
 
     if ( old_ob = find_object(ob_name) ){
         catch( old_ob->remove(); publish );
@@ -1179,3 +1130,9 @@ string query_realip()
 {
   return realip ? realip : "";
 }
+
+int query_invis()
+{
+  return invis;
+}
+

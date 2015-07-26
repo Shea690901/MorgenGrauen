@@ -361,81 +361,7 @@ Spellbook als Schaden 300 eingetragen hat und diesen Wert dem Mapping
 entnimmt, kann eine andere Gilde diesen Spruch recyclen und mit Schaden
 400 anbieten, natuerlich sollte er dann auch in der Gilde mehr kosten. 
 
- o SI_SKILLABILITY
-   Wie gut der Spieler diese Faehigkeit kann. Die Werte koennen
-   zwischen -MAX_ABILITY und MAX_ABILITY (10000) liegen. 
- o SI_SKILLARG
-   Bei Spells steht hier der Rest der Befehlszeile. Bei Skills sollten
-   Argumente hier eingetragen werden, wenn keine andere Stelle dafuer
-   vorgesehen ist. 
- o SI_SPELLCOST
-   Spellkosten (noetige Magiepunkte) 
- o SI_SPELLFATIGUE
-   Erschoepfung nach Spellanwendung in Sekunden 
- o SI_SPELLBOOK
-   Spellbook, in dem der Spell steht. 
- o SI_SKILLFUNC
-   Funktion, die bei UseSpell im Spellbook bzw. bei UseSkill im
-   Gildenobjekt aufgerufen werden soll. Bei Spells wird der Spellname
-   genommen, falls keine Funktion angegeben ist. Bei Skills wird
-   StdSkill_Name im Spieler aufgerufen, falls keine Funktion oder
-   Gilde angegeben ist, und wenn auch dies fehlschlaegt
-   QuerySkillAbility genommen. 
-   Achtung bei Spells:
-   Im Gildenobjekt kann hier stehen, wie der Spell im Spellbook heisst,
-   damit man Sprueche in verschiedenen Gilden anders nennen kann. 
- o SI_SKILLLEARN
-   Geschwindigkeit, mit der man diese Faehigkeit erwerben kann. Bei
-   Spells wird dieser Wert fuer je 2 A_INT addiert, falls der Spieler
-   etwas hinzulernen soll. Bei Skills muessen sich die Gilden selber um
-   den Lerneffekt kuemmern, weil dies normalerweise auf andere
-   andere Arten (Trainingsstunden, Aufgaben loesen) geschehen soll. 
- o SI_SKILLRESTR_LEARN
-   Einschraenkungen, die erfuellt sein muessen, um diesen Spruch zu
-   lernen. 
- o SI_SKILLRESTR_USE
-   Einschraenkungen, die erfuellt sein muessen, um diesen Spruch zu
-   benutzen. 
- o SI_DIFFICULTY
-   Schwierigkeit, diese Faehigkeit zu erwerben. Diese beschraenkt die
-   maximal moegliche Faehigkeit abhaengig vom Level, damit
-   Anfaenger einen schweren Spruch nie zu 100% lernen koennen.
-   Wenn hier kein Wert steht wird bei Spells automatisch
-   SI_SPELLCOST genommen. 
- o SM_RACE
-   Wie bei den Einschraenkungen. 
- o SI_INHERIT
-   Dieser Wert ermoeglicht es, Skills (nicht Spells) von einem anderen
-   Skill abhaengig zu machen. QuerySkillAbility liefert dann einen
-   Wert, der dann zwischen 50% und 100% der Originalfaehigkeit
-   liegt. Bei UseSkill wird die angegebene Funktion hinterher benutzt.
-   Bei LearnSkill geht ein Teil auch auf die angegebene Faehigkeit
-   ueber. 
- o Fuer Angriffs- und Verteidiguns-Sprueche werden ueblicherweise
-   diese Eintraege verwendet: 
-    o SI_DAMAGE
-      Schaden bei allen Spells/Skills, die diesen Wert benoetigen. 
-    o SI_DAMAGE_TYPE
-      Schadens-Typen. 
-    o SI_DAMAGE_MSG
-      Wie der Text in P_HANDS. 
-    o SI_SPELL
-      Das, was als is_spell uebergeben wurde. 
- o SI_LASTLIGHT
-   Bei Nachtsicht wird an dieser Stelle in den Skillinformationen des
-   Spielers eingetragen, wann er zuletzt etwas in einem beleuchteten
-   Raum gesehen hat. 
- o SI_HEAL
-   Bei Heilspruechen sollte hier die Heilung stehen.
- o SI_NO_ATTACK_BUSY
-   Ueblicherweise setzen Spells die Property P_ATTACK_BUSY. Wenn sie
-   das nicht tun sollen, sollte diese SI gesetzt werden.
- o SI_ATTACK_BUSY_AMOUNT
-   Diese Skillinfo wird verwendet, wenn ein von 1 verschiedener Wert
-   bei einem Spell gesetzt werden soll. Auch Floats sind hier moeglich.
- o SI_SKILLDURATION
-   Bei Spells, die andauern, kann unter diesem Key gespeichert werden, wie
-   lang der Spell andauern soll.
+SIEHE AUCH: skill_info_liste
 
 Faktoren und Offsets 
 ---------------------
@@ -477,8 +403,7 @@ ausgewertet und das Ergebnis als Wert genommen. Als Funktion
 interpretiert werden kann: 
 
  o Eine Closure 
- o Ein Array ({objekt,funktionsname}) 
- o Ein Array ({objektname,funktionsname}) 
+ o Ein Array ({objekt,funktionsname}) oder ({objektname,funktionsname}) 
  o Ein Funktionsname. Hierbei sollte man sich jedoch darueber im
    klaren sein, in welchem Objekt versucht wird die Funktion
    aufzurufen. Ueblicherweise geschieht dies im Spellbook, jedoch
@@ -488,6 +413,8 @@ interpretiert werden kann:
    soll, so muss sie in eine der drei anderen Formen eingetragen werden,
    damit das richtige Objekt ermittelt werden kann. 
 
+SIEHE AUCH: execute_anything
+   
 Fuer nicht-numerische Werte kann man GetData verwenden. Dabei werden
 jedoch nur closures automatisch ausgewertet. 
 
@@ -512,23 +439,7 @@ und ein Monster sie fuer eine Minute auf 25% setzt, so ist sie eine Minute
 lang 50% und die naechste Minute 200% bevor sie wieder auf 100% gesetzt
 wird. 
 
- o SA_QUALITY
-   Allgemeine Qualitaet - wirkt sich auf alle anderen Skill-Attribute
-   aus. 
- o SA_DAMAGE
-   Schaden. Wird von Try(Default)AttackSpell beruecksichtigt. 
- o SA_SPEED
-   Geschwindigkeit (Attacks/heart_beats). 
- o SA_DURATION
-   Dauer - wirkt sich automatisch auf die Dauer aller anderen
-   Skill-Attribute aus. 
- o SA_EXTENSION
-   Ausdehnung. Wird bei FindGroup(N/P) beruecksichtigt. 
- o SA_RANGE
-   Reichweite. 
- o SA_ENEMY_SAVE
-   1/Abwehrmoeglichkeit des Gegners. Wird ebenfalls von
-   Try(Default)AttackSpell beruecksichtigt. 
+SIEHE AUCH: ModifySkillAttribute
 
 Restriction Mappings 
 +++++++++++++++++++++
@@ -540,31 +451,7 @@ und Intelligenz 10 verlangt wird, so ist das Mapping
 ([P_LEVEL:15,A_INT:10]). Folgende Einschraenkungen koennen verlangt
 werden: 
 
- o P_LEVEL, P_XP, P_QP
-   Mindestwerte fuer diese Properties. 
- o A_INT, A_DEX, A_STR, A_CON
-   Mindestwerte fuer diese Attribute. 
- o SR_BAD
-   Minimalwert fuer P_ALIGN 
- o SR_GOOD
-   Maximalwert fuer P_ALIGN 
- o SR_FREE_HANDS
-   Mindestens notwendige freie Haende. 
- o SR_EXCLUDE_RACE
-   Rassen, die ausgeschlossen werden sollen. 
- o SR_INCLUDE_RACE
-   Rassen, die eingeschlossen werden sollen. Alle anderen Rassen sind
-   automatisch ausgeschlossen. 
- o SM_RACE
-   Ein Mapping, in dem zu einer Rasse ein Mapping stehen kann,
-   welches das urspruengliche Mapping modifiziert. Z.B. wird aus
-   ([P_LEVEL:15,A_INT:10,SM_RACE:(["Zwerg":([P_LEVEL:17,A_STR:20])])])
-   bei Zwergen ([P_LEVEL:17,A_INT:10,A_STR:20]). 
- o SR_FUN
-   Funktion die zusaetzlich aufgerufen werden soll. Die Funktion
-   bekommt den Spieler als Argument und muss 0 zurueckgeben falls
-   der Spieler die Einschraenkung erfuellt und einen String mit der
-   Begruendung, falls nicht. 
+SIEHE AUCH: check_restrictions
 
 Einschraenkungen werden mit check_restrictions(spieler,mapping)
 ueberprueft. Die Funktion liefert 0 zurueck wenn der Spieler alle
@@ -603,24 +490,7 @@ Folgende Maximalwerte sind fuer SI_ABILITY bei den angegebenen Leveln
 moeglich, wenn SI_DIFFICULTY auf den Wert in der linken Spalte gesetzt
 ist. 
 
-    |    1:    4:    7:   10:   13:   16:   19:   22:   25:   28:
-----+------------------------------------------------------------
- -50|   85%   87%   88%   90%   91%   93%   94%   96%   97%   99%
-   0|   71%   74%   77%   80%   83%   86%   89%   92%   95%   98%
-  10|   68%   71%   74%   78%   81%   84%   87%   91%   94%   97%
-  20|   65%   68%   72%   76%   79%   83%   86%   90%   94%   97%
-  30|   62%   66%   70%   74%   77%   81%   85%   89%   93%   97%
-  40|   59%   63%   67%   72%   76%   80%   84%   88%   93%   97%
-  50|   56%   61%   65%   70%   74%   79%   83%   88%   92%   97%
- 100|   42%   48%   54%   60%   66%   72%   78%   84%   90%   96%
- 150|   27%   35%   42%   50%   57%   65%   72%   80%   87%   95%
- 200|   13%   22%   31%   40%   49%   58%   67%   76%   85%   94%
- 250|   -1%    9%   19%   30%   40%   51%   61%   72%   82%   93%
- 300|  -16%   -4%    8%   20%   32%   44%   56%   68%   80%   92%
- 400|  -45%  -30%  -15%    0%   15%   30%   45%   60%   75%   90%
- 500|  -74%  -56%  -38%  -20%   -2%   16%   34%   52%   70%   88%
- 600| -100%  -82%  -61%  -40%  -19%    2%   23%   44%   65%   86%
+SIEHE AUCH: LimitAbility oder /std/living/skills::LimitAbility
 
-
-Last modified: Mon 2003-06-23, 17:08 Humni 
+5. Okt 2011 Gloinson
  

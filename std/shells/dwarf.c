@@ -28,7 +28,7 @@ void create(){
 
   base::create();
   SetDefaultHome("/d/gebirge/room/zkapelle");
-  SetPrayRoom("/d/gebirge/room/zkapelle");
+  SetDefaultPrayRoom("/d/gebirge/room/zkapelle");
   SetProp(P_ATTRIBUTES_OFFSETS,([A_STR:2,A_DEX:1,A_CON:3]));
   SetProp(P_SKILL_ATTRIBUTE_OFFSETS,([SA_DURATION:110]));
   SetProp(P_AVERAGE_SIZE,120);
@@ -60,7 +60,7 @@ void create(){
   }
 
   if(!(res=QueryProp(P_HANDS)) || !pointerp(res) || (sizeof(res)<3))
-    res=({" mit blossen Haenden",35,DT_BLUDGEON});
+    res=({" mit blossen Haenden",35,({DT_BLUDGEON}) });
   res[1]=35;
   SetProp(P_HANDS,res);
   SetProp(P_BODY,10);
@@ -148,7 +148,7 @@ mixed RaceDefault(string arg)
   switch(arg)
   {
     case P_HANDS :
-      return ({" mit blossen Haenden",35,DT_BLUDGEON});
+      return ({" mit blossen Haenden",35,({DT_BLUDGEON}) });
     case P_BODY :
       return 10;
   }

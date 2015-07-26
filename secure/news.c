@@ -98,9 +98,7 @@
 
 #define WTIME 0
 
-#define DEBUG(x) tell_object(find_player("jof"),x)
-
-#define TI_PO() (this_interactive()||previous_object())
+private int security( string name );
 
 mixed saveload; // Diese Variable ist als einzige nicht nosave ist und dient
                  // Uebertragen von Daten in/aus savefiles
@@ -108,6 +106,8 @@ mixed saveload; // Diese Variable ist als einzige nicht nosave ist und dient
 nosave mapping grouplist; // Groups und ihre save-Files, zudem LastTime
 nosave int lasttime; // Um zu vermeiden, dass 2 Notes identische Uhrzeit==id
                      // haben, wird die jeweils letzte Zeit gespeichert.
+
+nosave mapping cache = ([]); // cache fuer die Gruppeninhalte
 
 void create() {
   seteuid(getuid(this_object()));
@@ -161,14 +161,14 @@ int RemoveGroup(string name)
     return -2; // -2 no such group
 
   catch(rm(NEWSPATH+grouplist[name,G_SAVEFILE]+".o");publish);
-  efun::m_delete(grouplist,name);
+  m_delete(grouplist,name);
 
   save_group_list();
 
   return 1;
 }
 
-int SetGroup(string name,int dlevel,int	wlevel,int rlevel,int maxmessages,int expire)
+int SetGroup(string name,int dlevel,int        wlevel,int rlevel,int maxmessages,int expire)
 {
   mixed *group;
   
@@ -207,7 +207,7 @@ int AddAllowed(string name,mixed deleters,mixed writers,mixed readers)
   grouplist[name,G_DELETERS]+=deleters;
   grouplist[name,G_WRITERS]+=writers;
   grouplist[name,G_READERS]+=readers;
-	
+        
   save_group_list();
   return 1;
 }
@@ -243,7 +243,7 @@ static string user_euid()
   if (previous_object()) {
      if (geteuid(previous_object())==ROOTID)       return ROOTID;
      if (geteuid(previous_object())=="p.daemon")   return "p.daemon";
-     if (BLUE_NAME(previous_object())=="/obj/mpa") return geteuid(RPL);
+     if (load_name(previous_object())=="/obj/mpa") return geteuid(RPL);
   }
   return secure_euid();
 }
@@ -280,7 +280,7 @@ static int allowed(string name, int mode)
     case F_WRITE:    if (euid=="p.daemon") return 1;
                      g_level=G_WLEVEL; g_mode=G_WRITERS;  break;
     case F_ADMIN:    if (!(security(name)||grouplist[name,G_OWNER]==euid)) 
-			     return 0;
+                             return 0;
                      g_level=G_DLEVEL; g_mode=G_DELETERS; break;
     case F_DELETE:   if (euid=="p.daemon") return 1;
                      g_level=G_DLEVEL; g_mode=G_DELETERS; break;
@@ -290,7 +290,7 @@ static int allowed(string name, int mode)
 
   if (grouplist[name,G_OWNER] != euid && !ARCH_SECURITY &&
       grouplist[name,g_level] > query_wiz_level(euid) &&
-      member_array(euid, grouplist[name, g_mode])==-1)
+      member(grouplist[name, g_mode], euid)==-1)
     return 0; // No such group for the requestor :)
   return 1;
 }
@@ -310,7 +310,7 @@ int WriteNote(mixed message,mixed keepname)
   if (sizeof(group)>=grouplist[name,G_MAX_MSG]) return -3;
 
   if (!keepname || !allowed(name, F_KEEPNAME))
-     message[M_WRITER]=capitalize(geteuid(TI_PO()));
+     message[M_WRITER]=capitalize(geteuid(this_interactive()||previous_object()));
 
   if (lasttime>=time()) lasttime++;
     else lasttime=time();
@@ -325,7 +325,7 @@ int WriteNote(mixed message,mixed keepname)
 
 int RemoveNote(string name, int note)
 {
-  int l,num;
+  int num;
   mixed *group;
 
   if ((note<0) && (name=="dwnews"))
@@ -341,14 +341,22 @@ int RemoveNote(string name, int note)
 
   if (!pointerp(group=load_group(name))) return -2;
 
-  l=sizeof(group);
-  if (l<=note)
+  int count=sizeof(group);
+  if (count<=note)
     return -3;
 
   if (!allowed(name, F_DELETE) &&
       lower_case(group[note][M_WRITER])!=user_euid()) return -1;
 
-  group=group[0..note-1]+group[note+1..];
+  if (count==1)
+    group=({});
+  else if (!note)
+    group = group[1..];
+  else if (note == count-1)
+    group = group[0..<2];
+  else
+    group=group[0..note-1]+group[note+1..];
+  
   if (sizeof(group))
     grouplist[name,WTIME]=group[<1][M_TIME];
   else
@@ -373,12 +381,14 @@ static void dump_file(string filename,mixed news)
   
   for (i=0;i<sizeof(news);i++)
     write_file(filename,news[i][M_TITLE]+" ("+news[i][M_WRITER]+", "+
-	       extract(dtime(news[i][M_TIME]),5,26)+"):\n"+
-	       news[i][M_MESSAGE]+"\n-----------------------------------------------------------------------------\n\n\n\n");
+               dtime(news[i][M_TIME])[5..26]+"):\n"+
+               news[i][M_MESSAGE]+"\n-----------------------------------------------------------------------------\n\n\n\n");
 }
 
-protected varargs void expire(string grp,int etime) {
-  int to_expire,size,last;
+protected varargs void expire(string grp,int etime)
+// etime ist anfangs in Tagen und bezeichnet das max. Alter, was Artikel in
+// der Gruppe haben duerfen.
+{
   mixed *group;
 
   if (!pointerp(group=load_group(grp))) return;
@@ -388,17 +398,32 @@ protected varargs void expire(string grp,int etime) {
       etime=etime*60*60*24;
   }
   else
-    etime=grouplist[grp,G_EXPIRE];
-  if (etime<=0 && etime!=-4711) return;
-  to_expire=time()-etime;
-  size=sizeof(group);
-  last=size;
-  if (!last) return;
-  while ( (etime != -4711) && last && group[last-1][M_TIME]>to_expire)
-    last--;
-  if (!last) return;
-  dump_file("news/OLD."+grp,group[0..last-1]);
-  group=group[last..size-1];
+    etime=grouplist[grp,G_EXPIRE]; 
+  if (etime<=0)
+    return;
+
+  int to_expire=time()-etime;
+  int size=sizeof(group);
+  if (!size) return;
+
+  int first_to_keep = size;  // ja, ist noch eins zu hoch
+  // solange runterlaufen bis man ein element findet, welches geloescht werden
+  // soll. first_to_keep bleibt dann eins hoeher als das.
+  while ( first_to_keep && group[first_to_keep-1][M_TIME]>to_expire)
+    --first_to_keep;
+  // first_to_keep kann jetzt auf eins hinter dem letzten Element zeigen (==
+  // size). Das wird unten beruecksichtigt.
+
+  if (!first_to_keep) // alle behalten?
+    return;
+  // Zu loeschende Artikel wegschreiben.
+  dump_file("news/OLD."+grp,group[0..first_to_keep-1]);
+  // dann loeschen
+  if (first_to_keep == size) // alle wegwerfen?
+    group=({});
+  else
+    group=group[first_to_keep..size-1];
+  
   save_group(grp,group);
 }
 
@@ -434,10 +459,10 @@ void reset() {
   }
 }
 
-
 static void save_group(string grp,mixed group)
 {
   saveload=group; // Do NOT save the accessed-Info
+  cache[grp] = group;
   save_object(NEWSPATH+grouplist[grp,G_SAVEFILE]);
   saveload=0;
 }
@@ -456,11 +481,17 @@ static mixed load_group(string name)
 
   if(!member(grouplist,name)) return -1;
 
-  restore_object(NEWSPATH+grouplist[name,G_SAVEFILE]);
-  if (!pointerp(saveload)) saveload=({});
-  //ret=saveload[0..];
-  ret=copy(saveload);
-  saveload=0;
+  if (member(cache, name)) {
+    ret = cache[name];
+  }
+  else {
+    restore_object(NEWSPATH+grouplist[name,G_SAVEFILE]);
+    if (!pointerp(saveload))
+      saveload=({});
+    ret=saveload;
+    cache[name] = saveload;
+    saveload=0;
+  }
   return ret;
 }
 
@@ -479,8 +510,8 @@ mixed GetGroups()
 
   for (i=sizeof(returnlist)-1;i>=0;i--)
     if (!(grouplist[returnlist[i],G_RLEVEL]<=slevel ||
-	  grouplist[returnlist[i],G_OWNER]==seuid ||
-	  member_array(seuid, grouplist[returnlist[i],G_READERS])!=-1))
+          grouplist[returnlist[i],G_OWNER]==seuid ||
+          member(grouplist[returnlist[i],G_READERS], seuid)!=-1))
       returnlist=returnlist[0..i-1]+returnlist[i+1..];
   return returnlist;
 }
@@ -495,7 +526,7 @@ int AskAllowedWrite(string n)
   if (grouplist[n,G_OWNER] != user_euid() &&
       !ARCH_SECURITY &&
       grouplist[n,G_WLEVEL]>secure_level() &&
-      member_array(user_euid(),grouplist[n,G_WRITERS])==-1)
+      member(grouplist[n,G_WRITERS],user_euid())==-1)
     return -1;
 
   if (sizeof(group)>=grouplist[n,G_MAX_MSG]) return -3;

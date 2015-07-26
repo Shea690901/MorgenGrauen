@@ -7,14 +7,19 @@ beachtet die folgenden Hinweise zum Codestyle (nicht erschoepfend):
 * keine lambdas
 * Bei inline-closures die function-Syntax statt der (: :)-Syntax verwenden.
 * else, else if in eine eigene Zeile
-* { am Beginn von Bloecken muss nicht in eine eigene Zeile, darf aber.
+* { am Beginn von Bloecken soll in eine eigene Zeile.
 * Nach ifs, Loops & Co: umfasst der davon kontrollierte Code mehr als eine
-  physische Zeile Code, bitte einen Block mit { } formulieren.
+  physische Zeile Code, einen Block mit { } formulieren.
 * keine return fun(), 0;
-* keine return (void)nonvoid_function();
 * (type) Casts sollten vermieden werden (Ausnahme: (type)call_other).
   (type) konvertieren nur, wenn die Typen zur Compilezeit bekannt und
   unterschiedlich sind. Daher bei gewuenschten Konversionen to_type() nehmen.
+* Pfade, die absolut sind, sollen auch mit / beginnen, z.B. 
+  inherit "/std/thing", nicht inherit "std/thing"
+
+Benennung von Properties:
+* der interne Name von Properties in der Basis-Mudlib beginnt immer mit
+  "p_lib_". Niemand sonst sollte Properties mit diesem Praefix erstellen.
 
 Sonstiges:
 * In der Mudlib wird keine neue Funktion(alitaet) angeschlossen, bevor die
@@ -22,4 +27,7 @@ Sonstiges:
   Am liebsten ist mir, bei der Konzeptentwicklung zuerst die fertige
   Dokumentation (Manpage) fuer Nutzer/Spieler zu entwickeln, bevor ein Magier
   ueberhaupt eine Zeile Code schreibt.
+
+LETZTE AeNDERUNG:
+  13.6.2014, Zesstra
 

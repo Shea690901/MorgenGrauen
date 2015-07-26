@@ -42,6 +42,6 @@ BEMERKUNGEN:
 SIEHE AUCH:
      Geldhandling:	AddMoney(L), QueryMoney(L)
      Zentralbank:	WithDraw(L), _query_current_money(L)
-     Sonstiges:		/obj/money.c, /sys/bank.h
+     Sonstiges:		/items/money.c, /sys/bank.h
 
 27. Apr 2004 Gloinson

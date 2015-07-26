@@ -2,7 +2,7 @@
 //
 // virtual/v_compiler.c -- a general virtual compiler object
 //
-// $Id: v_compiler.c 6621 2007-12-01 21:04:12Z Zesstra $
+// $Id: v_compiler.c 9142 2015-02-04 22:17:29Z Zesstra $
 
 // principle:
 //  - inherit this object into your own 'virtual_compiler.c'
@@ -50,7 +50,7 @@ void create()
   seteuid(getuid());
   SetProp(P_STD_OBJECT, "/std/room");
   SetProp(P_COMPILER_PATH, sprintf("/%s/",
-	implode(old_explode(object_name(this_object()), "/")[0..<2], "/")));
+        implode(old_explode(object_name(this_object()), "/")[0..<2], "/")));
   SetProp(P_PARA, ({}) ); // keine Para-VC-Objekte
   objects = ([]);
 }
@@ -82,25 +82,25 @@ public int QueryValidObject(string oname) {
     pelem=explode(oname,"/");
     fname=pelem[<1];
     if (!fname=Validate(fname))
-	return(0); //nicht zustaendig
+        return(0); //nicht zustaendig
     // nicht im richtigen Pfad?
     path=sprintf("%s/",implode(pelem[0..<2],"/"));
     if (path!=QueryProp(P_COMPILER_PATH))
-	return(0);
+        return(0);
     // Para-Objekt?
     if (sscanf(fname,"%s^%d",fname,para) > 1) {
-	if (NoParaObjects())
-	    return(0); //direkt zurueck, keine Para-Objekte
-	// bestimmte Para-Dimensionen explizit erlaubt? (Wenn P_PARA nicht
-	// gesetzt ist, sind alle erlaubt!)
-	if (ppara=QueryProp(P_PARA)) {
-	    if (pointerp(ppara) && member(ppara,para)!=-1)
-		return(1);
-	    else if (intp(para) && ppara==para)
-		return(1);
-	    // P_PARA gesetzt, aber gewuenschtes Para nicht enthalten...
-	    else return(0);
-	}
+        if (NoParaObjects())
+            return(0); //direkt zurueck, keine Para-Objekte
+        // bestimmte Para-Dimensionen explizit erlaubt? (Wenn P_PARA nicht
+        // gesetzt ist, sind alle erlaubt!)
+        if (ppara=QueryProp(P_PARA)) {
+            if (pointerp(ppara) && member(ppara,para)!=-1)
+                return(1);
+            else if (intp(para) && ppara==para)
+                return(1);
+            // P_PARA gesetzt, aber gewuenschtes Para nicht enthalten...
+            else return(0);
+        }
     }
     return(1); //fall-through, offenbar zustaendig.
 }
@@ -119,7 +119,7 @@ mixed CustomizeObject()
 }
 
 // add a new object to the object list if it compiles
-private static mixed AddObject(string file)
+private mixed AddObject(string file)
 {
   object ob;
   string err;
@@ -139,7 +139,9 @@ private static mixed AddObject(string file)
 mixed compile_object(string file)
 {
   // validate if the file name is a correct one
-  if(file = Validate(file)) return AddObject(file);
+  if(file = Validate(file))
+    return AddObject(file);
+  return 0;
 }  
 
 // return all cloned virtual objects

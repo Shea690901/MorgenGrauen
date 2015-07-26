@@ -1,6 +1,6 @@
 // MorgenGrauen MUDlib
 //
-// armour/combat.c -- armour standard object
+// clothing/wear.c -- Funktionen rund ums Anziehen/Tragen von Kleidung.
 //
 // $Id: combat.c 6243 2007-03-15 21:10:21Z Zesstra $
 
@@ -38,6 +38,14 @@ void create()
   AddCmd( ({"zieh","ziehe"}),"ziehe" );
   AddCmd( ({"trag","trage"}),"do_wear" );
 }
+
+// aktuelles Lebewesen, was diese Kleidung (oder auch Ruestung) zur Zeit
+// traegt.
+public object QueryUser()
+{
+  return QueryProp(P_WORN);
+}
+
 
 // Ausgabe von Meldungen ueber write() oder _notify_fail(), je nachdem, ob der
 // Spieler alles anzieht oder was bestimmtes.
@@ -134,10 +142,10 @@ void doUnwearMessage(object worn_by, int all)
       //(Zesstra): say() ist hier bloed, weil es an das Env vom this_player()
       //ausgibt, sofern der existiert. So koennen Spieler die meldung kriegen,
       //obwohl die laengst woanders sind (z.B. Sequenzen)
-      //Daher nun Ausgabe an das Env vom Env (wenn das kein Raum sein sollte,
+      //Daher nun Ausgabe an das Env vom worn_by (wenn das kein Raum sein sollte,
       //macht tell_room() nix). 
       if ( objectp(environment(worn_by)) )
-          tell_room(environment(environment()),
+          tell_room(environment(worn_by),
               break_string(str[1],78, 0, BS_LEAVE_MY_LFS),({ worn_by }) );
       
       return;
@@ -166,7 +174,7 @@ void doUnwearMessage(object worn_by, int all)
      (all?(Name(WER)+": "):0)));
   }
   if ( objectp(environment(worn_by)) )
-      tell_room(environment(environment()), break_string(worn_by->Name(WER)
+      tell_room(environment(worn_by), break_string(worn_by->Name(WER)
             + " zieht " + name(WEN,0) + " aus.",78), ({ worn_by }) );
 }
 
@@ -204,6 +212,14 @@ protected int _check_wear_restrictions(int silent, int all) {
     return(-1);
   }
 
+  // Diese Funktion versucht immer, TP anzuziehen (*args*). Es gibt aber viele
+  // Magier, die ohne TP oder mit dem falschen TP anziehen wollen. Daher mal
+  // pruefen und ggf. Fehler ausloesen.
+  if (!this_player())
+      raise_error("Kein this_player() existent beim Anziehen!\n");
+  else if (this_player() != environment())
+      raise_error("Meine Umgebung beim Anziehen ist nicht this_player()!\n");
+
   // Ueber P_RESTRICTIONS kann man einige Restriktionen definieren, ohne
   // gleich auf eine WearFunc zurueckgreifen zu muessen.
   // Die Auswertung erfolgt ueber den RestrictionChecker
@@ -224,21 +240,6 @@ protected int _check_wear_restrictions(int silent, int all) {
   // scheinbar darf man das hier anziehen. ;-)
   return 0;
 }
-
-#if __BOOT_TIME__ < 1234737458
-protected void _wear() {
-// macht nur das lowlevel Eintragen in P_CLOTHING, damit dieses
-// hier in armours sauber ueberschrieben werden kann.
-  object *clothing=(object*)PL->QueryProp(P_CLOTHING);
-  if (!pointerp(clothing))
-    clothing=({ME});
-  else
-    clothing+=({ME});
-
-  PL->SetProp(P_CLOTHING, clothing);
-  return;
-}
-#endif
 
 protected void _informwear(int silent, int all) {
 
@@ -298,11 +299,7 @@ varargs int DoWear(int silent, int all) {
     }
   }
   // Eintragen in P_CLOTHING/P_ARMOURS
-#if __BOOT_TIME__ < 1234737458
-  _wear();
-#else
   PL->Wear(this_object());
-#endif
 
   PL->SetProp(P_EQUIP_TIME,time());
   SetProp(P_WORN, PL);
@@ -318,26 +315,37 @@ varargs int DoWear(int silent, int all) {
 
 
 // liefert 0 zureck, wenn die Kleidung/Ruestung ausgezogen werden kann
-// <0 verbietet das Ausziehen 
+// bei M_NOCHECK ist das Ausziehen immer erlaubt, allerdings wird
+// P_REMOVE_FUNC auch dann gerufen (wenn auch ignoriert).
+// <0 verbietet das Ausziehen
 protected int _check_unwear_restrictions(object worn_by, int silent, 
-                                            int all) {
-  mixed   res;
-
+                                            int all)
+{
   // Nicht getragene Ruestungen kann man auch nicht ausziehen
   if (!objectp(worn_by)) {
       return(-2);
   }
 
   // Ist eine RemoveFunc gesetzt, wird diese aufgerufen
-  if (objectp(res=QueryProp(P_REMOVE_FUNC)) && 
-      !(res->RemoveFunc(ME,silent,worn_by))) {
+  // Im Falle von M_NOCHECK wird das Ergebnis allerdings ignoriert.
+  mixed res=QueryProp(P_REMOVE_FUNC);
+  if (objectp(res)
+      && !res->RemoveFunc(ME,silent,worn_by)
+      && !(silent & M_NOCHECK)
+      )
+  {
       // Eine Meldung muss von der RemoveFunc ausgegeben werden
       return(-2);
   }
 
-  // Eine verfluchte Ruestung kann man natuerlich nicht ausziehen - aber
-  // auch da gibts Ausnahmefaelle, wie z.B. den Tod eines Spielers
-  if ((res=QueryProp(P_CURSED)) && !(silent&M_NOCHECK)) {
+  // generell hebt M_NOCHECK die Restriktionen auf - sonst kommt es zu
+  // massiven Inkonsistenzen beim Bewegen mit M_NOCHECK.
+  if (silent & M_NOCHECK)
+    return 1;
+
+  // Eine verfluchte Ruestung kann man natuerlich nicht ausziehen
+  res=QueryProp(P_CURSED);
+  if (res ) {
     if (stringp(res)) {
       // Stand in P_CURSED ein String? Dann diesen ausgeben
       tell_object(worn_by,      
@@ -356,15 +364,6 @@ protected int _check_unwear_restrictions(object worn_by, int silent,
   // Ausziehen moeglich
   return(1);
 }
-
-#if __BOOT_TIME__ < 1234737458
-protected void _unwear(object worn_by) {
-  // Kleidung beim Spieler austragen
-  object *clothing;
-  clothing = (object*)worn_by->QueryProp(P_CLOTHING) - ({ME,0});
-  worn_by->SetProp(P_CLOTHING, clothing);
-}
-#endif
 
 protected void _informunwear(object worn_by, int silent, int all) {
 
@@ -410,11 +409,7 @@ varargs int DoUnwear(int silent, int all) {
     return(!all);
 
   // OK, alles klar, die Ruestung wird ausgezogen
-#if __BOOT_TIME__ < 1234737458
-  _unwear(worn_by);
-#else
   worn_by->Unwear(ME);
-#endif
 
   // Benutzte Haende wieder freigeben
   if (nh>0) {
@@ -497,7 +492,7 @@ protected int _do_unwear(string str, int silent, int all) {
       notify_fail("Alles ausgezogen, was ging.\n");
       return 0;
     }
-    if (!Query(P_ARTICLE)) {
+    if (!Query(P_ARTICLE) || QueryProp(P_PLURAL)) {
       notify_fail( break_string(
             "Du traegst k"+name(WEN,0)+".",78) );
     }

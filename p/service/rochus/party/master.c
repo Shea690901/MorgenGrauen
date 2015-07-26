@@ -35,7 +35,7 @@ DeleteUser(name)
 {
   if (!ok()) return;
   if (!data[name]) return;
-  efun::m_delete(data,name);
+  m_delete(data,name);
   save_object(SAVEFILE);
   return 1;
 }

@@ -1,29 +1,31 @@
 RemoveReadDetail()
 
 FUNKTION:
-     void RemoveReadDetail(mixed *keys);
+    void RemoveReadDetail(string|string* keys);
 
 DEFINIERT IN:
-     /std/thing/description.c
+    /std/thing/description.c
 
 ARGUMENTE:
-     keys
-          String oder Array von Strings mit den zu entfernenden Details.
+    keys
+         String oder Array von Strings mit den zu entfernenden Details.
 
 BESCHREIBUNG:
-     Entfernt die in keys angegebenen Details aus der Liste der vorhandenen
-     lesbaren Details.
-
-RUeCKGABEWERT:
-     keiner
+    Entfernt die in keys angegebenen Details aus der Liste der vorhandenen
+    lesbaren Details.
 
 BEMERKUNGEN:
-     Uebergibt man fuer keys eine 0, so werden saemtliche lesbaren Details
-     entfernt!
+    Uebergibt man fuer keys eine 0, so werden saemtliche lesbaren Details
+    entfernt!
 
 SIEHE AUCH:
-     AddReadDetail(), RemoveDetail(), RemoveSpecialDetail(),
-     /std/thing/description.c
+    Setzen:    AddDetail(), AddReadDetail(), AddSmells(), AddSounds(),
+               AddTouchDetail()
+    Loeschen:  RemoveDetail(), RemoveSmells(),
+               RemoveSounds(), RemoveTouchDetail()
+    Daten:     P_DETAILS, P_READ_DETAILS, P_SMELLS, P_SOUNDS, P_TOUCH_DETAILS
+    Veraltet:  AddSpecialDetail(), RemoveSpecialDetail(), P_READ_MSG
+    Sonstiges: GetDetail(), break_string()
 
-----------------------------------------------------------------------------
-Last modified: Wed May 8 10:24:21 1996 by Wargon
+20.01.2015, Zesstra
+

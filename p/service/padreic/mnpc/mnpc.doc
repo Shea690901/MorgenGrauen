@@ -20,8 +20,9 @@ MNPC_AREA - In diesem Feld stehen die Raeume, in denen der NPC herumlaufen
      aber auch in alle Raeume in einem Verzeichnis /d/ebene/room/ak_str/*
 
 MNPC_HOME - der Startraum des NPCs in den er spaeter ggf. auch wieder
-   zurueckkehrt. Diese Property muss im Normalfall nicht gesetzt werden, da
-   defaultmaessig der Ort des clonens eingetragen wird.
+   zurueckkehrt. Setzt man diese Property nicht, wird versucht, den Ort des
+   Clonens zu erraten/bestimmen, aber wenn man sicher gehen moechte, dass der
+   MNPC das Home hat, was man denkt, sollte man es explizit setzen.
 
 MNPC_DELAY und. MNPC_RANDOM
   MNPC_DELAY + random(MNPC_RANDOM) ergibt den Abstand zwischen zwei

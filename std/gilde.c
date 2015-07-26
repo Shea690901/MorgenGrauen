@@ -2,14 +2,14 @@
 //
 // gilde.c -- Standardgilde
 //
-// $Id: gilde.c 7290 2009-09-16 22:11:31Z Zesstra $
+// $Id: gilde.c 8388 2013-02-16 17:28:31Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
 #pragma no_clone
 #pragma pedantic
 
-inherit "std/room";
+inherit "/std/room";
 
 #include <properties.h>
 #include <defines.h>
@@ -21,10 +21,8 @@ inherit "std/room";
 #include <ansi.h>
 #include "/secure/questmaster.h"
 #include "/secure/lepmaster.h"
+#include "/secure/config.h"
 #include <events.h>
-
-mixed get_next_exp(int lev);
-varargs string get_new_title(int lev, object pl);
 
 #define kosten_0 \
   ([0:                "Bis Du Dich das naechste Mal hier blicken laesst, solltest Du eine Menge Stufenpunkte sammeln. Sonst wird das nix!",\
@@ -91,29 +89,29 @@ void create()
 {
   if (object_name(this_object()) == __FILE__[0..<3]) {
       set_next_reset(-1);
-      // hier mal kein return;
+      return;
   }
   room::create();
-  SetProp(P_INDOORS,1);
-  SetProp(P_INT_LONG,
-      "Du befindest Dich in der beruehmten Abenteurer Gilde.\n"
-      +"Hier kannst Du Deine Erfahrungsstufe erhoehen.\n"
-      +"An der Wand siehst Du eine grosse Uhr.\n"
-      +"Moegliche Befehle sind:\n"
-      +"                   liste\n"
-      +"                   erhoehe (stufe)\n"
-      +"                   kosten (kurz)\n");
-  SetProp(P_INT_SHORT,"Abenteuer-Gilde");
+
   AddCmd("kosten","kosten");
   AddCmd("liste","liste");
-  AddSpecialDetail("uhr","zeige_reboot");
   AddCmd("erhoehe","advance");
-  SetProp( P_LIGHT, 1 );
-}
+  AddCmd(({"treff"}), "GotoMagierTreff");
+ }
 
 void init()
 {
+  int lvl;
   room::init();
+
+  if (PL && query_once_interactive(PL)
+      && (lvl=PL->QueryProp(P_LEVEL)) <= 6
+      && LEPMASTER->QueryLevel(PL->QueryProp(P_LEP)) > lvl)
+  {
+    tell_object(PL,
+      "\nDu koenntest Deine Stufe mit \"erhoehe spieler\" hier in der Gilde "
+      "erhoehen.\n\n");
+  }
 }
 
 string zeige_reboot()
@@ -157,102 +155,12 @@ string zeige_reboot()
   return str;
 }
 
-#define male_title_str ({ \
-      "der hoffnungsvolle Anfaenger",\
-      "der Landstreicher",           \
-      "der Streuner",                \
-      "der Wandergeselle",           \
-      "der Waldlaeufer",             \
-      "der Faehrtensucher",          \
-      "der Wegekundige",             \
-      "der Jaeger",                  \
-      "der Kundschafter",            \
-      "der Reisende",                \
-      "der Abenteurer",              \
-      "der Weltenbummler",           \
-      "der Draufgaenger",            \
-      "der Schatzsucher",            \
-      "der Feuerbaendiger",          \
-      "der Entdecker",               \
-      "der Eroberer",                \
-      "der Held",                    \
-      "der angehende Seher",         \
-      "der Seher" })
-
-#define fem_title_str ({ \
-      "die hoffnungsvolle Anfaengerin", \
-      "die Landstreicherin",            \
-      "die Streunerin",                 \
-      "die Wandergesellin",             \
-      "die Waldlaeuferin",              \
-      "die Faehrtensucherin",           \
-      "die Wegekundige",                \
-      "die Jaegerin",                   \
-      "die Kundschafterin",             \
-      "die Reisende",                   \
-      "die Abenteurerin",               \
-      "die Weltenbummlerin",            \
-      "die Draufgaengerin",             \
-      "die Schatzsucherin",             \
-      "die Feuerbaendigerin",           \
-      "die Entdeckerin",                \
-      "die Erobererin",                 \
-      "die Heldin",                     \
-      "die angehende Seherin",          \
-      "die Seherin" })
-
-varargs string get_new_title(int lev, object pl)
-{
-  if (!pl) pl=PL;
-  if (lev<0) lev=0;
-  if (lev >= 19)
-    lev = IS_SEER(PL) ? 19 : 18;
-
-  if (lev <= 19)
-    if (pl->QueryProp(P_GENDER) == MALE)
-      return male_title_str[lev];
-    else
-      return fem_title_str[lev];
-  else
-    return (string)pl->Query(P_TITLE); // Keine Endlos-Rekursion
-}
-
-mixed get_next_exp(int lev)
-{
-  if (lev<1) return -1;
-  if (lev>31) return 100000000+(lev-31)*25000000;
-  return
-    ({
-      676, 1014, 1522, 2283, 3425,
-      5138, 7707, 11561, 17341, 26012,
-      39018, 58527, 77791, 97791, 131687,
-      197530, 296296, 444444, 666666, 1000000,
-      1500000, 2250000, 3375000, 5062500, 7600000,
-      11000000, 17000000, 25000000, 40000000, 60000000,
-      80000000, 100000000, 125000000, 150000000, 175000000,
-      200000000
-      })[lev];
-}
-
-int next_ap(int lev, object pl)
-{
-  int need;
-
-  need=pl->QueryProp(P_NEEDED_QP);
-  lev--;
-  if(lev>=20) return 0;
-  if(lev==19) return need;
-  return (int)((exp(log(1.262)*lev)+lev-2)*need/100);
-
-  return 0;
-}
-
 int seer_cond(int silent)
 {
   int cond;
 
   cond=LEPMASTER->QueryReadyForWiz(this_player());
-  
+
   if (!silent)
     write(break_string(LEPMASTER->QueryReadyForWizText(this_player()),
           78, 0, 1));
@@ -262,154 +170,177 @@ int seer_cond(int silent)
 
 varargs int kosten(string str)
 {
-  int diff, lvl;
   string tmp;
 
-  diff = 100 * ((lvl=PL->QueryProp(P_LEVEL)+1)) - PL->QueryProp(P_LEP);
+  int lep = PL->QueryProp(P_LEP);
+  int lvl = PL->QueryProp(P_LEVEL);
+  int diff = LEPMASTER->QueryNextLevelLEP(lvl, lep);
 
-  switch ( diff ){
-  case 101..1000000000:
-      // Bei Spielern < Lvl 11 gibt es groessere Stufenpunkt-Verluste beim
-      // Erhoehen, da die Erfahrungspunkte mit steigendem Level weniger
-      // wert sind
-      if ( lvl < 11 )
-          tmp = "Na komm, Du hast doch gerade erst die letzte Stufe geschafft.";
-      else
-          tmp = "Wie bist Du ueberhaupt an Deinen Level gekommen?\nSei froh, "
-          "dass Du nicht wieder abgestuft wirst.";
+  switch ( diff ) {
+    case 101..__INT_MAX__:
+      // Falls mal LEPs abhandengekommen sind...
+      tmp = "Wie bist Du ueberhaupt an Deinen Level gekommen?\n"
+      "Sei froh, dass Du nicht wieder abgestuft wirst.";
       break;
 
-  case 81..100:
+    case 81..100:
       tmp=kosten_0[PL->QueryProp(P_GUILD)] || kosten_0[0];
       break;
 
-  case 61..80:
+    case 61..80:
       tmp=kosten_20[PL->QueryProp(P_GUILD)] || kosten_20[0];
       break;
-      
-  case 41..60:
+
+    case 41..60:
       tmp=kosten_40[PL->QueryProp(P_GUILD)] || kosten_40[0];
       break;
-      
-  case 21..40:
+
+    case 21..40:
       tmp=kosten_60[PL->QueryProp(P_GUILD)] || kosten_60[0];
       break;
-      
-  case 1..20:
+
+    case 1..20:
       tmp=kosten_80[PL->QueryProp(P_GUILD)] || kosten_80[0];
       break;
-      
-  default:
-      if ( lvl < 5 )
-          tmp = "Probier mal den Befehl 'erhoehe'.";
+
+    default:
+      if ( lvl < 9 )
+        tmp = "Probier mal den Befehl 'erhoehe'.";
       else
-          tmp = "Den Befehl 'erhoehe' kennst Du aber, ja?";
+        tmp = "Den Befehl 'erhoehe' kennst Du aber, ja?";
+      break;
   }
 
   write( break_string( tmp, 78, 0, BS_LEAVE_MY_LFS ) );
-  
-  if (!IS_SEER(this_player()) && str != "kurz") {
+
+  if (!IS_SEER(this_player()) 
+      && ( (str == "lang") ||
+        (this_player()->QueryProp(P_LEVEL) > 12 && str != "kurz"))) {
     seer_cond(0);
     write (break_string("\nMit 'kosten kurz' kannst Du die Angabe der "
-			"Seher-Anforderungen unterdruecken.", 78,0,1));
+          "Seher-Anforderungen unterdruecken.", 78,0,1));
   }
 
   return 1;
 }
 
+// ermittelt Gildentitel zum Level <lev>.
+// Der letzte verfuegbare Gildentitel wird nur fuer Seher vergeben.
+// TODO: mit dem entsprechenden Code aus gilden_ob.c vereinigen?
+string get_new_title(int lev, object pl)
+{
+  mapping titles;
+
+  if (!pl) return 0;
+
+  if (lev<0) lev=0;
+
+  if (pl->QueryProp(P_GENDER) == MALE)
+    titles=(mapping)QueryProp(P_GUILD_MALE_TITLES);
+  else
+    titles=(mapping)QueryProp(P_GUILD_FEMALE_TITLES);
+
+  if (!mappingp(titles) || !sizeof(titles)) return 0;
+
+  int maxlevel = max(m_indices(titles));
+
+  // Level begrenzen. Max-Level fuer Seher.
+  if (lev >= maxlevel)
+    lev = IS_SEER(pl) ? maxlevel : maxlevel-1;
+
+  return titles[lev];
+}
+
+// versucht das Spielerlevel zu erhoehen. Macht nicht den ganzen Krams
+// drumrum, den advance() aus hysterischen Gruenden tut.
+int try_player_advance(object pl) {
+
+  if (PL->QueryProp(P_KILLS)>0)
+    return -1;
+
+  int level = pl->QueryProp( P_LEVEL );
+  if (level == -1) level = 0;
+
+  if (LEPMASTER->QueryNextLevelLEP(level, pl->QueryProp(P_LEP)) > 0)
+      return 0;
+  else
+      ++level;
+
+  pl->SetProp( P_LEVEL, level );
+
+  // Aufstiegs-Event ausloesen
+  EVENTD->TriggerEvent(EVT_LIB_ADVANCE, ([
+        E_OBJECT: PL, E_PLNAME: getuid(PL),
+        E_ENVIRONMENT: environment(PL),
+        E_GUILDNAME: PL->QueryProp(P_GUILD),
+        P_LEVEL: PL->QueryProp(P_LEVEL),
+        ]) );
+
+  // Falls die konkrete Gilde des Spielern irgedwas mit dem Titel in
+  // ABhaengigkeit des Spielerlevels tun will. Ausnahmsweise per call_other,
+  // die Funktion kommt eigentlich aus /std/gilden_ob.c.
+  string gname=(string)pl->QueryProp(P_GUILD);
+  (GUILD_DIR+"/"+gname)->adjust_title(pl);
+
+  return 1;
+}
+
+// "erhoehe"-Kommando.
+// erhoeht das Spielerlevel, falls moeglich. Setzt den passenden
+// Abenteurergildentitel.
 int advance(string arg)
 {
-  string name_of_player;
-  string uid;
-  int level;
-  string s, title;
-  mapping ts;
-  int gap;
-  object pl;
 
-  if (arg && 
+  if (arg &&
       arg != "stufe" && arg != "spielerstufe" && arg != "spieler"
       && arg != "spielerlevel")
     return 0;
-  if (PL->QueryProp(P_KILLS)>0) {
-    notify_fail("Du hast einen Mitspieler umgebracht!\n"+
-		"In diesem Fall kannst Du Deine Stufe nicht erhoehen.\n"+
-		"Bitte geh zur Polizei und bring das in Ordnung.\n");
-    say(capitalize(PL->name(WER))+" hat soeben auf schmerzliche Weise "+
-	"erfahren muessen,\ndass es wirklich nicht foerderlich ist, "+
-	"Mitspieler umzubringen.\n",PL);
+
+  int res = try_player_advance(PL);
+
+  if (!res)
+    return kosten("kurz");
+  else if (res < 0) {
+    notify_fail(break_string(
+        "Du hast einen Mitspieler umgebracht!\n"+
+        "In diesem Fall kannst Du Deine Stufe nicht erhoehen.\n"+
+        "Bitte wende Dich an den Sheriff (oder einen Erzmagier) und bring "
+        "das in Ordnung.\n",78,BS_LEAVE_MY_LFS));
+    say(break_string(PL->Name(WER) 
+          + " hat soeben auf schmerzliche Weise erfahren muessen, dass "
+          "es wirklich nicht foerderlich ist, Mitspieler umzubringen.\n",
+          78), PL);
     return 0;
   }
 
-  uid = getuid(PL);
-  name_of_player = PL->name(WER);
-  title = PL->QueryProp( P_TITLE );
-  level = PL->QueryProp( P_LEVEL );
-  if (level == -1) level = 0;
-
-  if (100*(++level) > PL->QueryProp(P_LEP)){
-      return kosten("");
-  }
-
-  title = get_new_title(level-1, pl);
-
+  string name_of_player = PL->name(WER);
+  int level = PL->QueryProp(P_LEVEL);
   say( name_of_player + " hat jetzt Stufe " + level + " erreicht.\n");
-  pl = find_player(uid);
-  pl->SetProp( P_LEVEL, level );
 
-  if (!mappingp(ts=pl->Query(P_GUILD_TITLE)))
-      ts=([]);
-  ts["abenteurer"]=title;
-  pl->Set(P_GUILD_TITLE,ts);
-  if (!IS_SEER(pl))
-    pl->SetProp(P_TITLE,0);
+  string title = PL->QueryProp(P_TITLE);
 
-  title=pl->QueryProp(P_TITLE);
-  // Aufstiegs-Event ausloesen
-  EVENTD->TriggerEvent(EVT_LIB_ADVANCE, ([
-	E_OBJECT: pl, E_PLNAME: getuid(pl),
-	E_ENVIRONMENT: environment(pl), 
-	E_GUILDNAME: pl->QueryProp(P_GUILD),
-	P_LEVEL: pl->QueryProp(P_LEVEL),
-	P_TITLE: pl->QueryProp(P_TITLE) ]) );
+  switch(random(3)) {
+    case 0:
+      write("Du bist jetzt " + name_of_player + " " + title +
+        " (Stufe " + level + ").\n");
+      break;
 
-  if (level < 7) {
-    write("Du bist jetzt " + name_of_player + " " + title +
-      " (Stufe " + level + ").\n");
-    return 1;
+    case 1:
+      write("Gut gemacht, " + name_of_player + " " + title +
+        " (Stufe " + level + ").\n");
+      break;
+
+    default:
+      write("Willkommen auf Deiner neuen Stufe.\n" +
+        "Du bist jetzt " + name_of_player+" "+ title +
+        " (Stufe " + level + ").\n");
+      break;
   }
-  if (level < 14) {
-    write("Gut gemacht, " + name_of_player + " " + title +
-      " (Stufe " + level + ").\n");
-    return 1;
-  }
-  write("Willkommen auf Deiner neuen Stufe.\n" +
-    "Du bist jetzt " + name_of_player+" "+ title +
-    " (Stufe " + level + ").\n");
 
   return 1;
 }
 
-static int compare( mixed *i, mixed *j )
-{
-  if( i[2] == j[2] )
-    return i[1] > j[1];
-  else
-    return i[2] > j[2];
-}
-
-static string asText( int max, int dontneed )
-{
-  if( !dontneed ) return "muessen alle";
-  switch( max-dontneed )
-  {
-    case 0: return "muss keine";
-    case 1: return "muss eine";
-    default:
-      return sprintf( "muessen %d", max-dontneed );
-  }
-}
-
+// Spielerkommando fuer Abenteurerliste
 varargs int liste(mixed pl)
 {
   string str; 
@@ -425,12 +356,25 @@ varargs int liste(mixed pl)
     return 1;
   }
 
-  str = "";
-  str += QM->liste(pl);
-  
-  if (!IS_SEER(pl))
-    str+=LEPMASTER->QueryReadyForWizText(pl);
+  str = QM->liste(pl);
 
   this_player()->More( str, 0 );
   return 1;
 }
+
+int GotoMagierTreff()
+{
+  if(IS_LEARNER(this_player()))
+  {
+    write("Ein Zauberspruch zieht vor Deinem geistigen Auge vorbei und Du\n"
+    "sprichst ihn nach.\n");
+    say(PL->name()+" murmelt einen geheimen Zauberspruch und schwebt langsam\n"
+    "zur Decke hinauf und verschwindet durch die Wand.\n");
+    write("Du schwebst langsam zur Decke hinauf und als ob diese nicht da\n"
+    "waere mitten hindurch in den Magiertreff.\n");
+    return (PL->move("/secure/merlin", M_TPORT | M_SILENT ) >= 0);
+  }
+  write("Du springst zur Decke hinauf und nix passiert.\n");
+  return 1;
+}
+

@@ -2,7 +2,7 @@
 //
 // corpse.c -- corpse standard object
 //
-// $Id: corpse.c 7096 2009-01-31 14:27:24Z Zesstra $
+// $Id: corpse.c 9061 2015-01-13 22:15:52Z Zesstra $
 
 // A corpse.
 // 
@@ -209,7 +209,7 @@ static string _query_short()
     txt = "Die schimmelnde und halbverweste"+knabber_text()+" Leiche ";
     break;
   case 1:
-    txt = "Die verfaulten"+(strlen(knabber_text()) ?
+    txt = "Die verfaulten"+(sizeof(knabber_text()) ?
                             "n":"")+" Einzelteile ";
     break;
   }
@@ -370,7 +370,7 @@ void ChannelMessageJeer( mixed sender, string text, int flag )
 
 
 // _channel() --
-#define KILL_MESSAGES ({ \
+#define KILL_MESSAGES \
 "Jetzt hat mich doch glatt %s erwischt :(", \
 "Wie soll das noch enden, %s?", \
 "Unglaublich, wie hat %s das geschafft?", \
@@ -393,7 +393,7 @@ void ChannelMessageJeer( mixed sender, string text, int flag )
 "Hilfe! Diebe! Moerder! Halsabschneider! %s!", \
 "Wieder mal an %s gestorben, find ich albern!", \
 "%s, probier das bei Anne!", \
-"Und wieder ein Drittel Erfahrung weg wegen %s ...", \
+"Und wieder ein Drittel Erfahrung weg wegen %s...", \
 "Oh waer ich doch ein Spieler, dann duerfte mich "\
 "%s nicht mehr toeten!", \
 "Wenn Du das noch oefter machst, %s, dann spiele "\
@@ -404,13 +404,13 @@ void ChannelMessageJeer( mixed sender, string text, int flag )
 "So schaff ich's wohl nie, Seher zu werden, %s :(",\
 "Musste das WIRKLICH sein, %s?",\
 "Wuenscht mir ne kurze Todessequenz, ich hab sie "\
-"%s zu verdanken ...",\
+"%s zu verdanken...",\
 "Naechstes Mal bring mir lieber Post statt mich "\
 "zu ermorden, %s!",\
 "%s, wieso sagt der Typ: KOMM MIT MIR, STERBLICHER?",\
 "Ich glaub, jetzt kenne ich ALLE Todessequenzen, %s!",\
 "Was, %s hat mir WIE VIELE Lebenspunkte abgezogen???",\
-"Verdammt, %s wollte nicht sterben ...",\
+"Verdammt, %s wollte nicht sterben...",\
 "Tod den Monsterschaendern! Straft %s!",\
 "Naechstes Mal werde ICH siegen, %s!",\
 "Findest Du das fair, %s?",\
@@ -458,7 +458,7 @@ void ChannelMessageJeer( mixed sender, string text, int flag )
 "Morgen frueh um halb sechs in der Arena, %s! Ich hab die Wahl der Waffen.",\
 "%s ist schlimmer als das Mensaessen. Absolut toedlich.",\
 "Mist, meine Vorsicht hat versagt! Und das bei %s!",\
-"%s, die Hydra ist mir lieber ...",\
+"%s, die Hydra ist mir lieber...",\
 "So, meine Ignoriereliste ist schon wieder um einen Namen laenger, %s."
 
 #define KILL_MESSAGES2 \
@@ -466,7 +466,7 @@ void ChannelMessageJeer( mixed sender, string text, int flag )
 "Toll! GENAU das hab ich jetzt gebraucht! Super, %s! :(",\
 "Schon wieder ein Tag versaut wegen %s!",\
 "Ihr sagt, ICH sei ein Monster? Ihr kennt %s nicht!!!",\
-"Sperrt %s mal in's Polargebiet! Gaebe ein gutes Untier ab ...",\
+"Sperrt %s mal in's Polargebiet! Gaebe ein gutes Untier ab...",\
 "Freiheit fuer Nicht-Spieler! Vernichtet %s!",\
 "Merlin, mach %s zum Magier!",\
 "%s ist NICHT zu meiner Beerdigung eingeladen!",\
@@ -480,59 +480,59 @@ void ChannelMessageJeer( mixed sender, string text, int flag )
 "Das naechste Mal komme ich als Kaempfer wieder, %s!", \
 "Ich lass' mich aufwerten und werde Zauberer, %s!", \
 "Gildenbalance! %s ist viel zu stark!", \
-"Jetzt ist mir das Kleingeld zum Tanken ausgegangen, %s ...", \
+"Jetzt ist mir das Kleingeld zum Tanken ausgegangen, %s...", \
 "%s hat ein Zap-Tool!", \
 "%s, Du <zensiert>!", \
 "%s, das ist doch Hullepanz. (c) Catweazle", \
 "Bald bin ich SuperSeher, %s!", \
 "Mit Dir 'piel ich nich' mehr, %s, Du hast in mein Foermssen depinkelt!", \
-"Verdammt, %s muss mir den Feenring geklaut haben ...", \
-"Nie ist ein Kleriker in der Naehe, wenn man ihn braucht, %s ...", \
+"Verdammt, %s muss mir den Feenring geklaut haben...", \
+"Nie ist ein Kleriker in der Naehe, wenn man ihn braucht, %s...", \
 "Menno, %s, wo war hier noch mal die Heilstelle?", \
-"Hoffentlich werde ich naechstes Mal als Kuh wiedergeboren, %s ...", \
+"Hoffentlich werde ich naechstes Mal als Kuh wiedergeboren, %s...", \
 "Wenn Du sonst noch Probleme hast, %s, geh' zu Marvin und red' " \
 "mit ihm darueber.", \
 "Du, %s, Gewalt ist keine Loesung, lass uns darueber diskutieren.", \
 "Das naechste Mal zeig' ich Dir meine Mateteesammlung, %s.", \
 "%s eunt domum!", \
 "%s, ist es so kalt hier oder bin ich das?", \
-"Ich war schon wieder zur falschen Zeit am falschen Ort, %s ...", \
+"Ich war schon wieder zur falschen Zeit am falschen Ort, %s...", \
 "Danke, %s. Im Namen des Mondes werde ich Dich bestrafen!", \
 "Das war mal wieder ein Schuss in den Ofen, %s...", \
 "Kannst Du das mit Deinem Gewissen vereinbaren, %s?", \
 "Und Kandri sprach: Mein ist die Rache, %s!", \
-"%s, Du haettest meine Leiche nicht auch noch schaenden muessen ...", \
+"%s, Du haettest meine Leiche nicht auch noch schaenden muessen...", \
 "%s, ich kann so nicht arbeiten!", \
 "%s, ich geb' Dir mal 2 Muenzen, dann kannst Du Deine Sorgen " \
-"jemand anderem erzaehlen ...", \
+"jemand anderem erzaehlen...", \
 "Manchmal verspeist Du den Baer, %s, manchmal verspeist " \
-"der Baer Dich ...", \
+"der Baer Dich...", \
 "Das naechste Mal betrittst _Du_ die Welt des Schmerzes, %s!", \
 "Wenn ich wiederkomme, %s, werde ich erst Dich toeten, dann " \
 "Deinen Partner, dann Deine Brueder und Schwestern und jeden " \
 "der Dich kennt!", \
-"Oh nein, %s! Schon wieder die Todessequenz mit dem " \
-"schwulen Lars!", \
+"Oh nein, %s! Schon wieder diese ewig lange Todessequenz mit der " \
+"Drachenschule!", \
 "%s, wo bekomme ich jetzt einen neuen Koerper her?", \
 "Lass Dir meine Leiche schmecken, %s.", \
 "Haeh?", \
 "Ja, aber wieso das denn? Och menno, %s!", \
-"So ein Mist, %s, ich hatte 'nen Disconnect ...", \
+"So ein Mist, %s, ich hatte 'nen Disconnect...", \
 "*winkewinke*, %s!", \
 "Heute ist nicht alle Tage, ich komm' wieder, keine Frage.", \
 "Lass das, %s!", \
 "Niemand! Niemand nennt mich eine feige Sau, %s!", \
-"Da hab' ich jetzt wohl verloren, %s ...", \
-"%s, ich kann nicht metzeln, ich kann nur sterben ...", \
+"Da hab' ich jetzt wohl verloren, %s...", \
+"%s, ich kann nicht metzeln, ich kann nur sterben...", \
 "Hattest Du ueberhaupt einen Termin, %s?", \
 "Du warst gar nicht an der Reihe, %s!", \
 "Aetsch, %s, der Kill zaehlt nicht!", \
 "Jetzt noch mal mit Gefuehl, %s.", \
 "Tschuess erstmal, %s.", \
 "Ich weiss nicht ob Du es gemerkt hast, %s, aber " \
-"ich bin schon tot ...", \
+"ich bin schon tot...", \
 "%s, ich haette nicht gedacht, dass ich noch mal sterbe " \
-"bevor Taramis angeschlossen wird ...", \
+"bevor Taramis angeschlossen wird...", \
 "Ich wollte sowieso grade gehen, %s.", \
 "Shit happens, %s.", \
 "Dazu faellt mir jetzt nix mehr ein, %s."
@@ -541,7 +541,7 @@ void ChannelMessageJeer( mixed sender, string text, int flag )
 "Was heisst denn \"Dein Teddy knuddelt Dich ein letztes Mal\", %s?", \
 "Ich bin beeindruckt, %s.", \
 "Ok, Dein Gesicht merke ich mir, %s!", \
-"Kaum da, haut mich %s schon wieder tot ... *grummel*", \
+"Kaum da, haut mich %s schon wieder tot... *grummel*", \
 "Ich werde Dich verfolgen, %s! Ich werde in Deine Traeume eindringen " \
 "und Dich in den Wahnsinn treiben! Du wirst diesen Tag noch verfluchen!", \
 "Ich geh ja schon, %s.", \
@@ -562,7 +562,7 @@ void ChannelMessageJeer( mixed sender, string text, int flag )
 "Einigen wir uns auf unentschieden, %s?", \
 "Ich sagte doch \"Ich ergebe mich!\", %s.", \
 "Aeh, %s, koennte das unter uns bleiben? Ich habe schliesslich einen " \
-"Ruf zu verlieren ...", \
+"Ruf zu verlieren...", \
 "Du bist vielleicht staerker, %s, aber dafuer bin ich schoener.", \
 "Die Rechnung fuer die Behandlung meiner Minderwertigkeitskomplexe geht " \
 "an %s.", \
@@ -571,14 +571,14 @@ void ChannelMessageJeer( mixed sender, string text, int flag )
 "Geht's Dir jetzt besser, %s?", \
 "Macht kaputt, was mich kaputt macht! Toetet %s!", \
 "Beim naechsten Mal mach' ich es Dir nicht mehr so einfach, %s!", \
-"Weisst Du, %s, ich habe nur verloren, weil Du ... aeh, weil ich ... " \
-"aeh ... weil Du gewonnen hast.", \
+"Weisst Du, %s, ich habe nur verloren, weil Du... aeh, weil ich... " \
+"aeh... weil Du gewonnen hast.", \
 "Jo, immer feste druff, %s. Ist ja nur ein dummer NPC. *grummel*", \
 "Ich muss sagen, %s kann feste schlagen.", \
 "Also %s! Kommst hier rein, haust mich um und tust dann so, als sei nichts " \
-"gewesen ...", \
+"gewesen...", \
 "In welcher Gilde konnte man nochmal \"befriede\" lernen, %s?", \
-"Tja, %s, aus diesem Kampf bist Du wohl nur als Vorletzter hervorgegangen " \
+"Tja, %s, aus diesem Kampf bist Du wohl nur als Vorletzter hervorgegangen" \
 "...", \
 "Vorsicht, %s greift immer von hinten an!", \
 "Was meint %s mit \"Sparringspartner\"?", \
@@ -589,17 +589,70 @@ void ChannelMessageJeer( mixed sender, string text, int flag )
 "Huch, wo seid ihr alle hin?", \
 "Wer war das?", \
 "Moegest Du in interessanten Zeiten leben, %s.", \
-"Ich sehe was, was Du nicht siehst, %s, und es ist ... schwarz.", \
+"Ich sehe was, was Du nicht siehst, %s, und es ist... schwarz.", \
 "Hey Maedels! Ratet, wen ich gerade getroffen habe!", \
 "%s?", \
 "Noch einmal sowas, %s, und ich lasse Deine Gilde abwerten. Ich kann das!", \
-"Was bedeutet 'Jemand beschwoert Dein Bild herauf.'? Warst Du das, %s?", \
-})
+"Was bedeutet 'Jemand beschwoert Dein Bild herauf.'? Warst Du das, %s?"
 
-private int kma = sizeof( KILL_MESSAGES, KILL_MESSAGES2, KILL_MESSAGES3 );
+private string *moerder_msgs = ({KILL_MESSAGES, KILL_MESSAGES2, KILL_MESSAGES3,
+"Sterben ist schoen, Sterben ist toll - Ach waer ich wie ein Kaempfer voll!",
+"Lauschige Nacht - ich geh mir die Sterne anschauen. Bis spaeter!",
+"Echt %s, das war 0815, keine Kreativitaet beim Toeten!",
+"%s, Du kannst ja gar ni... Verdammt!",
+"Kaempfer, Zauberer, Tanjian, alles Luschen! Ich werde Abenteurer, da ist "
+    "wenigstens Thrill!", 
+"Toeten, Toeten, Toeten. Ist das alles, was Du kannst, %s?",
+"Ach geh doch Bluemchen pfluecken %s!", 
+"Mein Tod war KEIN FP %s... HA!",
+"Lars gibt mir nen Whisky, wenn ich komme. Und Dir?",
+"Geh lernen, Depp!",
+"Auf der naechsten Mud-Party haut Dich mein Magier zurueck!",
+"Lass gut sein, tat eh nicht weh!", 
+"Ich lass Dich von Zook abhaengen, %s!",
+"Koennen wir naechstes Mal nicht lieber einen trinken gehen, %s?",
+"Verdammt, meine neue Gilde ist ja noch gar nicht angeschlossen!",
+"Yohoho und ne Buddel voll Rum!",
+"Beim Kartenspiel haettest Du keine Chance gehabt %s!",
+"%s, Du hast echt keine Ahnung von stilvollem Metzeln...",
+"Was muss ich noch tun fuer Deinen Aufstieg, %s? *seufz*",
+"EK-Poser!",
+"Leistung ist was anderes, %s!",
+"Lass mich leeeeeeb... Arrrrggggh!",
+"Hast Du sonst nix in der Drachenschule gelernt, %s?",
+"Und wer kuemmert sich jetzt um meine Haustiere, %s?",
+"Ich musste sterben, Du willst mich nur beerben. Ich gehe "
+    "mit Stil, Du findest nicht viel.",
+"Ich habe nun mehr Tode als Du, %s. Topp mich, wenn Du kannst!",
+"Ok, dann geh ich halt WOW spielen.",
+"Toll, freut sich der Naechste. Wieder ne Todesfolge, %s.",
+"Du gucktest so traurig, %s, ich machte Dir meinen Tod zum Geschenk. "
+    "Sollst ja auch mal 'n Erfolgserlebnis haben!",
+"Nun reiche ich den letzten Becher, trinke den Wein, erkenne Dein Sein.",
+"%s hat nicht einmal getroffen. Ich habe mich wortwoertlich totgelacht.",
+"Lass mich nachdenken, %s. Ich starb fuer nen EK?",
+"Ich kann nicht glauben, dass das gerade passiert ist!",
+"Du Suender. Du sollst _nicht_ toeten!",
+"%s, mein Testament steckt im rechten Schuh!",
+"Sterben und sterben lassen, mein Freund. Wir sehen uns wieder!",
+"Und ich sag noch, %s... Das ist KEINE Schwertscheide... Aber Du musst "
+  "ja alles selbst ausprobieren.",
+"Soll das jetzt alles gewesen sein, %s?",
+"In meinem Code ist ein Fehler und gleich gibt's 'nen Crash.",
+"Ach, auch egal, %s. Ist eh gleich Schichtwechsel.",
+"Jofverdammt... warst Du gut, %s!",
+"Duelle von Killern enden meist fuer einen toedlich und das wirst "
+  "Du s... Argh!",
+"Bist Du sicher, dass Du den EK bekommen hast, %s?",
+"Danke %s! Weisst Du, ich hatte mit Zook gewettet, wer mich "
+  "toetet. Und ich habe eine Wiedergeburt gewonnen!",
+"Nun bin ich sicher vor Dir, %s!",
+"Ich mache jetzt Urlaub und habe Zook gebeten, meinen Reset "
+  "um einen Monat zu verschieben. Gluecklich, %s?",
+});
 
 
-int _query_kma() { return kma; }
+int _query_kma() { return sizeof(moerder_msgs); }
 
 
 object _channel( object ob )
@@ -646,8 +699,7 @@ object _channel( object ob )
                       SetProp( P_NAME, "Geist "+(string) ob->name(WESSEN, 0) );
 
                       if( !(msg = (string) ob->QueryProp(P_MURDER_MSG)) )
-                          msg = KILL_MESSAGES, KILL_MESSAGES2, KILL_MESSAGES3
-                              [random(kma)];
+                          msg = moerder_msgs[random(sizeof(moerder_msgs))]; 
 
 		      if ( stringp(msg) )
 			  msg = sprintf( msg, killer || "Moerder" );

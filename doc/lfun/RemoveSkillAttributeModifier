@@ -1,5 +1,4 @@
 RemoveSkillAttributeModifier()
-
 FUNKTION:
     public int RemoveSkillAttributeModifier(object caster, string atrname)
 
@@ -26,8 +25,6 @@ RUECKGABEWERT:
     Wenn man nur wissen will, ob die Operation erfolgreich war, empfiehlt es
     sich, auf == SA_MOD_REMOVED zu pruefen.
 
-BEMERKUNGEN:
-
 BEISPIELE:
     // eine Waffe setzt im InformWield() einen Bonus auf SA_DAMAGE fuer 10min
     protected void InformWield(object pl, int silent) {
@@ -50,9 +47,13 @@ BEISPIELE:
     }
     
 SIEHE AUCH:
-    P_SKILL_ATTRIBUTES, P_SKILL_ATTRIBUTE_OFFSETS,
-    QuerySkillAttribute(), QuerySkillAttributeModifier(),
-    ModifySkillAttribute()
+    Skills Lernen:  LearnSkill, ModifySkill, LimitAbility
+    * Nutzung:      UseSpell, UseSkill
+    * Abfragen:     QuerySkill, QuerySkillAbility
+    * Modifikation: ModifySkillAttribute, QuerySkillAttribute,
+                    QuerySkillAttributeModifier
+      * Properties: P_SKILL_ATTRIBUTES, P_SKILL_ATTRIBUTE_OFFSETS
+    * sonstig:      spruchermuedung, skill_info_liste
+    * Properties:   P_NEWSKILLS
 
------------------------------------------------------------------------------
 13.08.2008, Zesstra

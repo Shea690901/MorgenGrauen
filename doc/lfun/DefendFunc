@@ -1,14 +1,15 @@
 DefendFunc(L)
 
 FUNKTION:
-     int DefendFunc(string *dtyp, mixed spell, object enemy);
+     int DefendFunc(string|string *dtyp, int|mappingspell, object enemy);
 
 DEFINIERT IN:
      eigenen Objekten; fuer /std/armour/combat.c
 
 ARGUMENTE:
      dtyp
-          Schadenstypen der Angriffsart
+          Schadenstypen der Angriffsart.
+          Sollte heute ein string* sein.
      spell
           0 bei veralteten konventionellen Angriffen im Regelfall jedoch
           ein Mapping mit weiteren Infos.

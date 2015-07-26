@@ -3,7 +3,7 @@ finger
 ------
 
  KOMMANDO:
-    finger [-n] [-p] [-s] [-v] <name> | <name>@<mud>
+    finger [-n] [-p] [-s] [-v] [-a] <name> | <name>@<mud>
 
  ARGUMENTE:
 
@@ -25,12 +25,16 @@ finger
     Moechte man die .plan-Datei defaultmaessig unterdruecken, kann man sich
     ein Alias der Form
 
-    alias finger finger -n $*
+    'alias finger finger -n $*'
 
     erstellen.
 
     Moechte man dann trotzdem einmal einen .plan sehen, kann man dies mit der
     Option `-p' bewerkstelligen.
+
+    Mit dem Schalter '-a' kann man sich zusaetzlich zu den anderen Angaben
+    auch die Avatar-URI des Spielers anzeigen lassen (natuerlich nur, sofern
+    er auch eine gesetzt hat).
 
     Gibt man den Schalter `-s' an, so wird das Verwandtschaftsverhaeltnis des
     Magiers ausgegeben.
@@ -41,9 +45,11 @@ finger
 
     Ist der Spieler als abwesend gekennzeichnet, wird zeigt 'finger' die
     Wegmeldung des Spielers an.
-
     Will man nur wissen, ob ein Spieler als abwesend gekennzeichnet ist, 
-    kann man den Befehl 'weg' benutzen.
+    kann man den Befehl 'wegmeldung' benutzen.
+
+ SIEHE AUCH:
+    avatar, email, url, messenger, icq, ort, weg, (wegmeldung)
 
  LETZTE AeNDERUNG:
-    Son, 11. Aug 2002, 19:07:00 von Vanion
+    25.08.2011, Zesstra

@@ -3,16 +3,20 @@
 ** (von Boing)
 */
 
-inherit "std/armour";
+// Diese Pragmas sorgen dafuer, dass der Driver darauf achtet, dass bei
+// Funktionsargumenten, -Rueckgabewerten und teilweise bei Zuweisung von
+// Werten an Variablen der richtige Datentyp verwendet wird (z.b. kein string
+// anstelle eines int verwendet wird). Sollte in keinem Objekt fehlen.
+#pragma strong_types, save_types, rtt_checks
+
+inherit "/std/armour";
 
 #include <properties.h>
 #include <combat.h>
 #include <language.h>
 
-create()
+protected void create()
 {
-  if (!clonep(this_object()))
-     return;
   ::create();   /* WICHTIG!!! */
 
 /* Standardkonfiguration, genaueres siehe /doc/beispiele/bspwaffe1.c    */

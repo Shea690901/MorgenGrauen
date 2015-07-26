@@ -2,7 +2,7 @@
 //
 // room/moving.c -- Entfernen von Raeumen
 //
-// $Id: moving.c 6371 2007-07-17 22:46:50Z Zesstra $
+// $Id: moving.c 8041 2012-03-19 18:38:21Z Zesstra $
 
 #pragma strong_types
 #pragma save_types
@@ -10,7 +10,7 @@
 #pragma range_check
 #pragma no_clone
 
-int remove()
+public varargs int remove(int silent)
 {
   destruct( this_object() );
   return 1;

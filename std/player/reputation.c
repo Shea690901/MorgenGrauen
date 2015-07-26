@@ -30,7 +30,7 @@ public varargs int ChangeReputation(string repid, int value,
                                           int silent) {
   string uid, changemsg; int newval; mapping rep;
   
-  if(!intp(value) || !value || !stringp(repid) || !strlen(repid)) 
+  if(!intp(value) || !value || !stringp(repid) || !sizeof(repid)) 
     return REP_RET_WRONGARGS;
   if(!mappingp(rep = REPMASTER->GetReputationData(repid)))
     return REP_RET_INVALIDREP;

@@ -20,7 +20,8 @@ BEMERKUNGEN:
      Ohne Haende wird kein Npc irgendeinen Spieler angreifen koennen.
 
 SIEHE AUCH:
-     P_HANDS, P_USED_HANDS, P_HANDS_USED_BY
+     P_HANDS, P_HANDS_USED_BY
+     P_USED_HANDS, P_FREE_HANDS
      UseHands, FreeHands
 
 1.Feb.2004 Gloinson

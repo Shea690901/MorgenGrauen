@@ -15,16 +15,16 @@ BESCHREIBUNG
         Compat Modus nicht.
 
 BEISPIELE
-        Angenommen, das Objekt <env> enthalte die Objekte /obj/money#8,
+        Angenommen, das Objekt <env> enthalte die Objekte /items/money#8,
         /std/weapon#9, /std/weapon#12 und /obj/key in der angegeben
         Reihenfolge.
 
         +--------------------------------------------------+---------------+
         | Funktion                                         | Liefert       |
         +--------------------------------------------------+---------------+
-        | present_clone("/obj/money", env)                 | /obj/money#8  |
+        | present_clone("/items/money", env)               | /items/money#8|
         | present_clone("/std/weapon#12", env)             | /std/weapon#9 |
-        | present_clone(find_object("/obj/money#14"), env) | /obj/money#8  |
+        | present_clone(find_object("/items/money#1"), env)| /items/money#8|
         | present_clone("/obj/key#18", env)                | /obj/key      |
         +--------------------------------------------------+---------------+
 

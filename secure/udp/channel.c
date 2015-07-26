@@ -2,7 +2,7 @@
 //
 // channel.c
 //
-// $Id: channel.c 7287 2009-09-16 22:09:27Z Zesstra $
+// $Id: channel.c 9142 2015-02-04 22:17:29Z Zesstra $
 
 #include <udp.h>
 
@@ -13,10 +13,10 @@
 inherit "/sys/format";
 #endif
 
-#define COMMAND		"cmd"
-#define CHANNEL		"channel"
+#define COMMAND                "cmd"
+#define CHANNEL                "channel"
 
-private static mixed _name_;
+private nosave mixed _name_;
 
 int filter_listeners(object ob, string channel) {
     return ob->QueryProp(P_INTERMUD);
@@ -35,6 +35,12 @@ int udp_channel(mapping data) {
   if (!data[DATA])
     data[DATA]="";
 
+  if (!stringp(data[CHANNEL]) || !sizeof(data[CHANNEL])
+      || !stringp(data[DATA]) || !sizeof(data[DATA])
+      || !stringp(data[NAME]) || !sizeof(data[NAME])
+      || !stringp(data[SENDER]) || !sizeof(data[SENDER]))
+    return 0;
+
   data[DATA]=
     implode(filter(explode(data[DATA], ""), #'>=, " "), "");//'))
   data[NAME]=
@@ -42,23 +48,23 @@ int udp_channel(mapping data) {
   switch(data[COMMAND]) {
   case "list":
     /* Request for a list of people listening to a certain channel. */
-    list = filter(users(), "filter_listeners", 
-			this_object(), data[CHANNEL]);
+    list = filter(users(), "filter_listeners",
+                        this_object(), data[CHANNEL]);
     if (i = sizeof(list)) {
       msg = "[" + capitalize(data[CHANNEL]) + "@" +
-	LOCAL_NAME + "] Listening:\n";
+        LOCAL_NAME + "] Listening:\n";
       while(i--)
-	msg +=
-	  "    " + capitalize(list[i]->query_real_name()) + "\n";
+        msg +=
+          "    " + capitalize(list[i]->query_real_name()) + "\n";
     }
     else
       msg = "[" + capitalize(data[CHANNEL]) + "@" + LOCAL_NAME 
       + "] Nobody Listening.\n";
     INETD->_send_udp(data[NAME], ([
-				  REQUEST: REPLY,
-				  RECIPIENT: data[SENDER],
-				  ID: data[ID],
-				  DATA: msg
+                                  REQUEST: REPLY,
+                                  RECIPIENT: data[SENDER],
+                                  ID: data[ID],
+                                  DATA: msg
                                 ]));
     return 1;
   case "emote": /* A channel emote. */
@@ -70,7 +76,7 @@ int udp_channel(mapping data) {
   }
   _name_ = capitalize(data[SENDER])+"@"+capitalize(data[NAME]);
   CHMASTER->send(capitalize(data[CHANNEL]), this_object(), 
-		 data[DATA], type);
+                 data[DATA], type);
   _name_ = 0;
   return 1;
 }
@@ -90,10 +96,10 @@ void ChannelMessage(mixed m)
   mapping request;
   if(m[1] == this_object()) return;
   request = ([
-	      REQUEST : "channel",
-	      SENDER  : m[1]->name() || capitalize(getuid(m[1])),
-	      "CHANNEL": lower_case(m[0]),
-	      DATA    : implode(old_explode(m[2], "\n"), " ")]);
+              REQUEST : "channel",
+              SENDER  : m[1]->name() || capitalize(getuid(m[1])),
+              "CHANNEL": lower_case(m[0]),
+              DATA    : implode(old_explode(m[2], "\n"), " ")]);
   if(m[3] == MSG_GEMOTE || m[3] == MSG_EMOTE)
   { 
     request["EMOTE"] = 1;

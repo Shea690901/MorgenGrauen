@@ -52,22 +52,6 @@
      abgeleitet und enthaelt alle zusaetzliche Funktionalitaet
      fuer den Kampf.
 
-     Dynamische Kampfproperties:
-
-     SetProp(P_DEFEND_FUNC, ob)		[obsolet: SetDefendFunc(object ob)]
-	Setzt das Objekt, in dem die Funktion DefendFunc() definiert
-	wird. DefendFunc() bekommt den damage-type und den Angreifer
-	als Parameter uebergeben und gibt selber einen Integer-Wert 
-	zurueck, der zum aktuellen Schutz addiert wird.
-     SetProp(P_WEAR_FUNC, ob)		[obsolet: SetWearFunc(object ob)]
-	Setzt das Objekt, in dem die Funktion WearFunc() definiert
-	wird. WearFunc() wird beim Versuch die Ruestung anzuziehen
-	aufgerufen, gibt sie 0 zurueck so scheitert der Versuch.
-     SetProp(P_REMOVE_FUNC, ob)		[obsolet: SetRemoveFunc(object ob)]
-	Setzt das Objekt, in dem die Funktion RemoveFunc() definiert
-	ist. Die Funktion wird beim Versuch die Ruestung auszuziehen
-	aufgerufen, gibt sie 0 zurueck, so scheitert der Versuch.
-
      Vor der Programmierung von Ruestungen sollte /doc/MG/waffen_werte
      gelesen werden. Die Regeln darin sind verbindlich und sollten nur
      in Ausnahmefaellen und mit Absprache mit dem Erzmagier fuer 

@@ -26,7 +26,7 @@ mapping spool_item;
 static string *spool;
 
 private int match_mud_name(string mudname, string match_str) {
-    return mudname[0..strlen(match_str)-1] == match_str;
+    return mudname[0..sizeof(match_str)-1] == match_str;
 }
 
 static void save_spool_item()
@@ -40,7 +40,7 @@ static void save_spool_item()
   do {
     ++count;
     name=spool_item[UDPMS_DEST]+"-"+to_string(count);
-  } while(spool && member_array(name,spool)!=-1);
+  } while(spool && member(spool, name)!=-1);
 
   save_object(UDPM_SPOOL_DIR+name);
 
@@ -61,11 +61,11 @@ static void remove_from_spool(string spool_file)
 {
   int idx;
 
-  if(spool && (idx=member_array(spool_file,spool))!=-1)
+  if(spool && (idx=member(spool,spool_file))!=-1)
     {
       spool -= ({ spool_file });
       if(!sizeof(spool))
-        spool=-0;
+        spool=0;
     }
 
   if(file_size("/"+UDPM_SPOOL_DIR+spool_file+".o")>0)

@@ -3,7 +3,7 @@
 // OBJECTD.C -- object daemon
 //
 // $Date: 1995/04/03 14:47:02 $
-// $Revision: 7421 $
+// $Revision: 8099 $
 /* $Log: objectd.c,v $
  * Revision 1.2  1995/04/03 14:47:02  Wargon
  * QueryObject() verwendet bei BluePrints jetzt auch AddItem.
@@ -22,6 +22,7 @@
 #include <daemon.h>
 
 mapping objects;
+private nosave int do_save;
 
 #define CLASS   0
 #define DATA    1
@@ -33,7 +34,14 @@ void create()
   restore_object(OBJECTD_SAVE);
 }
 
-mixed AddObject(object obj, string env)
+protected void reset() {
+  if (do_save) {
+    save_object(OBJECTD_SAVE);
+    do_save=0;
+  }
+}
+
+string AddObject(object obj, string env)
 {
   if(!obj || !env || !objectp(obj) || !stringp(env)) return 0;
 
@@ -42,11 +50,12 @@ mixed AddObject(object obj, string env)
     objects[env] = ({ ({  object_name(obj), obj->QueryProp(P_AUTOLOAD) }) });
   else
     objects[env] += ({ ({ object_name(obj), obj->QueryProp(P_AUTOLOAD) }) });
-  save_object(OBJECTD_SAVE);
+
+  do_save=1;
   return env;
 }
 
-mixed RemoveObject(object obj, string env)
+int RemoveObject(object obj, string env)
 {
   if(!obj || !env || !objectp(obj) || !stringp(env)) return 0;
 
@@ -57,8 +66,11 @@ mixed RemoveObject(object obj, string env)
                 while(i && (objects[env][i-1][CLASS] != object_name(obj))) i--;
     if(i > 0) objects[env][i-1..i-1] = ({});
   }
-  if(!sizeof(objects[env])) objects = m_delete(objects, env);
-  save_object(OBJECTD_SAVE);
+  if(!sizeof(objects[env]))
+    m_delete(objects, env);
+
+  do_save=1;
+  return 1;
 }
 
 varargs void QueryObject(mixed env)
@@ -87,7 +99,6 @@ varargs void QueryObject(mixed env)
        o->SetProp(P_AUTOLOAD, objects[env][i][DATA]);
        objects[env][i][CLASS] = object_name(o);
     }
-    save_object(OBJECTD_SAVE);
   }
 }
 
@@ -107,9 +118,10 @@ mixed QueryObjects(mixed env)
   return obj;
 }
 
-int clean_up(int arg)
+int remove(int silent)
 {
-  if(arg>1) return 1;
   save_object(OBJECTD_SAVE);
   destruct(ME);
+  return 1;
 }
+

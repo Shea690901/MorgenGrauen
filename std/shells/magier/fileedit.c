@@ -2,7 +2,7 @@
 //
 //fileedit.c
 //
-// $Id: fileedit.c 7482 2010-02-21 15:43:43Z Zesstra $
+// $Id: fileedit.c 9142 2015-02-04 22:17:29Z Zesstra $
 #pragma strict_types
 #pragma save_types
 //#pragma range_check
@@ -10,15 +10,18 @@
 #pragma pedantic
 
 #include <wizlevels.h>
+#include <input_to.h>
+
 #define NEED_PROTOTYPES
 #include <magier.h>
 #include <player.h>
+#include <files.h>
 
 //                        ###################
 //######################### INITIALISIERUNG #############################
 //                        ###################
 
-mixed *_query_localcmds()
+mixed _query_localcmds()
 {
   return ({ ({"cp","_cp",0,WIZARD_LVL}),
             ({"mv","_cp",0,WIZARD_LVL}),
@@ -37,7 +40,7 @@ mixed *_query_localcmds()
 // _ed_file: Mehrere Files hintereinander editieren
 //
 
-private static string *_ed_cache;
+private nosave string *_ed_cache;
 
 private void _ed_file()
 {
@@ -165,7 +168,7 @@ static mixed cp_file(mixed filedata,int move,int flags, mixed *do_delete)
 static void _cp_ask_overwrite2(string input, mixed *filedata,
                                int interactive,int flags,int move)
 {
-  if (!strlen(input)) input=" ";
+  if (!sizeof(input)) input=" ";
   input=lower_case(input);
   switch(input[0])
   {
@@ -214,24 +217,26 @@ static void _cp_ask_overwrite2(string input, mixed *filedata,
 
 static void _cp_ask_overwrite(mixed *filedata, int interactive, int flags)
 {
-  printf("Die Datei '%s' existiert schon. Ueberschreiben? (j,n,a,q)\n",
+  printf("Die Datei '%s' existiert schon.\n",
          filedata[0][DESTNAME]);
-  input_to("_cp_ask_overwrite2",0,filedata,interactive,flags,0);
+  input_to("_cp_ask_overwrite2",INPUT_PROMPT,"Ueberschreiben? (j,n,a,q): ",
+      filedata,interactive,flags,0);
   return;
 }
 
 static void _mv_ask_overwrite(mixed *filedata, int interactive, int flags)
 {
-  printf("Die Datei '%s' existiert schon. Ueberschreiben? (j,n,a,q)\n",
+  printf("Die Datei '%s' existiert schon.",
          filedata[0][DESTNAME]);
-  input_to("_cp_ask_overwrite2",0,filedata,interactive,flags,1);
+  input_to("_cp_ask_overwrite2",INPUT_PROMPT,"Ueberschreiben? (j,n,a,q): ",
+      filedata,interactive,flags,1);
   return;
 }
 
 static void _cp_ask_copy2(string input,mixed *filedata,int mode,
                            int flags,int move)
 {
-  if (!strlen(input)) input=" ";
+  if (!sizeof(input)) input=" ";
   input=lower_case(input);
   switch(input[0])
   {
@@ -347,9 +352,10 @@ static void _cp_ask_copy(mixed *filedata,int move, int flags)
           jump=0;
           break;
         }
-        printf("Verzeichnis '%s' %s? (j,n,a,q)\n",source,
+        printf("Verzeichnis '%s' %s?\n",source,
                move?"bewegen":"kopieren");
-        input_to("_cp_ask_copy2",0,filedata,2,flags,move);
+        input_to("_cp_ask_copy2",INPUT_PROMPT, "(j,n,a,q) ",
+            filedata,2,flags,move);
         return;
       }
       if (file_size(dest)==-2)
@@ -357,8 +363,9 @@ static void _cp_ask_copy(mixed *filedata,int move, int flags)
         printf(DEST_IS_DIR,dest);
         break;
       }
-      printf("'%s' %s? (j,n,a,q)\n",source,move?"bewegen":"kopieren");
-      input_to("_cp_ask_copy2",0,filedata,(file_size(dest)!=-1),flags,move);
+      printf("'%s' %s?\n",source,move?"bewegen":"kopieren");
+      input_to("_cp_ask_copy2",INPUT_PROMPT, "(j,n,a,q) ",
+          filedata,(file_size(dest)!=-1),flags,move);
       return;
   }
   _cp_ask_copy(filedata[1+jump..],move,flags);
@@ -525,29 +532,23 @@ static int _mkdir(string cmdline)
     return notify_fail("Mit 'mkdir' kann nur jeweils EIN Verzeichnis "
                        "erstellt werden.\n"),0;
   dest=args[0];
-  if ((i=file_size(implode((args=explode(dest,"/"))[0..<2],"/")))==-2)
+  
+  if ((i=file_size(implode((args=explode(dest,"/"))[0..<2],"/")))==FSIZE_DIR)
   {
     if (!mkdir(dest)) return ERROR(NO_CREATE_DIR,dest,1);
     if (flags&MKDIR_V) printf(DIR_CREATED,dest,1);
+    printf("mkdir: abgeschlossen.\n");
     return 1;
   }
-  if (i==-1)
+  
+  if (i==FSIZE_NOFILE)
   {
     if (flags&MKDIR_R)
-    { 
-      for (i=1;i<sizeof(args);i++)
-      {
-        switch(file_size(implode(args[0..i],"/")))
-        {
-          case -2: continue;
-          case -1: if (!mkdir(implode(args[0..i],"/"))) 
-                     return ERROR(NO_CREATE_DIR,implode(args[0..i],"/"),1);
-                   if (flags&MKDIR_V)
-                     printf(DIR_CREATED,implode(args[0..i],"/"));
-                   continue;
-          default: return ERROR(ALREADY_EXISTS,implode(args[0..i],"/"),1);
-        }
-      }
+    {
+      if (mkdirp(dest) != 1)
+        return ERROR(NO_CREATE_DIR,dest,1);
+      if (flags&MKDIR_V)
+        printf(DIR_CREATED,implode(args[0..i],"/"));
       printf("mkdir: abgeschlossen.\n");
       return 1;
     }
@@ -565,7 +566,7 @@ private void _rm_ask_delete(mixed *filedata, int flags);
 static void _rm_ask_delete2(string input,mixed *filedata,int flags)
 {
   int i;
-  if (!strlen(input)) input=" ";
+  if (!sizeof(input)) input=" ";
   input=lower_case(input);
   switch(input[0])
   {
@@ -627,17 +628,19 @@ private void _rm_ask_delete(mixed *filedata, int flags)
       return;
     case -2:
       if (i=filedata[0][SUBDIRSIZE])
-        printf("Ins Verzeichnis '%s' hinabsteigen? (j,n,q)\n",
+        printf("Ins Verzeichnis '%s' hinabsteigen?\n",
           filedata[0][FULLNAME]);
       else
-        printf("Verzeichnis '%s' loeschen? (j,n,q)\n",
+        printf("Verzeichnis '%s' loeschen?\n",
                filedata[0][FULLNAME]);
-      input_to("_rm_ask_delete2",0,filedata,flags);
+      input_to("_rm_ask_delete2",INPUT_PROMPT, "(j,n,q) ",
+          filedata,flags);
       return;
     default:
       printf("'%s' loeschen? (j,n,q)\n",
          filedata[0][FULLNAME]);
-      input_to("_rm_ask_delete2",0,filedata,flags);
+      input_to("_rm_ask_delete2",INPUT_PROMPT, "(j,n,q) ",
+          filedata,flags);
       return;
   }
 }

@@ -46,16 +46,12 @@
 
 #ifndef __CHANNEL_H_PROTO__
 #define __CHANNEL_H_PROTO__
+varargs int new(string ch, object pl, mixed info);
+varargs int send(string ch, object pl, string msg, int type);
 
 // ok, keine Prototypen, aber trotzdem nur fuer channeld.c interessant.
 #define MAX_HIST_SIZE   200
 #define MAX_CHANNELS    90
-
-varargs int new(string ch, mixed pl, mixed info);
-int join(string ch, mixed pl);
-int leave(string ch, mixed pl);
-varargs int send(string ch, mixed pl, string msg, int type);
-mixed list(mixed pl);
 
 #endif //__CHANNEL_H_PROTO__
 

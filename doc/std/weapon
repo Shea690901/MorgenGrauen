@@ -53,24 +53,6 @@
      abgeleitet und enthaelt alle zusaetzliche Funktionalitaet
      fuer den Kampf.
 
-     Dynamische Kampfproperties:
-
-     SetProp(P_HIT_FUNC, ob)		[obsolet: SetHitFunc(object ob)]
-	Setzt das Objekt, in dem die Funktion HitFunc() definiert ist.
-	HitFunc() bekommt den aktuellen Gegner als Parameter uebergeben	und
-	gibt selber einen Integer-Wert zurueck, der zum aktuellen Schaden
-	addiert wird (Zum Beispiel Bonus gegen Drachen, Untote oder was
-	auch immer).
-     SetProp(P_WIELD_FUNC, ob)		[obsolet: SetWieldFunc(object ob)]
-	Setzt das Objekt, in dem die Funktion WieldFunc() definiert
-	ist. WieldFunc() wird beim Versuch die Waffe zu zuecken
-	aufgerufen. Wenn WieldFunc() 0 zurueck gibt, scheitert
-	der Versuch.
-     SetProp(P_UNWIELD_FUNC, ob)	[obsolet: SetUnwieldFunc(object ob)]
-	Setzt das Objekt, in dem die Funktion UnwieldFunc() definiert
-	ist. Die Funktion wird beim Wegstecken der Waffe aufgerufen,
-	gibt sie 0 zurueck, so scheitert der Versuch.
-
      Vor der Programmierung von Waffen sollte /doc/wiz/waffen
      gelesen werden. Die Regeln darin sind verbindlich und sollten nur
      in Ausnahmefaellen und mit Absprache mit dem Erzmagier fuer 

@@ -226,7 +226,7 @@ public int UnregisterShadow(object caller) {
   }
 
   // jetzt kann geloescht werden.
-  efun::m_delete(shadows,schatten);
+  m_delete(shadows,schatten);
   return SHADOW_OK;
 }
 
@@ -255,7 +255,7 @@ public void reset() {
       if (query_shadowing(schatten))
         shadows[schatten] = query_shadowing(schatten);
       else
-        efun::m_delete(shadows, schatten);
+        m_delete(shadows, schatten);
     }
   }
 }

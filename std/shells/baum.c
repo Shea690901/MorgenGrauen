@@ -5,7 +5,7 @@
 //
 // shells/magier.c -- magier shell
 //
-// $Id: baum.c 7439 2010-02-13 15:57:08Z Rumata $
+// $Id: baum.c 8675 2014-02-18 20:39:54Z Zesstra $
 
 #pragma strong_types,save_types
 
@@ -89,7 +89,7 @@ int wurzel_info( string arg ) {
 	return 1;
 }
 
-static mixed *_query_localcmds() {
+static mixed _query_localcmds() {
 	return ::_query_localcmds() + ({
 		({ "schlag"    , "wurzel_an"  ,1,ARCH_LVL }),
 		({ "loes"      , "wurzel_aus" ,1,ARCH_LVL }),

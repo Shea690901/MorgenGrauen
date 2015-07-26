@@ -49,7 +49,7 @@ QueryMoney()
 {
 	if( !mappingp(autoload) )
 		return 0;
-	return autoload["/obj/money"];
+	return autoload["/items/money"];
 }
 
 QueryEnemies()

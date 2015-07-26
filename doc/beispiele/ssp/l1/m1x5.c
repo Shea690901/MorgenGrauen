@@ -25,7 +25,7 @@ create()
   AddDetail("zugang", "Du siehst keinen.\n");
   AddDetail(({"knick", "biegung"}), "So nennt sich sowas halt ... ich kann nix dafuer!\n");
   AddItem(MON("kampfblech"), REFRESH_REMOVE);
-  GUARDED_EXIT("norden", L1("m1x4"),"\nkampfblech",
-	       "Das Kampfblech laesst Dich nicht vorbei.\n");
+  
+  AddExit("norden", L1("m1x4"));
   AddExit("osten",L1("m2x5"));
 }
