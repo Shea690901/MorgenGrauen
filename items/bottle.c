@@ -284,6 +284,7 @@ int DoOpen(string str)
     _open = 1;
     return 1;
   }
+  return 0;
 }
 
 int DoClose(string str)
@@ -296,6 +297,7 @@ int DoClose(string str)
     _open = 0;
     return 1;
   }
+  return 0;
 }
 
 int DoLookInside(string str)
@@ -312,5 +314,6 @@ int DoLookInside(string str)
          +_Fdescr+".\n");
     return 1;
   }
+  return 0;
 }
 

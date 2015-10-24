@@ -103,7 +103,7 @@ private string* my_ids() {
   return Query(P_IDS,F_VALUE);
 }
 
-// Komandofunktion zum Starten des Tocknungsvorganges. Holt sich die
+// Kommandofunktion zum Starten des Tocknungsvorganges. Holt sich die
 // relevanten Daten aus dem Krautmaster ab, setzt Meldungen und Texte und
 // wirft den Trocknungs-Callout an.
 static int cmd_trocknen(string str, mixed *param) {
@@ -112,8 +112,15 @@ static int cmd_trocknen(string str, mixed *param) {
   int *drying_data = PLANTMASTER->QueryDryingData();
   object kraut = param[0];
 
+  // Der Trockner taeuscht vor, selbst das Kraut zu sein, das zum Trocknen
+  // im Raum liegt. Daher wird hier noch geprueft, ob der Spieler vielleicht
+  // den Trockner selbst zu trocknen versucht. 
+  if ( kraut == ME ) {
+    tell_object(PL, BS(kraut->Name(WER,1)+" wird bereits getrocknet, Du "
+      "solltest "+kraut->QueryPronoun(WEN)+" besser liegenlassen."));
+  }
   // Spieler muss das Kraut im Inventar haben.
-  if ( environment(kraut) != PL ) {
+  else if ( environment(kraut) != PL ) {
     tell_object(PL, BS(
       "Du musst "+kraut->name(WEN,1)+" schon in die Hand nehmen, um "+
       kraut->QueryPronoun(WEN)+" sorgfaeltig trocknen zu koennen."));

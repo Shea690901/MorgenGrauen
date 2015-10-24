@@ -103,7 +103,7 @@ static int cmd_geniessen(string str)
 {
    notify_fail("WAS moechtest Du geniessen?\n");
    if (str!="moment" && str!="den moment" && str!="ruhe") return 0;
-   write("Du haelst einen Moment inne und geniesst die himmlische Ruhe, die nur durch\n"
+   write("Du haeltst einen Moment inne und geniesst die himmlische Ruhe, die nur durch\n"
         +"das zwitschern einiger Voegel durchbrochen aber nicht gestoert wird.\n");
    return 1;
 }

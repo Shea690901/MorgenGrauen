@@ -86,10 +86,14 @@ entnommen werden.
 
 Siehe auch:
 ----------
-     eat_food, drink_alcohol, drink_soft, heal_self, restore_spell_points,
-     reduce_hit_points, check_and_update_timed_key, buffer_hp, buffer_sp,
-     heilung, defuel_drink, defuel_food,
-     P_DRINK, P_FOOD, P_ALCOHOL, P_LAST_XP, food
+     Tanken:    consume, drink_alcohol, eat_food, drink_soft
+     Heilung:   heal_self, restore_spell_points, restore_hit_points, 
+                buffer_hp, buffer_sp
+     Timing:    check_and_update_timed_key
+     Enttanken: defuel_drink, defuel_food
+     Props:     P_DRINK, P_FOOD, P_ALCOHOL, P_SP, P_HP,
+                P_DEFUEL_TIME_DRINK
+     Konzepte:  heilung, food
 
 ----------------------------------------------------------------------------
 Last modified: 02.11.2005 - Miril

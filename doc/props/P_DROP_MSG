@@ -38,7 +38,7 @@ BEISPIEL:
        "bereits bei Lars.",78 ));
 	  
       SetProp( P_NAME, "Axt" );
-      AddId( ({"handaxt","axt"}) 
+      AddId( ({"handaxt","axt"}) );
       SetProp( P_GENDER, FEMALE );
 	  
       SetProp( P_DROP_MSG, ({

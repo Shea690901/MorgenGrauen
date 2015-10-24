@@ -16,8 +16,7 @@ BESCHREIBUNG:
      Array mit aller Kleidung zurueck, fuer die <filterfun> einen Wert != 0
      zurueckliefert.
      Die <extra> Argumente werden als zusaetzliche Parameter an <filterfun>
-     uebergeben und duerfen keine Referenzen von Array- oder Mapping-
-     Elementen sein (wie &(i[1]) ).
+     uebergeben und duerfen keine Referenzen sein.
      
      Diese Variante ist zu bevorzugen, wenn man die getrage Kleidung nach
      bestimmten Kriterien durchsuchen will. 

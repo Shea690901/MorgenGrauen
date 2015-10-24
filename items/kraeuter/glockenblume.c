@@ -40,7 +40,7 @@ void create()
   AddDetail("pflanze",BS(
      "Diese Pflanze ist eindeutig eine Glockenblume.\n"));
   AddDetail(({"bluetensterne","sterne","zipfel","zipfeln"}),BS(
-     "Bemerkenswert an der Pfanze sind die Bluetensterne. Die blau-violetten "
+     "Bemerkenswert an der Pflanze sind die Bluetensterne. Die blau-violetten "
     +"Zipfel bilden die Bluete der Pflanze, was sehr auffaellig ist. Diese "
     +"Bluetensterne gaben der Blume ihren Namen.\n"));
 

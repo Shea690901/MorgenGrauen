@@ -1,5 +1,5 @@
-#pragma strong_types,rtt_checks
-#pragma no_inherit,no_clone,no_shadow
+#pragma strong_types, save_types, rtt_checks
+#pragma no_inherit, no_clone, no_shadow
 
 #include <defines.h>
 #include <properties.h>
@@ -13,8 +13,8 @@
 #define BS(x)             break_string(x, 78)
 #endif
 
-// AN: Weiter unten beim Parsen des Datenfiles werden SetProp() und Name()
-// verwendet, daher erben wir hier thing.
+// Weiter unten beim Parsen des Datenfiles werden SetProp() und Name()
+// verwendet, daher erben wir thing.
 inherit "/std/secure_thing";
 
 // Liste aller moeglichen Zutaten, gemappt ueber einen key
@@ -61,10 +61,34 @@ private mapping rooms;
 
 // Enthaelt Daten zu den Raeumen, in denen das Trocknen von Kraeutern
 // moeglich ist.
-private nosave mapping drying_data = ([:4]);
+private mapping drying_data = ([:4]);
 
 string build_plantname(mixed *props);
-private void ReadDryingData();
+
+// struct-Templat fuer Trankattribute
+// Fuer das SQL-Log MUSS die Reihenfolge der Trankattribute hier genau die
+// sein, wie die Spalten in der Tabelle.
+/* Currently not used.
+struct trank_attrib_s {
+    int car;
+    int da;
+    int dm;
+    int du;
+    int dn;
+    int flt;
+    int fro;
+    int hI;
+    int hP;
+    int hK;
+    int hL;
+    int pa;
+    int pm;
+    int pu;
+    int ss;
+    int sp;
+    int sd;
+};
+*/
 
 #define allowed() (!process_call() && \
         IS_ARCH(RPL) && IS_ARCH(this_interactive()) )
@@ -109,7 +133,66 @@ protected void create()
       map_ldfied=([]);
       rooms=([]);
    }
-   ReadDryingData();
+   if (sl_open("/log/ARCH/krauttrank.sqlite") != 1)
+   {
+     raise_error("Datenbank konnte nicht geoeffnet werden.\n");
+   }
+   sl_exec("CREATE TABLE IF NOT EXISTS traenke(id INTEGER PRIMARY KEY, "
+           "uid TEXT NOT NULL, rnd INTEGER, "
+           "time INTEGER DEFAULT CURRENT_TIMESTAMP, "
+           "receipe TEXT NOT NULL, "
+           "quality TEXT NOT NULL, "
+           "car INTEGER, "
+           "da INTEGER, "
+           "dm INTEGER, "
+           "du INTEGER, "
+           "dn INTEGER, "
+           "flt INTEGER, "
+           "fro INTEGER, "
+           "hI INTEGER, "
+           "hP INTEGER, "
+           "hK INTEGER, "
+           "hL INTEGER, "
+           "pa INTEGER, "
+           "pm INTEGER, "
+           "pu INTEGER, "
+           "ss INTEGER, "
+           "sp INTEGER, "
+           "sd INTEGER);"
+           );
+   sl_exec("CREATE INDEX IF NOT EXISTS idx_uid ON traenke(uid);");
+   sl_exec("CREATE INDEX IF NOT EXISTS idx_receipe ON traenke(receipe);");
+   sl_exec("CREATE TABLE IF NOT EXISTS rohdaten(id INTEGER PRIMARY KEY, "
+           "uid TEXT NOT NULL, rnd INTEGER, "
+           "time INTEGER DEFAULT CURRENT_TIMESTAMP, "
+           "receipe TEXT NOT NULL, "
+           "quality TEXT NOT NULL, "
+           "car INTEGER, "
+           "da INTEGER, "
+           "dm INTEGER, "
+           "du INTEGER, "
+           "dn INTEGER, "
+           "flt INTEGER, "
+           "fro INTEGER, "
+           "hI INTEGER, "
+           "hP INTEGER, "
+           "hK INTEGER, "
+           "hL INTEGER, "
+           "pa INTEGER, "
+           "pm INTEGER, "
+           "pu INTEGER, "
+           "ss INTEGER, "
+           "sp INTEGER, "
+           "sd INTEGER);"
+           );
+   sl_exec("CREATE INDEX IF NOT EXISTS idx_uid_r ON rohdaten(uid);");
+}
+
+public string QueryPlantFile(int id)
+{
+  if (member(krautprops, id))
+    return build_plantname(krautprops[id]);
+  return 0;
 }
 
 // AN: Funktion ermittelt, ob ein Spieler pl das Kraut mit der ID id
@@ -152,17 +235,16 @@ nomask int CanUseIngredient(object pl, int id)
    }
 }
 
-// AN: Das hier ist fuer mein GS gedacht, wurde aber nie fertig, weil wir
-// nicht mehr dazu kamen, eine Zuordnung meiner NPC-Kategorien zu Padreics
-// Kraeuterkategorien festzulegen. Daher clont das Ding hier eine Fackel.
-// An sich sollten hier auch getrocknete Kraeuter rauskommen, keine frischen.
-// Das muesste dann noch nachgeruestet werden.
+// Diese Funktion wird vom Metzelorakel aufgerufen, um die Belohnungen zu
+// erzeugen, die man dort fuer erfolgreich absolvierte Metzelauftraege erhaelt
 #define ALLOWED_CALLER ({ "/d/ebene/arathorn/orakel/secure/schamane" })
 object get_plant_by_category(int npc_class)
 {
   if ( member(ALLOWED_CALLER, load_name(previous_object()))<0 )
     raise_error("unauthorised call to get_plant_by_category()\n");
 
+  // Uebergebene NPC-Klasse in Kraut-Kategorie umsetzen.
+  // Kategorie 7 wird als 7-9 interpretiert (siehe unten).
   int category;
   switch(npc_class) {
     case 1: case 2:         category=4; break;
@@ -170,22 +252,34 @@ object get_plant_by_category(int npc_class)
     case 5: case 6: case 7: category=6; break;
     default:                category=7; break;
   }
+
+  // Alle Kraeuter der ermittelten Kategorie raussuchen. Bei Kategorie 7
+  // werden auch alle aus 8 und 9 dazugenommen.
   int *eligible_plant_ids=({});
   foreach( string grp, mapping grpdata : ingredients ) {
     if ( category == 7 && grpdata[T_ABUNDANCE]>=7 || 
           category == grpdata[T_ABUNDANCE] )
       eligible_plant_ids += key2id[grp];
   }
+
+  // Krautnamen zu den Kraut-IDs ermitteln.
   string *plantfiles=map(eligible_plant_ids, function string (int plantid) {
     return build_plantname(krautprops[plantid]);});
-  /*log_file("ARCH/plant_by_category"),
-     sprintf("%24s: call from %O, player: %s (PL: %O), kategory: %d\n", ctime(),
-     previous_object(), getuid(player), PL, kategory));*/
-  return clone_object(PLANTDIR+plantfiles[random(sizeof(plantfiles))]);
+
+  // Ein Kraut zufaellig auswaehlen, clonen und das Objekt zurueckgeben.
+  object plant=clone_object(PLANTDIR+plantfiles[random(sizeof(plantfiles))]);
+  plant->DryPlant(80+random(11));
+  // Aufschreiben, wer welches Kraut mit welcher Qualitaet rausbekommt.
+  log_file("ARCH/plant_by_category",
+    sprintf("%s %-12s %-s Qual %d Kat %d, Class %d\n", 
+      strftime("%x %X",time()), getuid(PL),
+      object_name(plant)[sizeof(PLANTDIR)..],
+      plant->QueryProp(P_QUALITY), category, npc_class));
+// sprintf("%24s: call from %O, player: %s (PL: %O), kategory: %d\n", ctime(),
+// previous_object(), getuid(player), PL, kategory))
+  return plant;
 }
 
-// fuer den Master kann man einfach master() nehmen. Zesstra, 7.1.10
-//private nosave object master;
 private nosave object simul_efun, plantvc;
 
 // fuer SIMUL_EFUN_FILE
@@ -299,8 +393,8 @@ nomask private int LoadIdList(string filename)
          data[PROP_LONG+1] = Name(WER, demon)+".\n";
       }
       else data[PROP_LONG+1] = BS(data[PROP_LONG+1]);
-                        // Humni: Offenbar kommen am Zeilenende manchmal Zeichen dazu. Ich gehe davon
-                        // aus, dass keine Beschreibung kuerzer als 2 Zeichen ist.
+// Humni: Offenbar kommen am Zeilenende manchmal Zeichen dazu. Ich gehe davon
+// aus, dass keine Beschreibung kuerzer als 2 Zeichen ist.
       if (sizeof(data[PROP_ROOMDETAIL+1])<2) {
          data[PROP_ROOMDETAIL+1] = Name(WER, demon)+".\n";
       }
@@ -462,7 +556,7 @@ nomask private void LoadIndex(string filename)
 
 nomask private void save()
 {
-   save_object(__DIR__"/ARCH/krautmaster");
+  save_object(__DIR__"/ARCH/krautmaster");
 }
 
 // AN: erzeugt aus Namen + Adjektiv der Pflanzendaten den Objektnamen,
@@ -496,11 +590,8 @@ int _refresh()
    if (extern_call() && !allowed())
      return 0;
    
-   //debug("Kraeuterliste wird geladen...\n");
    LoadIdList(__DIR__"ARCH/kraeuterliste.dump");
-   //debug("Kraeuterindex wird geladen...\n");
    LoadIndex(__DIR__"ARCH/kraeuterindex.dump");
-   //debug("Kraeuterindex fertig\n");
    map_ldfied=([]);
    for (i=sizeof(krautprops)-1; i>=0; i--)
    {
@@ -508,32 +599,41 @@ int _refresh()
       key = build_plantname(krautprops[i]);
       map_ldfied[key]=({ krautprops[i], rooms[key]||([]) });
    }
-   //debug("Speichere");
    save();
-   //debug("Update VC");
    UpdateVC();
    
    // Update Headerfile mit Kraeuterliste
    string *keys = sort_array(m_indices(map_ldfied), #'<);
-   write_file(KRAEUTERLISTE,
+   string headerfile =
      "// Automatisch generiertes File, nicht von Hand editieren!\n"
-    +"// Erzeugendes File: "+object_name()+"\n\n"
-    +"#define PLANTCOUNT "+to_string(sizeof(keys))+"\n\n"
-    +"#define PLANT(x) \"/items/kraeuter/\"+x\n\n",
-   1);
+     "// Erzeugendes File: "+object_name()+"\n\n"
+     "#define PLANTCOUNT "+to_string(sizeof(keys))+"\n\n"
+     +"#define PLANT(x) \"/items/kraeuter/\"+x\n\n";
    foreach(key: keys)
    {
-     write_file(KRAEUTERLISTE,
-         sprintf("#define %-30s PLANT(\"%s\")\n",
-           upperstring(key), key));
+     headerfile += sprintf("#define %-30s PLANT(\"%s\")\n",
+                     upperstring(key), key);
    }
+   write_file(KRAEUTERLISTE, headerfile, 1);
 
    write("Inputfiles parsed. Save & Headerfiles updated!\n");
    return 1;
 }
 
-#define MAX_ROOMS 10  /* kein Kraut ist in mehr als 10 Raeumen */
+int _cloneplant(string str)
+{
+  if (allowed())
+  {
+    if (to_string(to_int(str)) == str)
+      str = QueryPlantFile(to_int(str));
+    clone_object(PLANTDIR+str)->move(this_player(), M_NOCHECK);
+    write("Kraut " + str + " geclont.\n");
+    return 1;
+  }
+  return 0;
+}
 
+#define MAX_ROOMS 10  /* kein Kraut ist in mehr als 10 Raeumen */
 // AN: Ausgabe der Kategorienliste ueber das Planttool.
 int _showplant(string str)
 {
@@ -605,7 +705,7 @@ int _showplant(string str)
 }
 
 // AN: Ausgabe der Raeume, in denen die Kraeuter zu finden sind.
-// angesteuert ueber das Planttool, aber derzeit deaktiviert.
+// angesteuert ueber das Planttool.
 int _showrooms(string str)
 {
    int i, j, id;
@@ -639,9 +739,8 @@ int _showrooms(string str)
    return 1;
 }
 
-// AN: unklar, wozu es die Funktion gibt. Die Nutzung der Kraeuter in 
-// eigenen Gebieten war doch bisher unabhaengig davon, ob der Raum 
-// eingetragen war, oder nicht.
+// Nutzung der Kraeuter in  Gebieten liefert nur dann gueltige Kraeuter,
+// wenn der Raum eingetragen ist.
 int _addroom(string str)
 {
    int id, i;
@@ -775,6 +874,27 @@ nomask private int IsBoosted(int i, string *keyLst)
   return 0;
 }
 
+#define PRNG "/std/util/rand-glfsr"
+// Individuelle Boni/Mali fuer Spieler. ploffset soll via Referenz uebergeben
+// werden und wird von der Funktion gesetzt.
+int calculate_mod(int krautindex, string plname, int ploffset)
+{
+  // Startoffset zufaellig ermittelt, aber immer gleich
+  // fuer jeden Spielernamen
+  PRNG->InitWithUUID(plname);
+  ploffset = PRNG->random(16);
+  // Jedes Kraut hat auch einen iOffset (der konstant bleibt und sich nicht
+  // aendert). Der wird auch addiert. Bei Ueberschreiten von 30 wird nach 0
+  // gewrappt.
+  // Der Offset ist dann (spieleroffset + krautindex) % 16, d.h. alle Modifikatoren werden
+  // der Reihe nach durchlaufen. So kriegt jeder Spieler - fast egal, bei welchem
+  // Offset er startet - auch der Reihe nach alle Boni+Mali.
+  int offset = ((ploffset + krautindex) % 16) * 2;
+  // Am Ende wird das ganze noch nach 85 bis 115 verlegt.
+  return offset + 85;
+}
+
+#define ZWEITIES "/secure/zweities"
 mapping make_potion(object* plants)
 {
   // Hier speichern wir unser Ergebnis bzw. unser Zwischenergebnis.
@@ -784,6 +904,11 @@ mapping make_potion(object* plants)
   // Hier speichern wir gleich schon beim Erzeugen die wichtigsten Blockaden.
   string* unterstuetzungen=({});
   string* blockaden=({});
+  int zufall;
+  // Die Sortierung von plants nach PlantID ist nur fuer das Tranklog wichtig.
+  plants = sort_array(plants, function int (object a, object b)
+                              { return a->QueryPlantId() <= b->QueryPlantId(); } );
+  
   // PASS 1: Pflanzen durch Wirkungen ersetzen, dabei Unterstuetzer
   // und Blocker merken.
   foreach (object pl:plants)
@@ -798,7 +923,12 @@ mapping make_potion(object* plants)
       mapping ing=copy(ingredients[key]);
       //debug(sprintf("%O",ing));
       ing["key"]=key;
-      ing["quality"]=pl->QueryProp(P_QUALITY);
+      // Die Qualitaet des Krautes wird noch mit dem spielerindividuellen
+      // Modifikator skaliert.
+      ing["quality"]=(pl->QueryProp(P_QUALITY) *
+                      calculate_mod(id,
+                                    ZWEITIES->QueryFamilie(this_player()),
+                                    &zufall)) / 100; 
       wirkungen+=({ing});
       if (pointerp(ing[T_SUPPORTER]))
         {
@@ -884,26 +1014,12 @@ mapping make_potion(object* plants)
         }
     }
 
-  // PASS 5: Nun gut. Die Wirkungsdauer bauen wir noch anders... Sie ist das
-  // die maximale vorkommende Wirkungsdauer.
-  int dur=0;
-  foreach (mapping mar:wirkungen)
-    {
-      //debug(sprintf("%O",mar));
-      if (mar[T_EFFECT_DURATION]>0 && dur<mar[T_EFFECT_DURATION])
-        {
-          dur=mar[T_EFFECT_DURATION];
-        }
-    }
-  if (dur==10000000)
-    {
-      dur=0;
-    }
-  attrib[T_EFFECT_DURATION]=dur;
-  debug(sprintf("Duration: %d\n",dur));
+  // Die Wirkungsdauer ist der Durchschnitt der Wirkungsdauern
+  attrib[T_EFFECT_DURATION] /= sizeof(plants);
+  debug(sprintf("Duration: %d\n",attrib[T_EFFECT_DURATION]));
 
-  // Die Haltbarkeit des Tranks ist die Haltbarkeit des kleinsten Tranks.
-  dur=10000000;
+  // Die Haltbarkeit des Tranks ist die Haltbarkeit des kleinsten Krautes.
+  int dur=10000000;
   foreach (mapping mar:wirkungen)
     {
       if (mar[T_EXPIRE]>0 && dur>mar[T_EXPIRE])
@@ -934,23 +1050,48 @@ mapping make_potion(object* plants)
       }
     }
   }
+  // Logeintrag erstellen.
+  sl_exec("INSERT INTO rohdaten(uid, rnd, receipe, quality, car, da, dm, du, "
+          "dn, flt, fro, hI, hP, hK, hL, pa, pm, pu, ss, sp, sd) "
+          "VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11, ?12, ?13, ?14, "
+          "?15, ?16, ?17, ?18, ?19, ?20, ?21);",
+          this_player() ? getuid(this_player()) : "<unknown>",
+          zufall,
+          implode(map(plants->QueryPlantId(), #'to_string), ", "),
+          implode(map(plants->QueryProp(P_QUALITY), #'to_string), ", "),
+          attrib[T_CARRY], attrib[T_DAMAGE_ANIMALS],
+          attrib[T_DAMAGE_MAGIC], attrib[T_DAMAGE_UNDEAD],
+          attrib[T_EFFECT_DURATION], attrib[T_FLEE_TPORT],
+          attrib[T_FROG], attrib[T_HEAL_DISEASE],
+          attrib[T_HEAL_POISON], attrib[T_HEAL_SP],
+          attrib[T_HEAL_LP], attrib[T_PROTECTION_ANIMALS],
+          attrib[T_PROTECTION_MAGIC], attrib[T_PROTECTION_UNDEAD],
+          attrib[T_SA_SPEED], attrib[T_SA_SPELL_PENETRATION],
+          attrib[T_SA_DURATION]);
+
   // Maximal zwei positive Effekte.
   int cteff=0;
   foreach (string kk, mixed val : &attrib)
   {
       if (member(T_KRAUT_EFFECTS,kk)>=0)
       {
+        // Nur die 2 staerksten positiven Wirkungen bleiben ueber (dazu
+        // muessen sie wirklich den gleichen Zahlenwert haben, kann bei
+        // Heilungen vorkommen, sonst eher unwahrscheinlich).
         if (val>0 && maximum>val)
         {
           val=0;
         }
-        // Thresholds. Zu kleine und zu grosse Wirkungen haben keine bzw. nur
-        // die Grenze als Auswirkung.
+        // Thresholds. Zu zu grosse Wirkungen haben die Grenze als
+        // Auswirkung. Negative Wirkungen, die -T_MINIMUM_THRESHOLD nicht
+        // ueberschreiben, fallen weg. Bei den positiven bleibt ja ohnehin nur
+        // die staerkste Wirkung ueber, da gibt es erstmal keine
+        // Mindestgroesse mehr.
         if (val>T_MAXIMUM_THRESHOLD)
         {
           val=T_MAXIMUM_THRESHOLD;
         }
-        if (val<T_MINIMUM_THRESHOLD && val>0)
+        if (val < 0 && val > -T_MINIMUM_THRESHOLD)
         {
           val=0;
         }
@@ -968,6 +1109,25 @@ mapping make_potion(object* plants)
       }
   }
   debug(sprintf(" TRANKERGEBNIS: %O",attrib));
+  // Logeintrag erstellen.
+  sl_exec("INSERT INTO traenke(uid, rnd, receipe, quality, car, da, dm, du, "
+          "dn, flt, fro, hI, hP, hK, hL, pa, pm, pu, ss, sp, sd) "
+          "VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11, ?12, ?13, ?14, "
+          "?15, ?16, ?17, ?18, ?19, ?20, ?21);",
+          this_player() ? getuid(this_player()) : "<unknown>",
+          zufall,
+          implode(map(plants->QueryPlantId(), #'to_string), ", "),
+          implode(map(plants->QueryProp(P_QUALITY), #'to_string), ", "),
+          attrib[T_CARRY], attrib[T_DAMAGE_ANIMALS],
+          attrib[T_DAMAGE_MAGIC], attrib[T_DAMAGE_UNDEAD],
+          attrib[T_EFFECT_DURATION], attrib[T_FLEE_TPORT],
+          attrib[T_FROG], attrib[T_HEAL_DISEASE],
+          attrib[T_HEAL_POISON], attrib[T_HEAL_SP],
+          attrib[T_HEAL_LP], attrib[T_PROTECTION_ANIMALS],
+          attrib[T_PROTECTION_MAGIC], attrib[T_PROTECTION_UNDEAD],
+          attrib[T_SA_SPEED], attrib[T_SA_SPELL_PENETRATION],
+          attrib[T_SA_DURATION]);
+
   return attrib;
 }
 
@@ -1056,17 +1216,63 @@ int *QueryDryingData() {
   return ({});
 }
 
-#define DRYINGDATA "/secure/ARCH/kraeutertrocknungsdaten"
-
-private void ReadDryingData() {
-  mixed data = explode(read_file(DRYINGDATA), "\n")-({""});
-  foreach(string line : data) {
-    string *fields = explode(line,";");
-    fields[1..] = map(fields[1..], #'to_int);
-    m_add(drying_data, fields...);
+// Modifizieren der Trocknungsdaten.
+// <room> muss der volle Dateiname des Raumes sein, ohne .c am Ende.
+// <values> enthaelt die vier Parameter zu dem Raum in folgender Reihenfolge:
+// ({ Quali-Basis, Quali-Zufallsanteil, Delay-Basis, Delay-Zufallsanteil })
+// Wenn <values> nicht angeben wird oder 0 ist, werden die Daten zu <room>
+// geloescht.
+int|mapping SetDryingData(string room, int* values) 
+{
+  // keine Zugriffsrechte
+  if ( !allowed() )
+    return -1;
+  
+  // <values> wurde nicht uebergeben? Dann Daten loeschen.
+  if ( !values ) 
+  {
+    m_delete(drying_data, room);
+    return 1;
   }
+
+  // Ansonsten muessen 4 Integer-Werte als <values> uebergeben werden.
+  if ( sizeof(values) != 4 ) 
+    return -2;
+
+  if ( room[<2..<1] == ".c" )
+    room = room[..<3];
+
+  // Uebergebene Daten aendern direkt das Mapping der Trocknungsdaten.
+  m_add(drying_data, room, values...);
+  save();
+  return ([ room : drying_data[room,0]; drying_data[room,1]; 
+                   drying_data[room,2]; drying_data[room,3]]);
 }
 
-mapping QueryDrying() {
+varargs mapping QueryDrying()
+{
   return (allowed() ? drying_data : ([]) );
 }
+
+varargs int remove(int silent) 
+{
+  save();
+  return ::remove(silent);
+}
+
+/*
+#define DRYINGDATA "/secure/ARCH/kraeutertrocknungsdaten"
+
+private void ReadDryingData() 
+{
+  mixed data = explode(read_file(DRYINGDATA), "\n")-({""});
+  foreach(string line : data) 
+  {
+    if ( line[0] == '#' )
+      continue;
+    string *fields = explode(line,";");
+    fields[1..] = map(fields[1..], #'to_int);
+    m_add(tmp_drying_data, fields...);
+  }
+}*/
+

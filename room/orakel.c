@@ -2,7 +2,7 @@
 //
 // orakel.c -- Der Raum, in dem man sich neue ZT-Sprueche holen kann
 //
-// $Id: orakel.c 8870 2014-07-18 21:00:14Z Zesstra $
+// $Id: orakel.c 9371 2015-10-22 19:01:48Z Zesstra $
 
 #define TIPS(x) "/secure/ARCH/ZT/"+x
 
@@ -54,7 +54,7 @@ protected void create()
    AddDetail("umgebung", "Die Umgebung ist das, was Dich umgibt.\n");
    AddDetail("wissen", "Vielleicht nuetzt es Dir ja was.\n");
    AddDetail(({"nebel", "schwaden", "nebelschwaden"}), "Sie ziehen langsam ueber den See.\n");
-   AddDetail("kugel", "Die Kugel leuchtet in magischem Licht und laedt Dich fast zum meditieren ein.\n");
+   AddDetail("kugel", "Die Kugel leuchtet in magischem Licht und laedt Dich fast zum Meditieren ein.\n");
    AddDetail("licht", "Magisches Licht erhellt den Raum.\n");
    AddDetail("raum", "Schau Dich einfach mal um.\n");
    AddDetail("hoehle", "Du befindest Dich tatsaechlich in einer Hoehle.\n");

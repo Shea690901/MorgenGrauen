@@ -9,7 +9,7 @@ inherit "std/thing";
 int    alter;
 string furzerWER,furzerWESSEN;
 
-create()
+void create()
 {
   if(!clonep(this_object())) return;
   ::create();
@@ -27,7 +27,7 @@ create()
   set_heart_beat(1);
 }
 
-heart_beat()
+void heart_beat()
 {
   int i;
   if(!environment())
@@ -69,7 +69,7 @@ heart_beat()
 void set_alter(int a)
 { alter=a; }
 
-set_furzer (object wer)
+void set_furzer (object wer)
 {
   if (objectp(wer))
     {
@@ -79,7 +79,7 @@ set_furzer (object wer)
     }
 }
 
-int move(mixed dest, int methods, string direction, string textout,string textin)
+varargs int move(mixed dest, int methods, string direction, string textout,string textin)
 {
   int erg;
   object otherfurz;

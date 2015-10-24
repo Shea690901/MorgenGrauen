@@ -6,3 +6,9 @@ DEFINIERT IN:
 
 BESCHREIBUNG:
      Wert in Goldstuecken pro Untereinheit.
+
+BEMERKUNGEN:
+     Deprecated. Bitte SetCoinsPerUnits() (U_CPU) benutzen.
+
+25.Aug 2015 Gloinson
+

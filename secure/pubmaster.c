@@ -2,7 +2,7 @@
 //
 // Pubmaster.c -- Registrating the heal-values of pubs
 //
-// $Id: pubmaster.c 9142 2015-02-04 22:17:29Z Zesstra $
+// $Id: pubmaster.c 9373 2015-10-22 19:02:42Z Zesstra $
 
 #include <pub.h>
 
@@ -279,7 +279,7 @@ int DumpPubs()
         for (--itemi;itemi>=0;itemi--)
             DUMPF(sprintf(
                 "  %-'.'30.30s %5d %3d %3d %3d %3d %3d %2d %2d %3d %3d\n",
-                (string)itemlist[itemi],
+                itemlist[itemi],
                 (int)pubs[publist[pubi]][itemlist[itemi]][P_VALUE],
                 (int)pubs[publist[pubi]][itemlist[itemi]][P_HP],
                 (int)pubs[publist[pubi]][itemlist[itemi]][P_SP],

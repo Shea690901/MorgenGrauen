@@ -35,8 +35,8 @@
   (["car": T_CARRY, \
     "da":  T_DAMAGE_ANIMALS, \
     "dm":  T_DAMAGE_MAGIC, \
-    "dn":  T_EFFECT_DURATION, \
     "du":  T_DAMAGE_UNDEAD, \
+    "dn":  T_EFFECT_DURATION, \
     "flt": T_FLEE_TPORT, \
     "fro": T_FROG, \
     "hI":  T_HEAL_DISEASE, \

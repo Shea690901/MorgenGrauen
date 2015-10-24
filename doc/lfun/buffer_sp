@@ -26,11 +26,11 @@ BEISPIEL:
     s. Bsp. zu "buffer_hp"
 
 SIEHE AUCH:
-     consume, drink_alcohol, drink_soft, heal_self, restore_spell_points,
-     reduce_hit_points, check_and_update_timed_key, buffer_hp, eat_food,
-     defuel_drink, defuel_food
-     P_DRINK, P_FOOD, P_ALCOHOL,
-     food, heilung, enttanken
+     Aehnlich:  heal_self, restore_spell_points, restore_hit_points, 
+                buffer_hp
+     Tanken:    consume, drink_alcohol, drink_soft, eat_food
+     Props:     P_SP, P_HP,
+     Konzepte:  heilung
 
-----------------------------------------------------------------------------
-27.10.2009, Zesstra
+9. August 2015 Gloinson
+

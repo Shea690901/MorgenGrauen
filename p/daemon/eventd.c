@@ -159,9 +159,9 @@ int UnregisterEvent(string eid, object ob) {
     if (!sizeof(events[eid]))
         m_delete(events,eid);
     // aus aktivem Event austragen, falls es drin sein sollte.
-    if (sizeof(active) && member(active,eid) 
-        && member(active[eid,A_LISTENERS], oname)) {
-        m_delete(active[eid,A_LISTENERS],oname);
+    if (sizeof(active) && active[A_EID] == eid)
+    {
+      m_delete(active[A_LISTENERS], object_name(ob));
     }
 //    if (find_call_out(#'save_me)==-1)
 //      call_out(#'save_me,15);

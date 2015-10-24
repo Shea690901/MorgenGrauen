@@ -4,7 +4,7 @@
 //
 // Zook
 
-// $Id: brett.h 8755 2014-04-26 13:13:40Z Zesstra $ 
+// $Id: brett.h 9345 2015-09-16 16:57:49Z Arathorn $ 
 
 #ifndef PARTYDIR
 #include "party.h"
@@ -43,13 +43,13 @@ mapping *Fragen() {
 
     ([Q_KEY:"ankunft",
       Q_TEXT:"Ankunft",
-      Q_CHOICES:(["21":"Montag",
-                  "22":"Dienstag",
-                  "23":"Mittwoch",
-                  "24":"Donnerstag",
-                  "25":"Freitag",
-                  "26":"Samstag"]),
-      Q_DEFAULT:"21"]),
+      Q_CHOICES:(["20":"Montag",
+                  "21":"Dienstag",
+                  "22":"Mittwoch",
+                  "23":"Donnerstag",
+                  "24":"Freitag",
+                  "25":"Samstag"]),
+      Q_DEFAULT:"20"]),
 
 /*    ([Q_KEY:"verpflegung",
       Q_TEXT:"Verpflegung (momentan wird HP fuer alle erwogen).",
@@ -84,6 +84,11 @@ mapping *Fragen() {
       Q_DEFAULT:"ja",
       Q_BOOLEAN:1]),
 
+	([Q_KEY:"surfkurs",
+    Q_TEXT:"Hast Du Interesse an einem Surfkurs?",
+    Q_CHOICES:({"nein","ja"}),
+    Q_DEFAULT:"nein",
+    Q_BOOLEAN:1]),
 
     ([Q_KEY:"familie",
       Q_TEXT:"Wenn du mit Kind und Kegel kommst, hier bitte Familiennamen "

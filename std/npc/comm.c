@@ -2,7 +2,7 @@
 //
 // npc/comm.c -- Basiskommunikation fuer NPCs
 //
-// $Id: comm.c 8788 2014-05-01 11:34:28Z Zesstra $
+// $Id: comm.c 9358 2015-10-22 18:35:04Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -45,13 +45,13 @@ public void catch_tell(string str) {}
 // by default, the msg is delivered to catch_tell() for compatibility reasons
 // and otherwise ignored.
 public varargs int ReceiveMsg(string msg, int msg_typ, string msg_action,
-                              string msg_prefix, mixed origin)
+                              string msg_prefix, object origin)
 {
   // compatibility...
   if (msg_typ & MSG_DONT_WRAP)
     catch_tell(sprintf("%s%s", msg_prefix||"", msg));
   else
     catch_tell(sprintf("%s%s\n", msg_prefix||"", msg));
-  return 1;
+  return MSG_DELIVERED;
 }
 

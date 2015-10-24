@@ -15,12 +15,13 @@ inherit "/std/room/shop";
 
 #define NEED_PROTOTYPES
 
+#include <items/kraeuter/kraeuter.h>
 #include <properties.h>
 
 // Flag, das im reset() das Speichern ausloest, wenn es gesetzt ist.
-// static  int need_save;  
-// static  int basisvalue=400; // gibt den _Durchschnittswert_ eines Krauts an
-// static  int maxvalue=10000; // bestimmt den max. Wert aller Kraeuter
+static  int need_save;  
+static  int basisvalue=400; // gibt den _Durchschnittswert_ eines Krauts an
+static  int maxvalue=10000; // bestimmt den max. Wert aller Kraeuter
 
 // Enthaelt fuer jede PlantID einen Zaehler, der angibt, wieviel von dem
 // jeweiligen Kraut verkauft wurde.
@@ -56,7 +57,7 @@ protected void create_super()
 
 static string sell_obj_only_plants(object ob, int short)
 {
-   if (!is_plant(ob))
+   if (!IS_PLANT(ob))
       return "Tut mir leid, damit kann ich nichts anfangen.";
    // es werden nur Kraeuter angekauft, die legal geclont wurden,
    // d.h. im entsprechenden Master ordentlich eingetragen wurden!
@@ -70,11 +71,11 @@ static string sell_obj(object ob, int short)
 {
    // es werden nur Kraeuter angekauft, die legal geclont wurden,
    // d.h. im entsprechenden Master ordentlich eingetragen wurden!
-  if (is_plant(ob) && ob->QueryPlantId()<=0)
+  if (IS_PLANT(ob) && ob->QueryPlantId()<=0)
     return "Hm, "+ob->Name(WER, 2)+" stammt aber aus einer sehr dubiosen "
       "Quelle. Ich kann "+ob->QueryPronoun(WEN)+" leider nicht annehmen.";
   if (QueryProp(P_BUY_ONLY_PLANTS))
-    return ::sell_obj_only_plants(ob, short);
+    return sell_obj_only_plants(ob, short);
   return ::sell_obj(ob,short);
 }
 

@@ -20,7 +20,7 @@ void create()
   SetProp(P_GENDER,   MALE);
   SetProp(P_LONG,     
     "Er hat ein gruenes Kaeppchen auf und ist fuer einen Pilz relativ gross. Ab und\n"
-   +"an zuckt er und kichert albern. Daher hat er wohl auch seinen Namen\n");
+   +"an zuckt er und kichert albern. Daher hat er wohl auch seinen Namen.\n");
   SetProp(PLANT_ROOMDETAIL, 
     "Ein besonders praechtiges Exemplar eines Kicherpilzes winkt dir\n"
    +"aufdringlich zu, also ob es scharf darauf waere, gepflueckt zu werden.\n");

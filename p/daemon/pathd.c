@@ -862,7 +862,7 @@ protected void cleanup_data( string *names, int idx )
     // Brav gesplittet, damit es kein Lag gibt.
     // Die Grenze ist recht hoch angesetzt, da immer gleich komplette
     // Teilbaeume aufgeraeumt werden.
-    while ( get_eval_cost() > 1000000 && idx < size ){
+    while ( get_eval_cost() > 1100000 && idx < size ){
         rooms = sort_array( m_indices(pathmap[names[idx]]), #'</*'*/ );
 
         for ( i = sizeof(rooms); i--; ){

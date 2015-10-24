@@ -14,7 +14,11 @@ RUECKGABEWERT:
 
 BEISPIELE:
         ob = find_livings("herkules");
-        => ob = ({[/human:herkules],[/d/inseln/wargon/luftschloss/mon/herkules]})
+        => ob = ({ [/human:herkules], 
+                   [/d/inseln/wargon/luftschloss/mon/herkules] })
 
 SIEHE AUCH:
-        find_living(E), find_player(E), find_netdead(E)
+        find_living(E), set_living_name(E), find_player(E), find_netdead(E)
+
+LETZTE AENDERUNG:
+19. Okt. 2015, Arathorn

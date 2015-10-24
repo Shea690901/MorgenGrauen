@@ -18,7 +18,53 @@ BESCHREIBUNG:
      
     ORIGINAL_AINFO - Mapping 
         Hier ist eine Kopie des originalen ainfo-mappings des Attacks 
-        vorhanden
+        vorhanden mit folgenden Eintraegen:
+        Immer vorhandene Eintraege:
+          SI_ENEMY              der angegriffene Gegner
+        
+        Angriff mit gezueckter Waffe:
+          P_WEAPON              das Waffenobjekt selbst
+          P_WEAPON_TYPE         P_WEAPON_TYPE der Waffe
+          P_WC                  P_WC der Waffe
+          P_NR_HANDS            P_NR_HANDS der Waffe
+          SI_SKILLDAMAGE_TYPE   P_DAM_TYPE der Waffe
+          SI_SKILLDAMAGE        waffe->QueryDamage(enemy)
+             bei vorhandenem Zweihandskill SK_TWOHANDED wird nur der durch 
+             den Skill modifizierte Schadenswert uebernommen
+          SI_SKILLDAMAGE_MSG    "mit "+waffe->name(WEM,0)
+          SI_SKILLDAMAGE_MSG2   "mit "+waffe->name(WEM,1)
+          SI_SPELL              0
+
+        Angriff mit blossen Haenden:
+          P_WEAPON_TYPE         WT_HANDS
+          P_WC                  P_HANDS[1]
+          SI_SKILLDAMAGE        Schadenswert, aus P_HANDS[1] und A_STR 
+                                berechnet
+          SI_SKILLDAMAGE_TYPE   P_HANDS[2]
+          SI_SKILLDAMAGE_MSG
+          SI_SKILLDAMAGE_MSG2   beides P_HANDS[0]
+          SI_SPELL              0
+          
+        Angriff mit einem Spell (SK_MAGIC_ATTACK):
+          SI_SKILLDAMAGE        Schadenswert des Spells
+          SI_SKILLDAMAGE_TYPE   Schadenstypen des Spells
+          SI_SKILLDAMAGE_MSG    Schadensmeldung des Spells, wenn vorhanden,
+                                sonst "mit magischen Faehigkeiten"
+          SI_SKILLDAMAGE_MSG2   entsprechende Meldung des Spells, wenn 
+                                gesetzt, ansonsten identisch mit 
+                                SI_SKILLDAMAGE_MSG
+          P_WEAPON_TYPE         P_WEAPON_TYPE des Spells, wenn vorhanden,
+                                sonst WT_MAGIC
+          SI_SPELL              SI_SPELL des Spells
+          
+        Hinweise:
+        - Alle Eintraege in diesem Mapping koennen bereits durch
+          InternalModifyAttack() veraendert worden sein.
+        - Die Daten werden mittels deep_copy(ainfo) eingetragen.
+        - Daten in den Eintraegen SI_SKILLDAMAGE* und SI_SPELL koennen bei
+          physikalischen Angriffen durch die Skills FIGHT(P_WEAPON_TYPE) oder
+          SK_FIGHT oder durch einen P_TMP_ATTACK_MOD bzw. Hook vom Typ 
+          H_HOOK_ATTACK_MOD modifiziert worden sein.
         
     ORIGINAL_DAM - int
         Der Originalschaden aus dem Attack

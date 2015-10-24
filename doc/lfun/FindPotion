@@ -20,26 +20,20 @@ BESCHREIBUNG:
 RUeCKGABEWERT:
      0 bei Nichtvergabe, 1 bei erfolgreicher Vergabe.
 
-BEMERKUNGEN:
-     keine
-
 BEISPIELE:
-     /* specialdetail papiere */
-
-     papiere()
-     {
-        if (this_player()->FindPotion("Beim Rumwuehlen in den Papieren "+
-          "entdeckst Du einen kleinen Zaubertrank, den Du sofort trinkst.\n"))
-           return "";  
-                 /* Es muss ein String zurueckgegeben werden, da sonst */
-                 /* das special detail zu spinnen anfaengt. */
-        else
-           return "Die Papiere sind alle unbeschriftet.\n";
+     string detail_papiere() {
+       if (this_player()->FindPotion(
+           break_string("Beim Rumwuehlen in den Papieren entdeckst Du einen "
+                        "kleinen Zaubertrank, den Du sofort trinkst.", 78)))
+         return "";  
+         // Es muss ein String zurueckgegeben werden, da man sonst
+         // die Fehlermeldung "Sowas siehst du hier nicht." bekommt
+       else
+         return "Die Papiere sind alle unbeschriftet.\n";
      }
 
 
 SIEHE AUCH:
      /std/player/potion.c, zaubertraenke
 
-----------------------------------------------------------------------------
-Last modified: Mon Aug 16 12:14:00 1999 by Rikus
+10.Aug 2015 Gloinson

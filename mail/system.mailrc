@@ -34,7 +34,7 @@ rm_schattenwelt zook,rmdummy
 rm_seher zook
 rm_unterwelt zook,rmdummy,zesstra
 rm_vland esme,bugfix
-rm_wald chagall
+rm_wald erzmagier
 rm_wueste ennox,notstrom
 gm_abenteurer boing
 gm_chaos mupfel,ennox,bugfix

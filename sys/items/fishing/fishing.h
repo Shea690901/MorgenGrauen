@@ -40,10 +40,10 @@
 #define W_OTHER   1024   // Flasche enthaelt Fluessigkeit!=Wasser
 
 // vordefinierte Kombinationen fuer Angeln:
-#define W_SHORT W_HARBOR|W_RIVER|W_POOL|W_LAKE|W_ROCK|W_USER|W_OCEAN|W_STREAM
-#define W_LONG  W_BEACH|W_USER
-#define W_SALT  W_HARBOR|W_OCEAN|W_BEACH              // Salzwasser
-#define W_SWEET W_RIVER|W_POOL|W_LAKE|W_ROCK|W_STREAM  // Suesswasser
+#define W_SHORT (W_HARBOR|W_RIVER|W_POOL|W_LAKE|W_ROCK|W_USER|W_OCEAN|W_STREAM)
+#define W_LONG  (W_BEACH|W_USER)
+#define W_SALT  (W_HARBOR|W_OCEAN|W_BEACH)               // Salzwasser
+#define W_SWEET (W_RIVER|W_POOL|W_LAKE|W_ROCK|W_STREAM)  // Suesswasser
 #define W_UNIVERSAL (W_SHORT|W_LONG)
 
 // **********

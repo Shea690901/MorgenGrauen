@@ -34,38 +34,57 @@ nosave string *fixed_obj; // Liste der staendig verfuegbaren Objekte
 nosave mapping fixed_value; // Preise bei Sonderangeboten
 nosave mapping fixed_ids;   // Ids
 
-varargs void AddFixedObject(string str, int val, mixed ids)
+varargs void AddFixedObject(string str, int val, string|string* ids)
 {
   int i;
 
   // Achtung, bei solchen Objekten muss die Blueprint initialisiert werden!
   if (!str) return;
   if (!val) val=str->QueryProp(P_VALUE);
-  if (!ids) {
-     if (str->QueryProp("u_ids")) // units haben keine P_IDS
-        ids=str->QueryProp("u_ids")[0];
-     else ids=str->QueryProp(P_IDS);
+  if (!ids)
+  {
+    if (str->QueryProp("u_ids")) // units haben keine P_IDS
+      ids=str->QueryProp("u_ids")[0];
+    else
+      ids=str->QueryProp(P_IDS);
   }
   if (!pointerp(ids))
-       if (stringp(ids)) ids=({ids}); else ids=({});
+  {
+    if (stringp(ids))
+      ids=({ids});
+    else
+      ids=({});
+  }
 
-  fixed_obj+=({str});
-  fixed_value[str]=val;
-  for (i=sizeof(ids)-1;i>=0;i--)
-    fixed_ids[ids[i]]=str;
+  fixed_obj += ({str});
+  fixed_value[str] = val;
+  // Alle IDs entfernen, die Sonderzeichen enthalten. Die koennte ein Spieler
+  // bei "kaufe" ohnehin nicht eingeben.
+  ids -= regexp(ids, "[\b\n\r\t]");
+  foreach(string id : ids)
+  {
+    // Nur IDs aufnehmen, die keine Grossbuchstaben enthalten, da Spieler
+    // diese ebenfalls nicht eingeben koennte.
+    if ( lowerstring(id) == id )
+      fixed_ids[id]=str;
+  }
 }
 
 void RemoveFixedObject(string filename)
 {
-  int i;
-  string *en;
-  if(!filename || !sizeof(fixed_obj))return ;
-  if(member(fixed_obj,filename)==-1)return ;
+  if( !stringp(filename) || !sizeof(fixed_obj))
+    return;
+  if( member(fixed_obj, filename)==-1 )
+    return;
+
   fixed_obj -= ({ filename });
-  fixed_value = m_copy_delete(fixed_value,filename);
-  for(i=sizeof(en=m_indices(fixed_ids))-1;i>=0;i--)
-    if(fixed_ids[en[i]] == filename)
-      fixed_ids = m_copy_delete(fixed_ids,en[i]);
+  m_delete(fixed_value, filename);
+
+  foreach(string id, string file : fixed_ids)
+  {
+    if ( file == filename )
+      m_delete(fixed_ids, id);
+  }
 }
 
 static string SetStorageRoom(string str)
@@ -115,70 +134,199 @@ protected void create_super() {
   set_next_reset(-1);
 }
 
+// Legacy-Version von GetShopItems() fuer die erbenden Laeden, die auf
+// die Funktion in dieser Form angewiesen sind.
 static mixed *GetList()
 {
-  object store;
-  int i,s;
-  mixed *output, tmp, str;
+  object store = load_object(storage);
+  store->_register_shop(ME);
+
+  mixed *output=({});
+  if (!objectp(store))
+    return output;
+
+  mixed tmp = fixed_obj+all_inventory(store);
+  mapping tmp2 = ([]);
+  mixed str;
   string comp;
-  mapping tmp2;
+  int i;
+  int s=1;
 
-  output=({});
-  call_other(storage, "_register_shop", ME);
-  if (!objectp(store=find_object(storage))) return output;
-  tmp=fixed_obj+all_inventory(store); tmp2=([]);
-
-  for (i=sizeof(tmp)-1,s=1;i>=0;i--) {
-    str=({({sprintf("%-25.25s%7.7d", (tmp[i]->short()||"???")[0..<3],
-                     QueryBuyValue(tmp[i], PL)), tmp[i]})});
+  for (i=sizeof(tmp)-1 ; i>=0 ; i--)
+  {
+    str = ({ ({ sprintf("%-25.25s%7.7d",
+                        (tmp[i]->short()||"???")[0..<3],
+                        QueryBuyValue(tmp[i], PL)),
+                tmp[i] }) });
     comp=str[0][0][0..25];
-    if (!tmp2[comp]) {
-      tmp2[comp]=s++;
-      output+=str;
+    if (!tmp2[comp])
+    {
+      tmp2[comp] = s++;
+      output += str;
     }
     else output[tmp2[comp]-1][0] = str[0][0];
   }
   return output;
 }
 
+// Legacy-Version von PrintList() fuer die erbenden Laeden, die auf
+// die Funktion in dieser Form angewiesen sind.
 static int DoList(string query_fun)
 {
-  int i, si, indent;
-  mixed *output;
-  string out;
-
-  output=GetList();
-  indent=0;
-  if (!(si=sizeof(output))) {
+  mixed* output=GetList();
+  int si = sizeof(output);
+  if (!si)
+  {
     write("Im Moment sind wir leider VOELLIG ausverkauft!\n");
     return 1;
   }
-  out="";
-  for (i=0; i<si; i++) {
-    if (call_other(ME, query_fun, output[i][1])) {
-      indent=!indent;
-      out+=sprintf("%3d. %s", i+1, output[i][0]);
+  string out="";
+  int i;
+  int indent;
+  for (i=0; i<si; i++)
+  {
+    if (call_other(ME, query_fun, output[i][1]))
+    {
+      indent = !indent;
+      out += sprintf("%3d. %s", i+1, output[i][0]);
       if (!indent)
-        out+="\n";
-      else out+=" | ";
+        out += "\n";
+      else out += " | ";
     }
   }
-  if (indent) out+="\n";
+  if (indent)
+    out+="\n";
   PL->More(out);
-  out=0;
   return 1;
 }
 
-static int AlwaysTrue(mixed ob)
+// Liefert eine Liste der Objekte zurueck, die gerade im Storage liegen,
+// pro Blueprint jeweils eins.
+protected object* GetShopItems()
+{
+  object store = load_object(storage);
+  store->_register_shop(ME);
+  object* output = ({});
+  object* all_items = all_inventory(store);
+
+  // Wir brauchen eine Liste, die von jeder Blueprint nur einen Clone
+  // enthaelt. Daher werden die Ladenamen der Objekte als Keys im Mapping
+  // <items> verwendet und jeweils der aktuelle Clone als Value zugeordnet.
+  mapping items = m_allocate(sizeof(all_items));
+  foreach(object ob: all_items)
+  {
+    items[load_name(ob)] = ob;
+  }
+  // Die Fixed Objects werden ans Ende angehaengt, damit in dem Fall, dass
+  // ein Clone eines solchen Objektes im Lager liegt, dieser zuerst verkauft
+  // wird und nicht immer wieder ein neuer erstellt wird.
+  return m_values(items) + map(fixed_obj, #'load_object);
+}
+
+#define LIST_LONG  1
+#define LIST_SHORT 0
+
+// Kuemmert sich um die Listenausgabe fuer den Befehl "zeige"
+varargs protected int PrintList(string filter_fun, int liststyle)
+{
+  // Alle Items im Lager holen. Wenn keine vorhanden, tut uns das leid.
+  object *items_in_store = GetShopItems();
+  if ( !sizeof(items_in_store) ) {
+    write("Im Moment sind wir leider VOELLIG ausverkauft!\n");
+    return 1;
+  }
+
+  // Das Listenformat ist von der Spielereingabe abhaengig. Wurde "lang"
+  // angefordert, geben wir einspaltig aus mit groesserer Spaltenbreite.
+  // Die Spaltenbreite wird dabei von dem Item mit dem laengsten Namen im
+  // gesamten Shop-Inventar bestimmt, damit nicht bei jeder Teilliste
+  // (Waffen, Ruestungen, Verschiedenes) unterschiedliche Breiten rauskommen.
+  //
+  // Der erste Parameter enthaelt die Katalognummer des Items, der zweite
+  // die Kurzbeschreibung, der dritte den Preis.
+  string listformat = "%3d. %-25.25s %6.6d";
+  if ( liststyle == LIST_LONG )
+  {
+    string* names = sort_array(
+                      items_in_store->short(),
+                      function int (string s1, string s2) {
+                        return (sizeof(s1) < sizeof(s2));
+                      });
+    // Wenn einspaltig ausgegeben wird, soll die Liste nicht beliebig breit
+    // werden. Daher wird die Short auf 65 Zeichen limitiert.
+    int len = 65;
+    if ( sizeof(names) )
+      len = min(len, sizeof(names[0]));
+    listformat = "%3d. %-"+len+"."+len+"s %6.6d";
+  }
+
+  string out="";
+  // Variablen, die innerhalb der Schleife benoetigt werden.
+  string kurz;
+  int indent, preis;
+  object item;
+  // Ueber die Liste laufen. <i> wird benoetigt, um die ausgegebene Liste
+  // konsistent numerieren zu koennen, damit kaufe <nr> funktioniert.
+  foreach(int i : sizeof(items_in_store))
+  {
+    item = items_in_store[i];
+    if ( call_other(ME, filter_fun, item) )
+    {
+      // Kurzbeschreibung und Preis ermitteln. Items ohne Short werden
+      // als "?" angezeigt.
+      kurz = (item->short() || "???")[0..<3];
+      preis = QueryBuyValue(item, PL);
+      // Beschreibung des Items anfuegen.
+      out += sprintf(listformat, i+1, kurz, preis);
+      indent = !indent;
+      // Wenn indent gesetzt ist, handelt es sich um das linke Item in der
+      // zweispaltigen Liste, dann fuegen wir einen Spaltentrenner an,
+      // ansonsten ist es das rechte, dann brechen wir um.
+      // Gilt natuerlich nur fuer kurze Listen.
+      out += ((indent && liststyle==LIST_SHORT)? " | " : "\n");
+    }
+  }
+  // Wenn die Liste eine ungerade Zahl Items enthaelt, ist in der letzten
+  // Zeile links ein Item aufgefuehrt, daher muss danach umbrochen werden.
+  // Gilt natuerlich nur fuer kurze Listen
+  if (indent && liststyle==LIST_SHORT)
+    out+="\n";
+
+  // Vor den Listen wird eine Info-Zeile ausgegeben, um gefilterte Listen
+  // kenntlich zu machen. Wird nach der Filterung des Inventars erzeugt,
+  // um eine leere Meldung ausgeben zu koennen, wenn nach Filterung nichts
+  // mehr uebrigbleibt.
+  string was;
+  switch(filter_fun)
+  {
+    case "IsArmour": was = "Ruestungen"; break;
+    case "IsWeapon": was = "Waffen"; break;
+    case "NoWeaponNoArmour":
+         was = (out==""?"sonstigen Waren":"sonstige Waren"); break;
+    default: was = "Waren"; break;
+  }
+  // <out> ist ein Leerstring, wenn keine Waren da sind, die dem Filterkri-
+  // terium entsprechen. Dann gibt's eine entsprechende Meldung.
+  if ( out == "" )
+    out = sprintf("Leider sind momentan keine %s im Angebot.\n", was);
+  else
+    out = sprintf("Folgende %s kannst Du hier kaufen:\n",was) + out;
+
+  PL->More(out);
+  return 1;
+}
+
+// Hilfsfunktionen zum Filtern des Ladeninventars fuer den "zeige"-Befehl
+static int AlwaysTrue(object ob)
 {   return 1;   }
 
-static mixed IsWeapon(mixed ob)
+static string IsWeapon(object ob)
 {  return ob->QueryProp(P_WEAPON_TYPE);  }
 
-static mixed IsArmour(mixed ob)
+static string IsArmour(object ob)
 {  return ob->QueryProp(P_ARMOUR_TYPE);  }
 
-static int NoWeaponNoArmour(mixed ob)
+static int NoWeaponNoArmour(object ob)
 { return (!ob->QueryProp(P_WEAPON_TYPE) && !ob->QueryProp(P_ARMOUR_TYPE)); }
 
 
@@ -225,22 +373,49 @@ public int CheckForDestruct(object ob) // Pruefen, ob zerstoert werden soll
 
 static int list(string str)
 {
-  _notify_fail("Bitte 'zeige', 'zeige waffen', 'zeige ruestungen' oder\n'zeige verschiedenes' eingeben.\n");
-  if (!str) return DoList("AlwaysTrue");
-  if (!stringp(str)) return 0;
-  if (sizeof(str)<3) return 0;
-  str=str[0..2];
-  if (str=="waf") return DoList("IsWeapon");
-  if (str=="ver") return DoList("NoWeaponNoArmour");
-  if (str=="rue") return DoList("IsArmour");
+  _notify_fail(
+    "Bitte 'zeige', 'zeige waffen', 'zeige ruestungen' oder\n"
+    "'zeige verschiedenes' eingeben. Wenn Du das Schluesselwort 'lang'\n"
+    "oder '-1' anhaengst, wird die Liste einspaltig ausgegeben.\n");
+
+  if (!stringp(str) || !sizeof(str) )
+    return PrintList("AlwaysTrue");
+  if ( str == "lang" || str == "-1" )
+    return PrintList("AlwaysTrue", LIST_LONG);
+
+  string *params = explode(str," ");
+  if (sizeof(params[0])<3)
+    return 0;
+
+  int liststyle = LIST_SHORT;
+  if ( sizeof(params)>1 && params[1] == "lang" )
+    liststyle = LIST_LONG;
+
+  str=params[0][0..2];
+  if (str=="waf")
+    return PrintList("IsWeapon", liststyle);
+  if (str=="ver")
+    return PrintList("NoWeaponNoArmour", liststyle);
+  if (str=="rue")
+    return PrintList("IsArmour", liststyle);
   return 0;
 }
-
+/*
 static varargs int QueryBuyValue(mixed ob, object client)
 {
   if (objectp(ob))
     return trading_price::QueryBuyValue(ob, client);
   return (fixed_value[ob]*QueryBuyFact(client))/100;
+}
+*/
+
+static varargs int QueryBuyValue(object ob, object client)
+{
+  int fprice = fixed_value[load_name(ob)];
+
+  return (fprice>0) ? 
+         fprice*QueryBuyFact(client)/100 : 
+         trading_price::QueryBuyValue(ob, client);
 }
 
 static void UpdateCounter(object ob, int num)
@@ -258,23 +433,17 @@ static void UpdateCounter(object ob, int num)
   else ob_anz[tmp]=a;
 }
 
-mixed FindInStore(mixed x)
+protected object FindInStore(string|int x)
 {
-  mixed *list;
-  object store;
-  string res;
-
-  if (intp(x)) {
-    list = GetList();
-    if (x<1 || x>sizeof(list)) return 0;
-    return list[x-1][1];
+  object* list = GetShopItems();
+  if ( intp(x) && x>0 && x<sizeof(list) ) {
+    return list[x-1];
   }
-  if (stringp(x)) {
-    if (res=fixed_ids[x]) return res; // Staendig verfuegbares Objekt
-    call_other(storage, "_register_shop", ME);
-    store=find_object(storage);
-    if (!store) return 0;
-    return present(x,store);
+  if (stringp(x))
+  {
+    list = filter_objects(list, "id", x);
+    if ( sizeof(list) )
+      return list[0];
   }
   return 0;
 }
@@ -353,7 +522,7 @@ static int buy(string str)
   else ob=FindInStore(str);
 
   if (!ob) return 0;
-
+  
   if (str = buy_obj(ob,0)) 
   {
     write(break_string(str,78,Name(WER)+" sagt: "));
@@ -400,7 +569,13 @@ static int buy(string str)
   
   PL->AddMoney(-val);
   _add_money(val);
-  if (stringp(ob)) ob=clone_object(ob); // Staendig verfuegbares Objekt?
+
+  // Staendig verfuegbare Objekte (fixed_obj) sind daran erkennbar, dass sie
+  // nicht im Lager liegen. Daher hier einen Clone erstellen, der dann 
+  // stattdessen rausgegeben wird.
+  if ( !present(ob, find_object(storage)) )
+    ob = clone_object(ob);
+  
   if (ob->move(PL,M_GET)<=0){
     write("Du kannst das nicht mehr tragen!\n");
     ob->move(ME,M_NOCHECK); /* Now the object he bought lies on the floor */

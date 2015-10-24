@@ -2,7 +2,7 @@
 //
 // living/combat.c -- Basis-Kampfmodul
 //
-// $Id: combat.c 9142 2015-02-04 22:17:29Z Zesstra $
+// $Id: combat.c 9302 2015-09-12 10:40:06Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -1888,16 +1888,14 @@ static mapping _query_resistance_strengths() {
 
   UpdateResistanceStrengths();
 
-  mapping rstren = Query(P_RESISTANCE_STRENGTHS);
-  mapping mod = Query(P_RESISTANCE_MODIFIER);
+  mapping rstren = copy(Query(P_RESISTANCE_STRENGTHS, F_VALUE));
+  mapping mod = Query(P_RESISTANCE_MODIFIER, F_VALUE);
+
+  if ( !mappingp(rstren) )
+    rstren = ([]);
 
   if ( !mappingp(mod) || !mappingp(mod=mod["me"]) || !sizeof(mod) )
     return rstren;
-
-  if ( mappingp(rstren) )
-    rstren = deep_copy(rstren);
-  else
-    rstren = ([]);
 
   foreach(string modkey, float modvalue : mod)
     rstren[modkey] = ((1.0+rstren[modkey])*(1.0+modvalue))-1.0;

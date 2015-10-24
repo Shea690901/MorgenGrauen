@@ -2,7 +2,7 @@
 //
 // merlin.c -- Unser geliebter Merlin
 //
-// $Id: merlin.c 9018 2015-01-10 20:51:31Z Zesstra $
+// $Id: merlin.c 9372 2015-10-22 19:02:29Z Zesstra $
 #pragma strict_types
 #pragma no_clone
 #pragma no_shadow
@@ -172,7 +172,7 @@ string GetDetail(string key,mixed race,int sense) {
   case "schulterblaetter": case "schulterblatt":
           return "Seine langen Haare bedecken die Schulterblaetter.\n";
   case "gewand": case "robe":
-          return BS("Es ist blau und mit silbernen Monden und Sternen bestickt. Das Gewand ist uralt und schon etwas abgeetragen, aber es erfuellt immer noch seinen Zweck.");
+          return BS("Das Gewand ist blau und mit silbernen Monden und Sternen bestickt. Es ist uralt und schon etwas abgetragen, aber es erfuellt immer noch seinen Zweck.");
   case "zweck":
           return BS("Der Zweck des Gewandes besteht darn, Merlin standesgemaess zu bekleiden. Diesem Zweck kommt das Gewand in Vollendung nach.");
   case "vollendung":

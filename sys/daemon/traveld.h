@@ -8,9 +8,9 @@
 #ifndef __TRAVELD_H_PROTO__
 #define __TRAVELD_H_PROTO__
 
-public void AddHarbour(string ship, string harbour);
-public void RemoveShip(object ship);
-public varargs mixed HasShip(object harbour, string ship);
+public void AddStop(string ship, string harbour);
+public void RemoveTransporter(object ship);
+public varargs mixed HasTransporter(object harbour, string ship);
 public mixed RouteExists(object ship, string dest);
 public mapping QueryShips();
 public mapping QueryAllHarbours();

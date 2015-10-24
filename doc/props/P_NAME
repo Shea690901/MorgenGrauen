@@ -41,6 +41,9 @@ BEMERKUNGEN:
      SetProp(P_NAME, "Hut");
      SetProp(P_NAME_ADJ, "alt");
 
+     Bei Lebewesen wird lower_case(P_NAME) (bei Arrays das erste Element 
+     daraus) automatisch als LivingName gesetzt.
+
 BEISPIELE:
      Ein regelmaessig deklinierbarer Name:
 
@@ -55,7 +58,8 @@ BEISPIELE:
      SetProp(P_NAME, ({ "Muenze", "Muenzen" }));
 
 SIEHE AUCH:
-     /std/thing/description.c, name(), P_NAME_ADJ
+     /std/thing/description.c, name(), P_NAME_ADJ, set_living_name(),
+     find_living(), find_livings()
 
 ----------------------------------------------------------------------------
-Last modified: Sun May 19 19:58:47 1996 by Wargon
+Last modified: 19. Okt. 2015, Arathorn. 

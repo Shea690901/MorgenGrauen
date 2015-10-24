@@ -27,7 +27,10 @@ Sonstiges:
   Am liebsten ist mir, bei der Konzeptentwicklung zuerst die fertige
   Dokumentation (Manpage) fuer Nutzer/Spieler zu entwickeln, bevor ein Magier
   ueberhaupt eine Zeile Code schreibt.
+* Patches muessen eine Zusammenfassung haben, welche kurz erlaeutert,
+  was dieser Patch fixen/aendern/verbessern soll und auf welche Weise
+  diese umgesetzt wird. (Anders gesagt: eine Commit-Message)
 
 LETZTE AeNDERUNG:
-  13.6.2014, Zesstra
+  15.8.2015, Zesstra
 

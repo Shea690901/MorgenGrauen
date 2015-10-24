@@ -23,7 +23,7 @@ protected void create()
   SetProp(P_SEITENZAHL, sizeof(load(QueryProp(P_BUCH))));
   SetProp(P_SHORT, "Wie man ein Buch schreibt!");
   SetProp(P_LONG,
-	"Du haelst ein leinengebundenes Buch in Deinen Haenden. Der Titel lautet:\n"
+	"Du haeltst ein leinengebundenes Buch in Deinen Haenden. Der Titel lautet:\n"
   +QueryProp(P_SHORT)+"\n");
   SetProp(P_NAME,"Buch");
   AddId("buch");

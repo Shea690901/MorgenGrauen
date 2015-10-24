@@ -6,7 +6,7 @@ Heilung von Spielern durch Objekte, Raeume, portable Heilung
 
 Neben den bekannten Heilstellen fuer Spieler (den Kneipen sowie gildeninterne
 Faehigkeiten) gibt es noch die Moeglichkeit, den Spielern Heilung durch Ver-
-wendung der LFUNs "heal_self", "reduce_hit_points", "restore_spell_points",
+wendung der LFUNs "heal_self", "restore_hit_points", "restore_spell_points",
 "buffer_hp" und "buffer_sp" Heilung zukommen zu lassen.
 
 Dies wird meist ueber Raeume gemacht, in denen der Spieler ein bestimmtes
@@ -43,7 +43,7 @@ noch genuegend Tankkapazitaeten hat und wenn ja, die entsprechenden Properties
 "drink_alcohol" ist in diesem Zusammenhang besonders wichtig, da es auf einen
 evtl. vorhandenen Saufskill prueft!
 
-Die Heilung selber muss dann aber noch ueber "heal_self", "reduce_hit_points",
+Die Heilung selber muss dann aber noch ueber "heal_self", "restore_hit_points",
 "restore_spell_points", "buffer_hp" oder "buffer_sp" geschehen!
 
 Ortsgebundene Heilung:
@@ -143,11 +143,14 @@ werden. Wer diesen Posten momentan innehat, kann dem MailAlias
 
 Siehe auch:
 ----------
-     eat_food, drink_alcohol, drink_soft, heal_self, restore_spell_points,
-     reduce_hit_points, check_and_update_timed_key, buffer_hp, buffer_sp,
-     enttanken, defuel_drink, defuel_food, reduce_food, reduce_drink,
-     reduce_alcohol, P_DRINK, P_FOOD, P_ALCOHOL, P_LAST_XP, food
+     Tanken:    consume, drink_alcohol, eat_food, drink_soft
+     Heilung:   heal_self, restore_spell_points, restore_hit_points, 
+                buffer_hp, buffer_sp
+     Timing:    check_and_update_timed_key
+     Enttanken: defuel_drink, defuel_food
+     Props:     P_DRINK, P_FOOD, P_ALCOHOL, P_SP, P_HP,
+                P_DEFUEL_TIME_DRINK
+     Konzepte:  enttanken, food
 
 ----------------------------------------------------------------------------
 17.09.2010, Zesstra
-

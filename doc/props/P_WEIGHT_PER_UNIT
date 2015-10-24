@@ -6,3 +6,8 @@ DEFINIERT IN:
 
 BESCHREIBUNG:
      Gewicht in Gramm pro Untereinheit.
+
+BEMERKUNGEN:
+     Deprecated. Bitte SetGramsPerUnits() (U_GPU) benutzen.
+
+25.Aug 2015 Gloinson

@@ -101,7 +101,8 @@ void create() {
 +"im Norden, welcher auf die Hafenstrasse fuehrt und Bilder an den Waenden,\n"
 +"mit Zeichnungen und Gemaelden von MorgenGrauen. Eins der Bilder erlaeutert\n"
 +"die Funktion der Gilde und eine grosse Uhr an der Wand zeigt, was die\n"
-+"Stunde schlaegt. In einer Ecke steht ein kleines Projektbrett.\n"
+//+"Stunde schlaegt. In einer Ecke steht ein kleines Projektbrett.\n"
++"Stunde schlaegt.\n"
 +"Nach oben fuehrt eine Treppe in das Buero des Foerdervereins Projekt\n"
 +"MorgenGrauen e.V., das Du unbedingt besuchen solltest.\n");
 
@@ -174,6 +175,7 @@ void create() {
   AddDetail("aufmerksamkeit",
   "Du beschliesst, Dir das Brett sofort naeher zu betrachten, um sie zu\n"
       +"befriedigen.\n");
+/*
   AddDetail(({"brett","holzbrett"}),
   "Ein unscheinbares kleines Brett steht in der Ecke des Raumes. Wenn man\n"
  +"bedenkt, wie viele kleine Zettel daran befestigt wurden, kann es sich\n"
@@ -188,6 +190,7 @@ void create() {
   "Es sind so viele, Du wuerdest bestimmt jahrelang zaehlen.\n");
   AddDetail("informationen",
   "Wenn Du die Zettel liest, findest Du bestimmt welche.");
+*/
   AddDetail(({"wissenschaften", "eigenschaften"}), #'Funktion); //');
   AddDetail(({"narben", "schwertstreich"}),
   "Die Narben in den Holzbalken sind schon recht alt. Es ist lange her, dass\n"
@@ -195,10 +198,10 @@ void create() {
   AddDetail(({"aura"}),
  "Eine Aura von Licht umgibt jeden, der von der Strasse ins Haus kommt.\n");
   AddDetail(({"bewohner", "abenteurer"}),
- "Hier, im Gildehaus, ist jeder gern willkommen.\n");
+ "Hier, im Gildenhaus, ist jeder gern willkommen.\n");
   AddDetail(({"weise", "weiser", "recken"}),
   "Die Weisen dieses Landes sind beruehmt, kommen aber nicht an die Be-\n"
-  +"ruehmtheit ihrer Vorfahren, die grossen Recken der ersten Jahre, heran\n");
+  +"ruehmtheit ihrer Vorfahren, die grossen Recken der ersten Jahre, heran.\n");
   AddDetail(({"realitaet"}), "Was ist schon real?\n");
   AddSpecialDetail("uhr","zeige_reboot");
 
@@ -227,7 +230,7 @@ void create() {
   // nur auf dem Mudrechner laden (Stichwort: oeffentlich Mudlib)
 #if MUDHOST == __HOST_NAME__
   AddItem("/p/service/troy/obj/buchautomat", REFRESH_REMOVE);
-  AddItem("/p/service/mandragon/projektbrett/board", REFRESH_REMOVE);
+//  AddItem("/p/service/mandragon/projektbrett/board", REFRESH_REMOVE);
   // Die Biene fuer den Transport zur Wonnewichtlichtung.
   // Ark, 19.08.05
   AddItem("/d/anfaenger/ark/mon/mantisbiene",REFRESH_DESTRUCT,

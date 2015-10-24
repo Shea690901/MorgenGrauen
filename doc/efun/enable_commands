@@ -3,7 +3,10 @@ SYNOPSIS
 
 BESCHREIBUNG
         Erlaubt dem Objekt, Kommandos zu verwenden, die normalerweise Usern
-        zugaenglich sind. Der Aufruf markiert das Objekt als "living".
+        zugaenglich sind. Der Aufruf markiert das Objekt als "living". Dies
+        wird fuer Spieler und alle von /std/npc abgeleiteten Objekte
+        bereits von der Mudlib erledigt und sollte nicht nochmals gemacht
+        werden.
 
         Diese Funktion darf nicht ausserhalb von create() (oder reset(0) im
         Compat-Modus) aufgerufen werden, weil der Kommandogeber auf dieses
@@ -20,3 +23,4 @@ BEISPIEL
 
 SIEHE AUCH
         command(E), living(E), disable_commands(E), native(C), hooks(C)
+        set_living_name(E)

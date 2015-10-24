@@ -15,64 +15,72 @@ ARGUMENTE:
             negativem food auftreten kann, wenn P_FOOD wieder 0 ist.
 
 BESCHREIBUNG:
-    Es wird geprueft, ob dem Spieler der angebene Wert "food" auf seine
+    Es wird geprueft, ob dem Spieler der angebene Wert "strength" auf seine
     aktuelle P_FOOD addiert werden kann oder nicht. Ist dies moeglich, wird
-    es gemacht.
+    wird es gemacht, es sei denn das testonly != 0.
+
     Sollen neben P_FOOD noch weitere Props manipuliert werden - bspw. zur
     Heilung eines Lebewesens - bietet sich die Funktion consume() an.
 
 RUECKGABEWERT:
-     0, wenn food + P_FOOD > P_MAX_FOOD.
+     0, wenn strength + P_FOOD > P_MAX_FOOD.
     >0, wenn Erfolg.
 
 BEMERKUNG:
-    eat_food() ist in sofern nuetzlich, als dass dabei die Abfrage von
-    P_FOOD und P_MAX_FOOD des Spielers weggelassen werden kann. Nervige
-    Zahlenspielereien entfallen somit.
+    eat_food() bitte anstatt eigener Manipulationen von P_FOOD und
+    P_MAX_FOOD verwenden.
 
-    Achtung: Es ist hierbei wichtig, auf den Erfolg der Funktion zu testen, 
-    -------  bevor eine Heilung erfolgt.
+    Achtung: Immer erst VOR einer Heilung ausfuehren und bei Erfolg heilen.
 
     Bei Heilstellen sollte eine evtl. Heilung des Spielers mit der eigens
     dafuer eingerichteten Funktion check_and_update_timed_key realisiert
     werden.
 
 BEISPIEL:
-    #define TP this_player()
-    ...
+    int heilstelle() {
+      // Wenn auf das P_FOOD des Spielers die angegebenen 10 nicht mehr addiert
+      // addiert werden koennen (weil sonst P_MAX_FOOD ueberschritten wird),
+      // wird die Fehlermeldung ausgegeben, dass der Spieler nichts mehr
+      // essen/trinken kann.
+      // Bei gesetztem 'mytext' wird 'mytext' an den Spieler ausgegeben.
+      // Ansonsten wird die Standardmeldung ausgegeben.
+      if (!this_player()->eat_food(10, 0, "Der Keks ist einfach "
+                                          "zuviel fuer Dich.\n") )
+        return 1;
 
-    int heilstelle()
-     {
-// Wenn auf das P_FOOD des Spielers die angegebenen 10 nicht mehr addiert
-// werden koennen (weil sonst P_MAX_FOOD ueberschritten wird), wird die 
-// Fehlermeldung ausgegeben, dass der Spieler nichts mehr essen/trinken kann.
-// Bei gesetztem 'mytext' wird 'mytext' an den Spieler ausgegeben.
-// Ansonsten wird die Standardmeldung ausgegeben.
+      // Spieler hatte noch ausreichend Spielraum bei P_FOOD. Die 10 sind 
+      // schon addiert worden. Jetzt Nachricht ausgeben:
+      tell_object(this_player(), break_string("Du knabberst ein bisschen an "
+                  "dem Keks herum und fuehlst Dich gleich viel besser.", 78));
 
-      if ( !TP->eat_food(10,0,"Der Keks ist einfach zuviel fuer Dich.\n") )
-       return 1;
+      // alle Lebewesen im Raum bekommen das auch mit
+      foreach(object ob:
+              (filter(all_inventory(environment(this_player())), #'living) -
+               ({this_player()})))
+        ob->ReceiveMsg(this_player()->Name()+" knuspert einen Keks weg.",
+                       MT_LOOK|MT_LISTEN,
+                       MA_EAT);
 
-// Spieler hat noch ausreichend Spielraum bei P_FOOD. Die 10 werden 
-// automatisch addiert!
+      // Rassenabhaengige Heilung: Sofort oder in Schritten
+      // Tragbare Heilungen sollten auch eher buffer_hp/_sp benutzen.
+      if(this_player()->QueryProp(P_REAL_RACE)=="Kruemelmonster")
+        this_player()->heal_self(30);
+      else {
+        this_player()->buffer_hp(30,5);
+        this_player()->buffer_sp(30,5);
+      }
 
-      write(BS("Du knabberst ein bisschen an dem Keks herum und fuehlst
-               "Dich gleich viel besser."));
-      TP->heal_self(30);
-// ODER
-      TP->buffer_hp(30,5);
-      TP->buffer_sp(30,5);
-// Je nachdem, ob es tragbare Heilung sein soll oder nicht (also ob es
-// instant sein soll, oder nicht).
       return 1;
-     }
+    }
 
 SIEHE AUCH:
-     consume, drink_alcohol, eat_food, heal_self, restore_spell_points,
-     reduce_hit_points, check_and_update_timed_key, buffer_hp, buffer_sp,
-     defuel_drink, defuel_food,
-     P_DRINK, P_FOOD, P_ALCOHOL
-     heilung, enttanken, food
+     Aehnlich:  consume, drink_alcohol, drink_soft
+     Heilung:   heal_self, restore_spell_points, restore_hit_points, 
+                buffer_hp, buffer_sp
+     Timing:    check_and_update_timed_key
+     Enttanken: defuel_drink, defuel_food
+     Props:     P_DRINK, P_FOOD, P_ALCOHOL, P_SP, P_HP,
+                P_DEFUEL_TIME_DRINK
+     Konzepte:  heilung, enttanken, food
 
-----------------------------------------------------------------------------
-27.10.2009, Zesstra
-
+9. August 2015 Gloinson

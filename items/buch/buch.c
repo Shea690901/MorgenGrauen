@@ -21,7 +21,7 @@ void create() {
   ::create();
   SetProp(P_SHORT, "Ein Buch");
   SetProp(P_LONG,
-	"Du haelst ein leinengebundenes Buch in Deinen Haenden. Der Titel heisst:\n"+
+	"Du haeltst ein leinengebundenes Buch in Deinen Haenden. Der Titel heisst:\n"+
 	"@@buchinfo@@.\n");
   SetProp(P_NAME,"Buch");
   AddId("buch");

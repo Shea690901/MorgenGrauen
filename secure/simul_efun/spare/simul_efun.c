@@ -1479,11 +1479,6 @@ nomask void swap(object obj)
 
 nomask varargs void garbage_collection(string str)
 {
-#if __BOOT_TIME__ < 1423255563
-  write("Der GC hat diese UPtime einen Fehler und darf nicht \n"
-        "werden (ausser der Driver ruft ihn automatisch).\n");
-  return;
-#else
   if(previous_object()==0 || !IS_ARCH(geteuid(previous_object())) 
       || !ARCH_SECURITY)
   {
@@ -1496,7 +1491,6 @@ nomask varargs void garbage_collection(string str)
   }
   else 
     return efun::garbage_collection();
-#endif
 }
 
 varargs void notify_fail(mixed nf, int prio) {

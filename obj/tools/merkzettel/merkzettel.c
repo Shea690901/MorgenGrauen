@@ -576,13 +576,13 @@ int ChangeStatus(string str) {
   if(member(NOTE_STATES,state)==-1) {
     if (notizen[id,NOTE_STATUS]==NOTE_ACTIVE) {
       tell_object(PL,BS(
-          sprintf("%d ist ein unbekannter Status, setzt Notiz %s auf "
+          sprintf("%d ist ein unbekannter Status, setzt Notiz %d auf "
               "'Inaktiv'.",state,id)));
       state=NOTE_INACTIVE;
     }
     else {
       tell_object(PL,BS(
-          sprintf("%d ist ein unbekannter Status, setzt Notiz %s auf "
+          sprintf("%d ist ein unbekannter Status, setzt Notiz %d auf "
               "'Aktiv'.",state,id)));
       state=NOTE_ACTIVE;
     }

@@ -2,7 +2,7 @@
 //
 // thing/description.c -- description handling for standard objects
 //
-// $Id: description.c 9183 2015-03-25 19:37:39Z Arathorn $
+// $Id: description.c 9376 2015-10-22 19:06:17Z Zesstra $
 
 #pragma strict_types
 #pragma save_types
@@ -784,8 +784,7 @@ static string* _set_class(string* classes )
 // Material setzen
 static mapping _set_material(mapping|string|string* mat )
 {
-  int i, sz;
-  mapping mats;
+  mapping mats = ([]);
   
   if (mappingp(mat)) 
   {
@@ -795,15 +794,17 @@ static mapping _set_material(mapping|string|string* mat )
     else 
       mats = mat;
   }
+  else if (stringp(mat))
+    mats[mat]=100;
   else
   {
-    mats = ([]);
-    
-    if ( stringp(mat)) mats[mat]=100;
-    else if ( pointerp(mat)&&sz=sizeof(mat) )
-      for ( i = sz; i--; ) mats[mat[i]] += 100 / sz;
-  }
-
+    int sz = sizeof(mat);
+    // Kommt dann vor, wenn <mat> 0 oder ({}) ist.
+    if ( !sz )
+      raise_error(sprintf("P_MATERIAL: expected string or non-empty "
+        "mapping|string*, got %.50O.\n", mat));
+    mats = mkmapping(mat, allocate(sz, 100/sz));
+  } 
   return Set( P_MATERIAL, mats, F_VALUE );
 }
 

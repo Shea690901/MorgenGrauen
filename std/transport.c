@@ -2,7 +2,7 @@
 //
 // transport.c -- Basisklasse fuer Schiffe und aehnliche Transporter
 //
-// $Id: transport.c 9087 2015-01-18 23:58:28Z Arathorn $
+// $Id: transport.c 9310 2015-09-14 21:03:21Z Zesstra $
 #pragma strong_types
 //#pragma save_types
 #pragma range_check
@@ -80,11 +80,30 @@ void Halt()
   while (remove_call_out( "disconnect" )>-1);
 }
 
+// Aktualisiert/Setzt die Route im TravelD, wenn erlaubt (d.h. kein
+// P_NO_TRAVELING)
+private void ReportRoute()
+{
+  if(!QueryProp(P_NO_TRAVELING))
+  {
+    mixed tmp = filter(route, function int (mixed arr)
+        {
+          return arr[0] == HP_ROOM;
+        } );
+    string *route = map(tmp, function string (mixed arr)
+        { return arr[1]; }
+        );
+    TRAVELD->AddRoute(object_name(this_object()),route);
+  }
+}
+
 varargs void Start(int pos)
 {
   Halt();
   rpos = (pos >= sizeof(route))?-1:pos-1;
   call_out("changeHp",0);
+  // Tell TRAVELD our current route
+  ReportRoute();
 }
 
 void SetTravelCmds()
@@ -122,8 +141,6 @@ mixed HasRoute(mixed dest)
   }
   return 0;
 }
-
-
 
 public varargs void AddRoute(string room, int stay, int next, 
     string harbour_desc, string|string* dest_ids, string deststr)
@@ -185,13 +202,8 @@ public varargs void AddRoute(string room, int stay, int next,
   }
   route += ({ ({ HP_ROOM, room, stay, next, harbour_desc, dest_ids, 
                  deststr }) });
-  
-  if(!QueryProp(P_NO_TRAVELING))
-  {
-    TRAVELD->AddHarbour(object_name(this_object()),room);
-  }
 }
-    
+
 varargs void AddMsg(string msg, int next) 
 {
   route += ({ ({ HP_MSG, msg, next }) }); 
@@ -213,33 +225,26 @@ object* QueryPassengers()
 
 varargs string *QueryHarbours(int textflag)
 {
-  int i,j,k;
-  string *ret, h, *h2;
-  string* s;
+  string *ret = ({});
 
-  ret = ({});
-
-  if (textflag)
+  foreach( mixed* entry : route )
   {
-    j=sizeof(route);
-    for (i=0;i<j;i++)
-      if (route[i][0] == HP_ROOM)
+    if ( entry[0] == HP_ROOM )
+    {
+      if ( textflag )
       {
-        s = route[i][1]->QueryProp(P_HARBOUR)[1];
-        if (pointerp(s) && sizeof(s))
+        string *hp_ids = entry[1]->QueryProp(P_HARBOUR)[1];
+        if (pointerp(hp_ids) && sizeof(hp_ids))
         {
-          h2 = explode(s[0]," ");
-          k=sizeof(h2);
-          while(k--) h2[k]=capitalize(h2[k]);
-          ret+=({ implode(h2," ") });
+          string *h = map( explode(hp_ids[0]," "), #'capitalize);
+          ret += ({ implode(h, " ") });
         }
-        
       }
-  }
-  else
-  {
-     i=sizeof(route);
-     while(i--) if (route[i][0] == HP_ROOM) ret += ({route[i][1]});
+      else
+      {
+        ret += ({ entry[1] });
+      }
+    }
   }
   return ret;
 }
@@ -249,8 +254,7 @@ void RemoveRoute()
   Halt();
   route = ({ });
   rpos  =   0;
-
-  TRAVELD->RemoveShip(this_object());
+  TRAVELD->RemoveTransporter(this_object());
 }
 
 varargs int Enter(object who)
@@ -371,7 +375,7 @@ static int GoInAndOutside(string str)
   return 0;
 }
 
-void create()
+protected void create()
 {
   ::create();
 
@@ -476,7 +480,12 @@ int clean_up(int arg) { return 0; }
 
 void changeHp()
 {
-  if (++rpos == sizeof(route)) rpos = 0;
+  if (++rpos == sizeof(route))
+  {
+    rpos = 0;
+    //TRAVELD die aktuelle Route uebermitteln
+    ReportRoute();
+  }
   if (route[rpos][0] == HP_MSG)
   {
     call_out("changeHp",route[rpos][2]);

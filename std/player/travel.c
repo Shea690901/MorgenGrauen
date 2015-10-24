@@ -126,7 +126,7 @@ static int reise(string str)
                          "verkehrt.",78));
       return 1;
     }
-    if (!pointerp(ship = TRAVELD->HasShip(environment())))
+    if (!pointerp(ship = TRAVELD->HasTransporter(environment())))
     {
       _notify_fail("Hier verkehrt kein Transportmittel.\n");
       return 0;
@@ -205,7 +205,7 @@ static int reise(string str)
         return 0;
       }
     }
-    if (!pointerp(ship = TRAVELD->HasShip(environment(), mit)))
+    if (!pointerp(ship = TRAVELD->HasTransporter(environment(), mit)))
     {
       _notify_fail("So ein Transportmittel verkehrt hier nicht.\n");
       return 0;
@@ -337,7 +337,7 @@ static int reise(string str)
       }
       return 1;
     }
-    if (!pointerp(ship = TRAVELD->HasShip(environment())))
+    if (!pointerp(ship = TRAVELD->HasTransporter(environment())))
     {
       _notify_fail("Von hier aus kannst Du nicht reisen.\n");
       return 0;
@@ -452,7 +452,7 @@ static int reise(string str)
       _notify_fail("Aber das tust Du doch bereits.\n");
       return 0;
     }
-    if (!pointerp(ship = TRAVELD->HasShip(environment(),mit)))
+    if (!pointerp(ship = TRAVELD->HasTransporter(environment(),mit)))
     {
       _notify_fail("So ein Transportmittel verkehrt hier nicht.\n");
       return 0;

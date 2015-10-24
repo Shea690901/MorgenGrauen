@@ -71,8 +71,14 @@ BEISPIELE:
               H_DISTRIBUTION: 10]) )
 
 SIEHE AUCH:
-    P_SP, P_HP, P_FOOD, P_DRINK, P_ALCOHOL
-    buffer_hp, buffer_sp, drink_soft, drink_alcohol, eat_food.
+     Aehnlich:  drink_alcohol, eat_food, drink_soft
+     Heilung:   heal_self, restore_spell_points, restore_hit_points, 
+                buffer_hp, buffer_sp
+     Timing:    check_and_update_timed_key
+     Enttanken: defuel_drink, defuel_food
+     Props:     P_DRINK, P_FOOD, P_ALCOHOL, P_SP, P_HP,
+                P_DEFUEL_TIME_DRINK
+     Konzepte:  heilung, enttanken, food
 
 LETZTE AeNDERUNG:
     29.05.2015, Boing

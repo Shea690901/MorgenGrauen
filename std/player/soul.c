@@ -2,7 +2,7 @@
 //
 // player/soul.c -- Die Seele des Spielers
 //
-// $Id: soul.c 9011 2015-01-07 13:05:52Z Rumata $
+// $Id: soul.c 9374 2015-10-22 19:03:02Z Zesstra $
 
 // Letzte Aenderung vom 08.09.95  Wargon
 
@@ -1569,7 +1569,7 @@ SoulComm(string str, string _verb)  {
     if (!who)
       Return("Wen willst Du kuessen?\n");
     if (CheckLife(NOT_SELF,NOT_DEAD,
-      "Da hast Du aber Schwierigkeiten... Du gibt es schliesslich auf.",
+      "Da hast Du aber Schwierigkeiten... Du gibst es schliesslich auf.",
       "Nix. Absolut nix. Kuesse lieber Lebewesen - die reagieren\n"
         +"wenigstens (und sei es, dass sie Dich fressen...)."))
         return 1;

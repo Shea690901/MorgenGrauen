@@ -259,7 +259,7 @@ static int cmd_leere(string str)
   return 1;
 }
 
-static int cmd_fuelle(string str)
+public int cmd_fuelle(string str)
 {
   string strbottle,strobj;
 

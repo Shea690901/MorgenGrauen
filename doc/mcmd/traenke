@@ -17,8 +17,12 @@ traenke
     Der Befehl wirkt als Umschalter: Kann man Traenke finden, so wird das
     Verhalten nun ausgeschaltet, und umgekehrt.
 
+ HINWEIS:
+    Wenn man mit eingeschaltetem "traenke" Zaubertraenke findet, werden
+    diese NICHT aus der ZT-Liste ausgetragen.
+
  SIEHE AUCH:
     attribute, zaubertraenke
 
  LETZTE AeNDERUNG:
-    Thu, 24.07.1997, 09:00:00 von Wargon
+   13.08.2015, Arathorn 

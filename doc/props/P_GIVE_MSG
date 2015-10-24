@@ -38,7 +38,7 @@ BEISPIEL:
 	"Ein wenig magischer Sand. Sehr feinkruemelig.",78 ));
 
       SetProp( P_NAME, "Sand" );
-      AddId( ({"sand"})
+      AddId( ({"sand"}) );
       SetProp( P_GENDER, MALE );
 
       SetProp( P_GIVE_MSG, ({

@@ -33,7 +33,7 @@
 
 #define PLANT_ROOMDETAIL   "_lib_p_plantroomdetail"
 
-#define is_plant(x) (member(inherit_list(x), \
+#define IS_PLANT(x) (member(inherit_list(x), \
                      "/std/items/kraeuter/kraut.c")>=0)
 
 #endif // __KRAEUTER_H__

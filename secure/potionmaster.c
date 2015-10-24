@@ -366,8 +366,6 @@ void RemoveList(object room, int* potionrooms, int* known_potionrooms) {
   // Aufruf von RemoveList() aus dem Spielerobjekt gerufen wird. Daher reicht
   // es aus, die ZT-Nummer aus dem reverse_table Lookup zu holen.
   int num = reverse_table[object_name(room)];
-/*  if ( num == -1 )
-    return;*/
   int tmp = member(potionrooms, num);
   potionrooms[tmp] = -1;
   tmp = member(known_potionrooms, num);

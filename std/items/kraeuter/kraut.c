@@ -9,14 +9,16 @@ inherit "/std/thing";
 
 #define PLANT_LIFETIME  (24*3600)
 #define FRESH_TIME      (6*3600)
-// P_QUALITY wird fuer ungueltig erschaffene Kraeuter auf -1 gesetzt.
+// Die plantID wird fuer ungueltig erschaffene Kraeuter auf -1 gesetzt.
 #define DRIED_PLANT     -1
 
-int age=time();
+private int age=time();
 // enthaelt die Nummer des Krauts
 private int plantId;
 // enthaelt den Pfad des clonenden Objekts
 private string cloner;
+// Qualitaet des Krautes.
+private int quality=100;
 
 // File kann ein name sein, dessen Eigenschaften der VC konfigurieren sein
 // oder 0, wenn er selber ermitteln soll, was fuer ein File er gerade erzeugt
@@ -39,19 +41,11 @@ protected void create()
     return;
   }
   ::create();
-  
-  SetProp(P_QUALITY, 100);
+ 
+  Set(P_QUALITY, function int () { return quality; }, F_QUERY_METHOD);
   SetProp(P_WEIGHT, 120);
   SetProp(P_VALUE, 70);
-  // _unbedingt_ umsetzen bei Zutaten die keine Pflanzen sind!
   SetProp(P_MATERIAL, MAT_MISC_PLANT);
-  /*
-  if (this_interactive() && query_wiz_level(this_interactive())>20)
-    tell_object(this_interactive(),
-        sprintf("Callerstack: %O\nLoadname: %O, OName: %O\nBP-Name: %O\n,",
-          caller_stack(), load_name(), object_name(),
-          object_name(blueprint())));
-          */
 }
 
 protected void create_super()
@@ -122,20 +116,6 @@ static string _query_nosell()
   return 0;
 }
 
-// mit DryPlant kann die Pflanze getrocknet werden, sie kann dann nicht mehr
-// schimmeln. Hierbei sollte die Qualitaet der Pflanze jedoch leiden, <qual>
-// gibt hierbei den Prozentwert an, auf den die Qualitaet der Pflanze
-// reduziert wird.
-// Korrektur Arathorn/Zook: Es wird die verringerte Qualitaet
-// "aufgehalten", dafuer muss man aber ein wenig Qualitaet durch den
-// Trocknungsprozess verlieren.
-// Diese Funktion kann natuerlich auch ueberschrieben werden, wenn bestimmte
-// Kraeuter erst durch trocknen in der Qualitaet steigen.
-// Arathorn/Zook: Vll. zieht man auch vom verbleibenden Quality einen
-// Wert ab, statt zu multiplizieren, so dass die Werte nicht zu sehr absinken. 
-// Die Herkunft der Werte werden entweder von den Trocknungsstellen
-// oder hier vom Kraut bewerkstelligt.
-
 // Mit DryPlant() wird die Pflanze getrocknet. Als Argument wird der Prozent-
 // wert uebergeben, auf den die Qualitaet sinken soll. Als Ausgangswert
 // dieser Berechnung wird der Rueckgabewert von PlantQuality() verwendet.
@@ -146,14 +126,26 @@ static string _query_nosell()
 // Es wird die zum Zeitpunkt des Trocknungsvorganges gueltige Qualitaet
 // also sozusagen "eingefroren" und entsprechend dem Rueckgabewert von
 // PlantQuality() heruntergerechnet.
+
+// Diese Funktion kann natuerlich auch ueberschrieben werden, wenn bestimmte
+// Kraeuter erst durch trocknen in der Qualitaet steigen.
+
 // TODO: Ist das Argument "qual" dabei prozentual aufzufassen, oder 
 // soll nur ein noch zu bestimmender Festwert abgezogen werden?
+// Arathorn: Es bleibt jetzt erstmal prozentual.
+
+#define DRYING_ALLOWED ({PLANTMASTER, "/items/kraeuter/trockner"})
+
 public void DryPlant(int qual) 
 {
   // Keine mehrfache Trocknung zulassen.
   if ( age == DRIED_PLANT )
     return;
-  
+ 
+  // Nur bestimmte Objekte duerfen Trocknungen ausloesen.
+  if ( member(DRYING_ALLOWED, load_name(previous_object())) == -1 )
+    return;
+
   // Qualitaet auf 100 deckeln.
   if ( qual>100 )
     qual = 100;
@@ -170,7 +162,7 @@ public void DryPlant(int qual)
   }
   // Kraut als getrocknet kennzeichnen.
   age=DRIED_PLANT;
-  SetProp(P_QUALITY, qual);
+  quality = qual;
 }
 
 /* Funktionen zum Initialisieren der Pflanze */

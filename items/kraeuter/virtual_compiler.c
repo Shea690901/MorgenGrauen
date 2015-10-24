@@ -112,8 +112,8 @@ varargs string CustomizeObject(string file)
       // Wird das Kraut legal von einem eingetragenen Cloner erzeugt? Nur dann
       // bekommt es eine gueltige Plant-ID.
      int legal=member(rooms, get_cloner()) || cloner==PLANTMASTER;
-//     if (!legal && this_interactive() && IS_ARCH(this_interactive()))
-//        legal=1;
+     if (!legal && this_interactive() && IS_ARCH(this_interactive()))
+        legal=1;
      
       // Konfiguriert wird das Objekt dann, wenn es per VC erzeugt wird oder
       // ein Clone einer per VC erzeugten BP ist - d.h. wenn es nicht aus

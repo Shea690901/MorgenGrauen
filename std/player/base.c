@@ -2,7 +2,7 @@
 //
 // player/base.c -- the basic player object
 //
-// $Id: base.c 9244 2015-05-31 21:59:27Z Zesstra $
+// $Id: base.c 9359 2015-10-22 18:38:20Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -1437,7 +1437,7 @@ void smart_log(string myname, string str)
 
   string desc="etwas unbekanntes";
   switch(myname) {
-    case "BUG":
+    case "BUGS":
       desc="einen Fehler";
       err[F_TYPE]=T_REPORTED_ERR;
       break;
@@ -3771,14 +3771,23 @@ void notify_player_change(string who, int rein, int invis)
 
   if(Query(P_WAITFOR_FLAGS) & (0x01))return ;
 
-  if(pointerp(list=Query(P_WAITFOR)) && sizeof(list)
-      && member(list,who)!=-1) {
-      if (!QueryProp(P_VISUALBELL))
-          name+=sprintf("%c",7); // Char fuer Pieps an den String anhaengen.
-      delayed_write(
-            ({ ({sprintf("%s   I S T   J E T Z T   %sD A !!!\n",
-                         name,(rein?"":"N I C H T   M E H R   ")),1}) 
-            }));  
+  if(pointerp(list=Query(P_WAITFOR)) && sizeof(list) && member(list,who)!=-1)
+  {
+    if (!QueryProp(P_VISUALBELL))
+        name+=sprintf("%c",7); // Char fuer Pieps an den String anhaengen.
+    // Moechte der Spieler keine ASCII-Grafik sehen, wird diese Meldung ohne
+    // Leerzeichen formatiert, so dass sie von Screenreadern vorgelesen wird.
+    // Anderenfalls wuerde sie einzeln buchstabiert.
+    if ( QueryProp(P_NO_ASCII_ART) )
+    {
+      delayed_write( ({ ({ sprintf("%s IST JETZT %sDA !!!\n", 
+                           name, (rein?"":"NICHT MEHR ")) }) }) );
+    }
+    else 
+    {
+      delayed_write( ({ ({ sprintf("%s   I S T   J E T Z T   %sD A !!!\n",
+                           name, (rein?"":"N I C H T   M E H R   ")) }) }) );
+    }
   }
 
   if (rein && (sizeof(mlist=QueryProp(P_WAITFOR_REASON))) &&

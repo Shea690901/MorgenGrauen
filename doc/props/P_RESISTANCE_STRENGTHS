@@ -55,6 +55,9 @@ BEMERKUNGEN:
      resistent gegen Kaelteschaden sein, sollte aber zu gleichem Teil auch
      anfaellig auf Feuerschaden sein.
 
+     Auf dieser Property liegt eine Querymethode, welche eine Kopie der
+     Daten zurueckliefert.
+
 BEISPIELE:
      // ein Eistroll
      SetProp(P_RESISTANCE_STRENGTHS,([DT_FIRE:0.5,DT_COLD:-0.5,
