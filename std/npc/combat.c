@@ -2,7 +2,7 @@
 //
 // npc/combat.c -- NPC-spezifische Kampffunktionen
 //
-// $Id: combat.c 9156 2015-02-10 19:20:29Z Zesstra $
+// $Id: combat.c 9381 2015-10-29 20:23:45Z Zesstra $
 #pragma strong_types
 #pragma save_types
 #pragma range_check
@@ -304,8 +304,8 @@ protected void heart_beat() {
         ({ enemy, this_object()}));
     return ;
   }
-  enemy->Defend(r=random(spells[i][SPELL_DAMAGE])+1,
-    spells[i][SPELL_DAMTYPE],
+  int damage = random(spells[i][SPELL_DAMAGE])+1;
+  enemy->Defend(damage, spells[i][SPELL_DAMTYPE],
     spells[i][SPELL_ARG],
     this_object());
 
@@ -317,7 +317,7 @@ protected void heart_beat() {
     catch(call_other(this_object(),
          spells[i][SPELL_FUNC],
          enemy,
-         r, // Damage
+         damage,
          spells[i][SPELL_DAMTYPE]);publish);
 }
 

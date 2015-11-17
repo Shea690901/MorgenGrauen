@@ -14,19 +14,19 @@ BESCHREIBUNG:
 	Nebensaechlichkeiten zu kuemmern hat, und wenn man genau weiss, dass
 	man sich aus eigenem Willen nicht vom Einloggen fernhalten kann, so
 	kann man sich mit 'Spielpause' eine Zwangspause genehmigen.
-	Weniger drastisch wirkt der Befehl 'Spieldauer'. Hiermit schraenkt
+	Weniger drastisch wirkt der Befehl 'spieldauer'. Hiermit schraenkt
 	man die pro Tag zur Verfuegung stehende Zeit im MUD ein. Somit kann
 	man jeden Tag noch schnell seine Mails lesen oder kurz Freunde
-	begruessen. Ist die Angegebene Zeit um, so wird man automatisch aus
+	begruessen. Ist die angegebene Zeit um, so wird man automatisch aus
 	dem MUD geworfen und kann sich erst am naechsten Tag wieder
-	einloggen. Gibt mal als Anzahl der Tage 0 ein, so wird die
-	Beschraenkung abgeschalten. Da man damit die Beschraenkung jederzeit
+	einloggen. Gibt man als Anzahl der Tage 0 ein, so wird die
+	Beschraenkung abgeschaltet. Da man damit die Beschraenkung jederzeit
 	wieder aufheben kann, gehoert also trotzdem viel Disziplin dazu,
-	diese einzuhalten. Der Anfangs erwaehnte Befehl 'Spielpause' ist
+	diese einzuhalten. Der anfangs erwaehnte Befehl 'Spielpause' ist
 	also deutlich wirkungsvoller.
 
 SIEHE AUCH:
 	Spielpause, Selbstloeschung
 
 ----------------------------------------------------------------------------
-Last modified: Tue Sep 22 14:15:44 1998 by Patryn
+15.11.2015, Zesstra

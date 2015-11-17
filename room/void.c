@@ -10,7 +10,7 @@ void create()
   SetProp(P_INT_SHORT, "Das Nichts" );
   SetProp(P_INDOORS, 1);
   SetProp(P_INT_LONG,
-    "Du schwebst im absoluten, ewigen und leerem Nichts umher. Hier kommen\n"
+    "Du schwebst im absoluten, ewigen und leeren Nichts umher. Hier kommen\n"
    +"all die hin, deren Welt, in der sie sich befanden, zerstoert worden ist.\n"
    +"Wenn Du das magische Kommando 'welt' gibst, wirst Du wieder in Deine Welt\n"
    +"zurueckversetzt werden.\n"

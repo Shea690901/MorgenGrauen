@@ -5,7 +5,7 @@ inherit "/std/weapon";
 #include <combat.h>
 #include <wizlevels.h>
 
-create() {
+protected void create() {
   if (!clonep(this_object())) return;
   ::create();
   SetProp(P_SHORT, "Eine Eisenstange");

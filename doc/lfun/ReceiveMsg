@@ -9,11 +9,172 @@ DEFINIERT IN:
     /std/player/comm.c
 
 ARGUMENTE:
-    <msg>
-      String mit der uebermittelten Nachricht.
-      Im Normalfall: nicht umgebrochen, weil ReceiveMessage() das erledigt.
+    string msg
+      String mit der uebermittelten Nachricht. Muss nicht umgebrochen sein,
+      da ReceiveMsg() das ebenfalls erledigt.
+    int msg_typ
+      Nachrichtentyp(en) fuer Filterung und Flags fuer Behandlung/Umbruch.
+      Siehe unten fuer mit | kombinierbare Konstanten.
+    string msg_action (optional)
+      Ausloesende Aktion, wird auch fuer Ignorieren verwendet.
+      Default ist query_verb(). Siehe unten fuer alternative Konstanten.
+    string msg_prefix (optional)
+      String, welcher ggf. im break_string() als indent verwendet wird.
+      Default ist 0 (kein Indent)
+    mixed origin (<object>) (optional)
+      Das die Meldung ausloesende Objekt, wird fuer Ignorieren verwendet.
+      Default: previous_object()
+
+BESCHREIBUNG:
+    ReceiveMsg() wird benutzt, um einem Lebewesen eine Nachricht zu senden.
+    Dabei ruft es das sonst uebliche tell_object() fuer Spieler bzw.
+    catch_tell() im NPC auf.
+
+    Gerade fuer Nachrichten an Spieler bietet die Methode weitere Features,
+    die bisher sonst haendisch zu implementieren waren:
+    1) Pruefung auf Empfangbarkeit, je nach 'msg_typ', zB
+       MT_LOOK nur an Nichtblinde
+       MT_LISTEN nur an Nichttaube
+       MT_DEBUG nur an Magier/Testspieler
+    2) Pruefen auf Ignorieren von
+       - Aktion ('msg_action')
+         - mit 'msg_action' || query_verb()
+       - Urheber ('origin')
+         - fuer sendende Spieler mit origin->query_realname()
+         - fuer sendende NPCs mit origin->Name(RAW))
+    3) Speicherung in der tmhist (Typ MT_COMM)
+    4) Speicherung im Kobold (Typ MT_COMM + aktiver Kobold)
+    5) Umbrechen unter Beruecksichtigung von indent, 'msg_typ'-Flags
+       fuer Umbruch und P_PREPEND_BS
+
+RUeCKGABEWERT:
+    > 0 fuer Erfolg, < 0 fuer Misserfolg, s.u.
+    MSG_DELIVERED    bei erfolgreicher Zustellung
+    MSG_BUFFERED     bei Zwischenspeicherung durch den Kobold
+
+    MSG_FAILED       nicht naeher spezifizierter Fehler bei Zustellung
+    MSG_IGNORED      Nachricht wurde ignoriert (Absender, origin)
+    MSG_VERB_IGN     Nachricht wurde ignoriert (Kommandoverb, msg_action)
+    MSG_MUD_IGN      Absendendes Mud wurde ignoriert.
+    MSG_SENSE_BLOCK  Passende Sinne des Empfaenger sind blockiert (z.B.
+                     blind, taub)
+    MSG_BUFFER_FULL  Kobold kann sich nichts mehr merken
+
+BEMERKUNGEN:
+    Fuer saemtliche Alternativmeldungen im Falle einer nicht erfolgreich
+    zugestellten Nachricht ist der Aufrufer von ReceiveMsg() verantwortlich.
+
+    NPCs:
+    * ReceiveMsg() ruft zwecks Abwaertskompatibilitaet catch_tell() auf
+    * empfohlen ist, in NPCs nun ReceiveMsg() zu ueberschreiben.
+      * catch_tell() muss weiterhin fuer andere tell_object()
+        ueberschrieben  werden
+
+BEISPIELE:
+    #1.1 Nachricht an einen Spieler, zB in der Wueste
+    this_player()->ReceiveMsg("Die Sonne brennt dir auf den Kopf.",
+                              MT_FEEL|MT_LOOK);
+
+    #1.2 Nachricht an einen Spieler von einem NPC mit Indent
+    // bei aktivem Editor+Kobold landet dieser Text auch im Kobold
+    this_player()->ReceiveMsg("Du haust ja ganz schoen rein!",
+                              MT_COMM|MT_FAR|MSG_DONT_STORE,
+                              MA_TELL,
+                              "Arkshat teilt dir mit: ");
+
+    #1.3 Nachricht an einen Spieler mit Fallback-Kaskade
+    // Achtung, bei MT_COMM oder Ignorieren gibt es natuerlich auch
+    // Misserfolgs-Rueckgaben. Bei einem normalen Kommando wie diesem
+    // hier ist das unproblematisch und daher sinnvoll:
+    if(this_player()->ReceiveMsg(
+         "Du drueckst den Knopf und es oeffnet sich knirschend "
+         "ein kleines Fach in der Wand.", MT_LOOK) < 0)
+    else if(this_player()->ReceiveMsg(
+              "Du drueckst den Knopf und irgend etwas scheint sich "
+              "knirschend zu oeffnen. Das Geraeusch kam von der Wand.",
+              MT_LISTEN) < 0)
+    else this_player()->ReceiveMsg(
+           "Du drueckst den Knopf und irgend etwas scheint zu passieren, "
+           "aber leider siehst und hoerst du nichts.", MT_NOTIFICATION);
+
+
+    #2.1 Im NPC als Empfaenger auf ein TM reagieren
+    public varargs int ReceiveMsg(string msg, int msg_typ, string msg_action,
+                                  string msg_prefix, mixed origin) {
+      int ret = MSG_DELIVERED;  // Default
+
+      // eine OOC-Kommunikation?
+      if(msg_typ&MT_COMM) {
+        if(strstr(msg, "hilfe")>=0)
+          if(environment(origin)==environment()) {
+            origin->ReceiveMsg("Ich werd dir gleich helfen!",
+                               MT_COMM|MSG_DONT_STORE, MA_TELL,
+                               "Arkshat teilt dir mit: ");
+          } else {
+            origin->ReceiveMsg("Hilf dir selbst, dann hilft dir Gott!",
+                               MT_COMM|MT_FAR|MSG_DONT_STORE,
+                               MA_TELL,
+                               "Arkshat teilt dir mit: ");
+          }
+        else if(...)
+        [...]
+      } else if(msg_typ&MT_LISTEN && msg_action==MA_SAY) {
+        [...]
+      }
+
+      return ret;
+    }
+
+
+    #3.1 als Sender an viele, Variante mit eigenem filter
+    // Achtung: siehe 3.3. send_room() loest vieles.
+    // Living nickt nur seinen Nichtgegnern zu
+    object *all = filter(all_inventory(environment(this_player())),
+                         #'living) - ({this_player()});
+    all -= this_player()->PresentEnemies();
+    all->ReceiveMsg(this_player()->Name()+
+                    " nickt dir verstohlen zu und scheint bereit.",
+                    MT_LOOK, MA_EMOTE);
+
+    #3.2 als Sender an viele, Variante mit einzelnem Iterieren
+    // Achtung: siehe 3.3. send_room() loest vieles.
+    // Living trinkt etwas, jeder im Raum soll es sehen oder hoeren
+    object ob = first_inventory(environment(this_player()));
+    do {
+      if(living(ob) && ob!=this_player())
+        ob->ReceiveMsg(this_player()->Name()+" trinkt einen Schnaps aus.",
+                       MT_LOOK|MT_LISTEN,
+                       MA_DRINK);
+      ob = next_inventory(ob);
+    } while(ob);
+
+    #3.3 als Sender an viele, Variante mit send_room
+    // Living gruesst seine Freunde
+    // send_room() ruft ReceiveMsg mit allen entsprechenden Parametern
+    object *exclude = this_player()->PresentEnemies();
+    send_room(this_object(),
+              this_player()->Name()+" gruesst dich.",
+              MT_LOOK|MT_LISTEN,
+              MA_EMOTE,
+              0,
+              exclude);
+
+    #3.4 als Sender an viele mit send_room und ReceiveMsg()
+    // Living gruesst seine Freunde, seine Feinde sehen das
+    // send_room() ruft ReceiveMsg mit allen entsprechenden Parametern
+    object *exclude = this_player()->PresentEnemies();
+    send_room(this_object(),
+              this_player()->Name()+" gruesst dich.",
+              MT_LOOK|MT_LISTEN, MA_EMOTE, 0, exclude);
+    exclude->ReceiveMessage(
+      this_player()->Name()+" gruesst, aber nicht dich.",
+      MT_LOOK|MT_LISTEN, MA_EMOTE);
+
+KONSTANTEN FUER PARAMETER:
+    Saemtlich in "/sys/living/comm.h". Hier nicht notwendigerweise
+    immer aktuell oder vollstaendig.
+
     <msg_typ>
-      Binaere Flags von Nachrichtentypen und -flags:
       MT_UNKNOWN       unspez. Nachrichtentyp (nicht verwenden). Es wird
                        versucht, aufgrund <msg_action> den Typ zu erraten.
       MT_LOOK          alles, was man sieht
@@ -43,13 +204,6 @@ ARGUMENTE:
       MSG_BS_PREP_INDENT  wie BS_PREPEND_INDENT fuer break_string()
 
     <msg_action> (optional)
-      Entweder das Kommandoverb der die Meldung ausloesenden Aktion oder eine
-      der folgenden vordefinierten Konstanten, welche jeweils verschiedene
-      Verben umfassen koennen oder gar nicht per Verb fassbar sind.
-      (Default: query_verb()).
-      Wird hauptsaechlich fuer die Ignoriere-Pruefung verwendet. Denkbar ist
-      aber auch die Ausgabe verschiedener Aktionen in verschiedenen Farben,
-      das Uebermitteln eines Piepstons etc.
       MA_UNKNOWN          Unspez. Aktion. Es wird der Default query_verb()
                           benutzt bzw. versucht, die Aktion zu erraten.
       MA_PUT              Jemand legt etwas hin und gibt jemanden etwas
@@ -74,59 +228,16 @@ ARGUMENTE:
       MA_USE              Jemand benutzt etwas
       MA_SAY              Jemand sagt etwas
       MA_REMOVE           Etwas verschwindet
-      MA_CHAT             Chatkrams (z.B. teile-mit, Teamkampfchat)
+      // MA_CHAT        Chatkrams (z.B. teile-mit, Teamkampfchat)
       MA_CHANNEL          Ebenen
       MA_EMOTE            (r)Emotes, Soulverben (remotes mit Typ MT_COMM|MT_FAR)
       MA_SHOUT            Rufen (nicht: shout()!)
+      MA_SHOUT_SEFUN Rufen ueber shout(SE)
 
-    <msg_prefix> (optional)
-      String, welcher ggf. in einem break_string() als indent verwendet werden
-      soll.
-      Default: 0 (kein Indent)
+SIEHE AUCH:
+    Verwandt: send_room(SE)
+    Lfuns:    TestIgnore(L)
+    Efuns:    tell_object(E), catch_tell(L), catch_msg(L)
+              query_verb(E), query_once_interactive(E), break_string(SE)
 
-    <origin> (<object>) (optional)
-      Das die Meldung ausloesende Objekt. Primaer fuer die Ignorierepruefung
-      verwendet. Die Pruefung basiert auf origin->query_real_name(), falls
-      origin ein Spieler ist und origin->Name(RAW) sonst.
-      Default: previous_object().
-
-BESCHREIBUNG:
-    ReceiveMsg() laesst dem Objekte eine textuelle Nachricht zukommen. Im
-    Falle von Spielern wird diese schlussendlich per tell_object() an den
-    Client des Spielers uebertragen. Im Falle von NPCs wird
-    catch_tell/catch_msg aufgerufen. (Empfehlung ist aber, die Nachricht im
-    ReceiveMsg() des NPC zu verarbeiten.) Alle anderen Objekte machen
-    standardmaessig nichts mit der Meldung.
-
-    Im Falle von Spielern wird Nachricht vor Ausgabe noch weiterverarbeitet:
-    1) Pruefung, ob sie wahrgenommen werden kann (z.B. darf man bei MT_LISTEN
-       nicht taub, bei MT_LOOK nicht blind sein).
-    2) Wird die Aktion oder der Urheber ignoriert?
-    3) Speicherung in der tmhist, wenn der Typ MT_COMM ist.
-    4) Bei Bedarf Speicherung im Kobold statt Ausgabe, wenn Typ MT_COMM ist
-       und der Spieler im Editor.
-    5) Umbrechen des Textes unter Beruecksichtung des uebergebenen idents und
-       der uebergebenen Flags fuer break_string(). Weiterhin wird das
-       P_PREPEND_BS des Spielers dabei beruecksichtigt.
-
-RUeCKGABEWERT:
-    > 0 fuer Erfolg, < 0 fuer Misserfolg, s.u.
-    MSG_DELIVERED    bei erfolgreicher Zustellung
-    MSG_BUFFERED     bei Zwischenspeicherung durch den Kobold
-
-    MSG_FAILED       nicht naeher spezifizierter Fehler bei Zustellung
-    MSG_IGNORED      Nachricht wurde ignoriert (Absender, origin)
-    MSG_VERB_IGN     Nachricht wurde ignoriert (Kommandoverb, msg_action)
-    MSG_MUD_IGN      Absendendes Mud wurde ignoriert.
-    MSG_SENSE_BLOCK  Passende Sinne des Empfaenger sind blockiert (z.B.
-                     blind, taub)
-    MSG_BUFFER_FULL  Kobold kann sich nichts mehr merken
-
-BEMERKUNGEN:
-    Fuer saemtliche Alternativmeldungen im Falle einer nicht erfolgreich
-    zugestellten Nachricht ist der Aufrufer von ReceiveMessage()
-    verantwortlich.
-    Ruft zwecks Abwaertskompatibilitaet catch_tell() auf.
-    Damit man als Magier nur ReceiveMessage() und nicht auch catch_tell()
-    beachten kann, muessten write/say/tell_object/tell_room sefuns sein.
-
+21.Okt 2015 Gloinson
